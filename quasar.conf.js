@@ -6,7 +6,7 @@ module.exports = function(ctx) {
     // --> boot files are part of "main.js"
     boot: ["axios"],
 
-    css: ["app.styl"],
+    css: ["app.scss"],
 
     extras: [
       "roboto-font",
@@ -34,13 +34,16 @@ module.exports = function(ctx) {
         "QList",
         "QItem",
         "QItemSection",
-        "QItemLabel"
+        "QItemLabel",
+        "QCard",
+        "QCardSection",
+        "QCardActions"
       ],
 
       directives: ["Ripple"],
 
       // Quasar plugins
-      plugins: ["Notify"]
+      plugins: ["Dialog", "Notify"]
 
       // iconSet: 'ionicons-v4'
       // lang: 'de' // Quasar language
