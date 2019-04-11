@@ -5,15 +5,22 @@ import router from "src/router";
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
-  withCredentials: true,
-  timeout: 30000 // request timeout
+  // withCredentials: true,
+  timeout: 30000 // request timeout,
 });
+
+// Add headers to every request:
+service.defaults.headers.common["Content-Type"] = "application/json";
+service.defaults.headers.common["Accept"] = "application/json";
 
 // request interceptor
 service.interceptors.request.use(
   request => {
-    const token = store.getters["auth/token"];
     // Do something before request is sent
+    // request.headers.common["Content-Type"] = "application/json";
+    // request.headers.common["Accept"] = "application/json";
+    const token = store.getters["auth/token"];
+
     if (token) {
       request.headers.common["Authorization"] = `Bearer ${token}`;
     }
@@ -28,11 +35,9 @@ service.interceptors.request.use(
 
 // response interceptor
 service.interceptors.response.use(
-  /**
-   * If you want to get information such as headers or status
-   * Please return  response => response
-   */
-  response => {
+  response => response,
+  // Si chequearamos por un custom status code:
+  /* response => {
     debugger;
     const res = response.data;
     if (res.code !== 20000) {
@@ -52,7 +57,7 @@ service.interceptors.response.use(
             persistent: true
           })
           .onOk(() => {
-            store.dispatch("user/resetToken").then(() => {
+            store.dispatch("auth/resetToken").then(() => {
               location.reload();
             });
           });
@@ -61,8 +66,9 @@ service.interceptors.response.use(
     } else {
       return res;
     }
-  },
+  }, */
   error => {
+    debugger;
     console.log("err: " + error); // for debug
     const { status } = error.response;
     if (status >= 500) {
@@ -72,20 +78,30 @@ service.interceptors.response.use(
       });
     }
 
-    if (status === 401 && store.getters["auth/check"]) {
-      this.$q
-        .dialog({
-          title: "Cierre de Sesión",
-          message: "Su sesion ha caducado. Debe volver a iniciar sesión",
-          ok: { push: true },
-          // cancel: { color: "negative" },
-          persistent: true
-        })
-        .onOk(() => {
-          store.dispatch("user/resetToken").then(() => {
-            router.push({ name: "login" });
+    console.log(store);
+    console.log(store.getters);
+    debugger;
+
+    // FIXME: mostrar el mensaje de error de: error.response.data.message
+    // Si esta logueado (en el front, porque tiene el user en el store) y dio 401, le aviso que debe loguearse de nuevo
+    if (status === 401) {
+      if (store.getters["auth/check"]) {
+        this.$q
+          .dialog({
+            title: "Cierre de Sesión",
+            message: "Su sesion ha caducado. Debe volver a iniciar sesión",
+            ok: { push: true },
+            // cancel: { color: "negative" },
+            persistent: true
+          })
+          .onOk(() => {
+            store.dispatch("user/resetToken").then(() => {
+              router.push({ name: "login" });
+            });
           });
-        });
+      } else {
+        // FIXME: intentar devovler un return Promise.reject(res.message || "error");  y ver como lo cachearia el componnete/store
+      }
     }
 
     return Promise.reject(error);

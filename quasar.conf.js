@@ -1,10 +1,10 @@
-// Configuration for your app
+var envparser = require("./envparser");
 
 module.exports = function(ctx) {
   return {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
-    boot: ["axios"],
+    boot: ["axios", "permissions"],
 
     css: ["app.scss"],
 
@@ -54,6 +54,7 @@ module.exports = function(ctx) {
     build: {
       scopeHoisting: true,
       vueRouterMode: "history",
+      env: envparser(),
       // vueCompiler: true,
       // gzip: true,
       // analyze: true,

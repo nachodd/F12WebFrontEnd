@@ -1,18 +1,30 @@
 import request from "src/utils/request";
 
-export function login(data) {
+export function login({ usuario, password }) {
+  const data = {
+    usuario,
+    password,
+    cliente_id: process.env.VUE_APP_CLIENT_ID,
+    cliente_secret: process.env.VUE_APP_CLIENT_SECRET
+  };
   return request({
-    url: "/user/login",
+    url: "/login",
     method: "post",
     data
   });
 }
 
-export function getInfo(token) {
+export function getInfo() {
   return request({
-    url: "/user/info",
-    method: "get",
-    params: { token }
+    url: "/v1/usuario",
+    method: "get"
+  });
+}
+
+export async function getRoles() {
+  return request({
+    url: "/v1/usuario/roles",
+    method: "get"
   });
 }
 

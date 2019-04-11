@@ -6,7 +6,16 @@ const routes = [
   {
     path: "/",
     component: () => import("layouts/MyLayout.vue"),
-    children: [{ path: "", component: () => import("pages/Index.vue") }]
+    children: [
+      {
+        path: "",
+        component: () => import("pages/Index.vue"),
+        meta: {
+          title: "Inicio - F12",
+          roles: ["admin"]
+        }
+      }
+    ]
   }
 ];
 

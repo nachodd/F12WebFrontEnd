@@ -11,14 +11,14 @@
 
         <q-card-section>
           <q-input
-            id="email"
-            v-model.trim="email"
+            id="usuario"
+            v-model.trim="usuario"
             standout
-            type="email"
-            label="Email"
+            type="text"
+            label="Usuario"
             required
             autofocus
-            ref="email"
+            ref="usuario"
           >
             <template v-slot:prepend>
               <q-icon name="account_circle" />
@@ -62,8 +62,8 @@
 export default {
   data() {
     return {
-      email: "",
-      password: "",
+      usuario: "administrator",
+      password: "bldsavqc2010",
       loading: false
     };
   },
@@ -76,8 +76,8 @@ export default {
     }
   },
   mounted() {
-    if (this.email === "") {
-      this.$refs.email.focus();
+    if (this.usuario === "") {
+      this.$refs.usuario.focus();
     } else if (this.password === "") {
       this.$refs.password.focus();
     }
@@ -87,10 +87,10 @@ export default {
       this.loading = true;
       try {
         await this.$store.dispatch("auth/login", {
-          email: this.email,
+          usuario: this.usuario,
           password: this.password
         });
-        this.$router.push({ path: this.redirect || "/" });
+        this.$router.push({ path: this.redirect || "/inicio" });
         this.loading = false;
       } catch (e) {
         this.loading = false;

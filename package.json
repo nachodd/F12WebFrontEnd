@@ -13,12 +13,14 @@
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.0",
+    "dotenv": "^7.0.0",
     "js-cookie": "^2.2.0",
+    "lodash": "^4.17.11",
     "nprogress": "^0.2.0",
-    "quasar": "^1.0.0-beta.0"
+    "quasar": "^1.0.0-beta.16"
   },
   "devDependencies": {
-    "@quasar/app": "^1.0.0-beta.0",
+    "@quasar/app": "^1.0.0-beta.16",
     "@vue/eslint-config-prettier": "^4.0.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.10.0",
