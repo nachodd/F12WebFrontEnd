@@ -1,37 +1,37 @@
-import NProgress from "nprogress";
-import "nprogress/nprogress.css";
-import { getToken } from "src/utils/auth";
+// import NProgress from "nprogress"
+// import "nprogress/nprogress.css"
+// import { getToken } from "src/utils/auth";
 
-NProgress.configure({ showSpinner: false });
+// NProgress.configure({ showSpinner: false })
 
-const whiteList = ["/login"]; // no redirect whitelist
+const whiteList = ["/login"] // no redirect whitelist
 
 // leave the export, even if you don't use it
 export default async ({ router, store }) => {
   router.beforeEach(async (to, from, next) => {
     // start progress bar
-    NProgress.start();
+    // NProgress.start()
 
     // determine whether the user has logged in
-    const hasToken = getToken();
-    debugger;
+    // const hasToken = getToken();
+    // if (store.getters["auth/check"]) {
 
-    if (hasToken) {
+    if (store.getters["auth/check"]) {
       if (to.path === "/login") {
         // if is logged in, redirect to the home page
-        next({ path: "/" });
-        NProgress.done();
+        next({ path: "/" })
+        // NProgress.done()
       } else {
         // determine whether the user has obtained his permission roles through getInfo
         const hasRoles =
-          store.getters["auth/roles"] && store.getters["auth/roles"].length > 0;
+          store.getters["auth/roles"] && store.getters["auth/roles"].length > 0
         if (hasRoles) {
-          next();
+          next()
         } else {
           // remove token and go to login page to re-login
-          await store.dispatch("auth/resetToken");
-          next(`/login?redirect=${to.path}`);
-          NProgress.done();
+          await store.dispatch("auth/resetToken")
+          next(`/login?redirect=${to.path}`)
+          // NProgress.done()
 
           /* try {
             // get user info
@@ -52,7 +52,7 @@ export default async ({ router, store }) => {
             await store.dispatch("user/resetToken");
             Message.error(error || "Has Error");
             next(`/login?redirect=${to.path}`);
-            NProgress.done();
+            // NProgress.done();
           } */
         }
       }
@@ -61,17 +61,17 @@ export default async ({ router, store }) => {
 
       if (whiteList.indexOf(to.path) !== -1) {
         // in the free login whitelist, go directly
-        next();
+        next()
       } else {
         // other pages that do not have permission to access are redirected to the login page.
-        next(`/login?redirect=${to.path}`);
-        NProgress.done();
+        next(`/login?redirect=${to.path}`)
+        // NProgress.done()
       }
     }
-  });
+  })
 
   router.afterEach(() => {
     // finish progress bar
-    NProgress.done();
-  });
-};
+    // NProgress.done()
+  })
+}

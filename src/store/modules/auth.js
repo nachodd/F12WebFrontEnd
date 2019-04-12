@@ -1,13 +1,13 @@
-import { login, logout, getInfo } from "src/api/user";
+import { login, logout, getInfo } from "src/api/user"
 import {
   getToken,
   getRefreshToken,
   setToken,
   removeToken,
-  mapRoles
-} from "src/utils/auth";
-import { resetRouter } from "src/router";
-import { getRoles } from "../../api/user";
+  mapRoles,
+} from "src/utils/auth"
+import { resetRouter } from "src/router"
+import { getRoles } from "../../api/user"
 // import axios from "axios";
 // import Cookies from "js-cookie";
 // import * as types from "../mutation-types";
@@ -17,8 +17,8 @@ const state = {
   token: getToken(),
   refreshToken: getRefreshToken(),
   user: null,
-  roles: []
-};
+  roles: [],
+}
 
 // getters
 const getters = {
@@ -26,24 +26,24 @@ const getters = {
   refreshToken: state => state.refreshToken,
   user: state => state.user,
   roles: state => state.roles,
-  check: state => state.user !== null
-};
+  check: state => state.user !== null,
+}
 
 // mutations
 const mutations = {
   SET_TOKEN: (state, token, refreshToken = null) => {
-    state.token = token;
+    state.token = token
     if (refreshToken) {
-      state.refreshToken = refreshToken;
+      state.refreshToken = refreshToken
     }
   },
   SET_USER: (state, user) => {
-    state.user = user;
+    state.user = user
   },
   SET_ROLES: (state, roles) => {
-    state.roles = roles;
-  }
-};
+    state.roles = roles
+  },
+}
 
 // actions
 const actions = {
@@ -52,75 +52,75 @@ const actions = {
     // const { usuario, password } = userInfo;
     return new Promise(async (resolve, reject) => {
       try {
-        const { data } = await login(userInfo);
-        commit("SET_TOKEN", data.access_token, data.refreshToken);
-        setToken(data.access_token, data.expires_in, data.refresh_token);
-        resolve();
+        const { data } = await login(userInfo)
+        commit("SET_TOKEN", data.access_token, data.refreshToken)
+        setToken(data.access_token, data.expires_in, data.refresh_token)
+        resolve()
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    });
+    })
   },
 
   // get user info
   getInfo({ commit }) {
     return new Promise(async (resolve, reject) => {
       try {
-        const result_user = await getInfo();
+        const result_user = await getInfo()
         if (!result_user.data) {
-          reject("Verification failed, please Login again.");
+          reject("Verification failed, please Login again.")
         }
-        const user = result_user.data;
+        const user = result_user.data
 
-        const result_roles = await getRoles();
+        const result_roles = await getRoles()
         if (!result_roles.data) {
-          reject("Verification failed, please Login again.");
+          reject("Verification failed, please Login again.")
         }
-        const roles = mapRoles(result_roles.data);
+        const roles = mapRoles(result_roles.data)
 
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
-          reject("getInfo: roles must be a non-null array!");
+          reject("getInfo: roles must be a non-null array!")
         }
 
-        commit("SET_ROLES", roles);
-        commit("SET_USER", user);
+        commit("SET_ROLES", roles)
+        commit("SET_USER", user)
         resolve({
           user,
-          roles
-        });
+          roles,
+        })
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    });
+    })
   },
 
   // user logout
   logout({ commit, state }) {
     return new Promise(async (resolve, reject) => {
       try {
-        await logout(state.token);
-        commit("SET_TOKEN", "");
-        commit("SET_ROLES", []);
-        commit("SET_USER", null);
-        removeToken();
-        resetRouter();
-        resolve();
+        await logout(state.token)
+        commit("SET_TOKEN", "")
+        commit("SET_ROLES", [])
+        commit("SET_USER", null)
+        removeToken()
+        resetRouter()
+        resolve()
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    });
+    })
   },
 
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      commit("SET_TOKEN", "");
-      commit("SET_ROLES", []);
-      removeToken();
-      resolve();
-    });
-  }
+      commit("SET_TOKEN", "")
+      commit("SET_ROLES", [])
+      removeToken()
+      resolve()
+    })
+  },
 
   // Dynamically modify permissions
   /* changeRoles({ commit, dispatch }, role) {
@@ -144,12 +144,12 @@ const actions = {
       resolve();
     });
   } */
-};
+}
 
 export default {
   namespaced: true,
   state,
   mutations,
   actions,
-  getters
-};
+  getters,
+}

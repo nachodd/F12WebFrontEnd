@@ -1,16 +1,18 @@
-var envparser = require("./envparser");
+// eslint-disable-next-line no-undef
+var envparser = require("./envparser")
 
+// eslint-disable-next-line no-undef
 module.exports = function(ctx) {
   return {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
-    boot: ["axios", "permissions"],
+    boot: ["axios", "permissions"], // "vuelidate"
 
     css: ["app.scss"],
 
     extras: [
       "roboto-font",
-      "material-icons" // optional, you are not bound to it
+      "material-icons", // optional, you are not bound to it
       // 'ionicons-v4',
       // 'mdi-v3',
       // 'fontawesome-v5',
@@ -21,6 +23,7 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QForm",
         "QInput",
         "QLayout",
         "QHeader",
@@ -37,13 +40,13 @@ module.exports = function(ctx) {
         "QItemLabel",
         "QCard",
         "QCardSection",
-        "QCardActions"
+        "QCardActions",
       ],
 
       directives: ["Ripple"],
 
       // Quasar plugins
-      plugins: ["Dialog", "Notify"]
+      plugins: ["Dialog", "Notify", "LoadingBar"],
 
       // iconSet: 'ionicons-v4'
       // lang: 'de' // Quasar language
@@ -64,22 +67,22 @@ module.exports = function(ctx) {
           enforce: "pre",
           test: /\.(js|vue)$/,
           loader: "eslint-loader",
-          exclude: /node_modules/
-        });
-      }
+          exclude: /node_modules/,
+        })
+      },
     },
 
     devServer: {
       // https: true,
       // port: 8080,
-      open: true // opens browser window automatically
+      open: true, // opens browser window automatically
     },
 
     // animations: 'all' --- includes all animations
     animations: [],
 
     ssr: {
-      pwa: false
+      pwa: false,
     },
 
     pwa: {
@@ -97,30 +100,30 @@ module.exports = function(ctx) {
           {
             src: "statics/icons/icon-128x128.png",
             sizes: "128x128",
-            type: "image/png"
+            type: "image/png",
           },
           {
             src: "statics/icons/icon-192x192.png",
             sizes: "192x192",
-            type: "image/png"
+            type: "image/png",
           },
           {
             src: "statics/icons/icon-256x256.png",
             sizes: "256x256",
-            type: "image/png"
+            type: "image/png",
           },
           {
             src: "statics/icons/icon-384x384.png",
             sizes: "384x384",
-            type: "image/png"
+            type: "image/png",
           },
           {
             src: "statics/icons/icon-512x512.png",
             sizes: "512x512",
-            type: "image/png"
-          }
-        ]
-      }
+            type: "image/png",
+          },
+        ],
+      },
     },
 
     cordova: {
@@ -149,7 +152,7 @@ module.exports = function(ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
         // appId: 'quasar-app'
-      }
-    }
-  };
-};
+      },
+    },
+  }
+}

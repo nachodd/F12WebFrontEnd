@@ -1,30 +1,30 @@
 const routes = [
   {
     path: "/login",
-    component: () => import("pages/Login.vue")
+    component: () => import("pages/Login.vue"),
   },
   {
     path: "/",
     component: () => import("layouts/MyLayout.vue"),
     children: [
       {
-        path: "",
+        path: "inicio",
         component: () => import("pages/Index.vue"),
         meta: {
           title: "Inicio - F12",
-          roles: ["admin"]
-        }
-      }
-    ]
-  }
-];
+          roles: ["menu_sistemas"],
+        },
+      },
+    ],
+  },
+]
 
 // Always leave this as last one
 if (process.env.MODE !== "ssr") {
   routes.push({
     path: "*",
-    component: () => import("pages/Error404.vue")
-  });
+    component: () => import("pages/Error404.vue"),
+  })
 }
 
-export default routes;
+export default routes

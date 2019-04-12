@@ -1,17 +1,20 @@
-import axios from "axios";
-import store from "src/store";
-import router from "src/router";
+import axios from "axios"
+import store from "src/store"
+import router from "src/router"
 
 // create an axios instance
+console.log(process.env.VUE_APP_BASE_API)
+debugger
+
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
   // withCredentials: true,
-  timeout: 30000 // request timeout,
-});
+  timeout: 30000, // request timeout,
+})
 
 // Add headers to every request:
-service.defaults.headers.common["Content-Type"] = "application/json";
-service.defaults.headers.common["Accept"] = "application/json";
+service.defaults.headers.common["Content-Type"] = "application/json"
+service.defaults.headers.common["Accept"] = "application/json"
 
 // request interceptor
 service.interceptors.request.use(
@@ -19,19 +22,19 @@ service.interceptors.request.use(
     // Do something before request is sent
     // request.headers.common["Content-Type"] = "application/json";
     // request.headers.common["Accept"] = "application/json";
-    const token = store.getters["auth/token"];
+    const token = store.getters["auth/token"]
 
     if (token) {
-      request.headers.common["Authorization"] = `Bearer ${token}`;
+      request.headers.common["Authorization"] = `Bearer ${token}`
     }
-    return request;
+    return request
   },
   error => {
     // Do something with request error
-    console.debug(error); // for debug
-    return Promise.reject(error);
-  }
-);
+    console.debug(error) // for debug
+    return Promise.reject(error)
+  },
+)
 
 // response interceptor
 service.interceptors.response.use(
@@ -68,23 +71,21 @@ service.interceptors.response.use(
     }
   }, */
   error => {
-    debugger;
-    console.log("err: " + error); // for debug
-    const { status } = error.response;
+    // console.log("err: " + error); // for debug
+    const message =
+      (error.response.data && error.response.data.message) ||
+      "Ocurrio un problema al procesar su petición"
+    const { status } = error.response
+
     if (status >= 500) {
       this.$q.notify({
         message: "Ocurrio un problema al procesar su petición",
-        color: "danger"
-      });
+        color: "danger",
+      })
     }
 
-    console.log(store);
-    console.log(store.getters);
-    debugger;
-
-    // FIXME: mostrar el mensaje de error de: error.response.data.message
-    // Si esta logueado (en el front, porque tiene el user en el store) y dio 401, le aviso que debe loguearse de nuevo
     if (status === 401) {
+      // Si esta logueado (en el front, porque tiene el user en el store) y dio 401, le aviso que debe loguearse de nuevo
       if (store.getters["auth/check"]) {
         this.$q
           .dialog({
@@ -92,20 +93,21 @@ service.interceptors.response.use(
             message: "Su sesion ha caducado. Debe volver a iniciar sesión",
             ok: { push: true },
             // cancel: { color: "negative" },
-            persistent: true
+            persistent: true,
           })
           .onOk(() => {
             store.dispatch("user/resetToken").then(() => {
-              router.push({ name: "login" });
-            });
-          });
-      } else {
-        // FIXME: intentar devovler un return Promise.reject(res.message || "error");  y ver como lo cachearia el componnete/store
+              router.push({ name: "login" })
+            })
+          })
       }
     }
+    return Promise.reject({
+      message,
+      status,
+      data: error.response.data,
+    })
+  },
+)
 
-    return Promise.reject(error);
-  }
-);
-
-export default service;
+export default service

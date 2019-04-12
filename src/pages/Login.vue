@@ -10,94 +10,91 @@
         </q-card-section>
 
         <q-card-section>
-          <q-input
-            id="usuario"
-            v-model.trim="usuario"
-            standout
-            type="text"
-            label="Usuario"
-            required
-            autofocus
-            ref="usuario"
-          >
-            <template v-slot:prepend>
-              <q-icon name="account_circle" />
-            </template>
-          </q-input>
-          <br />
-          <q-input
-            id="password"
-            v-model="password"
-            standout
-            type="password"
-            label="Contraseña"
-            required
-            ref="password"
-            @keyup.enter="login"
-          >
-            <template v-slot:prepend>
-              <q-icon name="lock" />
-            </template>
-          </q-input>
-          <br />
+          <q-form @submit="login" class="q-gutter-md" :autofocus="true">
+            <q-input
+              id="usuario"
+              v-model.trim="usuario"
+              standout
+              type="text"
+              label="Usuario"
+              :rules="[notEmpty]"
+            >
+              <template v-slot:prepend>
+                <q-icon name="account_circle" />
+              </template>
+            </q-input>
+            <q-input
+              id="password"
+              v-model="password"
+              standout
+              type="password"
+              label="Contraseña"
+              :rules="[notEmpty]"
+            >
+              <template v-slot:prepend>
+                <q-icon name="lock" />
+              </template>
+            </q-input>
+            <q-btn
+              type="submit"
+              color="white"
+              size="lg"
+              outline
+              class="full-width text-grey-7"
+              :loading="loading"
+            >
+              Ingresar
+            </q-btn>
+          </q-form>
         </q-card-section>
-        <q-card-actions>
-          <q-btn
-            color="white"
-            size="lg"
-            outline
-            class="full-width text-grey-7"
-            :loading="loading"
-            @click="login"
-          >
-            Ingresar
-          </q-btn>
-        </q-card-actions>
       </q-card>
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
+import formValidation from "src/mixins/formValidation"
+
 export default {
+  mixins: [formValidation],
   data() {
     return {
       usuario: "administrator",
       password: "bldsavqc2010",
-      loading: false
-    };
+      loading: false,
+    }
   },
   watch: {
     $route: {
       handler: function(route) {
-        this.redirect = route.query && route.query.redirect;
+        this.redirect = route.query && route.query.redirect
       },
-      immediate: true
-    }
-  },
-  mounted() {
-    if (this.usuario === "") {
-      this.$refs.usuario.focus();
-    } else if (this.password === "") {
-      this.$refs.password.focus();
-    }
+      immediate: true,
+    },
   },
   methods: {
     async login() {
-      this.loading = true;
+      this.loading = true
+      this.errorMsg = ""
       try {
         await this.$store.dispatch("auth/login", {
           usuario: this.usuario,
-          password: this.password
-        });
-        this.$router.push({ path: this.redirect || "/inicio" });
-        this.loading = false;
+          password: this.password,
+        })
+        this.$router.push({ path: this.redirect || "/inicio" })
       } catch (e) {
-        this.loading = false;
+        this.$q.notify({
+          color: "negative",
+          message: e.message || "Hubo un problema al procesar su petición",
+          icon: "warning",
+          position: "top-right",
+        })
+      } finally {
+        this.loading = false
       }
-    }
-  }
-};
+    },
+  },
+}
 </script>
 <style lang="scss" scoped>
 .card {

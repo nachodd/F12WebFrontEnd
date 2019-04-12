@@ -1,5 +1,5 @@
-import request from "../utils/request";
+import request from "../utils/request"
 
 export default async ({ /* router, store, */ Vue }) => {
-  Vue.prototype.$axios = request;
-};
+  Vue.prototype.$axios = request
+}

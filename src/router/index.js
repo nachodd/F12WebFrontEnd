@@ -1,9 +1,9 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import Vue from "vue"
+import VueRouter from "vue-router"
 
-import routes from "./routes";
+import routes from "./routes"
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
 /*
  * If not building with SSR mode, you can
@@ -33,15 +33,15 @@ const createRouter = () =>
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     mode: process.env.VUE_ROUTER_MODE,
-    base: process.env.VUE_ROUTER_BASE
-  });
+    base: process.env.VUE_ROUTER_BASE,
+  })
 
-const router = createRouter();
+const router = createRouter()
 
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
-  const newRouter = createRouter();
-  router.matcher = newRouter.matcher; // reset router
+  const newRouter = createRouter()
+  router.matcher = newRouter.matcher // reset router
 }
 
-export default router;
+export default router
