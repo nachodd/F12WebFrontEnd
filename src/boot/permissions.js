@@ -1,6 +1,6 @@
 // import NProgress from "nprogress"
 // import "nprogress/nprogress.css"
-// import { getToken } from "src/utils/auth";
+import { getToken } from "src/utils/auth"
 
 // NProgress.configure({ showSpinner: false })
 
@@ -13,13 +13,13 @@ export default async ({ router, store }) => {
     // NProgress.start()
 
     // determine whether the user has logged in
-    // const hasToken = getToken();
-    // if (store.getters["auth/check"]) {
-
-    if (store.getters["auth/check"]) {
+    const hasToken = getToken()
+    debugger
+    if (hasToken) {
+      //if (store.getters["auth/check"]) {
       if (to.path === "/login") {
         // if is logged in, redirect to the home page
-        next({ path: "/" })
+        next({ path: "/inicio" })
         // NProgress.done()
       } else {
         // determine whether the user has obtained his permission roles through getInfo
