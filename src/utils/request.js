@@ -3,9 +3,6 @@ import store from "src/store"
 import router from "src/router"
 
 // create an axios instance
-console.log(process.env.VUE_APP_BASE_API)
-debugger
-
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
   // withCredentials: true,
