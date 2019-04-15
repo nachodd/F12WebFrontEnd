@@ -1,6 +1,7 @@
 // import NProgress from "nprogress"
 // import "nprogress/nprogress.css"
 import { getToken } from "src/utils/auth"
+import { checkPermission } from "src/utils/permission"
 
 // NProgress.configure({ showSpinner: false })
 
@@ -14,7 +15,6 @@ export default async ({ router, store }) => {
 
     // determine whether the user has logged in
     const hasToken = getToken()
-    debugger
     if (hasToken) {
       //if (store.getters["auth/check"]) {
       if (to.path === "/login") {
@@ -22,11 +22,29 @@ export default async ({ router, store }) => {
         next({ path: "/inicio" })
         // NProgress.done()
       } else {
+        let rolesUser = store.getters["auth/roles"]
+        /* && store.getters["auth/roles"].length > 0 */
+
         // determine whether the user has obtained his permission roles through getInfo
-        const hasRoles =
-          store.getters["auth/roles"] && store.getters["auth/roles"].length > 0
-        if (hasRoles) {
-          next()
+        if (!rolesUser) {
+          const aux = await store.dispatch("auth/getInfo")
+          rolesUser = aux.roles
+        }
+
+        if (rolesUser) {
+          debugger
+          const rolesNeeded = to.meta && to.meta.roles
+          if (rolesNeeded && rolesNeeded.length > 0) {
+            const canAccess = checkPermission(rolesNeeded, rolesUser)
+            if (!canAccess) {
+              await store.dispatch("auth/resetToken")
+              next(`/login?redirect=${to.path}`)
+            } else {
+              next()
+            }
+          } else {
+            next()
+          }
         } else {
           // remove token and go to login page to re-login
           await store.dispatch("auth/resetToken")
