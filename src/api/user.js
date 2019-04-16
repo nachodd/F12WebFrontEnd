@@ -35,10 +35,11 @@ export function logout() {
   })
 }
 
-export function refresh() {
+export function refresh(data) {
   return request({
     url: "/refresh",
     method: "post",
-    withCredentials: true,
+    data,
+    // withCredentials: true,
   })
 }

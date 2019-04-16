@@ -141,13 +141,22 @@ const actions = {
     })
   },
 
-  refresh({ commit }) {
-    return new Promise(async resolve => {
-      const data = await refresh()
-      const refreshToken = data.refresh_token ? data.refresh_token : null
-      commit("SET_TOKEN", data.access_token, refreshToken)
-      setToken(data.access_token, refreshToken)
-      resolve()
+  refresh({ commit, state, dispatch }) {
+    return new Promise(async (resolve, reject) => {
+      if (!state.refreshToken) {
+        reject()
+      } else {
+        try {
+          const data = await refresh({ refresh_token: state.refreshToken })
+          const refreshToken = data.refresh_token ? data.refresh_token : null
+          commit("SET_TOKEN", data.access_token, refreshToken)
+          setToken(data.access_token, refreshToken)
+          resolve()
+        } catch (e) {
+          dispatch("auth/resetToken")
+          reject()
+        }
+      }
     })
   },
 

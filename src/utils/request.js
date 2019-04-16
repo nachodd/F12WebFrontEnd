@@ -44,9 +44,8 @@ service.interceptors.request.use(
 // response interceptor
 service.interceptors.response.use(
   response => response,
-  error => {
-    debugger
-    const req = error.request || undefined
+  async error => {
+    const req = (error && error.request) || undefined
     const message =
       (error.response && error.response.data && error.response.data.message) ||
       "Ocurrio un problema al procesar su petición"
@@ -61,49 +60,39 @@ service.interceptors.response.use(
         })
       }
     }
-    // If you can't refresh your token or you are sent Unauthorized on any request, logout and go to login
+    // If you can't refresh your token or you are sent Unauthorized on any request, reset token and go to login
     if (
       req !== undefined &&
       (req.responseURL.includes("refresh") ||
         (status === 401 && error.config.__isRetryRequest))
     ) {
-      debugger
-      store.dispatch["auth/logout"]
+      await store.dispatch("auth/resetToken")
       router.push({ name: "login" })
+      return Promise.reject({
+        message,
+        status,
+        data: error.response.data,
+      })
     }
-    // else if (req !== undefined && req.status === 401) {
-    //   error.config.__isRetryRequest = true
-    //   return axios.request(error.config)
-    // }
-
-    // console.log("err: " + error); // for debug
+    // retry the request ONLY if not already tried
+    if (
+      req.responseURL.includes("refresh") ||
+      (status === 401 && !error.config.__isRetryRequest)
+    ) {
+      error.config.__isRetryRequest = true
+      return service.request(error.config)
+    }
 
     if (status >= 500) {
       this.$q.notify({
         message: "Ocurrio un problema al procesar su petición",
         color: "danger",
       })
-    }
-
-    if (status === 401) {
-      error.config.__isRetryRequest = true
-      return service.request(error.config)
-      // Si esta logueado (en el front, porque tiene el user en el store) y dio 401, le aviso que debe loguearse de nuevo
-      // if (store.getters["auth/check"]) {
-      //   this.$q
-      //     .dialog({
-      //       title: "Cierre de Sesión",
-      //       message: "Su sesion ha caducado. Debe volver a iniciar sesión",
-      //       ok: { push: true },
-      //       // cancel: { color: "negative" },
-      //       persistent: true,
-      //     })
-      //     .onOk(() => {
-      //       store.dispatch("user/resetToken").then(() => {
-      //         router.push({ name: "login" })
-      //       })
-      //     })
-      // }
+      return Promise.reject({
+        message,
+        status,
+        data: error.response.data,
+      })
     }
     return Promise.reject({
       message,
@@ -120,21 +109,12 @@ service.interceptors.response.use(
 // }
 async function getAuthToken() {
   // if the current token expires soon
+  const decodedToken = jwt_decode(store.getters["auth/token"])
   const isTokenExpiredOrAboutTo =
-    jwt_decode(store.getters["auth/token"]).exp - 240 <=
-    (Date.now() / 1000).toFixed(0)
+    decodedToken.exp - 240 <= (Date.now() / 1000).toFixed(0)
   if (isTokenExpiredOrAboutTo) {
     // refresh it and update it
-    await store.commit("auth/refresh")
-    // if not already requesting a token
-    // if (authTokenRequest === null) {
-    //   authTokenRequest = refresh().then(response => {
-    //     // request complete and store
-    //     resetAuthTokenRequest()
-    //     store.commit("auth/refresh", response.data)
-    //     return response.data.access_token
-    //   })
-    // }
+    await store.dispatch("auth/refresh")
   }
   return store.getters["auth/token"]
 }
