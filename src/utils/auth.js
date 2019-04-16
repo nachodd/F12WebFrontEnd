@@ -10,13 +10,8 @@ export function getRefreshToken() {
   return Cookies.get(tokenKey)
 }
 
-export function setToken(token, expires_in = null, refreshToken = null) {
-  if (expires_in) {
-    const minutesToExpire = new Date(new Date().getTime() + expires_in * 1000)
-    Cookies.set(tokenKey, token, { expires: minutesToExpire })
-  } else {
-    Cookies.set(tokenKey, token)
-  }
+export function setToken(token, refreshToken = null) {
+  Cookies.set(tokenKey, token)
   if (refreshToken) {
     Cookies.set(refreshTokenKey, refreshToken)
   }

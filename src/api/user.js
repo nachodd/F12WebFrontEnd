@@ -21,7 +21,7 @@ export function getInfo() {
   })
 }
 
-export async function getRoles() {
+export function getRoles() {
   return request({
     url: "/v1/usuario/roles",
     method: "get",
@@ -32,5 +32,13 @@ export function logout() {
   return request({
     url: "/user/logout",
     method: "post",
+  })
+}
+
+export function refresh() {
+  return request({
+    url: "/refresh",
+    method: "post",
+    withCredentials: true,
   })
 }

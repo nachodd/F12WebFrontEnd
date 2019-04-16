@@ -9,7 +9,12 @@ const routes = [
     component: () => import("layouts/MyLayout.vue"),
     children: [
       {
-        path: "inicio",
+        path: "",
+        redirect: { name: "inicio" },
+      },
+      {
+        path: "/inicio",
+        name: "inicio",
         component: () => import("pages/Index.vue"),
         meta: {
           title: "Inicio - F12",
