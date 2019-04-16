@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from "src/api/user"
+import { login, logout, getInfo, refresh } from "src/api/user"
 import {
   getToken,
   getRefreshToken,
@@ -54,7 +54,26 @@ const actions = {
       try {
         const { data } = await login(userInfo)
         commit("SET_TOKEN", data.access_token, data.refreshToken)
-        setToken(data.access_token, data.expires_in, data.refresh_token)
+        setToken(data.access_token, data.refresh_token)
+
+        const result_user = await getInfo()
+        if (!result_user.data || !result_user.data.data) {
+          reject("Verification failed, please Login again.")
+        }
+        const user = result_user.data.data
+
+        const result_roles = await getRoles()
+        if (!result_roles.data || !result_roles.data.data) {
+          reject("Verification failed, please Login again.")
+        }
+        const roles = mapRoles(result_roles.data.data)
+        // roles must be a non-empty array
+        if (!roles || roles.length <= 0) {
+          reject("getInfo: roles must be a non-null array!")
+        }
+        commit("SET_ROLES", roles)
+        commit("SET_USER", user)
+
         resolve()
       } catch (error) {
         reject(error)
@@ -67,16 +86,16 @@ const actions = {
     return new Promise(async (resolve, reject) => {
       try {
         const result_user = await getInfo()
-        if (!result_user.data) {
+        if (!result_user.data || !result_user.data.data) {
           reject("Verification failed, please Login again.")
         }
-        const user = result_user.data
+        const user = result_user.data.data
 
         const result_roles = await getRoles()
-        if (!result_roles.data) {
+        if (!result_roles.data || !result_roles.data.data) {
           reject("Verification failed, please Login again.")
         }
-        const roles = mapRoles(result_roles.data)
+        const roles = mapRoles(result_roles.data.data)
 
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
@@ -118,6 +137,16 @@ const actions = {
       commit("SET_TOKEN", "")
       commit("SET_ROLES", [])
       removeToken()
+      resolve()
+    })
+  },
+
+  refresh({ commit }) {
+    return new Promise(async resolve => {
+      const data = await refresh()
+      const refreshToken = data.refresh_token ? data.refresh_token : null
+      commit("SET_TOKEN", data.access_token, refreshToken)
+      setToken(data.access_token, refreshToken)
       resolve()
     })
   },

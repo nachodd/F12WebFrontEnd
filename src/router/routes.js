@@ -1,6 +1,7 @@
 const routes = [
   {
     path: "/login",
+    name: "login",
     component: () => import("pages/Login.vue"),
   },
   {
@@ -8,11 +9,16 @@ const routes = [
     component: () => import("layouts/MyLayout.vue"),
     children: [
       {
-        path: "inicio",
+        path: "",
+        redirect: { name: "inicio" },
+      },
+      {
+        path: "/inicio",
+        name: "inicio",
         component: () => import("pages/Index.vue"),
         meta: {
           title: "Inicio - F12",
-          // roles: ["menu_sistemas"],
+          roles: ["menu_sistemas"],
         },
       },
     ],
