@@ -1,7 +1,7 @@
 import axios from "axios"
 import store from "src/store"
 import router from "src/router"
-import jwt_decode from "jwt-decode"
+// import jwt_decode from "jwt-decode"
 
 // create an axios instance
 const service = axios.create({
@@ -21,6 +21,7 @@ service.interceptors.request.use(
     // If NOT one of these specific, try to get the current token or request a new one
     if (
       request.url.includes("login") ||
+      request.url.includes("logout") ||
       request.url.includes("refresh") ||
       request.url.includes("register")
     ) {
@@ -51,23 +52,27 @@ service.interceptors.response.use(
       "Ocurrio un problema al procesar su petición"
     const { status } = error.response
 
-    if (req !== undefined) {
-      if (req.responseURL.includes("login")) {
-        return Promise.reject({
-          message,
-          status,
-          data: error.response.data,
-        })
-      }
+    if (req !== undefined && req.responseURL.includes("login")) {
+      return Promise.reject({
+        message,
+        status,
+        data: error.response.data,
+      })
     }
+
     // If you can't refresh your token or you are sent Unauthorized on any request, reset token and go to login
-    if (
+    const isRefreshOrLogout =
       req !== undefined &&
       (req.responseURL.includes("refresh") ||
-        (status === 401 && error.config.__isRetryRequest))
+        req.responseURL.includes("logout"))
+
+    if (
+      isRefreshOrLogout ||
+      (status === 401 && error.config.__isRetryRequest)
     ) {
+      debugger
       await store.dispatch("auth/resetToken")
-      router.push({ name: "login" })
+      router.replace({ name: "login" })
       return Promise.reject({
         message,
         status,
@@ -76,7 +81,7 @@ service.interceptors.response.use(
     }
     // retry the request ONLY if not already tried
     if (
-      req.responseURL.includes("refresh") ||
+      isRefreshOrLogout ||
       (status === 401 && !error.config.__isRetryRequest)
     ) {
       error.config.__isRetryRequest = true
@@ -109,9 +114,12 @@ service.interceptors.response.use(
 // }
 async function getAuthToken() {
   // if the current token expires soon
-  const decodedToken = jwt_decode(store.getters["auth/token"])
+  const expiresMinus2Minutes = new Date(+store.getters["auth/expiresIn"])
+  expiresMinus2Minutes.setSeconds(expiresMinus2Minutes.getSeconds() - 120) // returns unix ts
+  const expiresDateMinus2Minutes = new Date(expiresMinus2Minutes)
   const isTokenExpiredOrAboutTo =
-    decodedToken.exp - 240 <= (Date.now() / 1000).toFixed(0)
+    expiresDateMinus2Minutes.getTime() <= Date.now()
+
   if (isTokenExpiredOrAboutTo) {
     // refresh it and update it
     await store.dispatch("auth/refresh")
