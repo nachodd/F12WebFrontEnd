@@ -6,10 +6,15 @@ const routes = [
   },
   {
     path: "/",
-    component: () => import("layouts/MyLayout.vue"),
+    component: () => import("layouts/Layout.vue"),
     children: [
       {
-        path: "inicio",
+        path: "",
+        redirect: { name: "inicio" },
+      },
+      {
+        path: "/inicio",
+        name: "inicio",
         component: () => import("pages/Index.vue"),
         meta: {
           title: "Inicio - F12",

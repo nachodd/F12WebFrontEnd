@@ -1,9 +1,7 @@
 import axios from "axios"
 import store from "src/store"
 import router from "src/router"
-import jwt_decode from "jwt-decode"
-
-let authTokenRequest = null
+// import jwt_decode from "jwt-decode"
 
 // create an axios instance
 const service = axios.create({
@@ -12,33 +10,6 @@ const service = axios.create({
   timeout: 30000, // request timeout,
 })
 
-function getAuthToken() {
-  // if the current store token expires soon
-  if (
-    jwt_decode(store.getters["auth/token"]).exp - 240 <=
-    (Date.now() / 1000).toFixed(0)
-  ) {
-    // if not already requesting a token
-    if (authTokenRequest === null) {
-      authTokenRequest = service
-        .post("/auth/refresh", {}, { withCredentials: true })
-        .then(response => {
-          // request complete and store
-          resetAuthTokenRequest()
-          store.commit("auth/refresh", response.data.access_token)
-          return response.data.access_token
-        })
-    }
-    return authTokenRequest
-  }
-  return store.getters["auth/token"]
-}
-
-// tokenRequest dirty bit reseter
-function resetAuthTokenRequest() {
-  authTokenRequest = null
-}
-
 // Add headers to every request:
 service.defaults.headers.common["Content-Type"] = "application/json"
 service.defaults.headers.common["Accept"] = "application/json"
@@ -46,26 +17,22 @@ service.defaults.headers.common["Accept"] = "application/json"
 // request interceptor
 service.interceptors.request.use(
   async request => {
-    // Do something before request is sent
-    // request.headers.common["Content-Type"] = "application/json";
-    // request.headers.common["Accept"] = "application/json";
-
+    // If one of these specific pages that doesn't need a token, use current token (possibly none),
+    // If NOT one of these specific, try to get the current token or request a new one
     if (
-      !request.url.includes("login") &&
-      !request.url.includes("refresh") &&
-      !request.url.includes("forgot_password") &&
-      !request.url.includes("reset_password") &&
-      !request.url.includes("activate")
+      request.url.includes("login") ||
+      request.url.includes("logout") ||
+      request.url.includes("refresh") ||
+      request.url.includes("register")
     ) {
-      request.headers["Authorization"] = "Bearer " + (await getAuthToken())
+      const token = store.getters["auth/token"]
+      if (token) {
+        request.headers["Authorization"] = `Bearer ${token}`
+      }
     } else {
-      request.headers["Authorization"] = "Bearer " + store.getters["auth/token"]
+      request.headers["Authorization"] = "Bearer " + (await getAuthToken())
     }
 
-    // const token = store.getters["auth/token"]
-    // if (token) {
-    //   request.headers.common["Authorization"] = `Bearer ${token}`
-    // }
     return request
   },
   error => {
@@ -78,97 +45,59 @@ service.interceptors.request.use(
 // response interceptor
 service.interceptors.response.use(
   response => response,
-  // Si chequearamos por un custom status code:
-  /* response => {
-    debugger;
-    const res = response.data;
-    if (res.code !== 20000) {
-      this.$q.notify({
-        message: res.message || "error",
-        color: "danger"
-      });
-      // 50008: Token ilegal; 50012: Otros clientes registrados; 50014: Token caducado;
-      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
-        this.$q
-          .dialog({
-            title: "Cierre de Sesión",
-            message:
-              "Se ha desconectado, puede cancelar para permanecer en esta página o volver a iniciar sesión",
-            ok: { push: true },
-            cancel: { color: "negative" },
-            persistent: true
-          })
-          .onOk(() => {
-            store.dispatch("auth/resetToken").then(() => {
-              location.reload();
-            });
-          });
-      }
-      return Promise.reject(res.message || "error");
-    } else {
-      return res;
-    }
-  }, */
-  error => {
-    debugger
-    const req = error.request || undefined
+  async error => {
+    const req = (error && error.request) || undefined
     const message =
       (error.response && error.response.data && error.response.data.message) ||
       "Ocurrio un problema al procesar su petición"
     const { status } = error.response
 
-    if (req !== undefined) {
-      if (req.responseURL.includes("login")) {
-        return Promise.reject({
-          message,
-          status,
-          data: error.response.data,
-        })
-      }
+    if (req !== undefined && req.responseURL.includes("login")) {
+      return Promise.reject({
+        message,
+        status,
+        data: error.response.data,
+      })
     }
-    // If you can't refresh your token or you are sent Unauthorized on any request, logout and go to login
-    if (
+
+    // If you can't refresh your token or you are sent Unauthorized on any request, reset token and go to login
+    const isRefreshOrLogout =
       req !== undefined &&
       (req.responseURL.includes("refresh") ||
-        (status === 401 && error.config.__isRetryRequest))
+        req.responseURL.includes("logout"))
+
+    if (
+      isRefreshOrLogout ||
+      (status === 401 && error.config.__isRetryRequest)
     ) {
       debugger
-      store.dispatch["auth/logout"]
-      router.push({ name: "login" })
+      await store.dispatch("auth/resetToken")
+      router.replace({ name: "login" })
+      return Promise.reject({
+        message,
+        status,
+        data: error.response.data,
+      })
     }
-    // else if (req !== undefined && req.status === 401) {
-    //   error.config.__isRetryRequest = true
-    //   return axios.request(error.config)
-    // }
-
-    // console.log("err: " + error); // for debug
+    // retry the request ONLY if not already tried
+    if (
+      isRefreshOrLogout ||
+      (status === 401 && !error.config.__isRetryRequest)
+    ) {
+      error.config.__isRetryRequest = true
+      return service.request(error.config)
+    }
 
     if (status >= 500) {
       this.$q.notify({
         message: "Ocurrio un problema al procesar su petición",
         color: "danger",
       })
-    }
-
-    if (status === 401) {
-      error.config.__isRetryRequest = true
-      return service.request(error.config)
-      // Si esta logueado (en el front, porque tiene el user en el store) y dio 401, le aviso que debe loguearse de nuevo
-      // if (store.getters["auth/check"]) {
-      //   this.$q
-      //     .dialog({
-      //       title: "Cierre de Sesión",
-      //       message: "Su sesion ha caducado. Debe volver a iniciar sesión",
-      //       ok: { push: true },
-      //       // cancel: { color: "negative" },
-      //       persistent: true,
-      //     })
-      //     .onOk(() => {
-      //       store.dispatch("user/resetToken").then(() => {
-      //         router.push({ name: "login" })
-      //       })
-      //     })
-      // }
+      return Promise.reject({
+        message,
+        status,
+        data: error.response.data,
+      })
     }
     return Promise.reject({
       message,
@@ -177,5 +106,25 @@ service.interceptors.response.use(
     })
   },
 )
+
+// let authTokenRequest = null
+// tokenRequest dirty bit reseter
+// function resetAuthTokenRequest() {
+//   authTokenRequest = null
+// }
+async function getAuthToken() {
+  // if the current token expires soon
+  const expiresMinus2Minutes = new Date(+store.getters["auth/expiresIn"])
+  expiresMinus2Minutes.setSeconds(expiresMinus2Minutes.getSeconds() - 120) // returns unix ts
+  const expiresDateMinus2Minutes = new Date(expiresMinus2Minutes)
+  const isTokenExpiredOrAboutTo =
+    expiresDateMinus2Minutes.getTime() <= Date.now()
+
+  if (isTokenExpiredOrAboutTo) {
+    // refresh it and update it
+    await store.dispatch("auth/refresh")
+  }
+  return store.getters["auth/token"]
+}
 
 export default service
