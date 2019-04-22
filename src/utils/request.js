@@ -5,9 +5,11 @@ import router from "src/router"
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API,
+  // baseURL: process.env.VUE_APP_BASE_API,
+  baseURL: "https://coretest.bld.com.ar",
   // withCredentials: true,
   timeout: 30000, // request timeout,
+  // validateStatus: status => status < 204, // Reject only if the status code is greater than or equal to 500
 })
 
 // Add headers to every request:
@@ -19,6 +21,7 @@ service.interceptors.request.use(
   async request => {
     // If one of these specific pages that doesn't need a token, use current token (possibly none),
     // If NOT one of these specific, try to get the current token or request a new one
+    debugger
     if (
       request.url.includes("login") ||
       request.url.includes("logout") ||
@@ -48,15 +51,21 @@ service.interceptors.response.use(
   async error => {
     const req = (error && error.request) || undefined
     const message =
-      (error.response && error.response.data && error.response.data.message) ||
+      (error &&
+        error.response &&
+        error.response.data &&
+        error.response.data.message) ||
       "Ocurrio un problema al procesar su petición"
-    const { status } = error.response
+    const status =
+      (error && error.response && error.response.status) || undefined
+    const errorData =
+      (error && error.response && error.response.data) || undefined
 
     if (req !== undefined && req.responseURL.includes("login")) {
       return Promise.reject({
         message,
         status,
-        data: error.response.data,
+        data: errorData,
       })
     }
 
@@ -76,7 +85,7 @@ service.interceptors.response.use(
       return Promise.reject({
         message,
         status,
-        data: error.response.data,
+        data: errorData,
       })
     }
     // retry the request ONLY if not already tried
@@ -96,13 +105,13 @@ service.interceptors.response.use(
       return Promise.reject({
         message,
         status,
-        data: error.response.data,
+        data: errorData,
       })
     }
     return Promise.reject({
       message,
       status,
-      data: error.response.data,
+      data: errorData,
     })
   },
 )
@@ -114,13 +123,18 @@ service.interceptors.response.use(
 // }
 async function getAuthToken() {
   // if the current token expires soon
-  const expiresMinus2Minutes = new Date(+store.getters["auth/expiresIn"])
+  debugger
+  console.log(store)
+  console.log(store.getters)
+  const expiresIn = store.getters["auth/expiresIn"]
+  const expiresMinus2Minutes = new Date(+expiresIn)
   expiresMinus2Minutes.setSeconds(expiresMinus2Minutes.getSeconds() - 120) // returns unix ts
   const expiresDateMinus2Minutes = new Date(expiresMinus2Minutes)
   const isTokenExpiredOrAboutTo =
     expiresDateMinus2Minutes.getTime() <= Date.now()
 
   if (isTokenExpiredOrAboutTo) {
+    debugger
     // refresh it and update it
     await store.dispatch("auth/refresh")
   }

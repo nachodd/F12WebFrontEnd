@@ -36,7 +36,7 @@ const mutations = {
 }
 
 const actions = {
-  toggleSideBar({ commit }) {
+  toggleSidebar({ commit }) {
     commit("TOGGLE_SIDEBAR")
   },
   closeSideBar({ commit }, { withoutAnimation }) {

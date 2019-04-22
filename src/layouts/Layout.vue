@@ -1,26 +1,54 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh Lpr lFf">
     <q-header elevated class="headerBackground">
       <q-toolbar>
         <q-btn
           flat
           dense
           round
-          @click="leftDrawerOpen = !leftDrawerOpen"
+          @click="sidebarOpen = !sidebarOpen"
           aria-label="Menu"
         >
           <q-icon name="menu" />
         </q-btn>
 
         <q-toolbar-title>
-          Quasar App
+          F12
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-btn-dropdown stretch flat :label="user.Usuario">
+          <q-list>
+            <q-item-label header>Usuario</q-item-label>
+            <q-item clickable v-close-popup tabindex="0">
+              <!-- <q-item-section avatar>
+                <q-avatar
+                  icon="fas fa-user-circle"
+                  color="accent"
+                  text-color="white"
+                />
+              </q-item-section> -->
+              <q-item-section>
+                <q-item-label>Perfil</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-icon name="fas fa-user-circle" />
+              </q-item-section>
+            </q-item>
+            <q-separator inset spaced />
+            <q-item clickable v-close-popup tabindex="1" @click="onLogOut">
+              <q-item-section>
+                <q-item-label>Cerrar Sesión</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-icon name="fas fa-sign-out-alt" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" bordered content-class="bg-grey-2">
+    <q-drawer v-model="sidebarOpen" bordered content-class="bg-grey-2">
       <q-list>
         <q-item-label header>Essential Links</q-item-label>
         <q-item
@@ -103,19 +131,40 @@
 </template>
 
 <script>
-import { openURL } from "quasar"
+// import { openURL } from "quasar"
+import { mapActions, mapGetters } from "vuex"
 
 export default {
   name: "MyLayout",
   data() {
     return {
-      leftDrawerOpen: this.$q.platform.is.desktop,
+      user: this.$store.getters["auth/user"],
+      sidebarOpen: this.$q.platform.is.desktop,
     }
   },
+  computed: {
+    ...mapGetters("app", ["sidebar"]),
+  },
   methods: {
-    openURL,
+    ...mapActions({
+      logout: "auth/logout",
+      toggleSidebar: "app/toggleSidebar",
+    }),
+    async onLogOut() {
+      await this.logout()
+      this.$router.replace({ name: "login" })
+    },
+  },
+  mounted() {
+    console.log(this.sidebar)
+    // debugger
   },
 }
 </script>
 
-<style></style>
+<style scoped>
+.q-toolbar {
+  /* margin: 15px 0; */
+  height: 80px;
+}
+</style>

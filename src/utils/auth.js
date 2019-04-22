@@ -26,6 +26,7 @@ export function removeToken(removeRefreshToken = true) {
   if (removeRefreshToken) {
     Cookies.remove(refreshTokenKey)
   }
+  Cookies.remove(tokenExpiresKey)
 }
 export function removeRefreshToken() {
   Cookies.remove(refreshTokenKey)

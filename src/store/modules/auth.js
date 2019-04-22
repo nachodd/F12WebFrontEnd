@@ -35,8 +35,9 @@ const getters = {
 
 // mutations
 const mutations = {
-  SET_TOKEN: (state, token, refreshToken = null) => {
+  SET_TOKEN: (state, token, expiresIn, refreshToken = null) => {
     state.token = token
+    state.expiresIn = expiresIn
     if (refreshToken) {
       state.refreshToken = refreshToken
     }
@@ -57,16 +58,15 @@ const mutations = {
 // actions
 const actions = {
   // user login
-  login({ commit, store }, userInfo) {
+  login({ commit }, userInfo) {
     // const { usuario, password } = userInfo;
     return new Promise(async (resolve, reject) => {
       try {
         const { data } = await login(userInfo)
 
         const expires = expiresToUnixTS(data.expires_in)
-        commit("SET_TOKEN", data.access_token, expires, data.refreshToken)
+        commit("SET_TOKEN", data.access_token, expires, data.refresh_token)
         setToken(data.access_token, expires, data.refresh_token)
-        console.log(store)
 
         const result_user = await getInfo()
         if (!result_user.data || !result_user.data.data) {
@@ -165,6 +165,7 @@ const actions = {
   refresh({ commit, state, dispatch }) {
     return new Promise(async (resolve, reject) => {
       if (!state.refreshToken) {
+        debugger
         dispatch("logout")
         reject()
       } else {
@@ -172,7 +173,7 @@ const actions = {
           const data = await refresh({ refresh_token: state.refreshToken })
 
           const expires = expiresToUnixTS(data.expires_in)
-          commit("SET_TOKEN", data.access_token, expires, data.refreshToken)
+          commit("SET_TOKEN", data.access_token, expires, data.refresh_token)
           setToken(data.access_token, expires, data.refresh_token)
 
           resolve()
