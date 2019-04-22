@@ -5,7 +5,7 @@ import store from "src/store"
  * @returns {Boolean}
  * @example see @/views/permission/directive.vue
  */
-export default function checkPermission(value, rolesBase = undefined) {
+export function checkPermission(value, rolesBase = undefined) {
   if (value && value instanceof Array && value.length > 0) {
     const roles = rolesBase || (store.getters && store.getters["auth/roles"])
     const permissionRoles = value

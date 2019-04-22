@@ -1,7 +1,9 @@
 import { login, logout, getInfo, refresh } from "src/api/user"
 import {
   getToken,
+  getExpiresIn,
   getRefreshToken,
+  expiresToUnixTS,
   setToken,
   removeToken,
   mapRoles,
@@ -15,6 +17,7 @@ import { getRoles } from "../../api/user"
 // state
 const state = {
   token: getToken(),
+  expiresIn: getExpiresIn(),
   refreshToken: getRefreshToken(),
   user: null,
   roles: [],
@@ -23,6 +26,7 @@ const state = {
 // getters
 const getters = {
   token: state => state.token,
+  expiresIn: state => state.expiresIn,
   refreshToken: state => state.refreshToken,
   user: state => state.user,
   roles: state => state.roles,
@@ -31,11 +35,17 @@ const getters = {
 
 // mutations
 const mutations = {
-  SET_TOKEN: (state, token, refreshToken = null) => {
+  SET_TOKEN: (state, token, expiresIn, refreshToken = null) => {
     state.token = token
+    state.expiresIn = expiresIn
     if (refreshToken) {
       state.refreshToken = refreshToken
     }
+  },
+  CLEAR_TOKENS: state => {
+    state.token = ""
+    state.expiresIn = ""
+    state.refreshToken = ""
   },
   SET_USER: (state, user) => {
     state.user = user
@@ -53,8 +63,10 @@ const actions = {
     return new Promise(async (resolve, reject) => {
       try {
         const { data } = await login(userInfo)
-        commit("SET_TOKEN", data.access_token, data.refreshToken)
-        setToken(data.access_token, data.refresh_token)
+
+        const expires = expiresToUnixTS(data.expires_in)
+        commit("SET_TOKEN", data.access_token, expires, data.refresh_token)
+        setToken(data.access_token, expires, data.refresh_token)
 
         const result_user = await getInfo()
         if (!result_user.data || !result_user.data.data) {
@@ -117,9 +129,17 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise(async (resolve, reject) => {
+      // try to logout only if token is expired (becouse, token is needed to logout)
+      if (state.token) {
+        try {
+          const res = await logout()
+          console.log(res)
+        } catch (error) {
+          // can't logout (ie token expired) => do nothing
+        }
+      }
       try {
-        await logout(state.token)
-        commit("SET_TOKEN", "")
+        commit("CLEAR_TOKENS")
         commit("SET_ROLES", [])
         commit("SET_USER", null)
         removeToken()
@@ -134,45 +154,36 @@ const actions = {
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      commit("SET_TOKEN", "")
+      commit("CLEAR_TOKENS")
       commit("SET_ROLES", [])
+      commit("SET_USER", null)
       removeToken()
       resolve()
     })
   },
 
-  refresh({ commit }) {
-    return new Promise(async resolve => {
-      const data = await refresh()
-      const refreshToken = data.refresh_token ? data.refresh_token : null
-      commit("SET_TOKEN", data.access_token, refreshToken)
-      setToken(data.access_token, refreshToken)
-      resolve()
+  refresh({ commit, state, dispatch }) {
+    return new Promise(async (resolve, reject) => {
+      if (!state.refreshToken) {
+        debugger
+        dispatch("logout")
+        reject()
+      } else {
+        try {
+          const data = await refresh({ refresh_token: state.refreshToken })
+
+          const expires = expiresToUnixTS(data.expires_in)
+          commit("SET_TOKEN", data.access_token, expires, data.refresh_token)
+          setToken(data.access_token, expires, data.refresh_token)
+
+          resolve()
+        } catch (e) {
+          await dispatch("resetToken")
+          reject()
+        }
+      }
     })
   },
-
-  // Dynamically modify permissions
-  /* changeRoles({ commit, dispatch }, role) {
-    return new Promise(async resolve => {
-      const token = role + "-token";
-
-      commit("SET_TOKEN", token);
-      setToken(token);
-
-      const { roles } = await dispatch("getInfo");
-
-      resetRouter();
-
-      // generate accessible routes map based on roles
-      const accessRoutes = await dispatch("permission/generateRoutes", roles, {
-        root: true
-      });
-      // dynamically add accessible routes
-      router.addRoutes(accessRoutes);
-
-      resolve();
-    });
-  } */
 }
 
 export default {
