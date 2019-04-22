@@ -15,7 +15,7 @@ module.exports = function(ctx) {
       "material-icons", // optional, you are not bound to it
       // 'ionicons-v4',
       // 'mdi-v3',
-      // 'fontawesome-v5',
+      "fontawesome-v5",
       // 'eva-icons'
     ],
 
@@ -23,6 +23,10 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QSeparator",
+        "QAvatar",
+        "QBtnDropdown",
+        "QField",
         "QForm",
         "QInput",
         "QLayout",
@@ -43,11 +47,11 @@ module.exports = function(ctx) {
         "QCardActions",
       ],
 
-      directives: ["Ripple"],
+      directives: ["Ripple", "ClosePopup"],
 
       // Quasar plugins
       plugins: ["Dialog", "Notify", "LoadingBar"],
-
+      iconSet: "fontawesome-v5",
       // iconSet: 'ionicons-v4'
       // lang: 'de' // Quasar language
     },

@@ -30,15 +30,16 @@ export function getRoles() {
 
 export function logout() {
   return request({
-    url: "/user/logout",
+    url: "/logout",
     method: "post",
   })
 }
 
-export function refresh() {
+export function refresh(data) {
   return request({
     url: "/refresh",
     method: "post",
-    withCredentials: true,
+    data,
+    // withCredentials: true,
   })
 }

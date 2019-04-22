@@ -2,15 +2,15 @@
   <q-layout view="lHh Lpr lFf" class="flex flex-center items-center bg-grey-3">
     <q-page-container class="">
       <q-card class="card shadow-5">
-        <q-card-section>
-          <div class="text-h3 text-grey-7 text-center">
+        <q-card-section class="bg-purple-10 card-header">
+          <div class="text-h3 text-center">
             <span class="text-h2 f twelve">F</span>
             <span class="text-h2 twelve">12</span>
           </div>
         </q-card-section>
 
         <q-card-section>
-          <q-form @submit="login" class="q-gutter-md" :autofocus="true">
+          <q-form @submit="login" :autofocus="true">
             <q-input
               id="usuario"
               v-model.trim="usuario"
@@ -35,12 +35,13 @@
                 <q-icon name="lock" />
               </template>
             </q-input>
+            <br />
             <q-btn
               type="submit"
-              color="white"
+              color="purple-10"
               size="lg"
-              outline
-              class="full-width text-grey-7"
+              :outline="loading"
+              class="full-width"
               :loading="loading"
             >
               Ingresar
@@ -97,6 +98,12 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.card-header {
+  position: relative;
+  top: -50px;
+  box-shadow: inherit;
+  color: #fff;
+}
 .card {
   width: 400px;
   padding: 20px;
