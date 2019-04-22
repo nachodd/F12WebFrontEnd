@@ -1,8 +1,8 @@
 <template>
   <q-layout view="lHh Lpr lFf" class="flex flex-center items-center bg-grey-3">
-    <q-page-container class="">
+    <q-page-container class>
       <q-card class="card shadow-5">
-        <q-card-section class="bg-purple-10 card-header">
+        <q-card-section class="bg-deep-purple-10 card-header">
           <div class="text-h3 text-center">
             <span class="text-h2 f twelve">F</span>
             <span class="text-h2 twelve">12</span>
@@ -38,7 +38,7 @@
             <br />
             <q-btn
               type="submit"
-              color="purple-10"
+              color="deep-purple-10"
               size="lg"
               :outline="loading"
               class="full-width"
@@ -60,8 +60,10 @@ export default {
   mixins: [formValidation],
   data() {
     return {
-      usuario: "administrator",
-      password: "bldsavqc2010",
+      // usuario: "administrator",
+      // password: "bldsavqc2010",
+      usuario: "emanavella",
+      password: "Gabriel70",
       loading: false,
     }
   },

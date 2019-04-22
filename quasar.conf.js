@@ -6,7 +6,7 @@ module.exports = function(ctx) {
   return {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
-    boot: ["axios", "router-hooks", "permission-directive"], // "vuelidate"
+    boot: ["axios", "router-hooks", "permission-directive", "filters"], // "vuelidate"
 
     css: ["app.scss"],
 
@@ -23,6 +23,9 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QBadge",
+        "QMenu",
+        "QScrollArea",
         "QSeparator",
         "QAvatar",
         "QBtnDropdown",

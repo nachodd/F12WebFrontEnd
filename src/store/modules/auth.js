@@ -165,7 +165,6 @@ const actions = {
   refresh({ commit, state, dispatch }) {
     return new Promise(async (resolve, reject) => {
       if (!state.refreshToken) {
-        debugger
         dispatch("logout")
         reject()
       } else {

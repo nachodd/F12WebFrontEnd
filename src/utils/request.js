@@ -1,6 +1,8 @@
 import axios from "axios"
 import store from "src/store"
 import router from "src/router"
+import { Notify } from "quasar"
+
 // import jwt_decode from "jwt-decode"
 
 // create an axios instance
@@ -21,7 +23,6 @@ service.interceptors.request.use(
   async request => {
     // If one of these specific pages that doesn't need a token, use current token (possibly none),
     // If NOT one of these specific, try to get the current token or request a new one
-    debugger
     if (
       request.url.includes("login") ||
       request.url.includes("logout") ||
@@ -79,7 +80,6 @@ service.interceptors.response.use(
       isRefreshOrLogout ||
       (status === 401 && error.config.__isRetryRequest)
     ) {
-      debugger
       await store.dispatch("auth/resetToken")
       router.replace({ name: "login" })
       return Promise.reject({
@@ -98,7 +98,7 @@ service.interceptors.response.use(
     }
 
     if (status >= 500) {
-      this.$q.notify({
+      Notify.create({
         message: "Ocurrio un problema al procesar su petición",
         color: "danger",
       })
@@ -123,9 +123,6 @@ service.interceptors.response.use(
 // }
 async function getAuthToken() {
   // if the current token expires soon
-  debugger
-  console.log(store)
-  console.log(store.getters)
   const expiresIn = store.getters["auth/expiresIn"]
   const expiresMinus2Minutes = new Date(+expiresIn)
   expiresMinus2Minutes.setSeconds(expiresMinus2Minutes.getSeconds() - 120) // returns unix ts
@@ -134,7 +131,6 @@ async function getAuthToken() {
     expiresDateMinus2Minutes.getTime() <= Date.now()
 
   if (isTokenExpiredOrAboutTo) {
-    debugger
     // refresh it and update it
     await store.dispatch("auth/refresh")
   }

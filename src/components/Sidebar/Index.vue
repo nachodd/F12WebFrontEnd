@@ -1,0 +1,48 @@
+<template>
+  <!-- bordered content-class="bg-grey-2" -->
+  <q-drawer bordered content-class="bg-grey-2" v-model="sidebarOpen">
+    <q-scroll-area class="fit">
+      <q-list padding class="menu-list">
+        <q-item-label header>Menu Principal</q-item-label>
+        <q-item clickable v-ripple :to="{ name: 'inicio' }">
+          <q-item-section avatar>
+            <q-icon name="home" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Inicio</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-ripple :to="{ name: 'nuevo-ticket' }">
+          <q-item-section avatar>
+            <q-icon name="note_add" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Nuevo Ticket</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-scroll-area>
+  </q-drawer>
+</template>
+
+<script>
+import { mapGetters } from "vuex"
+export default {
+  name: "F12Sidebar",
+  data() {
+    return {
+      sidebarOpened: this.sidebarOpen,
+    }
+  },
+  computed: {
+    ...mapGetters("app", ["sidebarOpen"]),
+    ...mapGetters("auth", ["user"]),
+  },
+  methods: {},
+}
+</script>
+<style scoped>
+.menu-list .q-item {
+  border-radius: 0 32px 32px 0;
+}
+</style>
