@@ -2,30 +2,43 @@
   <q-page padding>
     <page-header title="Inicio" />
 
-    <q-card dark bordered class="bg-grey-9 flex items-center">
-      <q-card-section class="flex-column">
-        <q-icon name="fas fa-ticket-alt" size="4rem" />
-      </q-card-section>
-      <q-card-section class="flex-column q-mt-sm">
-        <div class="text-h3">20</div>
-        <div class="text-subtitle">Tickets nuevos</div>
-      </q-card-section>
+    <div class="row justify-around">
+      <div class="col-md-3 col-xs-12 q-mb-sm">
+        <widget-simple
+          icon="fas fa-bell"
+          value="20"
+          description="Tickets Nuevos"
+        />
+      </div>
 
-      <!-- <q-separator dark inset />
+      <div class="col-md-3 col-xs-12 q-mb-sm">
+        <widget-simple
+          icon="fas fa-bell"
+          value="20"
+          description="Tickets Nuevos"
+        />
+      </div>
 
-			<q-card-section>{{ lorem }}</q-card-section>-->
-    </q-card>
+      <div class="col-md-3 col-xs-12 q-mb-sm">
+        <widget-simple
+          icon="fas fa-bell"
+          value="20"
+          description="Tickets Nuevos"
+        />
+      </div>
+    </div>
   </q-page>
 </template>
 
-<style></style>
+<style lang="scss"></style>
 
 <script>
 import PageHeader from "components/PageHeader"
+import WidgetSimple from "components/WidgetSimple"
 
 export default {
   name: "Index",
-  components: { PageHeader },
+  components: { PageHeader, WidgetSimple },
   methods: {},
 }
 </script>

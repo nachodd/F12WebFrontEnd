@@ -1,11 +1,10 @@
-<template>
-  <div :class="{ 'pageheader-h2': true, underlined: showUnderline }">
-    {{ title }}
+<template functional>
+  <div :class="{ 'pageheader-h2': true, underlined: props.showUnderline }">
+    {{ props.title }}
   </div>
 </template>
 <script>
 export default {
-  name: "PageHeader",
   props: {
     title: {
       type: String,

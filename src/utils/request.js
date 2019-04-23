@@ -7,8 +7,8 @@ import { Notify } from "quasar"
 
 // create an axios instance
 const service = axios.create({
-  // baseURL: process.env.VUE_APP_BASE_API,
-  baseURL: "https://coretest.bld.com.ar",
+  baseURL: process.env.VUE_APP_BASE_API,
+  // baseURL: "https://coretest.bld.com.ar",
   // withCredentials: true,
   timeout: 30000, // request timeout,
   // validateStatus: status => status < 204, // Reject only if the status code is greater than or equal to 500
