@@ -7,7 +7,6 @@
 
       <q-toolbar-title>F12</q-toolbar-title>
 
-      <!-- icon="account_circle" -->
       <q-btn
         stretch
         flat
