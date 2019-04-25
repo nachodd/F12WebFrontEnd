@@ -40,7 +40,7 @@
           <q-item-label header>
             <div>
               Bienvenido,
-              <strong class="text-small">{{ user.RazonSocial }}</strong>
+              <strong class="text-small">{{ userName }}</strong>
             </div>
           </q-item-label>
           <q-item clickable v-close-popup tabindex="0">
@@ -79,7 +79,7 @@ export default {
   name: "MyLayout",
   data() {
     return {
-      notificaction_count: 5,
+      notificaction_count: 0,
     }
   },
   computed: {
@@ -87,8 +87,14 @@ export default {
     hasSpace() {
       return this.$q.screen.gt.xs
     },
+    razonSocial() {
+      if (this.user && this.user.RazonSocial) {
+        return this.user.RazonSocial
+      }
+      return "Usuario"
+    },
     userName() {
-      return this.user.RazonSocial.replace(/ .*/, "")
+      return this.razonSocial.replace(/ .*/, "")
     },
     textUser() {
       return this.$q.screen.gt.xs ? this.userName : undefined

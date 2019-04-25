@@ -1,19 +1,31 @@
 .headerBackground {
   /* background: linear-gradient(145deg, #027be3 11%, #014a88 75%); */
-  background: linear-gradient(87deg,#172b4d,#1a174d) !important;
+  background: linear-gradient(87deg, #172b4d, #1a174d) !important;
 }
 .loginBackground {
-  background: linear-gradient(87deg,#172b4d,#1a174d) !important;
+  background: linear-gradient(87deg, #172b4d, #1a174d) !important;
 }
 .q-field--standout.q-field--focused .q-field__control {
   background-color: rgba(93, 0, 0, 0.05);
 }
-.q-field--standout.q-field--focused  {
+.q-field--standout.q-field--focused {
   .q-field__prepend,
   .q-field__native {
-    color: rgba(0,0,0,0.87);
+    color: rgba(0, 0, 0, 0.87);
   }
 }
 
-
-$accent: #1a174d;
+.transition-wrapper {
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.6s ease;
+}
+.slide-enter,
+.slide-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
+}

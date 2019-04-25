@@ -23,6 +23,9 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QSlideTransition",
+        "QSelect",
+        "QCheckbox",
         "QSlider",
         "QBadge",
         "QMenu",

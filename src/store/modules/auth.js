@@ -132,8 +132,7 @@ const actions = {
       // try to logout only if token is expired (becouse, token is needed to logout)
       if (state.token) {
         try {
-          const res = await logout()
-          console.log(res)
+          await logout()
         } catch (error) {
           // can't logout (ie token expired) => do nothing
         }

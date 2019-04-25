@@ -2,9 +2,9 @@ import { getOptionsForTicketCreate } from "src/api/tickets"
 
 const state = {
   options: {
-    areas: [],
-    sistemas: [],
-    requerimientos_tipos: [],
+    areas: null,
+    sistemas: null,
+    requerimientos_tipos: null,
   },
 }
 
@@ -36,11 +36,14 @@ const actions = {
   getOptionsForTicketCreate({ commit }) {
     return new Promise(async (resolve, reject) => {
       try {
-        const res = await getOptionsForTicketCreate()
-        console.log(res)
-        debugger
+        const { data } = await getOptionsForTicketCreate()
 
-        commit("SET_OPTIONS", [], [], [])
+        commit(
+          "SET_OPTIONS",
+          data.areas,
+          data.sistemas,
+          data.requerimientos_tipos,
+        )
 
         resolve()
       } catch (error) {

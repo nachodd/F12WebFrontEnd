@@ -4,7 +4,12 @@
     <q-scroll-area class="fit">
       <q-list padding class="menu-list">
         <q-item-label header>Menu Principal</q-item-label>
-        <q-item clickable v-ripple :to="{ name: 'inicio' }">
+        <q-item
+          clickable
+          v-ripple
+          :to="{ name: 'inicio' }"
+          active-class="menu-items--active"
+        >
           <q-item-section avatar>
             <q-icon name="home" />
           </q-item-section>
@@ -12,7 +17,12 @@
             <q-item-label>Inicio</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item clickable v-ripple :to="{ name: 'nuevo-ticket' }">
+        <q-item
+          clickable
+          v-ripple
+          :to="{ name: 'nuevo-ticket' }"
+          active-class="menu-items--active"
+        >
           <q-item-section avatar>
             <q-icon name="note_add" />
           </q-item-section>
@@ -41,8 +51,12 @@ export default {
   methods: {},
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "src/css/variables.scss";
 .menu-list .q-item {
   border-radius: 0 32px 32px 0;
+}
+.menu-items--active {
+  color: $accent-light;
 }
 </style>
