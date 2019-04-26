@@ -2,7 +2,7 @@
   <q-page padding>
     <page-header title="Nuevo Ticket" />
 
-    <q-form @submit="onSubmit" :autofocus="true" class="q-gutter-md">
+    <q-form @submit="onSubmit" class="q-gutter-md">
       <q-input
         v-model.trim="form.asunto"
         outlined
@@ -18,65 +18,80 @@
         :rules="[notEmpty]"
       />
 
+      <!-- Wrapper de row - col por el tema del gutter izquierdo -->
       <div class="row">
         <div class="col">
           <div class="row q-col-gutter-sm">
             <div class="col col-sm-4 col-xs-12">
-              <q-select
-                outlined
+              <select-custom
                 v-model="form.area"
                 :options="areas"
                 label="Area"
-                :loading="optionsLoading.area"
-                :disable="optionsLoading.area"
-                option-value="id"
-                option-label="desc"
-                @filter="loadAreas"
-                @filter-abort="abortFilterFn"
+                :loading="areas.length === 0"
               />
             </div>
             <div class="col col-sm-4 col-xs-12">
-              <q-select
-                outlined
+              <select-custom
                 v-model="form.sistema"
                 :options="sistemas"
                 label="Sistema"
-                :loading="optionsLoading.sistema"
-                :disable="optionsLoading.sistema"
+                :loading="sistemas.length === 0"
               />
             </div>
             <div class="col col-sm-4 col-xs-12">
-              <q-select
-                outlined
+              <select-custom
                 v-model="form.requerimiento_tipo"
                 :options="requerimientos_tipos"
-                label="Tipo Requerimiento"
-                :loading="optionsLoading.requerimiento_tipo"
-                :disable="optionsLoading.requerimiento_tipo"
+                label="Tipo de Requerimiento"
+                :loading="requerimientos_tipos.length === 0"
               />
             </div>
           </div>
         </div>
       </div>
-      <!-- <div>
-        <q-checkbox left-label v-model="test" label="¿Tiene Fecha Limite?" />
-			</div>-->
 
       <div>
         <q-list link>
           <q-item tag="label" v-ripple>
             <q-item-section avatar>
-              <q-checkbox left-label v-model="fechaLimiteOpen" />
+              <q-checkbox left-label v-model="fechaLimiteOpen" color="accent" />
             </q-item-section>
             <q-item-section>
               <q-item-label>¿Tiene Fecha Limite?</q-item-label>
             </q-item-section>
           </q-item>
           <q-slide-transition>
-            <div v-if="fechaLimiteOpen">
-              hola
-              <br />
-              fechaLimiteOpen
+            <div v-if="fechaLimiteOpen" class="row q-mt-sm">
+              <div class="col">
+                <div class="row q-col-gutter-sm">
+                  <div class="col col-sm-4 col-xs-12">
+                    <q-input
+                      v-model.trim="form.fecha_limite"
+                      outlined
+                      mask="date"
+                      label="Fecha Límite"
+                      :rules="['date']"
+                    >
+                      <template v-slot:append>
+                        <q-icon name="event" class="cursor-pointer">
+                          <q-popup-proxy>
+                            <q-date v-model="form.fecha_limite" />
+                          </q-popup-proxy>
+                        </q-icon>
+                      </template>
+                    </q-input>
+                  </div>
+                  <div class="col col-sm-8 col-xs-12">
+                    <q-input
+                      v-model.trim="form.motivo_limite"
+                      outlined
+                      type="text"
+                      label="Motivo"
+                      :rules="[notEmpty]"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </q-slide-transition>
 
@@ -135,10 +150,11 @@
 import PageHeader from "components/PageHeader"
 import formValidation from "src/mixins/formValidation"
 import { mapState } from "vuex"
+import SelectCustom from "components/NuevoTicket/SelectCustom"
 
 export default {
   mixins: [formValidation],
-  components: { PageHeader },
+  components: { PageHeader, SelectCustom },
   data() {
     return {
       form: {
@@ -147,16 +163,14 @@ export default {
         area: "",
         sistema: "",
         requerimiento_tipo: "",
-        prioridad: 5,
+        fecha_limite: "",
+        motivo_limite: "",
+        // prioridad: 5,
       },
       submitting: false,
       fechaLimiteOpen: false,
       isLoadingOptions: true,
-      optionsLoading: {
-        area: true,
-        sistema: true,
-        requerimiento_tipo: true,
-      },
+      areasFiltered: [],
     }
   },
   computed: {
@@ -176,53 +190,22 @@ export default {
       }
     }, */
     ...mapState("tickets", {
-      areas: state => state.areas,
-      sistemas: state => state.sistemas,
-      requerimientos_tipos: state => state.requerimientos_tipos,
+      areas: state => state.options.areas,
+      sistemas: state => state.options.sistemas,
+      requerimientos_tipos: state => state.options.requerimientos_tipos,
     }),
   },
   methods: {
     onSubmit() {
+      console.log(this.form)
       return false
     },
-    async loadAreas(val, update /* , abort */) {
-      debugger
-      if (this.areas !== null) {
-        // already loaded
-        update()
-        return
-      }
-
-      try {
-        await this.$store.dispatch("tickets/getOptionsForTicketCreate")
-        this.isLoadingOptions = false
-        update(() => {
-          // this.options = stringOptions
-        })
-      } catch (e) {
-        this.$q.notify({
-          color: "negative",
-          message:
-            e.message ||
-            "Hubo un problema al cargar las opciones. Intente nuevamente mas tarde",
-          icon: "warning",
-          position: "top-right",
-        })
-      }
-
-      /* setTimeout(() => {
-        update(() => {
-          this.options = stringOptions
-        })
-      }, 2000) */
-    },
-    abortFilterFn() {
-      console.log("delayed filter aborted")
-    },
+    // filterAreas: filterFunction("areasFiltered", this.areasFiltered),
   },
   async mounted() {
     try {
       await this.$store.dispatch("tickets/getOptionsForTicketCreate")
+      console.log(this.areas)
       this.isLoadingOptions = false
     } catch (e) {
       this.$q.notify({
@@ -234,6 +217,11 @@ export default {
         position: "top-right",
       })
     }
+  },
+  watch: {
+    form: function(val) {
+      console.log(val)
+    },
   },
 }
 </script>

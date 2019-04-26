@@ -24,7 +24,7 @@ export default {
   line-height: 1.5rem;
   padding: 0.5rem 0;
   font-weight: 500;
-  margin: 0 0 1.5rem;
+  margin: 0 0 2rem;
   color: var(--q-color-accent);
 }
 .underlined {

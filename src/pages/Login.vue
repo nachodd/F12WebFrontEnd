@@ -10,7 +10,7 @@
         </q-card-section>
 
         <q-card-section>
-          <q-form @submit="login" :autofocus="true">
+          <q-form @submit="login">
             <q-input
               id="usuario"
               v-model.trim="usuario"
@@ -30,6 +30,7 @@
               type="password"
               label="Contraseña"
               :rules="[notEmpty]"
+              :autofocus="true"
             >
               <template v-slot:prepend>
                 <q-icon name="lock" />

@@ -659,10 +659,10 @@
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@positron/stack-trace/-/stack-trace-1.0.0.tgz#14fcc712a530038ef9be1ce6952315a839f466a8"
 
-"@quasar/app@^1.0.0-beta.19":
-  version "1.0.0-beta.19"
-  resolved "https://registry.yarnpkg.com/@quasar/app/-/app-1.0.0-beta.19.tgz#7355f8c32e853e2785e0f44806677a6cf03d28ce"
-  integrity sha512-t/d7rfYb8oph1+k3yo+4GaDC9seh2m/M8CDJsyfi04u6lmHcmLAJisUQ6q+0K8Zyhxsf2q1KZ23Iie2Y4sy20w==
+"@quasar/app@^1.0.0-beta.20":
+  version "1.0.0-beta.20"
+  resolved "https://registry.yarnpkg.com/@quasar/app/-/app-1.0.0-beta.20.tgz#536c711c14dd7f929a81bcf1beb12cd9e2dad314"
+  integrity sha512-nG5u5uM5QU61UZDku16mLOv8OrZpWLuMvJo+MXM8HY2+tztUcSULnXqScFc0mJIEah970fZiP5Iah+24b9oNsg==
   dependencies:
     "@quasar/babel-preset-app" "1.0.2"
     "@vue/preload-webpack-plugin" "1.1.0"
@@ -5425,10 +5425,10 @@ qs@6.5.2, qs@~6.5.2:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.2.tgz#cb3ae806e8740444584ef154ce8ee98d403f3e36"
 
-quasar@^1.0.0-beta.18:
-  version "1.0.0-beta.18"
-  resolved "https://registry.yarnpkg.com/quasar/-/quasar-1.0.0-beta.18.tgz#665bcc6ae4796ccdc782d235652be43edc526586"
-  integrity sha512-4xJCgjh6wkS107QT+vag5Z9j0bYTBvdo8Brf+6T+HgC90BrFmlII+Yt0eHJheCcYBC2WFyDW5ypP8Ab/kV4Ayw==
+quasar@^1.0.0-beta.19:
+  version "1.0.0-beta.19"
+  resolved "https://registry.yarnpkg.com/quasar/-/quasar-1.0.0-beta.19.tgz#e835da672f027fd87f7a0d448b2235ffdab044c9"
+  integrity sha512-8DSET+Jsoi7QvUXZuFxt1yB3tSR2uuk5Sc24vfrBQGSDzUqHJcxxvwrs4RT7zy3u96iAnWIG4hnNRw5X6/JXXw==
 
 query-string@^5.0.1:
   version "5.1.1"

@@ -132,6 +132,9 @@ async function getAuthToken() {
 
   if (isTokenExpiredOrAboutTo) {
     // refresh it and update it
+    console.log(store.getters)
+    console.log(expiresDateMinus2Minutes)
+    debugger
     await store.dispatch("auth/refresh")
   }
   return store.getters["auth/token"]
