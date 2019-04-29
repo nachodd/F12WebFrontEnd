@@ -63,8 +63,8 @@ module.exports = function(ctx) {
       // Quasar plugins
       plugins: ["Dialog", "Notify", "LoadingBar"],
       iconSet: "fontawesome-v5",
+      lang: "es", // Quasar language
       // iconSet: 'ionicons-v4'
-      // lang: 'de' // Quasar language
     },
 
     supportIE: false,

@@ -2,7 +2,7 @@
   <q-page padding>
     <page-header title="Nuevo Ticket" />
 
-    <q-form @submit="onSubmit" class="q-gutter-md">
+    <q-form ref="form" @submit="onSubmit" class="q-gutter-md">
       <q-input
         v-model.trim="form.asunto"
         outlined
@@ -54,32 +54,26 @@
         <q-list link>
           <q-item tag="label" v-ripple>
             <q-item-section avatar>
-              <q-checkbox left-label v-model="fechaLimiteOpen" color="accent" />
+              <q-checkbox
+                left-label
+                v-model="llevaFechaLimite"
+                color="accent"
+              />
             </q-item-section>
             <q-item-section>
               <q-item-label>¿Tiene Fecha Limite?</q-item-label>
             </q-item-section>
           </q-item>
           <q-slide-transition>
-            <div v-if="fechaLimiteOpen" class="row q-mt-sm">
+            <div v-show="llevaFechaLimite" class="row q-mt-sm">
               <div class="col">
                 <div class="row q-col-gutter-sm">
                   <div class="col col-sm-4 col-xs-12">
-                    <q-input
-                      v-model.trim="form.fecha_limite"
-                      outlined
-                      mask="date"
+                    <input-date-custom
                       label="Fecha Límite"
-                      :rules="['date']"
-                    >
-                      <template v-slot:append>
-                        <q-icon name="event" class="cursor-pointer">
-                          <q-popup-proxy>
-                            <q-date v-model="form.fecha_limite" />
-                          </q-popup-proxy>
-                        </q-icon>
-                      </template>
-                    </q-input>
+                      :validate="llevaFechaLimite"
+                      v-model="form.fecha_limite"
+                    />
                   </div>
                   <div class="col col-sm-8 col-xs-12">
                     <q-input
@@ -87,7 +81,7 @@
                       outlined
                       type="text"
                       label="Motivo"
-                      :rules="[notEmpty]"
+                      :rules="motivoLimiteRules"
                     />
                   </div>
                 </div>
@@ -97,7 +91,7 @@
 
           <q-item tag="label" v-ripple>
             <q-item-section avatar>
-              <q-checkbox v-model="fechaLimiteOpen" color="accent" />
+              <q-checkbox v-model="form.importante" color="accent" />
             </q-item-section>
             <q-item-section>
               <q-item-label>
@@ -151,10 +145,11 @@ import PageHeader from "components/PageHeader"
 import formValidation from "src/mixins/formValidation"
 import { mapState } from "vuex"
 import SelectCustom from "components/NuevoTicket/SelectCustom"
+import InputDateCustom from "components/NuevoTicket/InputDateCustom"
 
 export default {
   mixins: [formValidation],
-  components: { PageHeader, SelectCustom },
+  components: { PageHeader, SelectCustom, InputDateCustom },
   data() {
     return {
       form: {
@@ -165,42 +160,50 @@ export default {
         requerimiento_tipo: "",
         fecha_limite: "",
         motivo_limite: "",
+        importante: false,
         // prioridad: 5,
       },
       submitting: false,
-      fechaLimiteOpen: false,
+      llevaFechaLimite: false,
       isLoadingOptions: true,
-      areasFiltered: [],
     }
   },
   computed: {
-    /* priorityColor() {
-      if (this.form.prioridad <= 2) {
-        return "green"
-      } else if (this.form.prioridad > 2 && this.form.prioridad <= 5) {
-        return "light-green"
-      } else if (this.form.prioridad > 3 && this.form.prioridad <= 5) {
-        return "amber-8"
-      } else if (this.form.prioridad > 5 && this.form.prioridad <= 7) {
-        return "orange"
-      } else if (this.form.prioridad > 7 && this.form.prioridad <= 9) {
-        return "red"
-      } else {
-        return "red-10"
-      }
-    }, */
     ...mapState("tickets", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
       requerimientos_tipos: state => state.options.requerimientos_tipos,
     }),
+    motivoLimiteRules() {
+      return this.llevaFechaLimite ? [this.notEmpty] : []
+    },
+  },
+  watch: {
+    llevaFechaLimite(val) {
+      if (!val) {
+        this.form.fecha_limite = ""
+        this.form.motivo_limite = ""
+      }
+    },
   },
   methods: {
     onSubmit() {
       console.log(this.form)
       return false
     },
-    // filterAreas: filterFunction("areasFiltered", this.areasFiltered),
+    /* async onSubmit(formRef) {
+      console.log(this.form)
+      try {
+        const success = await formRef.validate()
+        console.log(success)
+        // if (success) {
+        // }
+      } catch (e) {
+        console.log(e)
+      }
+
+      return false
+    }, */
   },
   async mounted() {
     try {
@@ -217,11 +220,6 @@ export default {
         position: "top-right",
       })
     }
-  },
-  watch: {
-    form: function(val) {
-      console.log(val)
-    },
   },
 }
 </script>
