@@ -21,6 +21,15 @@ const routes = [
           roles: ["menu_sistemas"],
         },
       },
+      {
+        path: "/nuevo-ticket",
+        name: "nuevo-ticket",
+        component: () => import("pages/NuevoTicket.vue"),
+        meta: {
+          title: "Nuevo Ticket - F12",
+          roles: ["menu_sistemas"],
+        },
+      },
     ],
   },
 ]

@@ -1,12 +1,14 @@
 // eslint-disable-next-line no-undef
-var envparser = require("./envparser")
+const env = require("./env")
+// eslint-disable-next-line no-undef
+// var envparser = require("./envparser")
 
 // eslint-disable-next-line no-undef
 module.exports = function(ctx) {
   return {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
-    boot: ["axios", "router-hooks", "permission-directive"], // "vuelidate"
+    boot: ["axios", "router-hooks", "permission-directive", "filters"], // "vuelidate"
 
     css: ["app.scss"],
 
@@ -23,6 +25,15 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QPopupProxy",
+        "QDate",
+        "QSlideTransition",
+        "QSelect",
+        "QCheckbox",
+        "QSlider",
+        "QBadge",
+        "QMenu",
+        "QScrollArea",
         "QSeparator",
         "QAvatar",
         "QBtnDropdown",
@@ -61,7 +72,12 @@ module.exports = function(ctx) {
     build: {
       scopeHoisting: true,
       vueRouterMode: "history",
-      env: envparser(),
+      // env: envparser(),
+      env: {
+        VUE_APP_BASE_API: JSON.stringify(env.VUE_APP_BASE_API),
+        VUE_APP_CLIENT_ID: JSON.stringify(env.VUE_APP_CLIENT_ID),
+        VUE_APP_CLIENT_SECRET: JSON.stringify(env.VUE_APP_CLIENT_SECRET),
+      },
       // vueCompiler: true,
       // gzip: true,
       // analyze: true,

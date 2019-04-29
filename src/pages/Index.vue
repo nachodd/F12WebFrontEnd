@@ -1,26 +1,61 @@
 <template>
-  <q-page class="flex flex-center">
-    <img alt="Quasar logo" src="~assets/quasar-logo-full.svg" />
-    <q-btn color="primary" icon="check" label="Logout" @click="onLogOut" />
+  <q-page padding>
+    <page-header title="Inicio" />
+
+    <div class="row justify-around q-col-gutter-md">
+      <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
+        <widget-simple
+          icon="fas fa-ticket-alt"
+          value="15"
+          description="Tickets Nuevos"
+          icon-background-class="bg-green-9"
+          info-text-class="text-green-9"
+          :loading="loading"
+        />
+      </div>
+
+      <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
+        <widget-simple
+          icon="fas fa-exclamation-triangle"
+          value="7"
+          description="Tickets importantes"
+          :loading="loading"
+        />
+      </div>
+
+      <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
+        <widget-simple
+          icon="fas fa-bell"
+          value="3"
+          description="Recordatorios"
+          icon-background-class="bg-blue-9"
+          info-text-class="text-blue-9"
+          :loading="loading"
+        />
+      </div>
+    </div>
   </q-page>
 </template>
 
-<style></style>
-
 <script>
-import { mapActions } from "vuex"
+import PageHeader from "components/PageHeader"
+import WidgetSimple from "components/WidgetSimple"
 
 export default {
-  name: "PageIndex",
-  methods: {
-    ...mapActions({
-      logout: "auth/logout",
-    }),
-    async onLogOut() {
-      debugger
-      await this.logout()
-      this.$router.replace({ name: "login" })
-    },
+  name: "Index",
+  components: { PageHeader, WidgetSimple },
+  data() {
+    return {
+      loading: true,
+    }
+  },
+  methods: {},
+  mounted() {
+    setTimeout(() => {
+      this.loading = false
+    }, 3000)
   },
 }
 </script>
+
+<style lang="scss" scoped></style>
