@@ -188,22 +188,10 @@ export default {
   },
   methods: {
     onSubmit() {
+      // TODO: work on this
       console.log(this.form)
       return false
     },
-    /* async onSubmit(formRef) {
-      console.log(this.form)
-      try {
-        const success = await formRef.validate()
-        console.log(success)
-        // if (success) {
-        // }
-      } catch (e) {
-        console.log(e)
-      }
-
-      return false
-    }, */
   },
   async mounted() {
     try {

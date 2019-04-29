@@ -16,15 +16,6 @@ const state = {
 // }
 
 const mutations = {
-  SET_AREAS: (state, areas) => {
-    state.options.areas = areas
-  },
-  SET_SISTEMAS: (state, sistemas) => {
-    state.options.sistemas = sistemas
-  },
-  SET_REQUERIMIENTOS_TIPOS: (state, requerimientos_tipos) => {
-    state.options.requerimientos_tipos = requerimientos_tipos
-  },
   SET_OPTIONS: (state, { areas, sistemas, requerimientos_tipos }) => {
     // state.options.areas = Vue.set(state.options, "areas", areas)
     state.options.areas = areas
