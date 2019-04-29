@@ -1,4 +1,4 @@
-import { getOptionsForTicketCreate } from "src/api/tickets"
+import { createRequerimiento, storeRequerimiento } from "src/api/tickets"
 
 const state = {
   options: {
@@ -25,18 +25,35 @@ const mutations = {
 }
 
 const actions = {
-  getOptionsForTicketCreate({ commit }) {
+  createRequerimiento({ commit, state }) {
+    return new Promise(async (resolve, reject) => {
+      const { areas, sistemas, requerimientos_tipos } = state.options
+      if (areas.length && sistemas.length && requerimientos_tipos.length) {
+        resolve()
+      } else {
+        try {
+          // destructuring value: https://medium.com/@pyrolistical/destructuring-nested-objects-9dabdd01a3b8
+          const {
+            data: { data },
+          } = await createRequerimiento()
+          commit("SET_OPTIONS", data)
+
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      }
+    })
+  },
+  storeRequerimiento(state, requerimiento) {
     return new Promise(async (resolve, reject) => {
       try {
-        // destructuring value: https://medium.com/@pyrolistical/destructuring-nested-objects-9dabdd01a3b8
-        const {
-          data: { data },
-        } = await getOptionsForTicketCreate()
-        commit("SET_OPTIONS", data)
-
+        debugger
+        const res = await storeRequerimiento(requerimiento)
+        // commit("SET_OPTIONS", data)
+        console.log(res)
         resolve()
       } catch (error) {
-        debugger
         reject(error)
       }
     })

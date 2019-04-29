@@ -58,5 +58,6 @@ export default {
 }
 .menu-items--active {
   color: $accent-light;
+  background: rgba(73, 65, 214, 0.15);
 }
 </style>

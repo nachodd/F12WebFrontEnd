@@ -91,7 +91,7 @@
 
           <q-item tag="label" v-ripple>
             <q-item-section avatar>
-              <q-checkbox v-model="form.importante" color="accent" />
+              <q-checkbox v-model="esImportante" color="accent" />
             </q-item-section>
             <q-item-section>
               <q-item-label>
@@ -146,6 +146,7 @@ import formValidation from "src/mixins/formValidation"
 import { mapState } from "vuex"
 import SelectCustom from "components/NuevoTicket/SelectCustom"
 import InputDateCustom from "components/NuevoTicket/InputDateCustom"
+import { warn } from "src/utils/helpers"
 
 export default {
   mixins: [formValidation],
@@ -163,6 +164,7 @@ export default {
         importante: false,
         // prioridad: 5,
       },
+      esImportante: false,
       submitting: false,
       llevaFechaLimite: false,
       isLoadingOptions: true,
@@ -187,26 +189,28 @@ export default {
     },
   },
   methods: {
-    onSubmit() {
-      // TODO: work on this
-      console.log(this.form)
-      return false
+    async onSubmit() {
+      this.form.importante = this.esImportante ? 1 : 0
+      try {
+        await this.$store.dispatch("tickets/storeRequerimiento", this.form)
+        this.isLoadingOptions = false
+      } catch (e) {
+        warn(
+          e.message,
+          "Hubo un problema al guardar el ticket. Intente nuevamente mas tarde",
+        )
+      }
     },
   },
   async mounted() {
     try {
-      await this.$store.dispatch("tickets/getOptionsForTicketCreate")
-      console.log(this.areas)
+      await this.$store.dispatch("tickets/createRequerimiento")
       this.isLoadingOptions = false
     } catch (e) {
-      this.$q.notify({
-        color: "negative",
-        message:
-          e.message ||
-          "Hubo un problema al cargar las opciones. Intente nuevamente mas tarde",
-        icon: "warning",
-        position: "top-right",
-      })
+      warn(
+        e.message,
+        "Hubo un problema al cargar las opciones. Intente nuevamente mas tarde",
+      )
     }
   },
 }

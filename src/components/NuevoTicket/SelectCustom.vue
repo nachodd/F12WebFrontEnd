@@ -49,7 +49,10 @@ export default {
   },
   methods: {
     handleInput() {
-      this.$emit("input", this.selectedValue[this.idKey])
+      this.$emit(
+        "input",
+        (this.selectedValue && this.selectedValue[this.idKey]) || "",
+      )
     },
     filterFunction(val, update) {
       if (val === "") {
