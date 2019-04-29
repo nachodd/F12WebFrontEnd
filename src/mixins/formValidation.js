@@ -21,8 +21,5 @@ export default {
       })
       return date.isValid(dateParsed.toString())
     },
-    conditionalRules(condition, ...rules) {
-      return condition ? [rules] : []
-    },
   },
 }
