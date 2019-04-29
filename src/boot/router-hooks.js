@@ -25,7 +25,6 @@ export default async ({ router, store }) => {
           if (rolesNeeded && rolesNeeded.length > 0) {
             const canAccess = checkPermission(rolesNeeded, rolesUser)
             if (!canAccess) {
-              debugger
               await store.dispatch("auth/logout")
               next(`/login?redirect=${to.path}`)
             } else {
@@ -35,7 +34,6 @@ export default async ({ router, store }) => {
             next()
           }
         } else {
-          debugger
           // remove token and go to login page to re-login
           await store.dispatch("auth/logout")
           next(`/login?redirect=${to.path}`)
