@@ -4,6 +4,10 @@ export function firstWord(string) {
   return string.replace(/ .*/, "")
 }
 
+export function firstToUpper(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
 export function warn(
   message,
   defaultMessage = "Hubo un problema al procesar su petición. Intente nuevamente mas tarde",
@@ -14,8 +18,4 @@ export function warn(
     icon: "warning",
     position: "top-right",
   })
-}
-
-export default {
-  firstToUpper: string => string.charAt(0).toUpperCase() + string.slice(1),
 }

@@ -1,4 +1,4 @@
-import { login, logout, getInfo, refresh } from "src/api/user"
+import { login, logout, getInfo, refresh } from "@api/user"
 import {
   getToken,
   getExpiresIn,
@@ -7,9 +7,9 @@ import {
   setToken,
   removeToken,
   mapRoles,
-} from "src/utils/auth"
-import { resetRouter } from "src/router"
-import { getRoles } from "../../api/user"
+} from "@utils/auth"
+import { resetRouter } from "@router"
+import { getRoles } from "@api/user"
 // import axios from "axios";
 // import Cookies from "js-cookie";
 // import * as types from "../mutation-types";
@@ -168,7 +168,7 @@ const actions = {
         reject()
       } else {
         try {
-          const data = await refresh({ refresh_token: state.refreshToken })
+          const { data } = await refresh(state.refreshToken)
 
           const expires = expiresToUnixTS(data.expires_in)
           commit("SET_TOKEN", data.access_token, expires, data.refresh_token)

@@ -4,12 +4,18 @@
       <q-icon
         v-if="selectedValue"
         name="cancel"
-        @click.stop="selectedValue = null"
+        @click.stop="clearValues"
         class="cursor-pointer"
       />
       <q-icon name="event" class="cursor-pointer">
         <q-popup-proxy>
-          <q-date v-model="selectedValue" @input="handleInput" />
+          <q-date
+            v-model="selectedValue"
+            @input="handleInput"
+            today-btn
+            color="accent"
+            :options="pastDisabledFn"
+          />
         </q-popup-proxy>
       </q-icon>
     </template>
@@ -18,7 +24,7 @@
 
 <script>
 import { date } from "quasar"
-import formValidation from "src/mixins/formValidation"
+import formValidation from "@mixins/formValidation"
 
 export default {
   mixins: [formValidation],
@@ -30,6 +36,10 @@ export default {
     },
     value: {
       default: null,
+    },
+    pastDisabled: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
@@ -45,9 +55,29 @@ export default {
       return this.validate ? [this.notEmpty, this.validDate] : []
     },
   },
+  watch: {
+    value(val) {
+      // Fix para limpiar el valor cuando colapsa
+      if (val === null) {
+        this.selectedValue = null
+      }
+    },
+  },
   methods: {
     handleInput() {
       this.$emit("input", this.formated_date)
+    },
+    clearValues() {
+      this.selectedValue = null
+      this.$emit("input", null)
+    },
+    pastDisabledFn(currentDate) {
+      if (this.pastDisabled) {
+        const timeStamp = Date.now()
+        const today = date.formatDate(timeStamp, "YYYY/MM/DD")
+        return currentDate >= today
+      }
+      return true
     },
   },
 }

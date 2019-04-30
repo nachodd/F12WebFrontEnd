@@ -18,7 +18,8 @@
 	map-options-->
 </template>
 <script>
-import formValidation from "src/mixins/formValidation"
+import formValidation from "@mixins/formValidation"
+
 export default {
   mixins: [formValidation],
   props: {

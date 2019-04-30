@@ -40,10 +40,10 @@
             </div>
             <div class="col col-sm-4 col-xs-12">
               <select-custom
-                v-model="form.requerimiento_tipo"
-                :options="requerimientos_tipos"
+                v-model="form.requerimientoTipo"
+                :options="requerimientosTipos"
                 label="Tipo de Requerimiento"
-                :loading="requerimientos_tipos.length === 0"
+                :loading="requerimientosTipos.length === 0"
               />
             </div>
           </div>
@@ -72,12 +72,13 @@
                     <input-date-custom
                       label="Fecha Límite"
                       :validate="llevaFechaLimite"
-                      v-model="form.fecha_limite"
+                      v-model="form.fechaLimite"
+                      past-disabled
                     />
                   </div>
                   <div class="col col-sm-8 col-xs-12">
                     <q-input
-                      v-model.trim="form.motivo_limite"
+                      v-model.trim="form.motivoLimite"
                       outlined
                       type="text"
                       label="Motivo"
@@ -91,7 +92,7 @@
 
           <q-item tag="label" v-ripple>
             <q-item-section avatar>
-              <q-checkbox v-model="esImportante" color="accent" />
+              <q-checkbox v-model="form.importante" color="accent" />
             </q-item-section>
             <q-item-section>
               <q-item-label>
@@ -141,40 +142,30 @@
   </q-page>
 </template>
 <script>
-import PageHeader from "components/PageHeader"
-import formValidation from "src/mixins/formValidation"
 import { mapState } from "vuex"
-import SelectCustom from "components/NuevoTicket/SelectCustom"
-import InputDateCustom from "components/NuevoTicket/InputDateCustom"
-import { warn } from "src/utils/helpers"
+import PageHeader from "@comp/PageHeader"
+import SelectCustom from "@comp/NuevoTicket/SelectCustom"
+import InputDateCustom from "@comp/NuevoTicket/InputDateCustom"
+import formValidation from "@mixins/formValidation"
+import { warn } from "@utils/helpers"
+import Requerimiento from "@models/requerimiento"
 
 export default {
   mixins: [formValidation],
   components: { PageHeader, SelectCustom, InputDateCustom },
   data() {
     return {
-      form: {
-        asunto: "",
-        descripcion: "",
-        area: "",
-        sistema: "",
-        requerimiento_tipo: "",
-        fecha_limite: "",
-        motivo_limite: "",
-        importante: false,
-        // prioridad: 5,
-      },
-      esImportante: false,
+      form: new Requerimiento(),
       submitting: false,
       llevaFechaLimite: false,
       isLoadingOptions: true,
     }
   },
   computed: {
-    ...mapState("tickets", {
+    ...mapState("requerimientos", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
-      requerimientos_tipos: state => state.options.requerimientos_tipos,
+      requerimientosTipos: state => state.options.requerimientosTipos,
     }),
     motivoLimiteRules() {
       return this.llevaFechaLimite ? [this.notEmpty] : []
@@ -183,28 +174,34 @@ export default {
   watch: {
     llevaFechaLimite(val) {
       if (!val) {
-        this.form.fecha_limite = ""
-        this.form.motivo_limite = ""
+        this.form.fechaLimite = null
+        this.form.motivoLimite = ""
       }
     },
   },
   methods: {
     async onSubmit() {
-      this.form.importante = this.esImportante ? 1 : 0
+      // this.form.importante = this.importante ? 1 : 0
       try {
-        await this.$store.dispatch("tickets/storeRequerimiento", this.form)
-        this.isLoadingOptions = false
+        this.submitting = true
+        await this.$store.dispatch(
+          "requerimientos/storeRequerimiento",
+          this.form.toCreatePayload(),
+        )
+        this.form = new Requerimiento()
       } catch (e) {
         warn(
           e.message,
           "Hubo un problema al guardar el ticket. Intente nuevamente mas tarde",
         )
+      } finally {
+        this.submitting = false
       }
     },
   },
   async mounted() {
     try {
-      await this.$store.dispatch("tickets/createRequerimiento")
+      await this.$store.dispatch("requerimientos/createRequerimiento")
       this.isLoadingOptions = false
     } catch (e) {
       warn(

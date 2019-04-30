@@ -37,6 +37,7 @@
 
 <script>
 import { mapGetters } from "vuex"
+
 export default {
   name: "F12Sidebar",
   data() {

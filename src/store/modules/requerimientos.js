@@ -1,10 +1,10 @@
-import { createRequerimiento, storeRequerimiento } from "src/api/tickets"
+import { createRequerimiento, storeRequerimiento } from "@api/requerimientos"
 
 const state = {
   options: {
     areas: [],
     sistemas: [],
-    requerimientos_tipos: [],
+    requerimientosTipos: [],
   },
 }
 
@@ -12,7 +12,7 @@ const state = {
 // const getters = {
 //   areas: state => state.options.areas,
 //   sistemas: state => state.options.sistemas,
-//   requerimientos_tipos: state => state.options.requerimientos_tipos,
+//   requerimientosTipos: state => state.options.requerimientosTipos,
 // }
 
 const mutations = {
@@ -20,15 +20,15 @@ const mutations = {
     // state.options.areas = Vue.set(state.options, "areas", areas)
     state.options.areas = areas
     state.options.sistemas = sistemas
-    state.options.requerimientos_tipos = requerimientos_tipos
+    state.options.requerimientosTipos = requerimientos_tipos
   },
 }
 
 const actions = {
   createRequerimiento({ commit, state }) {
     return new Promise(async (resolve, reject) => {
-      const { areas, sistemas, requerimientos_tipos } = state.options
-      if (areas.length && sistemas.length && requerimientos_tipos.length) {
+      const { areas, sistemas, requerimientosTipos } = state.options
+      if (areas.length && sistemas.length && requerimientosTipos.length) {
         resolve()
       } else {
         try {
@@ -48,10 +48,13 @@ const actions = {
   storeRequerimiento(state, requerimiento) {
     return new Promise(async (resolve, reject) => {
       try {
+        console.log(requerimiento)
         debugger
         const res = await storeRequerimiento(requerimiento)
-        // commit("SET_OPTIONS", data)
         console.log(res)
+        debugger
+        // commit("SET_OPTIONS", data)
+        //console.log(res)
         resolve()
       } catch (error) {
         reject(error)
