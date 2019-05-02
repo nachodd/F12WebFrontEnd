@@ -38,8 +38,8 @@
 </template>
 
 <script>
-import PageHeader from "components/PageHeader"
-import WidgetSimple from "components/WidgetSimple"
+import PageHeader from "@comp/PageHeader"
+import WidgetSimple from "@comp/WidgetSimple"
 
 export default {
   name: "Index",

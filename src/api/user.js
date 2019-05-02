@@ -1,4 +1,4 @@
-import request from "src/utils/request"
+import request from "@utils/request"
 
 export function login({ usuario, password }) {
   const data = {
@@ -35,7 +35,12 @@ export function logout() {
   })
 }
 
-export function refresh(data) {
+export function refresh(refreshToken) {
+  const data = {
+    refresh_token: refreshToken,
+    cliente_id: process.env.VUE_APP_CLIENT_ID,
+    cliente_secret: process.env.VUE_APP_CLIENT_SECRET,
+  }
   return request({
     url: "/refresh",
     method: "post",
