@@ -6,12 +6,12 @@ export default class Requerimiento {
     this.id = req.id ? req.id : null
     this.asunto = req.asunto ? req.asunto : ""
     this.descripcion = req.descripcion ? req.descripcion : ""
-    this.area = req.area ? req.area : ""
-    this.sistema = req.sistema ? req.sistema : ""
+    this.area = req.area ? req.area : null
+    this.sistema = req.sistema ? req.sistema : null
     this.requerimientoTipo = req.requerimiento_tipo
       ? req.requerimiento_tipo
-      : ""
-    this.fechaLimite = req.fecha_limite ? req.fecha_limite : ""
+      : null
+    this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
     this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
     this.importante = req.importante ? req.importante : false
 

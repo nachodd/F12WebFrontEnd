@@ -7,9 +7,11 @@ export function createRequerimiento() {
   })
 }
 
-export function storeRequerimiento() {
+export function storeRequerimiento(data) {
   return request({
     url: "/v1/f12/requerimientos",
     method: "post",
+    data,
+    // withCredentials: true,
   })
 }

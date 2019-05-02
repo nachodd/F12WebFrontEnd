@@ -10,7 +10,7 @@ export function firstToUpper(string) {
 
 export function warn(
   message,
-  defaultMessage = "Hubo un problema al procesar su petición. Intente nuevamente mas tarde",
+  defaultMessage = "Hubo un problema al procesar su petición. Intente nuevamente más tarde",
 ) {
   Notify.create({
     color: "negative",

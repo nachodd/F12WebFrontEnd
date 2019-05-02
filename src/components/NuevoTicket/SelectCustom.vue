@@ -14,8 +14,6 @@
     @filter="filterFunction"
     @input="handleInput"
   />
-  <!-- emit-value
-	map-options-->
 </template>
 <script>
 import formValidation from "@mixins/formValidation"
@@ -47,6 +45,14 @@ export default {
       selectedValue: this.value || null,
       filteredOptions: this.options,
     }
+  },
+  watch: {
+    value(val) {
+      // Fix para limpiar el valor cuando colapsa
+      if (val === null) {
+        this.selectedValue = null
+      }
+    },
   },
   methods: {
     handleInput() {

@@ -6,6 +6,8 @@ const state = {
     sistemas: [],
     requerimientosTipos: [],
   },
+  loadingOptions: true,
+  loadingRequerimiento: true,
 }
 
 // getters
@@ -22,13 +24,29 @@ const mutations = {
     state.options.sistemas = sistemas
     state.options.requerimientosTipos = requerimientos_tipos
   },
+  TOGGLE_LOADING_REQ: state => {
+    state.loadingRequerimiento = !state.loadingRequerimiento
+  },
+  SET_LOADING_REQ: (state, newState) => {
+    state.loadingRequerimiento = newState
+  },
+  TOGGLE_LOADING_OPTS: state => {
+    state.loadingOptions = !state.loadingOptions
+  },
+  SET_LOADING_OPTS: (state, newState) => {
+    state.loadingOptions = newState
+  },
 }
 
 const actions = {
   createRequerimiento({ commit, state }) {
     return new Promise(async (resolve, reject) => {
       const { areas, sistemas, requerimientosTipos } = state.options
+      commit("SET_LOADING_OPTS", true)
+      commit("SET_LOADING_REQ", true)
       if (areas.length && sistemas.length && requerimientosTipos.length) {
+        commit("SET_LOADING_OPTS", false)
+        commit("SET_LOADING_REQ", false)
         resolve()
       } else {
         try {
@@ -41,12 +59,16 @@ const actions = {
           resolve()
         } catch (error) {
           reject(error)
+        } finally {
+          commit("SET_LOADING_OPTS", false)
+          commit("SET_LOADING_REQ", false)
         }
       }
     })
   },
-  storeRequerimiento(state, requerimiento) {
+  storeRequerimiento({ commit }, requerimiento) {
     return new Promise(async (resolve, reject) => {
+      commit("SET_LOADING_REQ", true)
       try {
         console.log(requerimiento)
         debugger
@@ -57,7 +79,10 @@ const actions = {
         //console.log(res)
         resolve()
       } catch (error) {
+        console.log(error)
         reject(error)
+      } finally {
+        commit("SET_LOADING_REQ", false)
       }
     })
   },

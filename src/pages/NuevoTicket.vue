@@ -2,7 +2,12 @@
   <q-page padding>
     <page-header title="Nuevo Ticket" />
 
-    <q-form ref="form" @submit="onSubmit" class="q-gutter-md">
+    <q-form
+      ref="form"
+      @submit="onSubmit"
+      @validation-error="onError"
+      class="q-gutter-md"
+    >
       <q-input
         v-model.trim="form.asunto"
         outlined
@@ -17,6 +22,8 @@
         label="Descripción"
         :rules="[notEmpty]"
       />
+
+      <uploader-custom />
 
       <!-- Wrapper de row - col por el tema del gutter izquierdo -->
       <div class="row">
@@ -104,25 +111,6 @@
         </q-list>
       </div>
 
-      <!-- <div v-permission="['menu_sistemas']">
-        <div class="text-subtitle1 text-grey-7">Prioridad</div>
-        <div class="row justify-around">
-          <div class="col-10">
-            <q-slider
-              v-model="form.prioridad"
-              :color="priorityColor"
-              markers
-              snap
-              :min="0"
-              :max="10"
-              label
-              :label-value="'Prioridad ' + form.prioridad"
-              label-always
-            />
-          </div>
-        </div>
-			</div>-->
-
       <br />
       <div class="row">
         <div class="col">
@@ -130,9 +118,9 @@
             type="submit"
             color="deep-purple-10"
             size="lg"
-            :outline="submitting"
+            :outline="loadingRequerimiento"
             class="full-width"
-            :loading="submitting"
+            :loading="loadingRequerimiento"
           >
             Cargar Ticket
           </q-btn>
@@ -146,19 +134,18 @@ import { mapState } from "vuex"
 import PageHeader from "@comp/PageHeader"
 import SelectCustom from "@comp/NuevoTicket/SelectCustom"
 import InputDateCustom from "@comp/NuevoTicket/InputDateCustom"
+import UploaderCustom from "@comp/NuevoTicket/UploaderCustom"
 import formValidation from "@mixins/formValidation"
 import { warn } from "@utils/helpers"
 import Requerimiento from "@models/requerimiento"
 
 export default {
   mixins: [formValidation],
-  components: { PageHeader, SelectCustom, InputDateCustom },
+  components: { PageHeader, SelectCustom, InputDateCustom, UploaderCustom },
   data() {
     return {
       form: new Requerimiento(),
-      submitting: false,
       llevaFechaLimite: false,
-      isLoadingOptions: true,
     }
   },
   computed: {
@@ -166,6 +153,8 @@ export default {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
+      loadingOptions: state => state.loadingOptions,
+      loadingRequerimiento: state => state.loadingRequerimiento,
     }),
     motivoLimiteRules() {
       return this.llevaFechaLimite ? [this.notEmpty] : []
@@ -183,30 +172,50 @@ export default {
     async onSubmit() {
       // this.form.importante = this.importante ? 1 : 0
       try {
-        this.submitting = true
+        this.loadingRequerimiento = true
         await this.$store.dispatch(
           "requerimientos/storeRequerimiento",
           this.form.toCreatePayload(),
         )
-        this.form = new Requerimiento()
+        // no funciona bien, no limpia los custom components
+        // this.form = new Requerimiento()
+        this.llevaFechaLimite = false
+        this.clearForm()
       } catch (e) {
         warn(
           e.message,
-          "Hubo un problema al guardar el ticket. Intente nuevamente mas tarde",
+          "Hubo un problema al guardar el ticket. Intente nuevamente más tarde",
         )
       } finally {
-        this.submitting = false
+        this.loadingRequerimiento = false
       }
+    },
+    onError(e) {
+      console.log(e)
+      warn("El formulario contiene errores. Por favor, reviselo.")
+    },
+    clearForm() {
+      this.form.asunto = ""
+      this.form.descripcion = ""
+      this.form.area = null
+      this.form.sistema = null
+      this.form.requerimientoTipo = null
+      this.form.fechaLimite = null
+      this.form.motivoLimite = ""
+      this.form.importante = ""
+      this.$nextTick(() => {
+        this.$refs.form.resetValidation()
+      })
     },
   },
   async mounted() {
     try {
       await this.$store.dispatch("requerimientos/createRequerimiento")
-      this.isLoadingOptions = false
+      this.loadingOptions = false
     } catch (e) {
       warn(
         e.message,
-        "Hubo un problema al cargar las opciones. Intente nuevamente mas tarde",
+        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde",
       )
     }
   },
