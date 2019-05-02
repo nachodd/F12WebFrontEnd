@@ -14,11 +14,10 @@
     @filter="filterFunction"
     @input="handleInput"
   />
-  <!-- emit-value
-	map-options-->
 </template>
 <script>
-import formValidation from "src/mixins/formValidation"
+import formValidation from "@mixins/formValidation"
+
 export default {
   mixins: [formValidation],
   props: {
@@ -47,9 +46,20 @@ export default {
       filteredOptions: this.options,
     }
   },
+  watch: {
+    value(val) {
+      // Fix para limpiar el valor cuando colapsa
+      if (val === null) {
+        this.selectedValue = null
+      }
+    },
+  },
   methods: {
     handleInput() {
-      this.$emit("input", this.selectedValue[this.idKey])
+      this.$emit(
+        "input",
+        (this.selectedValue && this.selectedValue[this.idKey]) || "",
+      )
     },
     filterFunction(val, update) {
       if (val === "") {

@@ -11,8 +11,8 @@
 </template>
 
 <script>
-import F12Header from "src/components/Header"
-import F12Sidebar from "src/components/Sidebar"
+import F12Header from "@comp/Header"
+import F12Sidebar from "@comp/Sidebar"
 
 export default {
   name: "F12Layout",

@@ -11,7 +11,7 @@ export function getExpiresIn() {
   return Cookies.get(tokenExpiresKey) || ""
 }
 export function getRefreshToken() {
-  return Cookies.get(tokenKey) || ""
+  return Cookies.get(refreshTokenKey) || ""
 }
 
 export function setToken(token, expires_in, refreshToken = null) {

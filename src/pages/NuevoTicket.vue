@@ -2,7 +2,12 @@
   <q-page padding>
     <page-header title="Nuevo Ticket" />
 
-    <q-form @submit="onSubmit" class="q-gutter-md">
+    <q-form
+      ref="form"
+      @submit="onSubmit"
+      @validation-error="onError"
+      class="q-gutter-md"
+    >
       <q-input
         v-model.trim="form.asunto"
         outlined
@@ -17,6 +22,8 @@
         label="Descripción"
         :rules="[notEmpty]"
       />
+
+      <uploader-custom />
 
       <!-- Wrapper de row - col por el tema del gutter izquierdo -->
       <div class="row">
@@ -40,10 +47,10 @@
             </div>
             <div class="col col-sm-4 col-xs-12">
               <select-custom
-                v-model="form.requerimiento_tipo"
-                :options="requerimientos_tipos"
+                v-model="form.requerimientoTipo"
+                :options="requerimientosTipos"
                 label="Tipo de Requerimiento"
-                :loading="requerimientos_tipos.length === 0"
+                :loading="requerimientosTipos.length === 0"
               />
             </div>
           </div>
@@ -54,40 +61,35 @@
         <q-list link>
           <q-item tag="label" v-ripple>
             <q-item-section avatar>
-              <q-checkbox left-label v-model="fechaLimiteOpen" color="accent" />
+              <q-checkbox
+                left-label
+                v-model="llevaFechaLimite"
+                color="accent"
+              />
             </q-item-section>
             <q-item-section>
               <q-item-label>¿Tiene Fecha Limite?</q-item-label>
             </q-item-section>
           </q-item>
           <q-slide-transition>
-            <div v-if="fechaLimiteOpen" class="row q-mt-sm">
+            <div v-show="llevaFechaLimite" class="row q-mt-sm">
               <div class="col">
                 <div class="row q-col-gutter-sm">
                   <div class="col col-sm-4 col-xs-12">
-                    <q-input
-                      v-model.trim="form.fecha_limite"
-                      outlined
-                      mask="date"
+                    <input-date-custom
                       label="Fecha Límite"
-                      :rules="['date']"
-                    >
-                      <template v-slot:append>
-                        <q-icon name="event" class="cursor-pointer">
-                          <q-popup-proxy>
-                            <q-date v-model="form.fecha_limite" />
-                          </q-popup-proxy>
-                        </q-icon>
-                      </template>
-                    </q-input>
+                      :validate="llevaFechaLimite"
+                      v-model="form.fechaLimite"
+                      past-disabled
+                    />
                   </div>
                   <div class="col col-sm-8 col-xs-12">
                     <q-input
-                      v-model.trim="form.motivo_limite"
+                      v-model.trim="form.motivoLimite"
                       outlined
                       type="text"
                       label="Motivo"
-                      :rules="[notEmpty]"
+                      :rules="motivoLimiteRules"
                     />
                   </div>
                 </div>
@@ -97,7 +99,7 @@
 
           <q-item tag="label" v-ripple>
             <q-item-section avatar>
-              <q-checkbox v-model="fechaLimiteOpen" color="accent" />
+              <q-checkbox v-model="form.importante" color="accent" />
             </q-item-section>
             <q-item-section>
               <q-item-label>
@@ -109,25 +111,6 @@
         </q-list>
       </div>
 
-      <!-- <div v-permission="['menu_sistemas']">
-        <div class="text-subtitle1 text-grey-7">Prioridad</div>
-        <div class="row justify-around">
-          <div class="col-10">
-            <q-slider
-              v-model="form.prioridad"
-              :color="priorityColor"
-              markers
-              snap
-              :min="0"
-              :max="10"
-              label
-              :label-value="'Prioridad ' + form.prioridad"
-              label-always
-            />
-          </div>
-        </div>
-			</div>-->
-
       <br />
       <div class="row">
         <div class="col">
@@ -135,9 +118,9 @@
             type="submit"
             color="deep-purple-10"
             size="lg"
-            :outline="submitting"
+            :outline="loadingRequerimiento"
             class="full-width"
-            :loading="submitting"
+            :loading="loadingRequerimiento"
           >
             Cargar Ticket
           </q-btn>
@@ -147,81 +130,94 @@
   </q-page>
 </template>
 <script>
-import PageHeader from "components/PageHeader"
-import formValidation from "src/mixins/formValidation"
 import { mapState } from "vuex"
-import SelectCustom from "components/NuevoTicket/SelectCustom"
+import PageHeader from "@comp/PageHeader"
+import SelectCustom from "@comp/NuevoTicket/SelectCustom"
+import InputDateCustom from "@comp/NuevoTicket/InputDateCustom"
+import UploaderCustom from "@comp/NuevoTicket/UploaderCustom"
+import formValidation from "@mixins/formValidation"
+import { warn } from "@utils/helpers"
+import Requerimiento from "@models/requerimiento"
 
 export default {
   mixins: [formValidation],
-  components: { PageHeader, SelectCustom },
+  components: { PageHeader, SelectCustom, InputDateCustom, UploaderCustom },
   data() {
     return {
-      form: {
-        asunto: "",
-        descripcion: "",
-        area: "",
-        sistema: "",
-        requerimiento_tipo: "",
-        fecha_limite: "",
-        motivo_limite: "",
-        // prioridad: 5,
-      },
-      submitting: false,
-      fechaLimiteOpen: false,
-      isLoadingOptions: true,
-      areasFiltered: [],
+      form: new Requerimiento(),
+      llevaFechaLimite: false,
     }
   },
   computed: {
-    /* priorityColor() {
-      if (this.form.prioridad <= 2) {
-        return "green"
-      } else if (this.form.prioridad > 2 && this.form.prioridad <= 5) {
-        return "light-green"
-      } else if (this.form.prioridad > 3 && this.form.prioridad <= 5) {
-        return "amber-8"
-      } else if (this.form.prioridad > 5 && this.form.prioridad <= 7) {
-        return "orange"
-      } else if (this.form.prioridad > 7 && this.form.prioridad <= 9) {
-        return "red"
-      } else {
-        return "red-10"
-      }
-    }, */
-    ...mapState("tickets", {
+    ...mapState("requerimientos", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
-      requerimientos_tipos: state => state.options.requerimientos_tipos,
+      requerimientosTipos: state => state.options.requerimientosTipos,
+      loadingOptions: state => state.loadingOptions,
+      loadingRequerimiento: state => state.loadingRequerimiento,
     }),
+    motivoLimiteRules() {
+      return this.llevaFechaLimite ? [this.notEmpty] : []
+    },
+  },
+  watch: {
+    llevaFechaLimite(val) {
+      if (!val) {
+        this.form.fechaLimite = null
+        this.form.motivoLimite = ""
+      }
+    },
   },
   methods: {
-    onSubmit() {
-      console.log(this.form)
-      return false
+    async onSubmit() {
+      // this.form.importante = this.importante ? 1 : 0
+      try {
+        this.loadingRequerimiento = true
+        await this.$store.dispatch(
+          "requerimientos/storeRequerimiento",
+          this.form.toCreatePayload(),
+        )
+        // no funciona bien, no limpia los custom components
+        // this.form = new Requerimiento()
+        this.llevaFechaLimite = false
+        this.clearForm()
+      } catch (e) {
+        warn(
+          e.message,
+          "Hubo un problema al guardar el ticket. Intente nuevamente más tarde",
+        )
+      } finally {
+        this.loadingRequerimiento = false
+      }
     },
-    // filterAreas: filterFunction("areasFiltered", this.areasFiltered),
+    onError(e) {
+      console.log(e)
+      warn("El formulario contiene errores. Por favor, reviselo.")
+    },
+    clearForm() {
+      this.form.asunto = ""
+      this.form.descripcion = ""
+      this.form.area = null
+      this.form.sistema = null
+      this.form.requerimientoTipo = null
+      this.form.fechaLimite = null
+      this.form.motivoLimite = ""
+      this.form.importante = ""
+      this.$nextTick(() => {
+        this.$refs.form.resetValidation()
+      })
+    },
   },
   async mounted() {
     try {
-      await this.$store.dispatch("tickets/getOptionsForTicketCreate")
-      console.log(this.areas)
-      this.isLoadingOptions = false
+      await this.$store.dispatch("requerimientos/createRequerimiento")
+      this.loadingOptions = false
     } catch (e) {
-      this.$q.notify({
-        color: "negative",
-        message:
-          e.message ||
-          "Hubo un problema al cargar las opciones. Intente nuevamente mas tarde",
-        icon: "warning",
-        position: "top-right",
-      })
+      warn(
+        e.message,
+        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde",
+      )
     }
-  },
-  watch: {
-    form: function(val) {
-      console.log(val)
-    },
   },
 }
 </script>

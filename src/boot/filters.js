@@ -1,4 +1,4 @@
-import { firstWord } from "src/utils/helpers"
+import { firstWord } from "@utils/helpers"
 
 export default async ({ Vue }) => {
   Vue.filter("firstWord", firstWord)

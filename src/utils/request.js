@@ -1,6 +1,6 @@
 import axios from "axios"
-import store from "src/store"
-import router from "src/router"
+import store from "@store"
+import router from "@router"
 import { Notify } from "quasar"
 
 // import jwt_decode from "jwt-decode"
@@ -36,6 +36,8 @@ service.interceptors.request.use(
     } else {
       request.headers["Authorization"] = "Bearer " + (await getAuthToken())
     }
+    request.headers.common["Content-Type"] = "application/json"
+    request.headers.common["Accept"] = "application/json"
 
     return request
   },
@@ -124,17 +126,17 @@ service.interceptors.response.use(
 async function getAuthToken() {
   // if the current token expires soon
   const expiresIn = store.getters["auth/expiresIn"]
-  const expiresMinus2Minutes = new Date(+expiresIn)
-  expiresMinus2Minutes.setSeconds(expiresMinus2Minutes.getSeconds() - 120) // returns unix ts
-  const expiresDateMinus2Minutes = new Date(expiresMinus2Minutes)
+  const expiresMinus15Minutes = new Date(+expiresIn)
+  const minutesBefore = 60 * 15
+  expiresMinus15Minutes.setSeconds(
+    expiresMinus15Minutes.getSeconds() - minutesBefore,
+  ) // returns unix ts
+  const expiresDateMinus2Minutes = new Date(expiresMinus15Minutes)
   const isTokenExpiredOrAboutTo =
     expiresDateMinus2Minutes.getTime() <= Date.now()
 
   if (isTokenExpiredOrAboutTo) {
     // refresh it and update it
-    console.log(store.getters)
-    console.log(expiresDateMinus2Minutes)
-    debugger
     await store.dispatch("auth/refresh")
   }
   return store.getters["auth/token"]
