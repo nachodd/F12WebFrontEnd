@@ -59,7 +59,7 @@
 
       <div>
         <q-list link>
-          <q-item tag="label" v-ripple>
+          <q-item tag="label" v-ripple class="list-item--narrow">
             <q-item-section avatar>
               <q-checkbox
                 left-label
@@ -97,7 +97,7 @@
             </div>
           </q-slide-transition>
 
-          <q-item tag="label" v-ripple>
+          <q-item tag="label" v-ripple class="list-item--narrow">
             <q-item-section avatar>
               <q-checkbox v-model="form.importante" color="accent" />
             </q-item-section>
@@ -170,9 +170,7 @@ export default {
   },
   methods: {
     async onSubmit() {
-      // this.form.importante = this.importante ? 1 : 0
       try {
-        this.loadingRequerimiento = true
         await this.$store.dispatch(
           "requerimientos/storeRequerimiento",
           this.form.toCreatePayload(),
@@ -186,8 +184,6 @@ export default {
           e.message,
           "Hubo un problema al guardar el ticket. Intente nuevamente más tarde",
         )
-      } finally {
-        this.loadingRequerimiento = false
       }
     },
     onError(e) {
@@ -211,7 +207,6 @@ export default {
   async mounted() {
     try {
       await this.$store.dispatch("requerimientos/createRequerimiento")
-      this.loadingOptions = false
     } catch (e) {
       warn(
         e.message,

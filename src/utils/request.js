@@ -8,9 +8,10 @@ import { Notify } from "quasar"
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
-  // baseURL: "https://coretest.bld.com.ar",
   // withCredentials: true,
   timeout: 30000, // request timeout,
+  // Flag to handle the error directly in the respose
+  __handleErrorsInResponse: true,
   // validateStatus: status => status < 204, // Reject only if the status code is greater than or equal to 500
 })
 
@@ -63,6 +64,13 @@ service.interceptors.response.use(
       (error && error.response && error.response.status) || undefined
     const errorData =
       (error && error.response && error.response.data) || undefined
+
+    // Check if it was 'Unprocessable Entity' error and if it has to handle it here:
+    const handleErrorsHere =
+      (error && error.config && error.config.__handleErrorsInResponse) || false
+    if (status === 422 && handleErrorsHere) {
+      // Call some function
+    }
 
     if (req !== undefined && req.responseURL.includes("login")) {
       return Promise.reject({
