@@ -17,10 +17,11 @@
             <q-item-label>Inicio</q-item-label>
           </q-item-section>
         </q-item>
+
         <q-item
           clickable
           v-ripple
-          :to="{ name: 'nuevo-ticket' }"
+          :to="{ name: 'nuevo-requerimiento' }"
           active-class="menu-items--active"
         >
           <q-item-section avatar>
@@ -28,6 +29,20 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>Nuevo Ticket</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item
+          clickable
+          v-ripple
+          :to="{ name: 'listado-requerimientos' }"
+          active-class="menu-items--active"
+        >
+          <q-item-section avatar>
+            <q-icon name="fas fa-list-ol" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Listado de Requerimientos</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>

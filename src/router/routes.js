@@ -22,11 +22,20 @@ const routes = [
         },
       },
       {
-        path: "/nuevo-ticket",
-        name: "nuevo-ticket",
-        component: () => import("pages/NuevoTicket.vue"),
+        path: "/nuevo-requerimiento",
+        name: "nuevo-requerimiento",
+        component: () => import("pages/NuevoRequerimiento.vue"),
         meta: {
-          title: "Nuevo Ticket - F12",
+          title: "Nuevo Requerimiento - F12",
+          roles: ["menu_sistemas"],
+        },
+      },
+      {
+        path: "/listado-requerimientos",
+        name: "listado-requerimientos",
+        component: () => import("pages/ListadoRequerimientos.vue"),
+        meta: {
+          title: "Listado de Requerimientos - F12",
           roles: ["menu_sistemas"],
         },
       },
