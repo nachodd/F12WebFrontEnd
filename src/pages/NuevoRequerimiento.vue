@@ -170,25 +170,18 @@ export default {
   },
   methods: {
     async onSubmit() {
-      try {
-        await this.$store.dispatch(
-          "requerimientos/storeRequerimiento",
-          this.form.toCreatePayload(),
-        )
-        // no funciona bien, no limpia los custom components
-        // this.form = new Requerimiento()
-        this.llevaFechaLimite = false
-        this.clearForm()
-      } catch (e) {
-        warn(
-          e.message,
-          "Hubo un problema al guardar el ticket. Intente nuevamente más tarde",
-        )
-      }
+      await this.$store.dispatch(
+        "requerimientos/storeRequerimiento",
+        this.form.toCreatePayload(),
+      )
+      // no funciona bien, no limpia los custom components
+      // this.form = new Requerimiento()
+      this.llevaFechaLimite = false
+      this.clearForm()
     },
-    onError(e) {
-      console.log(e)
-      warn("El formulario contiene errores. Por favor, reviselo.")
+    onError() {
+      const message = "El formulario contiene errores. Por favor, reviselo."
+      warn({ message })
     },
     clearForm() {
       this.form.asunto = ""
@@ -208,10 +201,10 @@ export default {
     try {
       await this.$store.dispatch("requerimientos/createRequerimiento")
     } catch (e) {
-      warn(
-        e.message,
-        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde",
-      )
+      const message =
+        e.message ||
+        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
+      warn({ message })
     }
   },
 }

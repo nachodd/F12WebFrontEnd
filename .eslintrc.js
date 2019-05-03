@@ -22,6 +22,7 @@ module.exports = {
     cordova: true,
     __statics: true,
     process: true,
+    _: true,
   },
 
   // add your custom rules here

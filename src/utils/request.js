@@ -1,7 +1,7 @@
 import axios from "axios"
 import store from "@store"
 import router from "@router"
-import { Notify } from "quasar"
+import { warn } from "@utils/helpers"
 
 // import jwt_decode from "jwt-decode"
 
@@ -53,25 +53,36 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => response,
   async error => {
-    const req = (error && error.request) || undefined
-    const message =
-      (error &&
-        error.response &&
-        error.response.data &&
-        error.response.data.message) ||
-      "Ocurrio un problema al procesar su petición"
-    const status =
-      (error && error.response && error.response.status) || undefined
-    const errorData =
-      (error && error.response && error.response.data) || undefined
+    const req = _.get(error, "request", undefined) // (error && error.request) || undefined
+    const message = _.get(
+      error,
+      "response.data.message",
+      "Ocurrio un problema al procesar su petición",
+    )
+    const status = _.get(error, "response.status", undefined) // (error && error.response && error.response.status) || undefined
+    const errorData = _.get(error, "response.data", undefined) // (error && error.response && error.response.data) || undefined
 
     // Check if it was 'Unprocessable Entity' error and if it has to handle it here:
-    const handleErrorsHere =
-      (error && error.config && error.config.__handleErrorsInResponse) || false
-    if (status === 422 && handleErrorsHere) {
+    const handleErrorsHere = _.get(
+      error,
+      "config.__handleErrorsInResponse",
+      undefined,
+    )
+    // (error && error.config && error.config.__handleErrorsInResponse) || false
+    const errorsArray = _.get(error, "response.data.errors", undefined)
+
+    if (status === 422 && handleErrorsHere && errorsArray) {
       // Call some function
+      parseError(error.response.data.errors)
+
+      return Promise.reject({
+        message,
+        status,
+        data: errorData,
+      })
     }
 
+    // Maybe we can erase this:
     if (req !== undefined && req.responseURL.includes("login")) {
       return Promise.reject({
         message,
@@ -107,17 +118,16 @@ service.interceptors.response.use(
       return service.request(error.config)
     }
 
+    // Check if it's server error:
     if (status >= 500) {
-      Notify.create({
-        message: "Ocurrio un problema al procesar su petición",
-        color: "danger",
-      })
+      warn({ message: "Ocurrio un problema al procesar su petición" })
       return Promise.reject({
         message,
         status,
         data: errorData,
       })
     }
+
     return Promise.reject({
       message,
       status,
@@ -148,6 +158,30 @@ async function getAuthToken() {
     await store.dispatch("auth/refresh")
   }
   return store.getters["auth/token"]
+}
+
+function parseError(errors) {
+  const errorList = _.reduce(
+    errors,
+    (errorList, key) => {
+      const errorsForKey = _.reduce(
+        errorList,
+        error => {
+          return `<li>${error}</li>`
+        },
+        "",
+      )
+      return `${key}: <ul>${errorsForKey}<ul>`
+    },
+    "",
+  )
+  const message = `Aviso: Por favor, revise los siguientes campos: <br/> ${errorList}`
+  warn({ message, timeout: 10000 })
+
+  // this.$q.dialog({
+  //   title: "Aviso",
+  //   message,
+  // })
 }
 
 export default service
