@@ -1,6 +1,12 @@
-import { createRequerimiento, storeRequerimiento } from "@api/requerimientos"
+import {
+  createRequerimiento,
+  storeRequerimiento,
+  listRequerimientos,
+  getRequerimiento,
+} from "@api/requerimientos"
 
 const state = {
+  // Create
   options: {
     areas: [],
     sistemas: [],
@@ -8,6 +14,10 @@ const state = {
   },
   loadingOptions: true,
   loadingRequerimiento: true,
+
+  // List
+  misRequerimientos: [],
+  requerimientoDetalle: null,
 }
 
 // getters
@@ -35,6 +45,12 @@ const mutations = {
   },
   SET_LOADING_OPTS: (state, newState) => {
     state.loadingOptions = newState
+  },
+  SET_MIS_REQUERIMIENTOS: (state, misRequerimientos) => {
+    state.misRequerimientos = misRequerimientos
+  },
+  SET_REQUERIMIENTO_DETALLE: (state, requerimientoDetalle) => {
+    state.requerimientoDetalle = requerimientoDetalle
   },
 }
 
@@ -70,13 +86,48 @@ const actions = {
     return new Promise(async (resolve, reject) => {
       commit("SET_LOADING_REQ", true)
       try {
-        console.log(requerimiento)
-        const res = await storeRequerimiento(requerimiento)
-        console.log(res)
-        debugger
+        await storeRequerimiento(requerimiento)
         resolve()
       } catch (error) {
-        console.log(error)
+        reject(error)
+      } finally {
+        commit("SET_LOADING_REQ", false)
+      }
+    })
+  },
+  listRequerimientos({ commit, rootState }, userId = null) {
+    return new Promise(async (resolve, reject) => {
+      commit("SET_LOADING_REQ", true)
+      try {
+        let userRequerimientos = userId
+        const actualUserId = _.get(rootState, "auth.user.Id", null)
+        if (!userRequerimientos && actualUserId) {
+          userRequerimientos = actualUserId
+        }
+        const {
+          data: { data },
+        } = await listRequerimientos(userRequerimientos)
+        commit("SET_MIS_REQUERIMIENTOS", data)
+
+        resolve()
+      } catch (error) {
+        reject(error)
+      } finally {
+        commit("SET_LOADING_REQ", false)
+      }
+    })
+  },
+  getRequerimiento({ commit }, requerimientoId = null) {
+    return new Promise(async (resolve, reject) => {
+      commit("SET_LOADING_REQ", true)
+      try {
+        const {
+          data: { data },
+        } = await getRequerimiento(requerimientoId)
+        commit("SET_REQUERIMIENTO_DETALLE", data)
+
+        resolve()
+      } catch (error) {
         reject(error)
       } finally {
         commit("SET_LOADING_REQ", false)

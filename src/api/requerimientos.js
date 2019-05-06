@@ -14,6 +14,19 @@ export function storeRequerimiento(data) {
     method: "post",
     data,
     // __handleErrorsInResponse,
-    // withCredentials: true,
+  })
+}
+
+export function listRequerimientos(userId) {
+  return request({
+    url: `/v1/f12/${userId}/requerimientos`,
+    method: "get",
+  })
+}
+
+export function getRequerimiento(requerimientoId) {
+  return request({
+    url: `/v1/f12/requerimientos/${requerimientoId}`,
+    method: "get",
   })
 }

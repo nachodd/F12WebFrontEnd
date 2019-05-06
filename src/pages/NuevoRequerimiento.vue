@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <page-header title="Nuevo Ticket" />
+    <page-header title="Nuevo Requerimiento" />
 
     <q-form
       ref="form"
