@@ -28,21 +28,21 @@
             <q-icon name="note_add" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Nuevo Ticket</q-item-label>
+            <q-item-label>Nuevo Requerimiento</q-item-label>
           </q-item-section>
         </q-item>
 
         <q-item
           clickable
           v-ripple
-          :to="{ name: 'listado-requerimientos' }"
+          :to="{ name: 'mis-requerimientos' }"
           active-class="menu-items--active"
         >
           <q-item-section avatar>
             <q-icon name="fas fa-list-ol" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Listado de Requerimientos</q-item-label>
+            <q-item-label>Mis Requerimientos</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>

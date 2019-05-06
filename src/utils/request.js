@@ -1,7 +1,7 @@
 import axios from "axios"
 import store from "@store"
 import router from "@router"
-import { warn } from "@utils/helpers"
+import { warn, warnDialogParse } from "@utils/helpers"
 
 // import jwt_decode from "jwt-decode"
 
@@ -72,9 +72,7 @@ service.interceptors.response.use(
     const errorsArray = _.get(error, "response.data.errors", undefined)
 
     if (status === 422 && handleErrorsHere && errorsArray) {
-      // Call some function
-      parseError(error.response.data.errors)
-
+      warnDialogParse(errorsArray)
       return Promise.reject({
         message,
         status,
@@ -136,11 +134,6 @@ service.interceptors.response.use(
   },
 )
 
-// let authTokenRequest = null
-// tokenRequest dirty bit reseter
-// function resetAuthTokenRequest() {
-//   authTokenRequest = null
-// }
 async function getAuthToken() {
   // if the current token expires soon
   const expiresIn = store.getters["auth/expiresIn"]
@@ -158,30 +151,6 @@ async function getAuthToken() {
     await store.dispatch("auth/refresh")
   }
   return store.getters["auth/token"]
-}
-
-function parseError(errors) {
-  const errorList = _.reduce(
-    errors,
-    (errorList, key) => {
-      const errorsForKey = _.reduce(
-        errorList,
-        error => {
-          return `<li>${error}</li>`
-        },
-        "",
-      )
-      return `${key}: <ul>${errorsForKey}<ul>`
-    },
-    "",
-  )
-  const message = `Aviso: Por favor, revise los siguientes campos: <br/> ${errorList}`
-  warn({ message, timeout: 10000 })
-
-  // this.$q.dialog({
-  //   title: "Aviso",
-  //   message,
-  // })
 }
 
 export default service

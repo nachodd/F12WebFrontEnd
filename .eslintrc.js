@@ -33,6 +33,7 @@ module.exports = {
     //   "singleline": "never",
     //   "multiline": "never"
     // }],
+    "no-empty": ["error", { allowEmptyCatch: true }],
     "prettier/prettier": [
       "error",
       {

@@ -28,16 +28,22 @@ export default class Requerimiento {
   // }
 
   toCreatePayload() {
+    let fechaLimite = this.fechaLimite
+    if (fechaLimite !== null && fechaLimite.split("/").length === 3) {
+      const aux = fechaLimite.split("/")
+      fechaLimite = `${aux[2]}-${aux[1]}-${aux[0]}`
+    }
+
     return {
       asunto: this.asunto,
       descripcion: this.descripcion,
       area: this.area,
       sistema: this.sistema,
       requerimiento_tipo: this.requerimientoTipo,
-      fecha_limite: this.fechaLimite,
+      fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
       importante: +this.importante, // + to Parse Boolean to Number
-      // prioridad: this.prioridad,
+      prioridad: this.prioridad,
     }
   }
 

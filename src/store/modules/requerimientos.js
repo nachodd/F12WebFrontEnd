@@ -71,12 +71,9 @@ const actions = {
       commit("SET_LOADING_REQ", true)
       try {
         console.log(requerimiento)
-        debugger
         const res = await storeRequerimiento(requerimiento)
         console.log(res)
         debugger
-        // commit("SET_OPTIONS", data)
-        //console.log(res)
         resolve()
       } catch (error) {
         console.log(error)

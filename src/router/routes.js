@@ -31,11 +31,11 @@ const routes = [
         },
       },
       {
-        path: "/listado-requerimientos",
-        name: "listado-requerimientos",
-        component: () => import("pages/ListadoRequerimientos.vue"),
+        path: "/mis-requerimientos",
+        name: "mis-requerimientos",
+        component: () => import("pages/MisRequerimientos.vue"),
         meta: {
-          title: "Listado de Requerimientos - F12",
+          title: "Mis Requerimientos - F12",
           roles: ["menu_sistemas"],
         },
       },

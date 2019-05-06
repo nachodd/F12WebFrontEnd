@@ -136,7 +136,7 @@ import SelectCustom from "@comp/NuevoTicket/SelectCustom"
 import InputDateCustom from "@comp/NuevoTicket/InputDateCustom"
 import UploaderCustom from "@comp/NuevoTicket/UploaderCustom"
 import formValidation from "@mixins/formValidation"
-import { warn } from "@utils/helpers"
+import { warn, success } from "@utils/helpers"
 import Requerimiento from "@models/requerimiento"
 
 export default {
@@ -170,18 +170,24 @@ export default {
   },
   methods: {
     async onSubmit() {
-      await this.$store.dispatch(
-        "requerimientos/storeRequerimiento",
-        this.form.toCreatePayload(),
-      )
-      // no funciona bien, no limpia los custom components
-      // this.form = new Requerimiento()
-      this.llevaFechaLimite = false
-      this.clearForm()
+      try {
+        await this.$store.dispatch(
+          "requerimientos/storeRequerimiento",
+          this.form.toCreatePayload(),
+        )
+        // no funciona bien, no limpia los custom components
+        // this.form = new Requerimiento()
+        success({
+          message: "La solicitud fue procesada correctamente!",
+        })
+        this.llevaFechaLimite = false
+        this.clearForm()
+      } catch (e) {}
     },
     onError() {
-      const message = "El formulario contiene errores. Por favor, reviselo."
-      warn({ message })
+      warn({
+        message: "El formulario contiene errores. Por favor, reviselo.",
+      })
     },
     clearForm() {
       this.form.asunto = ""

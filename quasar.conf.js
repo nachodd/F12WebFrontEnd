@@ -29,6 +29,7 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QDialog",
         "QUploader",
         "QTooltip",
         "QPopupProxy",
