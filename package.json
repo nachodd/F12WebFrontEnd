@@ -18,6 +18,7 @@
     "jwt-decode": "https://github.com/auth0/jwt-decode.git",
     "lodash": "^4.17.11",
     "quasar": "^1.0.0-beta.21",
+    "vuedraggable": "^2.20.0",
     "vuelidate": "^0.7.4"
   },
   "devDependencies": {

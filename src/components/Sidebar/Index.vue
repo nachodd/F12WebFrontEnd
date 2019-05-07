@@ -45,6 +45,25 @@
             <q-item-label>Mis Requerimientos</q-item-label>
           </q-item-section>
         </q-item>
+
+        <q-item
+          clickable
+          v-ripple
+          :to="{ name: 'priorizar-requerimientos' }"
+          active-class="menu-items--active"
+        >
+          <q-item-section avatar class="button">
+            <q-icon name="fas fa-sort-amount-down" />
+
+            <!-- <div class="icons">
+              <i class="fas fa-sort-amount-down icon-default"></i>
+              <i class="fas fa-sort-amount-up icon-hover"></i>
+						</div>-->
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Priorizar Requerimientos</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-scroll-area>
   </q-drawer>
@@ -76,4 +95,47 @@ export default {
   color: $accent-light;
   background: rgba(73, 65, 214, 0.15);
 }
+
+/* .button {
+  position: relative;
+  -moz-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  .icons {
+    position: relative;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    i {
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      display: block;
+    }
+    .icon-default {
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .icon-hover {
+      transition: opacity 0.3s, transform 0.3s;
+      transform: rotate(-180deg) scale(1);
+      opacity: 0;
+    }
+  }
+
+  &:hover {
+    transform: scale(1.2);
+    box-shadow: 20px 15px rgba(0, 0, 0, 0.15);
+    .icon-hover {
+      transform: rotate(0deg) scale(1.5);
+      opacity: 1;
+    }
+    .icon-default {
+      transform: rotate(180deg) scale(1);
+      opacity: 0;
+    }
+  }
+} */
 </style>

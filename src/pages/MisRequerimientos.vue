@@ -1,19 +1,20 @@
 <template>
   <q-page padding>
     <page-header title="Mis Requerimientos" />
-    {{ misRequerimientos }}
+    <mis-requerimientos-listado
+      :requerimientos="misRequerimientos"
+      :loading="loadingRequerimiento"
+    />
   </q-page>
 </template>
 <script>
 import { mapState } from "vuex"
 import { warn } from "@utils/helpers"
 import PageHeader from "@comp/PageHeader"
+import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
 
 export default {
-  components: { PageHeader },
-  data() {
-    return {}
-  },
+  components: { PageHeader, MisRequerimientosListado },
   computed: {
     ...mapState("requerimientos", {
       loadingRequerimiento: state => state.loadingRequerimiento,
