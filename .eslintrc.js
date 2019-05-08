@@ -45,6 +45,13 @@ module.exports = {
         "html-whitespace-sensitivity": "ignore",
       },
     ],
+    // "vue/max-attributes-per-line": ["error", {
+    //   "singleline": 3,
+    //   "multiline": {
+    //     "max": 1,
+    //     "allowFirstLine": false
+    //   }
+    // }],
 
     // allow console.log during development only
     "no-console": process.env.NODE_ENV === "production" ? "error" : "off",

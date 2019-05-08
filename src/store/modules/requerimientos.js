@@ -18,6 +18,14 @@ const state = {
   // List
   misRequerimientos: [],
   requerimientoDetalle: null,
+
+  estados: [
+    { code: "PEND", label: "Pendiente aprobación", value: "1" },
+    { code: "APRV", label: "Aprobado", value: "2" },
+    { code: "EXEC", label: "En ejecución", value: "3" },
+    { code: "RESC", label: "Resuelto cerrado", value: "4" },
+    { code: "REJC", label: "Rechazado", value: "5" },
+  ],
 }
 
 // getters

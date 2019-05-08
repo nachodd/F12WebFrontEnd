@@ -35,6 +35,7 @@ service.interceptors.request.use(
         request.headers["Authorization"] = `Bearer ${token}`
       }
     } else {
+      // TODO: Ver si se puede refrscar el token async
       request.headers["Authorization"] = "Bearer " + (await getAuthToken())
     }
     request.headers.common["Content-Type"] = "application/json"
@@ -81,13 +82,15 @@ service.interceptors.response.use(
     }
 
     // Maybe we can erase this:
-    if (req !== undefined && req.responseURL.includes("login")) {
-      return Promise.reject({
-        message,
-        status,
-        data: errorData,
-      })
-    }
+    // if (req !== undefined && req.responseURL.includes("login")) {
+    //   return Promise.reject({
+    //     message,
+    //     status,
+    //     data: errorData,
+    //   })
+    // }
+
+    // TODO: ver de pasar esta logica al metodo del store auth/refresh
 
     // If you can't refresh your token or you are sent Unauthorized on any request, reset token and go to login
     const isRefreshOrLogout =
@@ -119,11 +122,6 @@ service.interceptors.response.use(
     // Check if it's server error:
     if (status >= 500) {
       warn({ message: "Ocurrio un problema al procesar su petición" })
-      return Promise.reject({
-        message,
-        status,
-        data: errorData,
-      })
     }
 
     return Promise.reject({

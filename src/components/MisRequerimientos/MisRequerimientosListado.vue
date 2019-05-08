@@ -1,7 +1,7 @@
-<template functional>
-  <list-container :loading="props.loading">
+<template>
+  <list-container :loading="loading">
     <mis-requerimientos-item
-      v-for="req in props.requerimientos"
+      v-for="req in requerimientos"
       :key="`req_${req.id}`"
       :req="req"
     />
@@ -12,14 +12,16 @@ import ListContainer from "@comp/Common/ListContainer"
 import MisRequerimientosItem from "./MisRequerimientosItem"
 
 export default {
+  name: "MisRequerimientosListado",
   components: {
-    ListContainer,
-    MisRequerimientosItem,
+    "list-container": ListContainer,
+    "mis-requerimientos-item": MisRequerimientosItem,
   },
   props: {
     requerimientos: {
       type: Array,
       required: true,
+      default: () => [],
     },
     loading: {
       type: Boolean,

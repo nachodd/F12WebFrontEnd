@@ -61,6 +61,7 @@
 </template>
 <script>
 export default {
+  name: "MisRequerimientosItem",
   props: {
     req: {
       type: Object,

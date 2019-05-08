@@ -1,24 +1,25 @@
-<template functional>
-  <draggable v-model="requerimientos" group="requerimientos">
-    <!-- <div v-for="req in requerimientosAOrdernar" :key="req.id">
-      {{ req.asunto }}
-		</div>-->
-
-    <list-container :loading="props.loading">
-      <mis-requerimientos-item
-        v-for="req in props.requerimientos"
-        :key="`req_${req.id}`"
-        :req="req"
-      />
+<template>
+  <q-list bordered separator class="rounded-borders q-mb-md" v-show="!loading">
+    <list-container :loading="loading">
+      <draggable :list="requerimientos" group="requerimientos">
+        <priorizar-requerimientos-item
+          v-for="req in requerimientos"
+          :key="`req_${req.id}`"
+          :req="req"
+        />
+      </draggable>
     </list-container>
-  </draggable>
+  </q-list>
 </template>
 <script>
+import draggable from "vuedraggable"
 import ListContainer from "@comp/Common/ListContainer"
 import PriorizarRequerimientosItem from "./PriorizarRequerimientosItem"
 
 export default {
+  name: "PriorizarRequerimientosListado",
   components: {
+    draggable,
     ListContainer,
     PriorizarRequerimientosItem,
   },
@@ -26,6 +27,7 @@ export default {
     requerimientos: {
       type: Array,
       required: true,
+      default: () => [],
     },
     loading: {
       type: Boolean,

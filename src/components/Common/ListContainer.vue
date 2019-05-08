@@ -20,6 +20,18 @@
   </div>
 </template>
 
+<script>
+export default {
+  name: "ListContainer",
+  props: {
+    loading: {
+      type: Boolean,
+      required: true,
+    },
+  },
+}
+</script>
+
 <style lang="scss" scoped>
 .list-container {
   height: 290px;

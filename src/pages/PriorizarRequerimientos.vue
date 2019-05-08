@@ -1,26 +1,28 @@
 <template>
   <q-page padding>
     <page-header title="Priorizar Requerimientos" />
-    <draggable
-      v-model="requerimientosAOrdernar"
-      group="requerimientos"
-      @start="drag = true"
-      @end="drag = false"
-    >
-      <div v-for="req in requerimientosAOrdernar" :key="req.id">
-        {{ req.asunto }}
+    <div class="row">
+      <div class="col-xs-12 col-sm-6">
+        <priorizar-requerimientos-listado
+          :requerimientos="requerimientosAOrdernar"
+          :loading="false"
+        />
       </div>
-    </draggable>
+      <div class="col-xs-12 col-sm-6">
+        sdsopdjs
+      </div>
+    </div>
   </q-page>
 </template>
 
 <script>
-import draggable from "vuedraggable"
 import PageHeader from "@comp/PageHeader"
+import PriorizarRequerimientosListado from "@comp/PriorizarRequerimientos/PriorizarRequerimientosListado"
 import dummyRequerimientosList from "@utils/dummyRequerimientosList"
 
 export default {
-  components: { PageHeader, draggable },
+  name: "PriorizarRequerimientos",
+  components: { PageHeader, PriorizarRequerimientosListado },
   data() {
     return {
       requerimientosAOrdernar: dummyRequerimientosList,

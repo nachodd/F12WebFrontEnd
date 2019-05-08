@@ -14,7 +14,7 @@ export default class Requerimiento {
     this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
     this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
     this.importante = req.importante ? req.importante : false
-    this.prioridad = req.prioridad ? req.prioridad : 5
+    // this.prioridad = req.prioridad ? req.prioridad : 5
 
     // Validations of properites can be more complex
     // this.producedAt =
