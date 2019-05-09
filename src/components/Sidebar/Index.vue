@@ -1,6 +1,6 @@
 <template>
   <!-- bordered content-class="bg-grey-2" -->
-  <q-drawer bordered content-class="bg-grey-2" v-model="sidebarOpen">
+  <q-drawer bordered content-class="bg-grey-2" v-model="sidebarOpened">
     <q-scroll-area class="fit">
       <q-list padding class="menu-list">
         <q-item-label header>Menu Principal</q-item-label>
@@ -70,18 +70,24 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
+import { mapGetters, mapState } from "vuex"
 
 export default {
   name: "F12Sidebar",
-  data() {
-    return {
-      sidebarOpened: this.sidebarOpen,
-    }
-  },
   computed: {
-    ...mapGetters("app", ["sidebarOpen"]),
+    // ...mapGetters("app", ["sidebarOpen"]),
     ...mapGetters("auth", ["user"]),
+    ...mapState("app", {
+      sidebarOpenStore: state => state.sidebarOpen,
+    }),
+    sidebarOpened: {
+      set(state) {
+        this.$store.dispatch("app/setSideBar", state)
+      },
+      get() {
+        return this.sidebarOpenStore
+      },
+    },
   },
   methods: {},
 }

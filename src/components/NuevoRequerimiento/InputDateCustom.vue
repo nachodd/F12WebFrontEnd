@@ -1,5 +1,11 @@
 <template>
-  <q-input :value="formated_date" outlined :label="label" :rules="rulesDate">
+  <q-input
+    :value="formated_date"
+    outlined
+    :label="label"
+    :rules="rulesDate"
+    :hide-bottom-space="true"
+  >
     <template v-slot:append>
       <q-icon
         v-if="selectedValue"

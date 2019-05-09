@@ -4,9 +4,9 @@
 
     <q-form
       ref="form"
+      class="q-gutter-md"
       @submit="onSubmit"
       @validation-error="onError"
-      class="q-gutter-md"
     >
       <q-input
         v-model.trim="form.asunto"
@@ -14,6 +14,7 @@
         type="text"
         label="Asunto"
         :rules="[notEmpty]"
+        :hide-bottom-space="true"
       />
       <q-input
         v-model.trim="form.descripcion"
@@ -21,9 +22,13 @@
         type="textarea"
         label="Descripción"
         :rules="[notEmpty]"
+        :hide-bottom-space="true"
       />
 
-      <uploader-custom />
+      <uploader-custom
+        @filesAdded="handleFilesAdded"
+        @filesRemoved="handleFilesRemoved"
+      />
 
       <!-- Wrapper de row - col por el tema del gutter izquierdo -->
       <div class="row">
@@ -59,11 +64,11 @@
 
       <div>
         <q-list link>
-          <q-item tag="label" v-ripple class="list-item--narrow">
+          <q-item v-ripple tag="label" class="list-item--narrow">
             <q-item-section avatar>
               <q-checkbox
-                left-label
                 v-model="llevaFechaLimite"
+                left-label
                 color="accent"
               />
             </q-item-section>
@@ -77,9 +82,9 @@
                 <div class="row q-col-gutter-sm">
                   <div class="col col-sm-4 col-xs-12">
                     <input-date-custom
+                      v-model="form.fechaLimite"
                       label="Fecha Límite"
                       :validate="llevaFechaLimite"
-                      v-model="form.fechaLimite"
                       past-disabled
                     />
                   </div>
@@ -90,6 +95,7 @@
                       type="text"
                       label="Motivo"
                       :rules="motivoLimiteRules"
+                      :hide-bottom-space="true"
                     />
                   </div>
                 </div>
@@ -97,7 +103,7 @@
             </div>
           </q-slide-transition>
 
-          <q-item tag="label" v-ripple class="list-item--narrow">
+          <q-item v-ripple tag="label" class="list-item--narrow">
             <q-item-section avatar>
               <q-checkbox v-model="form.importante" color="accent" />
             </q-item-section>
@@ -132,16 +138,16 @@
 <script>
 import { mapState } from "vuex"
 import PageHeader from "@comp/PageHeader"
-import SelectCustom from "@comp/NuevoTicket/SelectCustom"
-import InputDateCustom from "@comp/NuevoTicket/InputDateCustom"
-import UploaderCustom from "@comp/NuevoTicket/UploaderCustom"
+import SelectCustom from "@comp/NuevoRequerimiento/SelectCustom"
+import InputDateCustom from "@comp/NuevoRequerimiento/InputDateCustom"
+import UploaderCustom from "@comp/NuevoRequerimiento/UploaderCustom"
 import formValidation from "@mixins/formValidation"
 import { warn, success } from "@utils/helpers"
 import Requerimiento from "@models/requerimiento"
 
 export default {
-  mixins: [formValidation],
   components: { PageHeader, SelectCustom, InputDateCustom, UploaderCustom },
+  mixins: [formValidation],
   data() {
     return {
       form: new Requerimiento(),
@@ -168,13 +174,39 @@ export default {
       }
     },
   },
+  async mounted() {
+    try {
+      await this.$store.dispatch("requerimientos/createRequerimiento")
+    } catch (e) {
+      const message =
+        e.message ||
+        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
+      warn({ message })
+    }
+  },
   methods: {
+    handleFilesAdded(files) {
+      files.forEach(file => {
+        const isInArray = _.find(this.form.files, { name: file.name })
+        if (!isInArray) {
+          this.form.files.push(file)
+        }
+      })
+    },
+    handleFilesRemoved(files) {
+      files.forEach(file => {
+        const indexInArray = _.findIndex(this.form.files, { name: file.name })
+        if (indexInArray) {
+          this.form.files.splice(indexInArray, 1)
+        }
+      })
+    },
     async onSubmit() {
       try {
-        await this.$store.dispatch(
-          "requerimientos/storeRequerimiento",
-          this.form.toCreatePayload(),
-        )
+        const data = await this.form.toCreatePayload()
+        console.log(data)
+        debugger
+        await this.$store.dispatch("requerimientos/storeRequerimiento", data)
         // no funciona bien, no limpia los custom components
         // this.form = new Requerimiento()
         success({
@@ -202,16 +234,6 @@ export default {
         this.$refs.form.resetValidation()
       })
     },
-  },
-  async mounted() {
-    try {
-      await this.$store.dispatch("requerimientos/createRequerimiento")
-    } catch (e) {
-      const message =
-        e.message ||
-        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
-      warn({ message })
-    }
   },
 }
 </script>

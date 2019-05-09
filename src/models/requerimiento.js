@@ -1,5 +1,6 @@
 // import { required, alpha } from "vuelidate/lib/validators"
 // import { date } from "quasar"
+import { getBase64 } from "@utils/helpers"
 
 export default class Requerimiento {
   constructor(req = {}) {
@@ -14,7 +15,8 @@ export default class Requerimiento {
     this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
     this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
     this.importante = req.importante ? req.importante : false
-    // this.prioridad = req.prioridad ? req.prioridad : 5
+    this.prioridad = req.prioridad ? req.prioridad : 5
+    this.files = []
 
     // Validations of properites can be more complex
     // this.producedAt =
@@ -27,11 +29,18 @@ export default class Requerimiento {
   //   return this.brand.concat(" ", this.model)
   // }
 
-  toCreatePayload() {
+  async toCreatePayload() {
     let fechaLimite = this.fechaLimite
     if (fechaLimite !== null && fechaLimite.split("/").length === 3) {
       const aux = fechaLimite.split("/")
       fechaLimite = `${aux[2]}-${aux[1]}-${aux[0]}`
+    }
+
+    debugger
+    if (this.files.length > 0) {
+      this.files = await getBase64(this.files[0])
+    } else {
+      this.files = null
     }
 
     return {
@@ -44,6 +53,7 @@ export default class Requerimiento {
       motivo_limite: this.motivoLimite,
       importante: +this.importante, // + to Parse Boolean to Number
       prioridad: this.prioridad,
+      imagen: this.files,
     }
   }
 

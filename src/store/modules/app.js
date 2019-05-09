@@ -28,6 +28,10 @@ const mutations = {
     Cookies.set("sidebarStatus", 0)
     state.sidebarOpen = false
   },
+  SET_SIDEBAR: (state, status) => {
+    Cookies.set("sidebarStatus", +status)
+    state.sidebarOpen = status
+  },
   TOGGLE_DEVICE: (state, device) => {
     state.device = device
   },
@@ -43,6 +47,9 @@ const actions = {
   },
   closeSideBar({ commit }) {
     commit("CLOSE_SIDEBAR")
+  },
+  setSideBar({ commit }, sidebarStatus) {
+    commit("SET_SIDEBAR", sidebarStatus)
   },
   toggleDevice({ commit }, device) {
     commit("TOGGLE_DEVICE", device)

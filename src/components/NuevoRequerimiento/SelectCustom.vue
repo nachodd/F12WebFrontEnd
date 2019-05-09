@@ -1,6 +1,7 @@
 <template>
   <q-select
     outlined
+    :hide-bottom-space="true"
     :label="label"
     v-model="selectedValue"
     :option-value="idKey"

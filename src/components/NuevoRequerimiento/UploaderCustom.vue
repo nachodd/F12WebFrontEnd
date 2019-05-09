@@ -5,26 +5,28 @@
     color="accent"
     multiple
     style="width: auto"
+    @added="handleAdded"
+    @removed="handleRemoved"
   >
     <template v-slot:header="scope">
       <div class="row no-wrap items-center q-pa-sm q-gutter-xs">
         <q-btn
           v-if="scope.queuedFiles.length > 0"
           icon="clear_all"
-          @click="scope.removeQueuedFiles"
           round
           dense
           flat
+          @click="scope.removeQueuedFiles"
         >
           <q-tooltip>Eliminar todos</q-tooltip>
         </q-btn>
         <q-btn
           v-if="scope.uploadedFiles.length > 0"
           icon="done_all"
-          @click="scope.removeUploadedFiles"
           round
           dense
           flat
+          @click="scope.removeUploadedFiles"
         >
           <q-tooltip>Eliminr Archivos Subidos</q-tooltip>
         </q-btn>
@@ -38,38 +40,43 @@
         <q-btn
           v-if="scope.editable"
           icon="add_box"
-          @click="scope.pickFiles"
           round
           dense
           flat
+          @click="scope.pickFiles"
         >
           <q-tooltip>Seleccionar Archivos...</q-tooltip>
         </q-btn>
       </div>
     </template>
     <template v-slot:list="scope">
-      <div v-show="scope.files.length === 0" class="row text-center">
+      <div
+        v-show="scope.files.length === 0"
+        class="row text-center cursor-pointer"
+        @click="scope.pickFiles()"
+      >
         <span class="col text-body1" style="margin-top: 10px;">
           Seleccione o arrastre Imagenes, Documentos, etc...
         </span>
       </div>
+
       <div
         v-show="scope.files.length > 0"
-        class="row justify-around q-gutter-sm"
+        class="row justify-around q-col-gutter-sm"
       >
-        <q-card
-          v-for="file in scope.files"
-          class="col-xs-4 col-sm-3 col-md-3"
-          :key="file.name"
-        >
-          <q-card-section class="row justify-between">
-            <div>
-              <div class="text-body1">{{ file.name }}</div>
-              <div class="text-caption">
-                {{ file.__sizeLabel }} / {{ file.__progressLabel }}
-              </div>
-            </div>
-            <div>
+        <div v-for="file in scope.files" :key="file.name" class="col-4">
+          <q-item class="shadow-2">
+            <q-item-section>
+              <q-item-label lines="2" class="">
+                {{ file.name }}
+              </q-item-label>
+            </q-item-section>
+
+            <q-item-section v-if="file.__img" thumbnail class="gt-xs">
+              <img :src="file.__img.src" />
+            </q-item-section>
+
+            <q-item-section top side>
               <q-btn
                 class="gt-xs"
                 size="12px"
@@ -79,42 +86,23 @@
                 icon="delete"
                 @click="scope.removeFile(file)"
               />
-            </div>
-          </q-card-section>
-        </q-card>
+            </q-item-section>
+          </q-item>
+        </div>
       </div>
-
-      <!-- <q-list separator>
-            <q-item v-for="file in scope.files" :key="file.name">
-              <q-item-section>
-                <q-item-label class="full-width ellipsis">
-                  {{ file.name }}
-                </q-item-label>
-                <q-item-label caption>
-                  {{ file.__sizeLabel }} / {{ file.__progressLabel }}
-                </q-item-label>
-              </q-item-section>
-              <q-item-section v-if="file.__img" thumbnail class="gt-xs">
-                <img :src="file.__img.src" />
-              </q-item-section>
-              <q-item-section top side>
-                <q-btn
-                  class="gt-xs"
-                  size="12px"
-                  flat
-                  dense
-                  round
-                  icon="delete"
-                  @click="scope.removeFile(file)"
-                />
-              </q-item-section>
-            </q-item>
-			</q-list>-->
     </template>
   </q-uploader>
 </template>
 <script>
 export default {
   props: [],
+  methods: {
+    handleAdded(files) {
+      this.$emit("filesAdded", files)
+    },
+    handleRemoved(files) {
+      this.$emit("filesRemoved", files)
+    },
+  },
 }
 </script>
