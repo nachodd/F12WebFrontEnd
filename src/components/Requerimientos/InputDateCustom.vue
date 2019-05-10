@@ -1,7 +1,8 @@
 <template>
   <q-input
-    :value="formated_date"
+    ref="input"
     outlined
+    :value="formated_date"
     :label="label"
     :rules="rulesDate"
     :hide-bottom-space="true"
@@ -80,6 +81,9 @@ export default {
     clearValues() {
       this.selectedValue = null
       this.$emit("input", null)
+    },
+    resetValidation() {
+      this.$refs.input.resetValidation()
     },
     pastDisabledFn(currentDate) {
       if (this.pastDisabled) {

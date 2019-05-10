@@ -36,11 +36,9 @@ export default class Requerimiento {
       fechaLimite = `${aux[2]}-${aux[1]}-${aux[0]}`
     }
 
-    debugger
+    let filesBase64 = ""
     if (this.files.length > 0) {
-      this.files = await getBase64(this.files[0])
-    } else {
-      this.files = null
+      filesBase64 = await getBase64(this.files[0])
     }
 
     return {
@@ -53,7 +51,7 @@ export default class Requerimiento {
       motivo_limite: this.motivoLimite,
       importante: +this.importante, // + to Parse Boolean to Number
       prioridad: this.prioridad,
-      imagen: this.files,
+      imagen: filesBase64,
     }
   }
 

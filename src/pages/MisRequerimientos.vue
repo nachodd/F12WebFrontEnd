@@ -10,7 +10,7 @@
 <script>
 import { mapState } from "vuex"
 import { warn } from "@utils/helpers"
-import PageHeader from "@comp/PageHeader"
+import PageHeader from "@comp/Common/PageHeader"
 import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
 
 export default {

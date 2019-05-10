@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import PageHeader from "@comp/PageHeader"
+import PageHeader from "@comp/Common/PageHeader"
 import PriorizarRequerimientosListado from "@comp/PriorizarRequerimientos/PriorizarRequerimientosListado"
 import dummyRequerimientosList from "@utils/dummyRequerimientosList"
 
