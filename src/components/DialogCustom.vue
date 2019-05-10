@@ -4,7 +4,8 @@
       <q-card-section :class="titleBackgroundClass">
         <div class="text-h6" :class="titleClass">{{ title }}</div>
       </q-card-section>
-      <q-card-section v-html="message" class="q-mt-md" />
+      <!-- eslint-disable-next-line vue/no-v-html -->
+      <q-card-section class="q-mt-md" v-html="message" />
       <q-card-actions align="right">
         <q-btn color="red" label="OK" @click="onOKClick" />
       </q-card-actions>

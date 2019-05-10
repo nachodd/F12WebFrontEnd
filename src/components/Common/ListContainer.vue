@@ -6,10 +6,10 @@
       leave-active-class="animated fadeOut"
     >
       <q-list
+        v-show="!props.loading"
         bordered
         separator
         class="rounded-borders q-mb-md"
-        v-show="!props.loading"
       >
         <slot />
       </q-list>

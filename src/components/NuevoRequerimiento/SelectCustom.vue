@@ -1,9 +1,9 @@
 <template>
   <q-select
+    v-model="selectedValue"
     outlined
     :hide-bottom-space="true"
     :label="label"
-    v-model="selectedValue"
     :option-value="idKey"
     :option-label="descriptionKey"
     :options="filteredOptions"
@@ -23,10 +23,17 @@ export default {
   mixins: [formValidation],
   props: {
     value: {
+      type: [Object, String],
       default: null,
     },
-    options: Array,
-    label: String,
+    options: {
+      type: Array,
+      default: () => [],
+    },
+    label: {
+      type: String,
+      default: "",
+    },
     loading: {
       type: Boolean,
       default: true,

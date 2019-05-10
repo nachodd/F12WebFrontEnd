@@ -1,5 +1,5 @@
 <template>
-  <q-list bordered separator class="rounded-borders q-mb-md" v-show="!loading">
+  <q-list v-show="!loading" bordered separator class="rounded-borders q-mb-md">
     <list-container :loading="loading">
       <draggable :list="requerimientos" group="requerimientos">
         <priorizar-requerimientos-item

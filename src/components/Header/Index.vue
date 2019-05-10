@@ -23,7 +23,7 @@
         </q-badge>
         <q-menu anchor="bottom right" self="top right">
           <q-list>
-            <q-item clickable v-close-popup tabindex="0">
+            <q-item v-close-popup clickable tabindex="0">
               <q-item-section side>
                 <q-icon name="fas fa-exclamation-triangle" />
               </q-item-section>
@@ -43,7 +43,7 @@
               <strong class="text-small">{{ userName }}</strong>
             </div>
           </q-item-label>
-          <q-item clickable v-close-popup tabindex="0">
+          <q-item v-close-popup clickable tabindex="0">
             <!-- <q-item-section avatar>
                 <q-avatar
                   icon="fas fa-user-circle"
@@ -59,7 +59,7 @@
             </q-item-section>
           </q-item>
           <q-separator inset spaced />
-          <q-item clickable v-close-popup tabindex="1" @click="onLogOut">
+          <q-item v-close-popup clickable tabindex="1" @click="onLogOut">
             <q-item-section>
               <q-item-label>Cerrar Sesión</q-item-label>
             </q-item-section>
@@ -103,6 +103,9 @@ export default {
       return this.$q.screen.lt.sm ? "account_circle" : undefined
     },
   },
+  mounted() {
+    this.toggleDevice(this.$q.platform.is)
+  },
   methods: {
     ...mapActions({
       logout: "auth/logout",
@@ -113,9 +116,6 @@ export default {
       await this.logout()
       this.$router.replace({ name: "login" })
     },
-  },
-  mounted() {
-    this.toggleDevice(this.$q.platform.is)
   },
 }
 </script>

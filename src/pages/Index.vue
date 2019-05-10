@@ -49,7 +49,6 @@ export default {
       loading: true,
     }
   },
-  methods: {},
   mounted() {
     setTimeout(() => {
       this.loading = false

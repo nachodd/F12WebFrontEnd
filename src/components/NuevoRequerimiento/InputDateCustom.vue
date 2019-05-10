@@ -10,17 +10,17 @@
       <q-icon
         v-if="selectedValue"
         name="cancel"
-        @click.stop="clearValues"
         class="cursor-pointer"
+        @click.stop="clearValues"
       />
       <q-icon name="event" class="cursor-pointer">
         <q-popup-proxy>
           <q-date
             v-model="selectedValue"
-            @input="handleInput"
             today-btn
             color="accent"
             :options="pastDisabledFn"
+            @input="handleInput"
           />
         </q-popup-proxy>
       </q-icon>
@@ -35,12 +35,16 @@ import formValidation from "@mixins/formValidation"
 export default {
   mixins: [formValidation],
   props: {
-    label: String,
+    label: {
+      type: String,
+      default: "",
+    },
     validate: {
       type: Boolean,
       default: false,
     },
     value: {
+      type: String,
       default: null,
     },
     pastDisabled: {

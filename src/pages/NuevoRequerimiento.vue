@@ -230,6 +230,7 @@ export default {
       this.form.fechaLimite = null
       this.form.motivoLimite = ""
       this.form.importante = ""
+      this.form.files = []
       this.$nextTick(() => {
         this.$refs.form.resetValidation()
       })

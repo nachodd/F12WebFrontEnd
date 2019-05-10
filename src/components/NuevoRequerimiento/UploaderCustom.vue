@@ -1,5 +1,6 @@
 <template>
   <q-uploader
+    ref="uploader"
     url="http://localhost:4444/upload"
     label="Adjunte Imagenes, documentos, etc"
     color="accent"
@@ -96,12 +97,18 @@
 <script>
 export default {
   props: [],
+  created() {
+    this.$root.$on("clearFiles", this.clearFiles)
+  },
   methods: {
     handleAdded(files) {
       this.$emit("filesAdded", files)
     },
     handleRemoved(files) {
       this.$emit("filesRemoved", files)
+    },
+    clearFiles() {
+      this.$refs.uploader.reset()
     },
   },
 }

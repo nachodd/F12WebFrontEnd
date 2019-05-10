@@ -1,12 +1,12 @@
 <template>
   <!-- bordered content-class="bg-grey-2" -->
-  <q-drawer bordered content-class="bg-grey-2" v-model="sidebarOpened">
+  <q-drawer v-model="sidebarOpened" bordered content-class="bg-grey-2">
     <q-scroll-area class="fit">
       <q-list padding class="menu-list">
         <q-item-label header>Menu Principal</q-item-label>
         <q-item
-          clickable
           v-ripple
+          clickable
           :to="{ name: 'inicio' }"
           active-class="menu-items--active"
         >
@@ -19,8 +19,8 @@
         </q-item>
 
         <q-item
-          clickable
           v-ripple
+          clickable
           :to="{ name: 'nuevo-requerimiento' }"
           active-class="menu-items--active"
         >
@@ -33,8 +33,8 @@
         </q-item>
 
         <q-item
-          clickable
           v-ripple
+          clickable
           :to="{ name: 'mis-requerimientos' }"
           active-class="menu-items--active"
         >
@@ -47,8 +47,8 @@
         </q-item>
 
         <q-item
-          clickable
           v-ripple
+          clickable
           :to="{ name: 'priorizar-requerimientos' }"
           active-class="menu-items--active"
         >
