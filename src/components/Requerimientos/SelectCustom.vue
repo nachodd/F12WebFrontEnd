@@ -66,7 +66,8 @@ export default {
     handleInput() {
       this.$emit(
         "input",
-        (this.selectedValue && this.selectedValue[this.idKey]) || "",
+        this.selectedValue,
+        // (this.selectedValue && this.selectedValue[this.idKey]) || "",
       )
     },
     filterFunction(val, update) {

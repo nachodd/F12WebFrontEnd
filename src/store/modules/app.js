@@ -6,6 +6,7 @@ const state = {
     : true,
   device: "desktop",
   size: Cookies.get("size") || "medium",
+  loadingLevel: 0,
 }
 
 // getters
@@ -13,6 +14,7 @@ const getters = {
   sidebarOpen: state => state.sidebarOpen,
   device: state => state.device,
   size: state => state.size,
+  isLoading: state => state.loadingLevel !== 0,
 }
 
 const mutations = {
@@ -39,6 +41,18 @@ const mutations = {
     state.size = size
     Cookies.set("size", size)
   },
+  LOADING_INC: state => {
+    state.loadingLevel += 1
+  },
+  LOADING_DEC: state => {
+    state.loadingLevel -= 1
+    if (state.loadingLevel < 0) {
+      state.loadingLevel = 0
+    }
+  },
+  LOADING_RESET: state => {
+    state.loadingLevel = 0
+  },
 }
 
 const actions = {
@@ -56,6 +70,15 @@ const actions = {
   },
   setSize({ commit }, size) {
     commit("SET_SIZE", size)
+  },
+  loadingInc({ commit }) {
+    commit("LOADING_INC")
+  },
+  loadingDec({ commit }) {
+    commit("LOADING_DEC")
+  },
+  loadingReset({ commit }) {
+    commit("LOADING_RESET")
   },
 }
 

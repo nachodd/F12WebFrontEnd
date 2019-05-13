@@ -64,16 +64,16 @@ export function parseErrors(errors) {
         errorList,
         // eslint-disable-next-line no-unused-vars
         (res1, error, key2) => {
-          return `<li>${error}</li>`
+          return `<li>${error}</li>${res1}`
         },
-        res,
+        "",
       )
-      const keyToUpper = firstToUpper(key)
-      return `<li><strong>${keyToUpper}</strong>: <ul>${errorsForKey}<ul></li>`
+      const keyToUpper = firstToUpper(key).replace("_", " ")
+      return `<li><strong>${keyToUpper}</strong>: <ul>${errorsForKey}</ul></li>${res}`
     },
     "",
   )
-  return `<ul>${errorList}<ul>`
+  return `<ul>${errorList}</ul>`
 }
 
 export function warnDialog({
@@ -102,7 +102,10 @@ export function getBase64(file) {
   return new Promise(function(resolve, reject) {
     const reader = new FileReader()
     reader.onload = function() {
-      resolve(reader.result)
+      const period = file.name.lastIndexOf(".")
+      const fileName = file.name.substring(0, period)
+      // Adds name to the base64 file
+      resolve(`${reader.result};name,${fileName}`)
     }
     reader.onerror = reject
     reader.readAsDataURL(file)

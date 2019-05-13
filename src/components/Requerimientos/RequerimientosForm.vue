@@ -163,15 +163,15 @@ export default {
       default: "",
     },
     area: {
-      type: String,
+      type: Object,
       default: null,
     },
     sistema: {
-      type: String,
+      type: Object,
       default: null,
     },
     requerimientoTipo: {
-      type: String,
+      type: Object,
       default: null,
     },
     fechaLimite: {
@@ -186,7 +186,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    files: {
+    adjuntos: {
       type: Array,
       default: () => [],
     },
@@ -212,6 +212,11 @@ export default {
     },
   },
   watch: {
+    motivoLimite(val) {
+      if (val) {
+        this.llevaFechaLimite = true
+      }
+    },
     llevaFechaLimite(val) {
       if (!val) {
         this.fechaLimite = null
@@ -223,34 +228,24 @@ export default {
       }
     },
   },
-  async mounted() {
-    try {
-      await this.$store.dispatch("requerimientos/createRequerimiento")
-    } catch (e) {
-      const message =
-        e.message ||
-        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
-      warn({ message })
-    }
-  },
   methods: {
     handleFilesAdded(files) {
       files.forEach(file => {
-        const isInArray = _.find(this.files, { name: file.name })
+        const isInArray = _.find(this.adjuntos, { name: file.name })
         if (!isInArray) {
-          this.files.push(file)
+          this.adjuntos.push(file)
         }
       })
-      this.$emit("update:files", this.files)
+      this.$emit("update:files", this.adjuntos)
     },
     handleFilesRemoved(files) {
       files.forEach(file => {
-        const indexInArray = _.findIndex(this.files, { name: file.name })
+        const indexInArray = _.findIndex(this.adjuntos, { name: file.name })
         if (indexInArray) {
-          this.files.splice(indexInArray, 1)
+          this.adjuntos.splice(indexInArray, 1)
         }
       })
-      this.$emit("update:files", this.files)
+      this.$emit("update:files", this.adjuntos)
     },
     onValidationError() {
       warn({

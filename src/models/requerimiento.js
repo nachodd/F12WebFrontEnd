@@ -14,9 +14,9 @@ export default class Requerimiento {
       : null
     this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
     this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
-    this.importante = req.importante ? req.importante : false
+    this.importante = req.importante && req.importante === "SI" ? true : false
     this.prioridad = req.prioridad ? req.prioridad : 5
-    this.files = []
+    this.adjuntos = []
 
     // Validations of properites can be more complex
     // this.producedAt =
@@ -36,22 +36,28 @@ export default class Requerimiento {
       fechaLimite = `${aux[2]}-${aux[1]}-${aux[0]}`
     }
 
-    let filesBase64 = ""
-    if (this.files.length > 0) {
-      filesBase64 = await getBase64(this.files[0])
+    let filesBase64 = []
+    if (this.adjuntos.length > 0) {
+      filesBase64 = await Promise.all(
+        _.map(this.adjuntos, async file => {
+          return await getBase64(file)
+        }),
+      )
     }
 
     return {
       asunto: this.asunto,
       descripcion: this.descripcion,
-      area: this.area,
-      sistema: this.sistema,
-      requerimiento_tipo: this.requerimientoTipo,
+      area: this.area ? this.area.id : null,
+      sistema: this.sistema ? this.sistema.id : null,
+      requerimiento_tipo: this.requerimientoTipo
+        ? this.requerimientoTipo.id
+        : null,
       fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
       importante: +this.importante, // + to Parse Boolean to Number
       prioridad: this.prioridad,
-      imagen: filesBase64,
+      adjuntos: filesBase64,
     }
   }
 

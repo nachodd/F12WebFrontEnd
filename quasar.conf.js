@@ -70,7 +70,7 @@ module.exports = function(ctx) {
       directives: ["Ripple", "ClosePopup"],
 
       // Quasar plugins
-      plugins: ["Dialog", "Notify", "LoadingBar"],
+      plugins: ["Dialog", "Notify", "Loading", "LoadingBar"],
       iconSet: "fontawesome-v5",
       lang: "es", // Quasar language
       // iconSet: 'ionicons-v4'

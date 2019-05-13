@@ -1,6 +1,6 @@
 <template>
   <q-dialog ref="dialog" @hide="onDialogHide">
-    <q-card class="q-dialog-plugin q-py-sm">
+    <q-card class="q-dialog-plugin">
       <q-card-section :class="titleBackgroundClass">
         <div class="text-h6" :class="titleClass">{{ title }}</div>
       </q-card-section>

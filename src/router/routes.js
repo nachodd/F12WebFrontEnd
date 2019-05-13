@@ -24,9 +24,18 @@ const routes = [
       {
         path: "/nuevo-requerimiento",
         name: "nuevo-requerimiento",
-        component: () => import("pages/NuevoRequerimiento.vue"),
+        component: () => import("pages/CrearEditarRequerimiento.vue"),
         meta: {
           title: "Nuevo Requerimiento - F12",
+          roles: ["menu_sistemas"],
+        },
+      },
+      {
+        path: "/editar-requerimiento/:id",
+        name: "editar-requerimiento",
+        component: () => import("pages/CrearEditarRequerimiento.vue"),
+        meta: {
+          title: "Editar Requerimiento - F12",
           roles: ["menu_sistemas"],
         },
       },
