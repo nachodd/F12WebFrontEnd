@@ -2,42 +2,69 @@
   <q-page padding>
     <page-header title="Priorizar Requerimientos" />
     <div class="row q-col-gutter-md">
-      <div class="col-sm-6 col-xs-12">
-        <draggable-list
-          title="Requerimientos A ORDENAR"
-          group-name="requerimientos"
-          :requerimientos-list="requerimientosAOrdernar"
-          list-name="source"
-        />
+      <div class="col-6">
+        <div class="shadow-3 bg-grey-2 rounded-borders">
+          <div class="title">Requerimiento A ORDENAR</div>
+          <Container
+            group-name="requerimientos"
+            :get-child-payload="getCardPayload"
+            :should-accept-drop="getShouldAcceptDrop"
+            drag-class="card-ghost"
+            drop-class="card-ghost-drop"
+            :drop-placeholder="dropPlaceholderOptions"
+            @drop="e => onCardDrop('source', e)"
+          >
+            <Draggable
+              v-for="req in requerimientosAOrdernar"
+              :key="`req_${req.id}`"
+            >
+              <priorizar-requerimientos-item :req="req" />
+            </Draggable>
+          </Container>
+        </div>
       </div>
 
-      <div class="col-sm-6 col-xs-12">
-        <draggable-list
-          title="Requerimientos ORDENADOS"
-          group-name="requerimientos"
-          :requerimientos-list="requerimientosOrdenados"
-          list-name="target"
-        />
+      <div class="col-6">
+        <div class="shadow-3 bg-grey-2 rounded-borders">
+          <div class="title">Requerimiento ORDENADOS</div>
+          <Container
+            group-name="requerimientos"
+            :get-child-payload="getCardPayload"
+            drag-class="card-ghost"
+            drop-class="card-ghost-drop"
+            :drop-placeholder="dropPlaceholderOptions"
+            @drop="e => onCardDrop('target', e)"
+          >
+            <!-- @drag-start="e => log('drag start', e)"
+            @drag-end="e => log('drag end', e)" -->
+            <Draggable
+              v-for="req in requerimientosOrdenados"
+              :key="`req_target_${req.id}`"
+            >
+              <priorizar-requerimientos-item :req="req" />
+            </Draggable>
+          </Container>
+        </div>
       </div>
     </div>
   </q-page>
 </template>
 
 <script>
-// import { Container, Draggable } from "vue-smooth-dnd"
+import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag } from "@utils/helpers"
 import PageHeader from "@comp/Common/PageHeader"
-// import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
+import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
 import dummyRequerimientosList from "@utils/dummyRequerimientosList"
 import dummyRequerimientosList2 from "@utils/dummyRequerimientosList2"
-import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
 
 export default {
   name: "PriorizarRequerimientos",
   components: {
     PageHeader,
-    // PriorizarRequerimientosItem,
-    DraggableList,
+    PriorizarRequerimientosItem,
+    Container,
+    Draggable,
   },
   data() {
     return {
@@ -86,3 +113,10 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" scoped>
+.title {
+  text-align: center;
+  font-size: 1.2rem;
+}
+</style>

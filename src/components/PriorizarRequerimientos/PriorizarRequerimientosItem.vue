@@ -1,5 +1,6 @@
 <template>
-  <q-item :active="esImportante" active-class="text-black bg-red-2">
+  <q-item class="q-ma-sm shadow-2 rounded-borders bg-white">
+    <!--:active="esImportante"  active-class="text-black bg-red-2" -->
     <q-item-section class="col-1">
       <q-icon
         v-if="esImportante"
@@ -7,7 +8,9 @@
         color="red"
         size="16px"
       >
-        <q-tooltip>Este requerimiento fue marcado como importante</q-tooltip>
+        <q-tooltip>
+          Este requerimiento fue marcado como importante
+        </q-tooltip>
       </q-icon>
       <q-icon v-else name="far fa-file-alt" color="grey-8" size="16px" />
     </q-item-section>

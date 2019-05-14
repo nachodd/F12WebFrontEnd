@@ -45,7 +45,7 @@ export default {
       default: false,
     },
     value: {
-      type: String,
+      type: [Date, String],
       default: null,
     },
     pastDisabled: {
@@ -68,6 +68,10 @@ export default {
   },
   watch: {
     value(val) {
+      // Para la inicializacion en edicion, le pasamos un objeto Date
+      if (date.isValid(val)) {
+        this.selectedValue = val
+      }
       // Fix para limpiar el valor cuando colapsa
       if (val === null) {
         this.selectedValue = null

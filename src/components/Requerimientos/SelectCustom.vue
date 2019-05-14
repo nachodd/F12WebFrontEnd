@@ -1,6 +1,6 @@
 <template>
   <q-select
-    v-model="selectedValue"
+    v-model="value"
     outlined
     :hide-bottom-space="true"
     :label="label"
@@ -50,23 +50,23 @@ export default {
   },
   data() {
     return {
-      selectedValue: this.value || null,
       filteredOptions: this.options,
     }
   },
   watch: {
-    value(val) {
-      // Fix para limpiar el valor cuando colapsa
-      if (val === null) {
-        this.selectedValue = null
-      }
-    },
+    // value(val) {
+    //   console.log(val)
+    //   // Fix para limpiar el valor cuando colapsa
+    //   if (val === null) {
+    //     this.selectedValue = null
+    //   }
+    // },
   },
   methods: {
     handleInput() {
       this.$emit(
         "input",
-        this.selectedValue,
+        this.value,
         // (this.selectedValue && this.selectedValue[this.idKey]) || "",
       )
     },

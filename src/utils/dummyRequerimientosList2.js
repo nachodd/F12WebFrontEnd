@@ -1,7 +1,7 @@
 export default [
   {
-    id: 1,
-    asunto: "1",
+    id: 27,
+    asunto: "COPIA - 1",
     descripcion: "Prueba prueba prueba",
     tipo: "Proyecto agrupado",
     usuario: "Manavella Edgar Gabriel",
@@ -12,8 +12,8 @@ export default [
     importante: "NO",
   },
   {
-    id: 2,
-    asunto: "2",
+    id: 31,
+    asunto: "COPIA - 2",
     descripcion: "asas",
     tipo: "Error de sistema",
     usuario: "Manavella Edgar Gabriel",
@@ -24,8 +24,8 @@ export default [
     importante: "SI",
   },
   {
-    id: 3,
-    asunto: "3",
+    id: 33,
+    asunto: "COPIA - 3",
     descripcion: "dsdsds",
     tipo: "Observación de garantías",
     usuario: "Manavella Edgar Gabriel",
@@ -36,8 +36,8 @@ export default [
     importante: "SI",
   },
   {
-    id: 4,
-    asunto: "4",
+    id: 34,
+    asunto: "COPIA - 4",
     descripcion: "prueba 3 prueba 3 prueba 3 prueba 3 prueba 3 prueba 3",
     tipo: "Pedido de hardware",
     usuario: "Manavella Edgar Gabriel",
@@ -48,8 +48,8 @@ export default [
     importante: "SI",
   },
   {
-    id: 5,
-    asunto: "5",
+    id: 37,
+    asunto: "COPIA - 5",
     descripcion: "aaa",
     tipo: "Proyecto agrupado",
     usuario: "Manavella Edgar Gabriel",
@@ -60,8 +60,8 @@ export default [
     importante: "NO",
   },
   {
-    id: 6,
-    asunto: "6",
+    id: 38,
+    asunto: "COPIA - 6",
     descripcion: "adasda",
     tipo: "Pedido de hardware",
     usuario: "Manavella Edgar Gabriel",

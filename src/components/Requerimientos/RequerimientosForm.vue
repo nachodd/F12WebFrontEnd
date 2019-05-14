@@ -35,10 +35,10 @@
         <div class="row q-col-gutter-sm">
           <div class="col col-sm-4 col-xs-12">
             <select-custom
+              v-model="area"
               :options="areas"
               label="Area"
               :loading="areas.length === 0"
-              :value="area"
               @input="$emit('update:area', $event)"
             />
           </div>
@@ -175,7 +175,7 @@ export default {
       default: null,
     },
     fechaLimite: {
-      type: String,
+      type: [String, Date],
       default: null,
     },
     motivoLimite: {

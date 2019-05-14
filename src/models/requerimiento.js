@@ -9,9 +9,7 @@ export default class Requerimiento {
     this.descripcion = req.descripcion ? req.descripcion : ""
     this.area = req.area ? req.area : null
     this.sistema = req.sistema ? req.sistema : null
-    this.requerimientoTipo = req.requerimiento_tipo
-      ? req.requerimiento_tipo
-      : null
+    this.requerimientoTipo = req.tipo ? req.tipo : null
     this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
     this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
     this.importante = req.importante && req.importante === "SI" ? true : false

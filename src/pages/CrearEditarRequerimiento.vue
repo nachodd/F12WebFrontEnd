@@ -38,15 +38,14 @@ export default {
   },
   async created() {
     try {
-      //
+      // incremento el loading así esta fijo ANTES de que haga los llamados
+      await this.$store.dispatch("app/loadingInc")
       await this.$store.dispatch("requerimientos/createRequerimiento")
 
       if (this.$route.params.id) {
-        this.$store.dispatch("app/loadingInc")
+        await this.$store.dispatch("app/loadingInc")
         getRequerimiento(this.$route.params.id)
           .then(({ data: { data } }) => {
-            data.fecha_limite = "2019/05/30"
-            data.motivo_limite = "1231564564"
             this.$set(this, "form", new Requerimiento(data))
           })
           .catch(e => {
@@ -55,9 +54,11 @@ export default {
               message: "Hubo un problema al solicitar el Requerimiento",
             })
           })
-          .finally(() => {
-            this.$store.dispatch("app/loadingDec")
+          .finally(async () => {
+            this.$store.dispatch("app/loadingReset")
           })
+      } else {
+        this.$store.dispatch("app/loadingDec")
       }
     } catch (e) {
       const message =

@@ -72,10 +72,16 @@ const actions = {
     commit("SET_SIZE", size)
   },
   loadingInc({ commit }) {
-    commit("LOADING_INC")
+    return new Promise(async resolve => {
+      commit("LOADING_INC")
+      resolve()
+    })
   },
   loadingDec({ commit }) {
-    commit("LOADING_DEC")
+    return new Promise(async resolve => {
+      commit("LOADING_DEC")
+      resolve()
+    })
   },
   loadingReset({ commit }) {
     commit("LOADING_RESET")
