@@ -5,7 +5,7 @@
   </q-page>
 </template>
 <script>
-import { mapGetters } from "vuex"
+import pageLoading from "@mixins/pageLoading"
 import PageHeader from "@comp/Common/PageHeader"
 import RequerimientoForm from "@comp/Requerimientos/RequerimientosForm"
 import Requerimiento from "@models/requerimiento"
@@ -14,26 +14,15 @@ import { getRequerimiento } from "@api/requerimientos"
 
 export default {
   components: { PageHeader, RequerimientoForm },
+  mixins: [pageLoading],
   data() {
     return {
       form: new Requerimiento(),
     }
   },
   computed: {
-    ...mapGetters("app", ["isLoading"]),
     isEdit() {
       return !!this.$route.params.id
-    },
-  },
-  watch: {
-    isLoading(isLoading) {
-      if (isLoading) {
-        this.$q.loading.show({
-          message: "<strong>Cargando... <br>Por favor, espere...</strong>",
-        })
-      } else {
-        this.$q.loading.hide()
-      }
     },
   },
   async created() {

@@ -7,8 +7,8 @@
           <div class="title">Requerimiento A ORDENAR</div>
           <Container
             group-name="requerimientos"
-            :get-child-payload="getCardPayload"
-            :should-accept-drop="getShouldAcceptDrop"
+            :get-child-payload="getSourcePayload"
+            :should-accept-drop="() => sourceAcceptDrop"
             drag-class="card-ghost"
             drop-class="card-ghost-drop"
             :drop-placeholder="dropPlaceholderOptions"
@@ -29,14 +29,12 @@
           <div class="title">Requerimiento ORDENADOS</div>
           <Container
             group-name="requerimientos"
-            :get-child-payload="getCardPayload"
+            :get-child-payload="getTargetPayload"
             drag-class="card-ghost"
             drop-class="card-ghost-drop"
             :drop-placeholder="dropPlaceholderOptions"
             @drop="e => onCardDrop('target', e)"
           >
-            <!-- @drag-start="e => log('drag start', e)"
-            @drag-end="e => log('drag end', e)" -->
             <Draggable
               v-for="req in requerimientosOrdenados"
               :key="`req_target_${req.id}`"
@@ -75,20 +73,26 @@ export default {
         animationDuration: "150",
         showOnTop: true,
       },
+      sourceAcceptDrop: true,
     }
+  },
+  watch: {
+    sourceAcceptDrop(val) {
+      console.log("sourceAcceptDrop", val)
+    },
   },
   methods: {
     getShouldAcceptDrop(src, payload) {
       console.log(src, payload)
       return true
     },
-    getCardPayload(index) {
+    getSourcePayload(index) {
       console.log("card payload", index)
       return this.requerimientosAOrdernar[index]
-      // return index => {
-      //   return this.requerimientosAOrdernar.filter(req => req.id === id)[0]
-      //     .children[index]
-      // }
+    },
+    getTargetPayload(index) {
+      console.log("card payload", index)
+      return this.requerimientosOrdenados[index]
     },
     onCardDrop(list, dropResult) {
       this.log("oncarddrop", list, dropResult)

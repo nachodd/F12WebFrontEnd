@@ -20,11 +20,11 @@ const state = {
   requerimientoDetalle: null,
 
   estados: [
-    { code: "PEND", label: "Pendiente aprobación", value: "1" },
-    { code: "APRV", label: "Aprobado", value: "2" },
-    { code: "EXEC", label: "En ejecución", value: "3" },
-    { code: "RESC", label: "Resuelto cerrado", value: "4" },
-    { code: "REJC", label: "Rechazado", value: "5" },
+    { codigo: "PEND", descripcion: "Pendiente aprobación", id: "1" },
+    { codigo: "APRV", descripcion: "Aprobado", id: "2" },
+    { codigo: "EXEC", descripcion: "En ejecución", id: "3" },
+    { codigo: "RESC", descripcion: "Resuelto cerrado", id: "4" },
+    { codigo: "REJC", descripcion: "Rechazado", id: "5" },
   ],
 }
 

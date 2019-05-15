@@ -33,7 +33,7 @@ export function getRequerimiento(requerimientoId) {
 
 export function getRequerimientosByUserAndEstado(userId, estadoId) {
   return request({
-    url: `/v1/f12/${getRequerimientosByUserAndEstado}/requerimientos/estados/${estadoId}`,
+    url: `/v1/f12/${userId}/requerimientos/estados/${estadoId}`,
     method: "get",
   })
 }

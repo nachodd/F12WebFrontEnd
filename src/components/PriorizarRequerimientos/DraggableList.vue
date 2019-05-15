@@ -1,10 +1,10 @@
 <template>
   <div class="shadow-3 bg-grey-2 rounded-borders">
     <div class="title">{{ title }}</div>
+    <!-- :should-accept-drop="getShouldAcceptDrop" -->
     <Container
       :group-name="groupName"
       :get-child-payload="getCardPayload"
-      :should-accept-drop="getShouldAcceptDrop"
       drag-class="card-ghost"
       drop-class="card-ghost-drop"
       :drop-placeholder="dropPlaceholderOptions"
@@ -46,6 +46,10 @@ export default {
       type: String,
       required: true,
     },
+    acceptDrop: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
@@ -58,29 +62,30 @@ export default {
     }
   },
   methods: {
-    getShouldAcceptDrop(src, payload) {
-      console.log(src, payload)
-      return true
-    },
+    // getShouldAcceptDrop() {
+    //   console.log("ShouldAcceptDrop", )
+    // },
     getCardPayload(index) {
       return this.list[index]
     },
     onCardDrop(list, dropResult) {
-      // this.log("oncarddrop", list, dropResult)
-      if (list === "source" && dropResult.removedIndex !== null) {
-        const res1 = applyDrag(this.list, dropResult)
-        this.$set(this, "list", res1)
+      console.log("oncarddrop", list, dropResult)
+
+      if (list === "source") {
+        if (dropResult.removedIndex !== null) {
+          const res1 = applyDrag(this.list, dropResult)
+          this.$set(this, "list", res1)
+        } else {
+          console.log("tryed to drop on source list")
+        }
       }
 
       if (list === "target" && dropResult.addedIndex !== null) {
         const res = applyDrag(this.list, dropResult)
         this.$set(this, "list", res)
-
-        console.log(
-          "requerimientosOrdenados new:",
-          this.requerimientosOrdenados,
-        )
       }
+
+      this.$emit("update:requerimientos-list", this.list)
     },
     // log(...params) {
     //   console.log(...params)

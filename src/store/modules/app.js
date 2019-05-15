@@ -14,7 +14,7 @@ const getters = {
   sidebarOpen: state => state.sidebarOpen,
   device: state => state.device,
   size: state => state.size,
-  isLoading: state => state.loadingLevel !== 0,
+  isPageLoading: state => state.loadingLevel !== 0,
 }
 
 const mutations = {

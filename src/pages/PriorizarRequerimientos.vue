@@ -6,7 +6,7 @@
         <draggable-list
           title="Requerimientos A ORDENAR"
           group-name="requerimientos"
-          :requerimientos-list="requerimientosAOrdernar"
+          :requerimientos-list.sync="reqsPendientesAprobacion"
           list-name="source"
         />
       </div>
@@ -15,7 +15,7 @@
         <draggable-list
           title="Requerimientos ORDENADOS"
           group-name="requerimientos"
-          :requerimientos-list="requerimientosOrdenados"
+          :requerimientos-list.sync="reqsAprobadosPriorizados"
           list-name="target"
         />
       </div>
@@ -24,7 +24,10 @@
 </template>
 
 <script>
+import { mapState } from "vuex"
 import PageHeader from "@comp/Common/PageHeader"
+import pageLoading from "@mixins/pageLoading"
+import { getRequerimientosByUserAndEstado } from "@api/requerimientos"
 import dummyRequerimientosList from "@utils/dummyRequerimientosList"
 import dummyRequerimientosList2 from "@utils/dummyRequerimientosList2"
 import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
@@ -35,33 +38,57 @@ export default {
     PageHeader,
     DraggableList,
   },
+  mixins: [pageLoading],
   data() {
     return {
-      requerimientosAOrdernar: dummyRequerimientosList,
-      requerimientosOrdenados: dummyRequerimientosList2,
+      reqsPendientesAprobacion: dummyRequerimientosList,
+      reqsAprobadosPriorizados: dummyRequerimientosList2,
+      sourceAcceptDrop: true,
     }
   },
-  created() {
-    // this.$store.dispatch("app/loadingInc")
+  computed: {
+    ...mapState("auth", {
+      user: state => state.user,
+    }),
+    ...mapState("requerimientos", {
+      reqEstados: state => state.estados,
+    }),
   },
-  methods: {
-    /* onCardDrop(list, dropResult) {
-      this.log("oncarddrop", list, dropResult)
-      if (list === "source" && dropResult.removedIndex !== null) {
-        const res1 = applyDrag(this.requerimientosAOrdernar, dropResult)
-        this.$set(this, "requerimientosAOrdernar", res1)
-      }
-
-      if (list === "target" && dropResult.addedIndex !== null) {
-        const res = applyDrag(this.requerimientosOrdenados, dropResult)
-        this.$set(this, "requerimientosOrdenados", res)
-
-        console.log(
-          "requerimientosOrdenados new:",
-          this.requerimientosOrdenados,
-        )
-      }
-    }, */
+  watch: {
+    reqsPendientesAprobacion(val) {
+      console.log("reqsPendientesAprobacion", val)
+    },
+    reqsAprobadosPriorizados(val) {
+      console.log("reqsAprobadosPriorizados", val)
+    },
   },
+  async created() {
+    this.$store.dispatch("app/loadingInc")
+    try {
+      const userId = this.user.Id
+      const estadoPendienteId = _.find(this.reqEstados, { codigo: "PEND" }).id
+      const estadoAprobadoId = _.find(this.reqEstados, { codigo: "APRV" }).id
+      // FIXME: hacer un promise.all o bien incrementar el contador en 2, de loading y luego ir restandolo
+      // FIXME: ver que en el hijo no se actualiza los listados cuando se los pasa por params
+
+      getRequerimientosByUserAndEstado(userId, estadoPendienteId).then(
+        ({ data: { data } }) => {
+          this.reqsPendientesAprobacion = data
+        },
+      )
+
+      getRequerimientosByUserAndEstado(userId, estadoAprobadoId).then(
+        ({ data: { data } }) => {
+          this.reqsAprobadosPriorizados = data
+        },
+      )
+
+      //this.reqsPendientesAprobacion = getRequerimientosByUserAndEstado()
+    } catch (e) {
+    } finally {
+      this.$store.dispatch("app/loadingDec")
+    }
+  },
+  methods: {},
 }
 </script>
