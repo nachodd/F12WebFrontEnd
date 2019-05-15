@@ -79,7 +79,7 @@ export default {
   name: "MyLayout",
   data() {
     return {
-      notificaction_count: 2,
+      notificaction_count: 0,
     }
   },
   computed: {

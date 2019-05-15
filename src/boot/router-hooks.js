@@ -3,6 +3,14 @@ import { checkPermission } from "@utils/permission"
 
 const whiteList = ["/login", "/refresh", "/register"] // no redirect whitelist
 
+const checkAndSetTitle = meta => {
+  if (meta && meta.title && meta.title.length > 0) {
+    document.title = meta.title
+  } else {
+    document.title = "F12"
+  }
+}
+
 export default async ({ router, store }) => {
   router.beforeEach(async (to, from, next) => {
     // determine whether the user has logged in
@@ -28,9 +36,11 @@ export default async ({ router, store }) => {
               await store.dispatch("auth/logout")
               next(`/login?redirect=${to.path}`)
             } else {
+              checkAndSetTitle(to.meta)
               next()
             }
           } else {
+            checkAndSetTitle(to.meta)
             next()
           }
         } else {
@@ -43,6 +53,7 @@ export default async ({ router, store }) => {
       /* has no token*/
       if (whiteList.indexOf(to.path) !== -1) {
         // in the free login whitelist, go directly
+        checkAndSetTitle(to.meta)
         next()
       } else {
         // other pages that do not have permission to access are redirected to the login page.

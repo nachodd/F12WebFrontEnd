@@ -43,7 +43,6 @@ export default {
       await this.$store.dispatch("requerimientos/createRequerimiento")
 
       if (this.$route.params.id) {
-        await this.$store.dispatch("app/loadingInc")
         getRequerimiento(this.$route.params.id)
           .then(({ data: { data } }) => {
             this.$set(this, "form", new Requerimiento(data))

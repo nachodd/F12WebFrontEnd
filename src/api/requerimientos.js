@@ -30,3 +30,10 @@ export function getRequerimiento(requerimientoId) {
     method: "get",
   })
 }
+
+export function getRequerimientosByUserAndEstado(userId, estadoId) {
+  return request({
+    url: `/v1/f12/${getRequerimientosByUserAndEstado}/requerimientos/estados/${estadoId}`,
+    method: "get",
+  })
+}

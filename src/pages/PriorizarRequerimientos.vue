@@ -24,10 +24,7 @@
 </template>
 
 <script>
-// import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag } from "@utils/helpers"
 import PageHeader from "@comp/Common/PageHeader"
-// import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
 import dummyRequerimientosList from "@utils/dummyRequerimientosList"
 import dummyRequerimientosList2 from "@utils/dummyRequerimientosList2"
 import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
@@ -36,34 +33,19 @@ export default {
   name: "PriorizarRequerimientos",
   components: {
     PageHeader,
-    // PriorizarRequerimientosItem,
     DraggableList,
   },
   data() {
     return {
       requerimientosAOrdernar: dummyRequerimientosList,
       requerimientosOrdenados: dummyRequerimientosList2,
-      dropPlaceholderOptions: {
-        className: "drop-preview",
-        animationDuration: "150",
-        showOnTop: true,
-      },
     }
   },
+  created() {
+    // this.$store.dispatch("app/loadingInc")
+  },
   methods: {
-    getShouldAcceptDrop(src, payload) {
-      console.log(src, payload)
-      return true
-    },
-    getCardPayload(index) {
-      console.log("card payload", index)
-      return this.requerimientosAOrdernar[index]
-      // return index => {
-      //   return this.requerimientosAOrdernar.filter(req => req.id === id)[0]
-      //     .children[index]
-      // }
-    },
-    onCardDrop(list, dropResult) {
+    /* onCardDrop(list, dropResult) {
       this.log("oncarddrop", list, dropResult)
       if (list === "source" && dropResult.removedIndex !== null) {
         const res1 = applyDrag(this.requerimientosAOrdernar, dropResult)
@@ -79,10 +61,7 @@ export default {
           this.requerimientosOrdenados,
         )
       }
-    },
-    log(...params) {
-      console.log(...params)
-    },
+    }, */
   },
 }
 </script>
