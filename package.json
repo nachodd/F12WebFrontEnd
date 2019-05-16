@@ -1,8 +1,8 @@
 {
   "name": "f12",
   "version": "0.0.1",
-  "description": "f12",
-  "productName": "f12",
+  "description": "F12",
+  "productName": "F12",
   "cordovaId": "ar.com.bld.f12",
   "author": "nachodd <mdurand@bld.com.ar>",
   "private": true,
@@ -22,7 +22,7 @@
     "vuelidate": "^0.7.4"
   },
   "devDependencies": {
-    "@quasar/app": "^1.0.0-beta.25",
+    "@quasar/app": "^1.0.0-beta.26",
     "@vue/eslint-config-prettier": "^4.0.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.10.0",

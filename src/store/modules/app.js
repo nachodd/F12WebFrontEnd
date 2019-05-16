@@ -44,6 +44,9 @@ const mutations = {
   LOADING_INC: state => {
     state.loadingLevel += 1
   },
+  LOADING_INC_BY: (state, value) => {
+    state.loadingLevel += value
+  },
   LOADING_DEC: state => {
     state.loadingLevel -= 1
     if (state.loadingLevel < 0) {
@@ -76,6 +79,9 @@ const actions = {
       commit("LOADING_INC")
       resolve()
     })
+  },
+  loadingIncBy({ commit }, value) {
+    commit("LOADING_INC_BY", value)
   },
   loadingDec({ commit }) {
     return new Promise(async resolve => {

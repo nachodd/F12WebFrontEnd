@@ -57,15 +57,6 @@ const routes = [
           roles: ["menu_sistemas"],
         },
       },
-      {
-        path: "/priorizar-requerimientos-2",
-        name: "priorizar-requerimientos-2",
-        component: () => import("pages/PriorizarRequerimientos.BAK.vue"),
-        meta: {
-          title: "Priorizar Requerimientos - F12",
-          roles: ["menu_sistemas"],
-        },
-      },
     ],
   },
 ]

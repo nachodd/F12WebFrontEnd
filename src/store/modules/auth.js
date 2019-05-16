@@ -29,6 +29,7 @@ const getters = {
   expiresIn: state => state.expiresIn,
   refreshToken: state => state.refreshToken,
   user: state => state.user,
+  userId: state => (state.user ? state.user.Id : null),
   roles: state => state.roles,
   check: state => state.user !== null,
 }

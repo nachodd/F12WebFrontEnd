@@ -10,6 +10,7 @@ export default [
     estado: "Pendiente aprobación",
     prioridad: "5",
     importante: "NO",
+    col: "target",
   },
   {
     id: 31,
@@ -22,6 +23,7 @@ export default [
     estado: "Pendiente aprobación",
     prioridad: "5",
     importante: "SI",
+    col: "target",
   },
   {
     id: 33,
@@ -34,6 +36,7 @@ export default [
     estado: "Pendiente aprobación",
     prioridad: "5",
     importante: "SI",
+    col: "target",
   },
   {
     id: 34,
@@ -46,6 +49,7 @@ export default [
     estado: "Pendiente aprobación",
     prioridad: "5",
     importante: "SI",
+    col: "target",
   },
   {
     id: 37,
@@ -58,6 +62,7 @@ export default [
     estado: "Pendiente aprobación",
     prioridad: "5",
     importante: "NO",
+    col: "target",
   },
   {
     id: 38,
@@ -70,5 +75,6 @@ export default [
     estado: "Pendiente aprobación",
     prioridad: "5",
     importante: "NO",
+    col: "target",
   },
 ]

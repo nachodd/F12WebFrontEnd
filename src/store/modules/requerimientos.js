@@ -29,11 +29,11 @@ const state = {
 }
 
 // getters
-// const getters = {
-//   areas: state => state.options.areas,
-//   sistemas: state => state.options.sistemas,
-//   requerimientosTipos: state => state.options.requerimientosTipos,
-// }
+const getters = {
+  getEstadoByCodigo(state) {
+    return codigo => _.find(state.estados, { codigo })
+  },
+}
 
 const mutations = {
   SET_OPTIONS: (state, { areas, sistemas, requerimientos_tipos }) => {
@@ -153,6 +153,7 @@ const actions = {
 export default {
   namespaced: true,
   state,
+  getters,
   mutations,
   actions,
 }

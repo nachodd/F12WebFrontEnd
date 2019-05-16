@@ -1,19 +1,44 @@
 <template>
   <div class="shadow-3 bg-grey-2 rounded-borders">
     <div class="title">{{ title }}</div>
-    <!-- :should-accept-drop="getShouldAcceptDrop" -->
-    <Container
-      :group-name="groupName"
-      :get-child-payload="getCardPayload"
-      drag-class="card-ghost"
-      drop-class="card-ghost-drop"
-      :drop-placeholder="dropPlaceholderOptions"
-      @drop="e => onCardDrop(listName, e)"
+
+    <transition
+      appear
+      enter-active-class="animated fadeIn"
+      leave-active-class="animated fadeOut"
     >
-      <Draggable v-for="req in list" :key="`req_${req.id}`">
-        <priorizar-requerimientos-item :req="req" />
-      </Draggable>
-    </Container>
+      <Container
+        v-if="!loadingList"
+        :group-name="groupName"
+        :get-child-payload="getPayload"
+        drag-class="card-ghost"
+        drop-class="card-ghost-drop"
+        :drop-placeholder="dropPlaceholderOptions"
+        @drop="e => onDrop(listName, e)"
+      >
+        <Draggable
+          v-for="req in requerimientosList"
+          :key="`req_${req.requerimiento_id}`"
+        >
+          <priorizar-requerimientos-item :req="req" />
+        </Draggable>
+      </Container>
+    </transition>
+    <transition
+      appear
+      enter-active-class="animated fadeIn"
+      leave-active-class="animated fadeOut"
+    >
+      <div v-if="loadingList" class="row text-center loading-container">
+        <div class="col self-center">
+          <q-spinner-gears size="50px" color="accent" />
+        </div>
+      </div>
+    </transition>
+
+    <!-- <q-inner-loading :showing="loadingList">
+      <q-spinner-gears size="50px" color="accent" />
+    </q-inner-loading> -->
   </div>
 </template>
 
@@ -46,14 +71,18 @@ export default {
       type: String,
       required: true,
     },
-    acceptDrop: {
+    loadingList: {
       type: Boolean,
       default: true,
     },
+    // acceptDrop: {
+    //   type: Boolean,
+    //   default: true,
+    // },
   },
   data() {
     return {
-      list: this.requerimientosList,
+      // list: this.requerimientosList,
       dropPlaceholderOptions: {
         className: "drop-group",
         animationDuration: "150",
@@ -62,34 +91,38 @@ export default {
     }
   },
   methods: {
-    // getShouldAcceptDrop() {
-    //   console.log("ShouldAcceptDrop", )
-    // },
-    getCardPayload(index) {
-      return this.list[index]
+    getPayload(index) {
+      return this.requerimientosList[index]
     },
-    onCardDrop(list, dropResult) {
-      console.log("oncarddrop", list, dropResult)
+    onDrop(list, dropResult) {
+      // console.log("onDrop", list, dropResult)
+      let result = []
 
-      if (list === "source") {
+      result = applyDrag(this.requerimientosList, dropResult)
+
+      this.$emit("update-list", list, result, dropResult)
+
+      // this.$emit("update:requerimientos-list", result)
+
+      /* if (list === "source") {
         if (dropResult.removedIndex !== null) {
-          const res1 = applyDrag(this.list, dropResult)
-          this.$set(this, "list", res1)
+          result = applyDrag(this.requerimientosList, dropResult)
+          // this.$set(this, "list", res1)
+          this.$emit("update:requerimientos-list", result)
         } else {
+          result = applyDrag(this.requerimientosList, dropResult)
+          // this.$set(this, "list", res1)
+          this.$emit("update:requerimientos-list", result)
           console.log("tryed to drop on source list")
         }
       }
 
       if (list === "target" && dropResult.addedIndex !== null) {
-        const res = applyDrag(this.list, dropResult)
-        this.$set(this, "list", res)
-      }
-
-      this.$emit("update:requerimientos-list", this.list)
+        result = applyDrag(this.requerimientosList, dropResult)
+        // this.$set(this, "list", res)
+        this.$emit("update:requerimientos-list", result)
+      } */
     },
-    // log(...params) {
-    //   console.log(...params)
-    // },
   },
 }
 </script>
@@ -98,5 +131,8 @@ export default {
 .title {
   text-align: center;
   font-size: 1.2rem;
+}
+.loading-container {
+  min-height: 100px;
 }
 </style>
