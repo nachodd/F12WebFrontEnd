@@ -2,9 +2,7 @@
   <q-item class="q-ma-sm shadow-2 rounded-borders bg-white">
     <!--:active="esImportante"  active-class="text-black bg-red-2" -->
     <q-item-section class="col-1">
-      <span class="text-accent text-weight-medium">
-        #{{ req.requerimiento_id }}
-      </span>
+      <span class="text-accent text-weight-medium">#{{ req.id }}</span>
       <q-icon
         v-if="esImportante"
         name="fas fa-exclamation-triangle"

@@ -142,6 +142,7 @@ const actions = {
         commit("CLEAR_TOKENS")
         commit("SET_ROLES", [])
         commit("SET_USER", null)
+        commit("app/LOADING_RESET", null, { root: true })
         removeToken()
         resetRouter()
         resolve()
@@ -157,6 +158,7 @@ const actions = {
       commit("CLEAR_TOKENS")
       commit("SET_ROLES", [])
       commit("SET_USER", null)
+      commit("app/LOADING_RESET", null, { root: true })
       removeToken()
       resolve()
     })
@@ -165,10 +167,13 @@ const actions = {
   refresh({ commit, state, dispatch }) {
     return new Promise(async (resolve, reject) => {
       if (!state.refreshToken) {
+        debugger
         dispatch("logout")
+        commit("app/LOADING_RESET", null, { root: true })
         reject()
       } else {
         try {
+          debugger
           const { data } = await refresh(state.refreshToken)
 
           const expires = expiresToUnixTS(data.expires_in)

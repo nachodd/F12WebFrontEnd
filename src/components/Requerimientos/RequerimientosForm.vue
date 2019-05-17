@@ -148,7 +148,6 @@ import InputDateCustom from "@comp/Requerimientos/InputDateCustom"
 import UploaderCustom from "@comp/Requerimientos/UploaderCustom"
 import formValidation from "@mixins/formValidation"
 import { warn } from "@utils/helpers"
-// import Requerimiento from "@models/requerimiento"
 
 export default {
   components: { SelectCustom, InputDateCustom, UploaderCustom },

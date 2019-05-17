@@ -25,56 +25,14 @@
       </div>
     </div>
 
-    <q-dialog
-      v-model="dialogConfirmShowed"
-      persistent
-      transition-show="slide-up"
-      transition-hide="slide-down"
-    >
-      <q-card class="bg-accent text-white">
-        <q-bar>
-          <q-btn dense flat icon="fas fa-exclamation-triangle" />
-          <!-- <div class="text-weight-bold">
-            Confirmación
-          </div> -->
-          <q-space />
-          <q-btn dense flat icon="close" @click="cancelOperation">
-            <q-tooltip content-class="bg-white text-primary">
-              Cancelar
-            </q-tooltip>
-          </q-btn>
-        </q-bar>
-        <q-card-section>
-          <div class="text-h6">Confirmación</div>
-        </q-card-section>
-        <q-card-section>
-          Esta a punto de cambiar el estado del requerimiento
-          <strong>#{{ sourceToChangeReqId }}</strong>
-          <br />
-          ¿Desea confimar este cambio?
-        </q-card-section>
-        <q-card-section v-if="operationApprove">
-          <q-input
-            v-model="approveComment"
-            color="white"
-            dark
-            outlined
-            type="textarea"
-            label="Si desea, puede agregar un comentario: "
-            :hide-bottom-space="true"
-          />
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn label="CANCELAR" color="negative" @click="cancelOperation" />
-          <q-btn
-            label="CONFIRMAR"
-            outline
-            color="white"
-            @click="confirmOperation"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <dialog-confirm-operation
+      :operation-approve="operationApprove"
+      :operation-reject="operationReject"
+      :dialog-confirm-open="dialogConfirmOpen"
+      :requerimiento-id-to-changed="requerimientoIdToChange"
+      @dialog-confirm-operation-cancel="confirmOperation"
+      @dialog-confirm-operation-confirm="confirmOperation"
+    />
   </q-page>
 </template>
 
@@ -82,23 +40,30 @@
 import { mapGetters } from "vuex"
 import PageHeader from "@comp/Common/PageHeader"
 import pageLoading from "@mixins/pageLoading"
-import { getRequerimientosByUserAndEstado } from "@api/requerimientos"
+import { warn, success } from "@utils/helpers"
 import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
+import DialogConfirmOperation from "@comp/PriorizarRequerimientos/DialogConfirmOperation"
+import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
+import {
+  getRequerimientosByUserAndEstado,
+  updateRequerimientosEstados,
+} from "@api/requerimientos"
 
 export default {
   name: "PriorizarRequerimientos",
   components: {
     PageHeader,
     DraggableList,
+    DialogConfirmOperation,
   },
   mixins: [pageLoading],
   data() {
     return {
-      reqsPendientesAprobacion: [],
-      reqsAprobadosPriorizados: [],
+      reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
+      reqsAprobadosPriorizados: new RequerimientosPriorizarList([], true),
       loadingReqsPendientesAprobacion: true,
       loadingReqsAprobadosPriorizados: true,
-      dialogConfirmShowed: false,
+      dialogConfirmOpen: false,
       possibleChanges: {
         sourceList: [],
         sourceChanges: {
@@ -118,14 +83,14 @@ export default {
   computed: {
     ...mapGetters("auth", ["userId"]),
     ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
-    sourceToChangeReqId() {
-      return _.get(this.possibleChanges.payload, "requerimiento_id", "")
+    requerimientoIdToChange() {
+      return _.get(this.possibleChanges.payload, "id", "")
     },
     possibleChangesSetted() {
       return (
         this.possibleChanges.sourceList.length &&
         this.possibleChanges.targetList.length &&
-        this.possibleChanges.payload.requerimiento_id
+        this.possibleChanges.payload.id
       )
     },
     // - reordenamiento de la lista de pendientes => no hace nada
@@ -138,7 +103,7 @@ export default {
         sourceChanges.addedIndex !== null
       )
     },
-    // - reordenamiento de la lista de aprobados => trigger update aprobados
+    // - reordenamiento de la lista de aprobados => disparar update aprobados
     operationReoderApprovedList() {
       const { sourceChanges, targetChanges } = this.possibleChanges
       return (
@@ -148,7 +113,7 @@ export default {
         sourceChanges.addedIndex === null
       )
     },
-    // - arrastrar de pendientes a aprobados => trigger update aprobados y pendientes
+    // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
     operationApprove() {
       const { sourceChanges, targetChanges } = this.possibleChanges
       return (
@@ -158,7 +123,7 @@ export default {
         sourceChanges.addedIndex === null
       )
     },
-    // - arrastrar de aprobados a pendientes => trigger update aprobados y pendientes
+    // - arrastrar de aprobados a pendientes => confirmar y disparar update aprobados y pendientes
     operationReject() {
       const { sourceChanges, targetChanges } = this.possibleChanges
       return (
@@ -169,11 +134,6 @@ export default {
       )
     },
   },
-  watch: {
-    // reqsPendientesAprobacion(val) {
-    //   console.log("reqsPendientesAprobacion", val)
-    // },
-  },
   async created() {
     // FIXME: dependiendo del tipo de usuario (jerarquía), va a ver 1 sola columan y los titulos deberian cambiar
     const estadoPendiente = this.getEstadoByCodigo("PEND")
@@ -182,7 +142,10 @@ export default {
 
     getRequerimientosByUserAndEstado(this.userId, estadoPendiente.id)
       .then(({ data: { data } }) => {
-        this.reqsPendientesAprobacion = data
+        this.reqsPendientesAprobacion = new RequerimientosPriorizarList(
+          data,
+          false,
+        )
       })
       .catch(e => console.log(e))
       .finally(() => {
@@ -192,7 +155,10 @@ export default {
 
     getRequerimientosByUserAndEstado(this.userId, estadoAprobado.id)
       .then(({ data: { data } }) => {
-        this.reqsAprobadosPriorizados = data
+        this.reqsAprobadosPriorizados = new RequerimientosPriorizarList(
+          data,
+          true,
+        )
       })
       .catch(e => console.log(e))
       .finally(() => {
@@ -202,8 +168,6 @@ export default {
   },
   methods: {
     processUpdateList(listName, result, { removedIndex, addedIndex, payload }) {
-      // console.log("processUpdateList", listName, result)
-      // console.log("ri:", removedIndex, "ai", addedIndex, payload)
       this.possibleChanges[`${listName}List`] = result
       this.possibleChanges[`${listName}Changes`] = { addedIndex, removedIndex }
       this.$set(this.possibleChanges, "payload", payload)
@@ -212,57 +176,86 @@ export default {
       if (this.possibleChangesSetted) {
         // - reordenamiento de la lista de pendientes => no hace nada
         if (this.operationReoderPendingList) {
-          this.clearOperations()
-        } else if (this.operationApprove || this.operationReject) {
-          this.dialogConfirmShowed = true
-        } else if (this.operationReoderApprovedList) {
-          // TODO: trigger remote update ONLY for approvedList
-          this.$set(
-            this,
-            "reqsPendientesAprobacion",
-            this.possibleChanges.sourceList,
-          )
-          this.$set(
-            this,
-            "reqsAprobadosPriorizados",
-            this.possibleChanges.targetList,
-          )
-          this.clearOperations()
+          this.updateListsWithPossibleChanges()
+          this.clearOperation()
         }
-        /* console.log(
-          "operationReoderPendingList",
-          this.operationReoderPendingList,
-        )
-        console.log(
-          "operationReoderApprovedList",
-          this.operationReoderApprovedList,
-        )
-        console.log("operationApprove", this.operationApprove)
-        console.log("operationReject", this.operationReject) */
+        // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
+        // - arrastrar de aprobados a pendientes => confirmar y disparar update aprobados y pendientes
+        else if (this.operationApprove || this.operationReject) {
+          this.dialogConfirmOpen = true
+        }
+        // - reordenamiento de la lista de aprobados => disparar update aprobados
+        else if (this.operationReoderApprovedList) {
+          // TODO: trigger remote update ONLY for approvedList
+          this.updateListsWithPossibleChanges()
+          this.clearOperation()
+        }
       }
-
-      // - reordenamiento de la lista de aprobados => trigger update aprobados
-      // - arrastrar de pendientes a aprobados => trigger update aprobados y pendientes
-      // - arrastrar de aprobados a pendientes => trigger update aprobados y pendientes
     },
-    cancelOperation() {
-      this.clearOperations()
-    },
-    confirmOperation() {
-      // TODO trigger remote update FOR BOTH LISTS
+    updateListsWithPossibleChanges() {
       this.$set(
         this,
         "reqsPendientesAprobacion",
-        this.possibleChanges.sourceList,
+        new RequerimientosPriorizarList(this.possibleChanges.sourceList, false),
       )
       this.$set(
         this,
         "reqsAprobadosPriorizados",
-        this.possibleChanges.targetList,
+        new RequerimientosPriorizarList(this.possibleChanges.targetList, true),
       )
-      this.clearOperations()
     },
-    clearOperations() {
+    async confirmOperation(comentario) {
+      // FIXME: unificar los procesos de aprove y cancel. Mas que nada por la parte de lso comentarios. Ver is savar el metodo de aca arriba
+
+      // Creo 2 temporales con los requerimientos para guardar
+      const tempReqsPendientes = new RequerimientosPriorizarList(
+        this.possibleChanges.sourceList,
+        false,
+      )
+      const tempReqsAprobados = new RequerimientosPriorizarList(
+        this.possibleChanges.targetList,
+        true,
+      )
+
+      // Actualizo el comentario en el req target
+      tempReqsAprobados.setComentarioForRequerimiento(
+        this.requerimientoIdToChange,
+        comentario,
+      )
+      // Actualizo los requerimientos
+      try {
+        const tempReqsConcated = [
+          ...tempReqsPendientes.toUpdatePayload(),
+          ...tempReqsAprobados.toUpdatePayload(),
+        ]
+
+        this.$store.dispatch("app/loadingInc")
+        await updateRequerimientosEstados(this.userId, tempReqsConcated)
+        success({
+          message: `Requerimiento #${this.requerimientoIdToChange} APROBADO`,
+        })
+
+        // actualizo los listados asi se reflejan en la UI
+        this.updateListsWithPossibleChanges()
+      } catch (e) {
+        const message =
+          e.message ||
+          "Hubo un problema al cambiar el estado de los Requerimientos. Intente nuevamente más tarde"
+        warn({ message })
+      } finally {
+        this.$store.dispatch("app/loadingDec")
+      }
+
+      this.clearOperation()
+    },
+    cancelOperation() {
+      this.reqsAprobadosPriorizados.setComentarioForRequerimiento(
+        this.requerimientoIdToChange,
+        null,
+      )
+      this.clearOperation()
+    },
+    clearOperation() {
       for (const listName of ["source", "target"]) {
         this.possibleChanges[`${listName}List`] = []
         this.possibleChanges[`${listName}Changes`] = {
@@ -271,7 +264,8 @@ export default {
         }
       }
       this.$set(this.possibleChanges, "payload", {})
-      this.dialogConfirmShowed = false
+      this.approveComment = ""
+      this.dialogConfirmOpen = false
     },
   },
 }

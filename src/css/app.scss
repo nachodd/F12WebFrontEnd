@@ -1,3 +1,12 @@
+@import "variables.scss";
+
+.bg-accent-light {
+  background-color: $accent-light;
+}
+.text-accent-light {
+  color: $accent-light;
+}
+
 .headerBackground {
   /* background: linear-gradient(145deg, #027be3 11%, #014a88 75%); */
   background: linear-gradient(87deg, #172b4d, #1a174d) !important;

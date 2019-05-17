@@ -37,3 +37,11 @@ export function getRequerimientosByUserAndEstado(userId, estadoId) {
     method: "get",
   })
 }
+
+export function updateRequerimientosEstados(userId, requerimientosList) {
+  return request({
+    url: `/v1/f12/${userId}/requerimientos/proceso`,
+    method: "put",
+    data: requerimientosList,
+  })
+}

@@ -17,8 +17,8 @@
         @drop="e => onDrop(listName, e)"
       >
         <Draggable
-          v-for="req in requerimientosList"
-          :key="`req_${req.requerimiento_id}`"
+          v-for="req in requerimientosList.list"
+          :key="`req_${req.id}`"
         >
           <priorizar-requerimientos-item :req="req" />
         </Draggable>
@@ -46,6 +46,7 @@
 import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag } from "@utils/helpers"
 import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
+import RequerimientosPriorizarList from "../../models/RequerimientosPriorizarList"
 
 export default {
   name: "DraggableList",
@@ -64,7 +65,7 @@ export default {
       required: true,
     },
     requerimientosList: {
-      type: Array,
+      type: RequerimientosPriorizarList,
       required: true,
     },
     listName: {
@@ -92,13 +93,13 @@ export default {
   },
   methods: {
     getPayload(index) {
-      return this.requerimientosList[index]
+      return this.requerimientosList.list[index]
     },
     onDrop(list, dropResult) {
       // console.log("onDrop", list, dropResult)
       let result = []
 
-      result = applyDrag(this.requerimientosList, dropResult)
+      result = applyDrag(this.requerimientosList.list, dropResult)
 
       this.$emit("update-list", list, result, dropResult)
 
