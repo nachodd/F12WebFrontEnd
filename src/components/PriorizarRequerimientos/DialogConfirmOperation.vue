@@ -92,10 +92,11 @@ export default {
   },
   methods: {
     cancelOperation() {
-      this.$emit("dialog-confirm-operation-cancel", null)
+      this.$emit("dialog-confirm-operation-cancel")
     },
     confirmOperation() {
-      this.$emit("dialog-confirm-operation-confirm", this.approveComment)
+      const comment = this.operationReject ? null : this.approveComment
+      this.$emit("dialog-confirm-operation-confirm", comment)
       this.approveComment = ""
     },
   },

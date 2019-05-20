@@ -17,10 +17,10 @@
         @drop="e => onDrop(listName, e)"
       >
         <Draggable
-          v-for="req in requerimientosList.list"
+          v-for="(req, index) in orderedRequerimientos"
           :key="`req_${req.id}`"
         >
-          <priorizar-requerimientos-item :req="req" />
+          <priorizar-requerimientos-item :req="req" :index="index" />
         </Draggable>
       </Container>
     </transition>
@@ -76,10 +76,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    // acceptDrop: {
-    //   type: Boolean,
-    //   default: true,
-    // },
   },
   data() {
     return {
@@ -91,12 +87,19 @@ export default {
       },
     }
   },
+  computed: {
+    orderedRequerimientos() {
+      return _.sortBy(this.requerimientosList.list, ["prioridad"])
+    },
+  },
   methods: {
     getPayload(index) {
+      // console.log("getPayload", index)
+      // return this.requerimientosList.list[index - 1]
       return this.requerimientosList.list[index]
     },
     onDrop(list, dropResult) {
-      // console.log("onDrop", list, dropResult)
+      console.log("onDrop", list, dropResult)
       let result = []
 
       result = applyDrag(this.requerimientosList.list, dropResult)

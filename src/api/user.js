@@ -48,3 +48,10 @@ export function refresh(refreshToken) {
     // withCredentials: true,
   })
 }
+
+export function getVinculacion(userId) {
+  return request({
+    url: `v1/usuarios/${userId}/vinculacion`,
+    method: "get",
+  })
+}

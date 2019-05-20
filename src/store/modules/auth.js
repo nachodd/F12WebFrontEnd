@@ -1,4 +1,4 @@
-import { login, logout, getInfo, refresh } from "@api/user"
+import { login, logout, getInfo, refresh, getVinculacion } from "@api/user"
 import {
   getToken,
   getExpiresIn,
@@ -21,6 +21,7 @@ const state = {
   refreshToken: getRefreshToken(),
   user: null,
   roles: [],
+  userTree: [],
 }
 
 // getters
@@ -54,6 +55,9 @@ const mutations = {
   SET_ROLES: (state, roles) => {
     state.roles = roles
   },
+  SET_TREE: (state, tree) => {
+    state.userTree = tree
+  },
 }
 
 // actions
@@ -86,6 +90,15 @@ const actions = {
         }
         commit("SET_ROLES", roles)
         commit("SET_USER", user)
+
+        // Busco el arbol de vinculacion directa (estructura de superiores - subordinados)
+        getVinculacion(user.Id)
+          .then(res => {
+            debugger
+            const tree = res.data.data
+            commit("SET_TREE", tree)
+          })
+          .catch(e => console.log(e))
 
         resolve()
       } catch (error) {

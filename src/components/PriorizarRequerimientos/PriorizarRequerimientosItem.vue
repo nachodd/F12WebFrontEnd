@@ -1,25 +1,38 @@
 <template>
   <q-item class="q-ma-sm shadow-2 rounded-borders bg-white">
     <!--:active="esImportante"  active-class="text-black bg-red-2" -->
-    <q-item-section class="col-1">
+    <q-item-section class="col-xs-3 text-center">
       <span class="text-accent text-weight-medium">#{{ req.id }}</span>
-      <q-icon
-        v-if="esImportante"
-        name="fas fa-exclamation-triangle"
-        color="red"
-        size="16px"
-      >
-        <q-tooltip>
-          Este requerimiento fue marcado como importante
-        </q-tooltip>
-      </q-icon>
-      <q-icon v-else name="far fa-file-alt" color="grey-8" size="16px" />
+      <template v-if="!esAprobado">
+        <div>
+          <q-icon
+            v-if="esImportante"
+            name="fas fa-exclamation-triangle"
+            color="red"
+            size="16px"
+          >
+            <q-tooltip>
+              Este requerimiento fue marcado como importante
+            </q-tooltip>
+          </q-icon>
+          <q-icon v-else name="far fa-file-alt" color="grey-8" size="16px" />
+        </div>
+      </template>
+      <template v-else>
+        <div>
+          <q-chip dense class="no-margin">
+            <q-avatar color="red" text-color="white">
+              {{ indicePrioridad }}
+            </q-avatar>
+            Prioridad
+          </q-chip>
+        </div>
+      </template>
     </q-item-section>
 
     <q-item-section top>
       <q-item-label lines="1">
         <span class="text-weight-medium">[{{ req.asunto }}]</span>
-        <!-- <span class="text-grey-8">- GitHub repository</span> -->
       </q-item-label>
       <q-item-label caption lines="2" style="margin-bottom: auto;">
         {{ req.descripcion }}
@@ -52,6 +65,14 @@
       <div class="text-grey-8 q-gutter-xs">
         <q-btn class="gt-xs" size="12px" flat dense round icon="delete" />
       </div>
+
+      <div v-if="tieneComentario" class="text-grey-8 q-gutter-xs">
+        <q-btn class="gt-xs" size="12px" flat dense round icon="fas fa-comment">
+          <q-tooltip>
+            {{ req.comentario }}
+          </q-tooltip>
+        </q-btn>
+      </div>
     </q-item-section>
   </q-item>
 </template>
@@ -63,10 +84,23 @@ export default {
       type: Object,
       required: true,
     },
+    index: {
+      type: Number,
+      required: true,
+    },
   },
   computed: {
     esImportante() {
       return this.req.importante === "SI"
+    },
+    esAprobado() {
+      return this.req.estado.id === 2
+    },
+    indicePrioridad() {
+      return this.index + 1
+    },
+    tieneComentario() {
+      return this.req.comentario && this.req.comentario.length > 0
     },
   },
 }

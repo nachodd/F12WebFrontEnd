@@ -30,7 +30,7 @@
       :operation-reject="operationReject"
       :dialog-confirm-open="dialogConfirmOpen"
       :requerimiento-id-to-changed="requerimientoIdToChange"
-      @dialog-confirm-operation-cancel="confirmOperation"
+      @dialog-confirm-operation-cancel="clearOperation"
       @dialog-confirm-operation-confirm="confirmOperation"
     />
   </q-page>
@@ -142,10 +142,11 @@ export default {
 
     getRequerimientosByUserAndEstado(this.userId, estadoPendiente.id)
       .then(({ data: { data } }) => {
-        this.reqsPendientesAprobacion = new RequerimientosPriorizarList(
-          data,
-          false,
-        )
+        this.reqsPendientesAprobacion.list = data
+        // this.reqsPendientesAprobacion = new RequerimientosPriorizarList(
+        //   data,
+        //   false,
+        // )
       })
       .catch(e => console.log(e))
       .finally(() => {
@@ -155,10 +156,11 @@ export default {
 
     getRequerimientosByUserAndEstado(this.userId, estadoAprobado.id)
       .then(({ data: { data } }) => {
-        this.reqsAprobadosPriorizados = new RequerimientosPriorizarList(
-          data,
-          true,
-        )
+        this.reqsAprobadosPriorizados.list = data
+        // this.reqsAprobadosPriorizados = new RequerimientosPriorizarList(
+        //   data,
+        //   true,
+        // )
       })
       .catch(e => console.log(e))
       .finally(() => {
@@ -176,19 +178,22 @@ export default {
       if (this.possibleChangesSetted) {
         // - reordenamiento de la lista de pendientes => no hace nada
         if (this.operationReoderPendingList) {
-          this.updateListsWithPossibleChanges()
+          this.updateListsWithPossibleChanges() // actualizo localmente, aunque el cambio no es persistido
           this.clearOperation()
         }
         // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
         // - arrastrar de aprobados a pendientes => confirmar y disparar update aprobados y pendientes
         else if (this.operationApprove || this.operationReject) {
-          this.dialogConfirmOpen = true
+          this.dialogConfirmOpen = true // la operacion es mandejada por el dialog de confirmación
         }
         // - reordenamiento de la lista de aprobados => disparar update aprobados
         else if (this.operationReoderApprovedList) {
-          // TODO: trigger remote update ONLY for approvedList
-          this.updateListsWithPossibleChanges()
-          this.clearOperation()
+          // TODO validar si efecivamente si hizo un cambio
+          const tempReqsAprobados = new RequerimientosPriorizarList(
+            this.possibleChanges.targetList,
+            true,
+          )
+          this.persistChanges(tempReqsAprobados.toUpdatePayload())
         }
       }
     },
@@ -204,56 +209,76 @@ export default {
         new RequerimientosPriorizarList(this.possibleChanges.targetList, true),
       )
     },
-    async confirmOperation(comentario) {
-      // FIXME: unificar los procesos de aprove y cancel. Mas que nada por la parte de lso comentarios. Ver is savar el metodo de aca arriba
+    confirmOperation(comentario) {
+      // copio los listados (de manera de tener un backup)
+      const pendientesCopy = [...this.reqsPendientesAprobacion.list]
+      const aprobadosCopy = [...this.reqsAprobadosPriorizados.list]
 
-      // Creo 2 temporales con los requerimientos para guardar
-      const tempReqsPendientes = new RequerimientosPriorizarList(
-        this.possibleChanges.sourceList,
-        false,
-      )
-      const tempReqsAprobados = new RequerimientosPriorizarList(
-        this.possibleChanges.targetList,
-        true,
-      )
+      // Actualizo el comentario
+      let listToUpdateComment = this.operationReject
+        ? "sourceList"
+        : "targetList"
+      _.find(this.possibleChanges[listToUpdateComment], {
+        id: this.requerimientoIdToChange,
+      }).comentario = comentario
 
-      // Actualizo el comentario en el req target
-      tempReqsAprobados.setComentarioForRequerimiento(
+      debugger
+      // actualizo localmente los listados
+      this.reqsPendientesAprobacion.list = this.possibleChanges.sourceList
+      this.reqsAprobadosPriorizados.list = this.possibleChanges.targetList
+
+      const tempReqsConcated = [
+        ...this.reqsPendientesAprobacion.toUpdatePayload(),
+        ...this.reqsAprobadosPriorizados.toUpdatePayload(),
+      ]
+      // Persisto los cambios
+      const res = this.persistChanges(tempReqsConcated)
+      // this.updateListsWithPossibleChanges()
+      if (!res) {
+        this.reqsPendientesAprobacion.list = pendientesCopy
+        this.reqsAprobadosPriorizados.list = aprobadosCopy
+      }
+      this.clearOperation()
+
+      /* console.log(
+        "source",
+        this.possibleChanges.sourceList.map((r, i) => ({ id: r.id, pr: i })),
+        "target",
+        this.possibleChanges.targetList.map((r, i) => ({ id: r.id, pr: i })),
         this.requerimientoIdToChange,
-        comentario,
-      )
-      // Actualizo los requerimientos
+      ) */
+      // return
+    },
+    async persistChanges(list) {
       try {
-        const tempReqsConcated = [
-          ...tempReqsPendientes.toUpdatePayload(),
-          ...tempReqsAprobados.toUpdatePayload(),
-        ]
-
         this.$store.dispatch("app/loadingInc")
-        await updateRequerimientosEstados(this.userId, tempReqsConcated)
-        success({
-          message: `Requerimiento #${this.requerimientoIdToChange} APROBADO`,
-        })
+        await updateRequerimientosEstados(this.userId, list)
+
+        let message = ""
+        if (this.operationReject) {
+          message = `Requerimiento #${
+            this.requerimientoIdToChange
+          } marcado como "PEND. DE APROBACIÓN"`
+        } else if (this.operationApprove) {
+          message = `Requerimiento #${this.requerimientoIdToChange} APROBADO`
+        } else if (this.operationReoderApprovedList) {
+          message = "Requerimientos aprobados PRIORIZADOS"
+        }
+        success({ message })
 
         // actualizo los listados asi se reflejan en la UI
-        this.updateListsWithPossibleChanges()
+        // this.updateListsWithPossibleChanges()
+        // this.clearOperation()
+        return true
       } catch (e) {
         const message =
           e.message ||
           "Hubo un problema al cambiar el estado de los Requerimientos. Intente nuevamente más tarde"
         warn({ message })
+        return false
       } finally {
         this.$store.dispatch("app/loadingDec")
       }
-
-      this.clearOperation()
-    },
-    cancelOperation() {
-      this.reqsAprobadosPriorizados.setComentarioForRequerimiento(
-        this.requerimientoIdToChange,
-        null,
-      )
-      this.clearOperation()
     },
     clearOperation() {
       for (const listName of ["source", "target"]) {
