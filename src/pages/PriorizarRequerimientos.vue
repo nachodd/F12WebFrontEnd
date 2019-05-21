@@ -4,6 +4,7 @@
     <div class="row q-col-gutter-md">
       <div class="col-sm-6 col-xs-12">
         <draggable-list
+          ref="source"
           title="Pendientes de Aprobación"
           group-name="requerimientos"
           list-name="source"
@@ -15,6 +16,7 @@
 
       <div class="col-sm-6 col-xs-12">
         <draggable-list
+          ref="target"
           title="Aprobados"
           group-name="requerimientos"
           list-name="target"
@@ -143,10 +145,7 @@ export default {
     getRequerimientosByUserAndEstado(this.userId, estadoPendiente.id)
       .then(({ data: { data } }) => {
         this.reqsPendientesAprobacion.list = data
-        // this.reqsPendientesAprobacion = new RequerimientosPriorizarList(
-        //   data,
-        //   false,
-        // )
+        this.reqsPendientesAprobacion.sortByPrioridad()
       })
       .catch(e => console.log(e))
       .finally(() => {
@@ -157,10 +156,7 @@ export default {
     getRequerimientosByUserAndEstado(this.userId, estadoAprobado.id)
       .then(({ data: { data } }) => {
         this.reqsAprobadosPriorizados.list = data
-        // this.reqsAprobadosPriorizados = new RequerimientosPriorizarList(
-        //   data,
-        //   true,
-        // )
+        this.reqsAprobadosPriorizados.sortByPrioridad()
       })
       .catch(e => console.log(e))
       .finally(() => {
@@ -169,7 +165,11 @@ export default {
       })
   },
   methods: {
-    processUpdateList(listName, result, { removedIndex, addedIndex, payload }) {
+    async processUpdateList(
+      listName,
+      result,
+      { removedIndex, addedIndex, payload },
+    ) {
       this.possibleChanges[`${listName}List`] = result
       this.possibleChanges[`${listName}Changes`] = { addedIndex, removedIndex }
       this.$set(this.possibleChanges, "payload", payload)
@@ -178,7 +178,8 @@ export default {
       if (this.possibleChangesSetted) {
         // - reordenamiento de la lista de pendientes => no hace nada
         if (this.operationReoderPendingList) {
-          this.updateListsWithPossibleChanges() // actualizo localmente, aunque el cambio no es persistido
+          // actualizo localmente, aunque el cambio no es persistido
+          this.reqsPendientesAprobacion.list = this.possibleChanges.sourceList
           this.clearOperation()
         }
         // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
@@ -188,31 +189,29 @@ export default {
         }
         // - reordenamiento de la lista de aprobados => disparar update aprobados
         else if (this.operationReoderApprovedList) {
-          // TODO validar si efecivamente si hizo un cambio
-          const tempReqsAprobados = new RequerimientosPriorizarList(
-            this.possibleChanges.targetList,
-            true,
-          )
-          this.persistChanges(tempReqsAprobados.toUpdatePayload())
+          // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
+          const differentPosition =
+            this.possibleChanges.targetChanges.addedIndex !==
+            this.possibleChanges.targetChanges.removedIndex
+          if (differentPosition) {
+            const aprobadosBackup = [...this.reqsAprobadosPriorizados.list]
+            this.reqsAprobadosPriorizados.list = this.possibleChanges.targetList
+            this.reqsAprobadosPriorizados.updatePrioridad()
+            const res = await this.persistChanges(
+              this.reqsAprobadosPriorizados.toUpdatePayload(),
+            )
+            if (!res) {
+              this.reqsAprobadosPriorizados.list = aprobadosBackup
+            }
+          }
+          this.clearOperation()
         }
       }
     },
-    updateListsWithPossibleChanges() {
-      this.$set(
-        this,
-        "reqsPendientesAprobacion",
-        new RequerimientosPriorizarList(this.possibleChanges.sourceList, false),
-      )
-      this.$set(
-        this,
-        "reqsAprobadosPriorizados",
-        new RequerimientosPriorizarList(this.possibleChanges.targetList, true),
-      )
-    },
-    confirmOperation(comentario) {
+    async confirmOperation(comentario) {
       // copio los listados (de manera de tener un backup)
-      const pendientesCopy = [...this.reqsPendientesAprobacion.list]
-      const aprobadosCopy = [...this.reqsAprobadosPriorizados.list]
+      const pendientesBackup = [...this.reqsPendientesAprobacion.list]
+      const aprobadosBackup = [...this.reqsAprobadosPriorizados.list]
 
       // Actualizo el comentario
       let listToUpdateComment = this.operationReject
@@ -222,32 +221,24 @@ export default {
         id: this.requerimientoIdToChange,
       }).comentario = comentario
 
-      debugger
       // actualizo localmente los listados
       this.reqsPendientesAprobacion.list = this.possibleChanges.sourceList
       this.reqsAprobadosPriorizados.list = this.possibleChanges.targetList
+
+      this.reqsAprobadosPriorizados.updatePrioridad()
+      this.reqsAprobadosPriorizados.sortByPrioridad()
 
       const tempReqsConcated = [
         ...this.reqsPendientesAprobacion.toUpdatePayload(),
         ...this.reqsAprobadosPriorizados.toUpdatePayload(),
       ]
-      // Persisto los cambios
-      const res = this.persistChanges(tempReqsConcated)
-      // this.updateListsWithPossibleChanges()
+      // Persisto los cambios y si no gurado correctamente, reviertos los cambios
+      const res = await this.persistChanges(tempReqsConcated)
       if (!res) {
-        this.reqsPendientesAprobacion.list = pendientesCopy
-        this.reqsAprobadosPriorizados.list = aprobadosCopy
+        this.reqsPendientesAprobacion.list = pendientesBackup
+        this.reqsAprobadosPriorizados.list = aprobadosBackup
       }
       this.clearOperation()
-
-      /* console.log(
-        "source",
-        this.possibleChanges.sourceList.map((r, i) => ({ id: r.id, pr: i })),
-        "target",
-        this.possibleChanges.targetList.map((r, i) => ({ id: r.id, pr: i })),
-        this.requerimientoIdToChange,
-      ) */
-      // return
     },
     async persistChanges(list) {
       try {
@@ -266,9 +257,6 @@ export default {
         }
         success({ message })
 
-        // actualizo los listados asi se reflejan en la UI
-        // this.updateListsWithPossibleChanges()
-        // this.clearOperation()
         return true
       } catch (e) {
         const message =

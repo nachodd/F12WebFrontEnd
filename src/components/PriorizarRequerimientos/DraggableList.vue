@@ -17,7 +17,7 @@
         @drop="e => onDrop(listName, e)"
       >
         <Draggable
-          v-for="(req, index) in orderedRequerimientos"
+          v-for="(req, index) in requerimientosList.list"
           :key="`req_${req.id}`"
         >
           <priorizar-requerimientos-item :req="req" :index="index" />
@@ -99,10 +99,9 @@ export default {
       return this.requerimientosList.list[index]
     },
     onDrop(list, dropResult) {
-      console.log("onDrop", list, dropResult)
-      let result = []
+      // console.log("onDrop", list, dropResult)
 
-      result = applyDrag(this.requerimientosList.list, dropResult)
+      const result = applyDrag(this.requerimientosList.list, dropResult)
 
       this.$emit("update-list", list, result, dropResult)
 

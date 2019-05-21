@@ -14,7 +14,6 @@ export default class RequerimientosPriorizarList {
   set list(list) {
     this.listValue = list
     this.updateEstado()
-    this.listValue = _.sortBy(this.listValue, ["prioridad"])
     // console.log(this.listValue)
   }
   get list() {
@@ -40,6 +39,10 @@ export default class RequerimientosPriorizarList {
       req.prioridad = index + 1
       return req
     })
+  }
+
+  sortByPrioridad() {
+    this.listValue = _.sortBy(this.listValue, ["prioridad"])
   }
 
   toUpdatePayload() {
