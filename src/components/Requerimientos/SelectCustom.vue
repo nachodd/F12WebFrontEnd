@@ -1,6 +1,6 @@
 <template>
   <q-select
-    v-model="value"
+    v-model="localValue"
     outlined
     :hide-bottom-space="true"
     :label="label"
@@ -11,10 +11,17 @@
     :disable="loading"
     :rules="[notEmpty]"
     use-input
-    clearable
     @filter="filterFunction"
-    @input="handleInput"
-  />
+  >
+    <!-- @input="handleInput" -->
+    <template v-if="localValue" v-slot:append>
+      <q-icon
+        name="cancel"
+        class="cursor-pointer"
+        @click.stop="$emit('input', null)"
+      />
+    </template>
+  </q-select>
 </template>
 <script>
 import formValidation from "@mixins/formValidation"
@@ -53,6 +60,16 @@ export default {
       filteredOptions: this.options,
     }
   },
+  computed: {
+    localValue: {
+      get() {
+        return this.value
+      },
+      set(localValue) {
+        this.$emit("input", localValue)
+      },
+    },
+  },
   watch: {
     // value(val) {
     //   console.log(val)
@@ -63,13 +80,13 @@ export default {
     // },
   },
   methods: {
-    handleInput() {
-      this.$emit(
-        "input",
-        this.value,
-        // (this.selectedValue && this.selectedValue[this.idKey]) || "",
-      )
-    },
+    // handleInput() {
+    //   this.$emit(
+    //     "input",
+    //     this.value,
+    //     // (this.selectedValue && this.selectedValue[this.idKey]) || "",
+    //   )
+    // },
     filterFunction(val, update) {
       if (val === "") {
         update(() => {

@@ -8,7 +8,7 @@
 import pageLoading from "@mixins/pageLoading"
 import PageHeader from "@comp/Common/PageHeader"
 import RequerimientoForm from "@comp/Requerimientos/RequerimientosForm"
-import Requerimiento from "@models/requerimiento"
+import Requerimiento from "@models/Requerimiento"
 import { warn, success } from "@utils/helpers"
 import { getRequerimiento } from "@api/requerimientos"
 

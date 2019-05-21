@@ -37,14 +37,8 @@
             {{ scope.uploadSizeLabel }} / {{ scope.uploadProgressLabel }}
 					</div>-->
         </div>
-        <q-btn
-          v-if="scope.editable"
-          icon="add_box"
-          round
-          dense
-          flat
-          @click="scope.pickFiles"
-        >
+        <q-btn v-if="scope.editable" icon="add_box" round dense flat>
+          <q-uploader-add-trigger ref="addButton" />
           <q-tooltip>Seleccionar Archivos...</q-tooltip>
         </q-btn>
       </div>
@@ -53,8 +47,9 @@
       <div
         v-show="scope.files.length === 0"
         class="row text-center cursor-pointer"
-        @click="scope.pickFiles()"
+        @click="handleClickAddText"
       >
+        <!-- @click="scope.pickFiles()" -->
         <span class="col text-body1" style="margin-top: 10px;">
           Seleccione o arrastre Imagenes, Documentos, etc...
         </span>
@@ -107,7 +102,12 @@ export default {
       this.$emit("filesRemoved", files)
     },
     clearFiles() {
+      debugger
       this.$refs.uploader.reset()
+    },
+    handleClickAddText() {
+      // SUPER HACK: El scope.pickFile no funciona, entonces busco el boton de add
+      this.$refs.addButton.$el.click()
     },
   },
 }

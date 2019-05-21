@@ -29,7 +29,7 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
-        "QSlideTransition",
+        "QUploaderAddTrigger",
         "QChip",
         "QBar",
         "QSpace",

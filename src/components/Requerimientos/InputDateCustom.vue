@@ -2,7 +2,7 @@
   <q-input
     ref="input"
     outlined
-    :value="formated_date"
+    :value="selectedValue"
     :label="label"
     :rules="rulesDate"
     :hide-bottom-space="true"
@@ -15,12 +15,13 @@
         @click.stop="clearValues"
       />
       <q-icon name="event" class="cursor-pointer">
-        <q-popup-proxy>
+        <q-popup-proxy v-model="datePopupShowed">
           <q-date
             v-model="selectedValue"
             today-btn
             color="accent"
             :options="pastDisabledFn"
+            mask="DD/MM/YYYY"
             @input="handleInput"
           />
         </q-popup-proxy>
@@ -56,6 +57,7 @@ export default {
   data() {
     return {
       selectedValue: this.value || null,
+      datePopupShowed: false,
     }
   },
   computed: {
@@ -67,20 +69,18 @@ export default {
     },
   },
   watch: {
+    // Escuchamos los cambios en value para saber cuando se cambia, y los propagamos al valor interno
     value(val) {
-      // Para la inicializacion en edicion, le pasamos un objeto Date
-      if (date.isValid(val)) {
-        this.selectedValue = val
-      }
-      // Fix para limpiar el valor cuando colapsa
-      if (val === null) {
-        this.selectedValue = null
+      this.selectedValue = val
+      // Si hay valor elegido, cerramos el popup
+      if (val) {
+        this.datePopupShowed = false
       }
     },
   },
   methods: {
     handleInput() {
-      this.$emit("input", this.formated_date)
+      this.$emit("input", this.selectedValue)
     },
     clearValues() {
       this.selectedValue = null
