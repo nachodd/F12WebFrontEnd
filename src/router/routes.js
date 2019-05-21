@@ -22,11 +22,38 @@ const routes = [
         },
       },
       {
-        path: "/nuevo-ticket",
-        name: "nuevo-ticket",
-        component: () => import("pages/NuevoTicket.vue"),
+        path: "/nuevo-requerimiento",
+        name: "nuevo-requerimiento",
+        component: () => import("pages/CrearEditarRequerimiento.vue"),
         meta: {
-          title: "Nuevo Ticket - F12",
+          title: "Nuevo Requerimiento - F12",
+          roles: ["menu_sistemas"],
+        },
+      },
+      {
+        path: "/editar-requerimiento/:id",
+        name: "editar-requerimiento",
+        component: () => import("pages/CrearEditarRequerimiento.vue"),
+        meta: {
+          title: "Editar Requerimiento - F12",
+          roles: ["menu_sistemas"],
+        },
+      },
+      {
+        path: "/mis-requerimientos",
+        name: "mis-requerimientos",
+        component: () => import("pages/MisRequerimientos.vue"),
+        meta: {
+          title: "Mis Requerimientos - F12",
+          roles: ["menu_sistemas"],
+        },
+      },
+      {
+        path: "/priorizar-requerimientos",
+        name: "priorizar-requerimientos",
+        component: () => import("pages/PriorizarRequerimientos.vue"),
+        meta: {
+          title: "Priorizar Requerimientos - F12",
           roles: ["menu_sistemas"],
         },
       },

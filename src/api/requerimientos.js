@@ -8,10 +8,40 @@ export function createRequerimiento() {
 }
 
 export function storeRequerimiento(data) {
+  // const __handleErrorsInResponse = false
   return request({
     url: "/v1/f12/requerimientos",
     method: "post",
     data,
-    // withCredentials: true,
+    // __handleErrorsInResponse,
+  })
+}
+
+export function listRequerimientos(userId) {
+  return request({
+    url: `/v1/f12/${userId}/requerimientos`,
+    method: "get",
+  })
+}
+
+export function getRequerimiento(requerimientoId) {
+  return request({
+    url: `/v1/f12/requerimientos/${requerimientoId}`,
+    method: "get",
+  })
+}
+
+export function getRequerimientosByUserAndEstado(userId, estadoId) {
+  return request({
+    url: `/v1/f12/${userId}/requerimientos/estados/${estadoId}`,
+    method: "get",
+  })
+}
+
+export function updateRequerimientosEstados(userId, requerimientosList) {
+  return request({
+    url: `/v1/f12/${userId}/requerimientos/proceso`,
+    method: "put",
+    data: requerimientosList,
   })
 }

@@ -1,8 +1,10 @@
 // eslint-disable-next-line no-undef
 const path = require("path")
 // eslint-disable-next-line no-undef
-const env = require("./env")
+const webpack = require("webpack")
 // eslint-disable-next-line no-undef
+const env = require("./env")
+
 // var envparser = require("./envparser")
 
 // eslint-disable-next-line no-undef
@@ -27,6 +29,13 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QSlideTransition",
+        "QChip",
+        "QBar",
+        "QSpace",
+        "QInnerLoading",
+        "QSpinnerGears",
+        "QDialog",
         "QUploader",
         "QTooltip",
         "QPopupProxy",
@@ -65,7 +74,7 @@ module.exports = function(ctx) {
       directives: ["Ripple", "ClosePopup"],
 
       // Quasar plugins
-      plugins: ["Dialog", "Notify", "LoadingBar"],
+      plugins: ["Dialog", "Notify", "Loading", "LoadingBar"],
       iconSet: "fontawesome-v5",
       lang: "es", // Quasar language
       // iconSet: 'ionicons-v4'
@@ -93,6 +102,13 @@ module.exports = function(ctx) {
           loader: "eslint-loader",
           exclude: /node_modules/,
         })
+
+        cfg.plugins.push(
+          new webpack.ProvidePlugin({
+            _: "lodash",
+          }),
+        )
+
         cfg.resolve.alias = {
           ...cfg.resolve.alias, // This adds the existing alias
           // Add your own alias like this

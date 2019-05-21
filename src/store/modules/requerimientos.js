@@ -1,6 +1,12 @@
-import { createRequerimiento, storeRequerimiento } from "@api/requerimientos"
+import {
+  createRequerimiento,
+  storeRequerimiento,
+  listRequerimientos,
+  getRequerimiento,
+} from "@api/requerimientos"
 
 const state = {
+  // Create
   options: {
     areas: [],
     sistemas: [],
@@ -8,14 +14,26 @@ const state = {
   },
   loadingOptions: true,
   loadingRequerimiento: true,
+
+  // List
+  misRequerimientos: [],
+  requerimientoDetalle: null,
+
+  estados: [
+    { codigo: "PEND", descripcion: "Pendiente aprobación", id: "1" },
+    { codigo: "APRV", descripcion: "Aprobado", id: "2" },
+    { codigo: "EXEC", descripcion: "En ejecución", id: "3" },
+    { codigo: "RESC", descripcion: "Resuelto cerrado", id: "4" },
+    { codigo: "REJC", descripcion: "Rechazado", id: "5" },
+  ],
 }
 
 // getters
-// const getters = {
-//   areas: state => state.options.areas,
-//   sistemas: state => state.options.sistemas,
-//   requerimientosTipos: state => state.options.requerimientosTipos,
-// }
+const getters = {
+  getEstadoByCodigo(state) {
+    return codigo => _.find(state.estados, { codigo })
+  },
+}
 
 const mutations = {
   SET_OPTIONS: (state, { areas, sistemas, requerimientos_tipos }) => {
@@ -23,9 +41,6 @@ const mutations = {
     state.options.areas = areas
     state.options.sistemas = sistemas
     state.options.requerimientosTipos = requerimientos_tipos
-  },
-  TOGGLE_LOADING_REQ: state => {
-    state.loadingRequerimiento = !state.loadingRequerimiento
   },
   SET_LOADING_REQ: (state, newState) => {
     state.loadingRequerimiento = newState
@@ -36,6 +51,12 @@ const mutations = {
   SET_LOADING_OPTS: (state, newState) => {
     state.loadingOptions = newState
   },
+  SET_MIS_REQUERIMIENTOS: (state, misRequerimientos) => {
+    state.misRequerimientos = misRequerimientos
+  },
+  SET_REQUERIMIENTO_DETALLE: (state, requerimientoDetalle) => {
+    state.requerimientoDetalle = requerimientoDetalle
+  },
 }
 
 const actions = {
@@ -44,9 +65,11 @@ const actions = {
       const { areas, sistemas, requerimientosTipos } = state.options
       commit("SET_LOADING_OPTS", true)
       commit("SET_LOADING_REQ", true)
+      commit("app/LOADING_INC", null, { root: true })
       if (areas.length && sistemas.length && requerimientosTipos.length) {
         commit("SET_LOADING_OPTS", false)
         commit("SET_LOADING_REQ", false)
+        commit("app/LOADING_DEC", null, { root: true })
         resolve()
       } else {
         try {
@@ -62,6 +85,7 @@ const actions = {
         } finally {
           commit("SET_LOADING_OPTS", false)
           commit("SET_LOADING_REQ", false)
+          commit("app/LOADING_DEC", null, { root: true })
         }
       }
     })
@@ -69,20 +93,58 @@ const actions = {
   storeRequerimiento({ commit }, requerimiento) {
     return new Promise(async (resolve, reject) => {
       commit("SET_LOADING_REQ", true)
+      commit("app/LOADING_INC", null, { root: true })
       try {
-        console.log(requerimiento)
-        debugger
-        const res = await storeRequerimiento(requerimiento)
-        console.log(res)
-        debugger
-        // commit("SET_OPTIONS", data)
-        //console.log(res)
+        await storeRequerimiento(requerimiento)
         resolve()
       } catch (error) {
-        console.log(error)
         reject(error)
       } finally {
         commit("SET_LOADING_REQ", false)
+        commit("app/LOADING_DEC", null, { root: true })
+      }
+    })
+  },
+  listRequerimientos({ commit, rootState }, userId = null) {
+    return new Promise(async (resolve, reject) => {
+      commit("SET_LOADING_REQ", true)
+      commit("app/LOADING_INC", null, { root: true })
+      try {
+        let userRequerimientos = userId
+        const actualUserId = _.get(rootState, "auth.user.Id", null)
+        if (!userRequerimientos && actualUserId) {
+          userRequerimientos = actualUserId
+        }
+        const {
+          data: { data },
+        } = await listRequerimientos(userRequerimientos)
+        commit("SET_MIS_REQUERIMIENTOS", data)
+
+        resolve()
+      } catch (error) {
+        reject(error)
+      } finally {
+        commit("SET_LOADING_REQ", false)
+        commit("app/LOADING_DEC", null, { root: true })
+      }
+    })
+  },
+  getRequerimiento({ commit }, requerimientoId = null) {
+    return new Promise(async (resolve, reject) => {
+      commit("SET_LOADING_REQ", true)
+      commit("app/LOADING_INC", null, { root: true })
+      try {
+        const {
+          data: { data },
+        } = await getRequerimiento(requerimientoId)
+        commit("SET_REQUERIMIENTO_DETALLE", data)
+
+        resolve()
+      } catch (error) {
+        reject(error)
+      } finally {
+        commit("SET_LOADING_REQ", false)
+        commit("app/LOADING_DEC", null, { root: true })
       }
     })
   },
@@ -91,7 +153,7 @@ const actions = {
 export default {
   namespaced: true,
   state,
-  // getters,
+  getters,
   mutations,
   actions,
 }

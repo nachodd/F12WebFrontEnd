@@ -1,8 +1,9 @@
 <template>
   <q-select
+    v-model="value"
     outlined
+    :hide-bottom-space="true"
     :label="label"
-    v-model="selectedValue"
     :option-value="idKey"
     :option-label="descriptionKey"
     :options="filteredOptions"
@@ -22,10 +23,17 @@ export default {
   mixins: [formValidation],
   props: {
     value: {
+      type: [Object, String],
       default: null,
     },
-    options: Array,
-    label: String,
+    options: {
+      type: Array,
+      default: () => [],
+    },
+    label: {
+      type: String,
+      default: "",
+    },
     loading: {
       type: Boolean,
       default: true,
@@ -42,23 +50,24 @@ export default {
   },
   data() {
     return {
-      selectedValue: this.value || null,
       filteredOptions: this.options,
     }
   },
   watch: {
-    value(val) {
-      // Fix para limpiar el valor cuando colapsa
-      if (val === null) {
-        this.selectedValue = null
-      }
-    },
+    // value(val) {
+    //   console.log(val)
+    //   // Fix para limpiar el valor cuando colapsa
+    //   if (val === null) {
+    //     this.selectedValue = null
+    //   }
+    // },
   },
   methods: {
     handleInput() {
       this.$emit(
         "input",
-        (this.selectedValue && this.selectedValue[this.idKey]) || "",
+        this.value,
+        // (this.selectedValue && this.selectedValue[this.idKey]) || "",
       )
     },
     filterFunction(val, update) {

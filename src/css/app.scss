@@ -1,3 +1,12 @@
+@import "variables.scss";
+
+.bg-accent-light {
+  background-color: $accent-light;
+}
+.text-accent-light {
+  color: $accent-light;
+}
+
 .headerBackground {
   /* background: linear-gradient(145deg, #027be3 11%, #014a88 75%); */
   background: linear-gradient(87deg, #172b4d, #1a174d) !important;
@@ -28,4 +37,31 @@
 .slide-leave-to {
   transform: translateY(-100%);
   opacity: 0;
+}
+
+.list-item--narrow {
+  width: fit-content;
+  width: -moz-fit-content;
+  width: -webkit-fit-content;
+}
+
+
+.card-ghost {
+    transition: transform 0.18s ease;
+    transform: rotateZ(5deg)
+}
+.card-ghost-drop {
+    transition: transform 0.18s ease-in-out;
+    transform: rotateZ(0deg)
+}
+.opacity-ghost {
+    transition: all .18s ease;
+    opacity: 0.8;
+    background-color: cornflowerblue;
+    box-shadow: 3px 3px 10px 3px rgba(0, 0, 0, 0.3);
+}
+.opacity-ghost-drop {
+    opacity: 1;
+    background-color: white;
+    box-shadow: 3px 3px 10px 3px rgba(0, 0, 0, 0.0);
 }

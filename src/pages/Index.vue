@@ -38,8 +38,8 @@
 </template>
 
 <script>
-import PageHeader from "@comp/PageHeader"
-import WidgetSimple from "@comp/WidgetSimple"
+import PageHeader from "@comp/Common/PageHeader"
+import WidgetSimple from "@comp/Inicio/WidgetSimple"
 
 export default {
   name: "Index",
@@ -49,11 +49,10 @@ export default {
       loading: true,
     }
   },
-  methods: {},
   mounted() {
     setTimeout(() => {
       this.loading = false
-    }, 3000)
+    }, 1000)
   },
 }
 </script>

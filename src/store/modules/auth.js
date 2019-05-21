@@ -1,4 +1,4 @@
-import { login, logout, getInfo, refresh } from "@api/user"
+import { login, logout, getInfo, refresh, getVinculacion } from "@api/user"
 import {
   getToken,
   getExpiresIn,
@@ -21,6 +21,7 @@ const state = {
   refreshToken: getRefreshToken(),
   user: null,
   roles: [],
+  userTree: [],
 }
 
 // getters
@@ -29,6 +30,7 @@ const getters = {
   expiresIn: state => state.expiresIn,
   refreshToken: state => state.refreshToken,
   user: state => state.user,
+  userId: state => (state.user ? state.user.Id : null),
   roles: state => state.roles,
   check: state => state.user !== null,
 }
@@ -52,6 +54,9 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_TREE: (state, tree) => {
+    state.userTree = tree
   },
 }
 
@@ -85,6 +90,15 @@ const actions = {
         }
         commit("SET_ROLES", roles)
         commit("SET_USER", user)
+
+        // Busco el arbol de vinculacion directa (estructura de superiores - subordinados)
+        getVinculacion(user.Id)
+          .then(res => {
+            debugger
+            const tree = res.data.data
+            commit("SET_TREE", tree)
+          })
+          .catch(e => console.log(e))
 
         resolve()
       } catch (error) {
@@ -141,6 +155,7 @@ const actions = {
         commit("CLEAR_TOKENS")
         commit("SET_ROLES", [])
         commit("SET_USER", null)
+        commit("app/LOADING_RESET", null, { root: true })
         removeToken()
         resetRouter()
         resolve()
@@ -156,6 +171,7 @@ const actions = {
       commit("CLEAR_TOKENS")
       commit("SET_ROLES", [])
       commit("SET_USER", null)
+      commit("app/LOADING_RESET", null, { root: true })
       removeToken()
       resolve()
     })
@@ -164,10 +180,13 @@ const actions = {
   refresh({ commit, state, dispatch }) {
     return new Promise(async (resolve, reject) => {
       if (!state.refreshToken) {
+        debugger
         dispatch("logout")
+        commit("app/LOADING_RESET", null, { root: true })
         reject()
       } else {
         try {
+          debugger
           const { data } = await refresh(state.refreshToken)
 
           const expires = expiresToUnixTS(data.expires_in)

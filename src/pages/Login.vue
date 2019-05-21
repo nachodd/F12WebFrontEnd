@@ -76,6 +76,9 @@ export default {
       immediate: true,
     },
   },
+  mounted() {
+    this.$store.dispatch("app/loadingReset")
+  },
   methods: {
     async login() {
       this.loading = true

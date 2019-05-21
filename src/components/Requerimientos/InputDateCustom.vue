@@ -1,20 +1,27 @@
 <template>
-  <q-input :value="formated_date" outlined :label="label" :rules="rulesDate">
+  <q-input
+    ref="input"
+    outlined
+    :value="formated_date"
+    :label="label"
+    :rules="rulesDate"
+    :hide-bottom-space="true"
+  >
     <template v-slot:append>
       <q-icon
         v-if="selectedValue"
         name="cancel"
-        @click.stop="clearValues"
         class="cursor-pointer"
+        @click.stop="clearValues"
       />
       <q-icon name="event" class="cursor-pointer">
         <q-popup-proxy>
           <q-date
             v-model="selectedValue"
-            @input="handleInput"
             today-btn
             color="accent"
             :options="pastDisabledFn"
+            @input="handleInput"
           />
         </q-popup-proxy>
       </q-icon>
@@ -29,12 +36,16 @@ import formValidation from "@mixins/formValidation"
 export default {
   mixins: [formValidation],
   props: {
-    label: String,
+    label: {
+      type: String,
+      default: "",
+    },
     validate: {
       type: Boolean,
       default: false,
     },
     value: {
+      type: [Date, String],
       default: null,
     },
     pastDisabled: {
@@ -57,6 +68,10 @@ export default {
   },
   watch: {
     value(val) {
+      // Para la inicializacion en edicion, le pasamos un objeto Date
+      if (date.isValid(val)) {
+        this.selectedValue = val
+      }
       // Fix para limpiar el valor cuando colapsa
       if (val === null) {
         this.selectedValue = null
@@ -70,6 +85,9 @@ export default {
     clearValues() {
       this.selectedValue = null
       this.$emit("input", null)
+    },
+    resetValidation() {
+      this.$refs.input.resetValidation()
     },
     pastDisabledFn(currentDate) {
       if (this.pastDisabled) {
