@@ -1,5 +1,8 @@
 <template>
-  <q-item class="q-ma-sm shadow-2 rounded-borders bg-white">
+  <q-item
+    class="q-ma-sm shadow-2 rounded-borders bg-white"
+    @click="callOpenDetail"
+  >
     <!--:active="esImportante"  active-class="text-black bg-red-2" -->
     <q-item-section class="col-xs-3 text-center">
       <span class="text-accent text-weight-medium">#{{ req.id }}</span>
@@ -21,7 +24,11 @@
       <template v-else> -->
       <div>
         <q-chip dense class="no-margin">
-          <q-avatar color="red" text-color="white">
+          <!-- color="red" -->
+          <q-avatar
+            text-color="white"
+            :style="{ backgroundColor: colorPrioridad(req.prioridad) }"
+          >
             {{ req.prioridad }}
           </q-avatar>
           Prioridad
@@ -78,6 +85,8 @@
 </template>
 <script>
 import { mapGetters } from "vuex"
+import { getColorPrioridad } from "@utils/helpers"
+
 export default {
   name: "PriorizarRequerimientosItem",
   props: {
@@ -103,6 +112,14 @@ export default {
     },
     tieneComentario() {
       return this.req.comentario && this.req.comentario.length > 0
+    },
+  },
+  methods: {
+    colorPrioridad(prioridad) {
+      return getColorPrioridad(prioridad)
+    },
+    callOpenDetail() {
+      console.log("called open detail")
     },
   },
 }

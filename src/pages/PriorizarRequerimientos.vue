@@ -151,13 +151,6 @@ export default {
     },
   },
   async created() {
-    console.log("userTreeLoaded", this.userTreeLoaded)
-    console.log("hasSuperiors", this.hasSuperiors)
-    console.log("hasSubordinates", this.hasSubordinates)
-    console.log("userSuperiors", this.userSuperiors)
-    console.log("userSubordinates", this.userSubordinates)
-
-    // FIXME: dependiendo del tipo de usuario (jerarquía), va a ver 1 sola columan y los titulos deberian cambiar
     const estadoPendiente = this.getEstadoByCodigo("PEND")
     const estadoAprobado = this.getEstadoByCodigo("APRV")
     // this.$store.dispatch("app/loadingIncBy", 2)
