@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <page-header title="Priorizar Requerimientos" />
-    <div class="row q-col-gutter-md">
+    <div class="row q-col-gutter-md justify-center">
       <div class="col-sm-6 col-xs-12">
         <draggable-list
           ref="source"
@@ -14,7 +14,7 @@
         />
       </div>
 
-      <div class="col-sm-6 col-xs-12">
+      <div v-if="!esElUltimoDeLaCadenaDeMando" class="col-sm-6 col-xs-12">
         <draggable-list
           ref="target"
           title="Aprobados"
@@ -83,7 +83,14 @@ export default {
     }
   },
   computed: {
-    ...mapGetters("auth", ["userId"]),
+    ...mapGetters("auth", [
+      "userId",
+      "userTreeLoaded",
+      "hasSuperiors",
+      "hasSubordinates",
+      "userSuperiors",
+      "userSubordinates",
+    ]),
     ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
     requerimientoIdToChange() {
       return _.get(this.possibleChanges.payload, "id", "")
@@ -135,8 +142,18 @@ export default {
         sourceChanges.addedIndex !== null
       )
     },
+    // Si no tiene subordinados, será el ultimo eslabon de la cadena de mando
+    esElUltimoDeLaCadenaDeMando() {
+      return !this.hasSubordinates
+    },
   },
   async created() {
+    console.log("userTreeLoaded", this.userTreeLoaded)
+    console.log("hasSuperiors", this.hasSuperiors)
+    console.log("hasSubordinates", this.hasSubordinates)
+    console.log("userSuperiors", this.userSuperiors)
+    console.log("userSubordinates", this.userSubordinates)
+
     // FIXME: dependiendo del tipo de usuario (jerarquía), va a ver 1 sola columan y los titulos deberian cambiar
     const estadoPendiente = this.getEstadoByCodigo("PEND")
     const estadoAprobado = this.getEstadoByCodigo("APRV")
@@ -153,33 +170,50 @@ export default {
         this.$store.dispatch("app/loadingDec")
       })
 
-    getRequerimientosByUserAndEstado(this.userId, estadoAprobado.id)
-      .then(({ data: { data } }) => {
-        this.reqsAprobadosPriorizados.list = data
-        this.reqsAprobadosPriorizados.sortByPrioridad()
-      })
-      .catch(e => console.log(e))
-      .finally(() => {
-        this.loadingReqsAprobadosPriorizados = false
-        this.$store.dispatch("app/loadingDec")
-      })
+    if (!this.esElUltimoDeLaCadenaDeMando) {
+      getRequerimientosByUserAndEstado(this.userId, estadoAprobado.id)
+        .then(({ data: { data } }) => {
+          this.reqsAprobadosPriorizados.list = data
+          this.reqsAprobadosPriorizados.sortByPrioridad()
+        })
+        .catch(e => console.log(e))
+        .finally(() => {
+          this.loadingReqsAprobadosPriorizados = false
+          this.$store.dispatch("app/loadingDec")
+        })
+    }
   },
   methods: {
-    async processUpdateList(
-      listName,
-      result,
-      { removedIndex, addedIndex, payload },
-    ) {
-      this.possibleChanges[`${listName}List`] = result
+    async processUpdateList(listName, listResult, dropResult) {
+      const { removedIndex, addedIndex, payload } = dropResult
+      this.possibleChanges[`${listName}List`] = listResult
       this.possibleChanges[`${listName}Changes`] = { addedIndex, removedIndex }
       this.$set(this.possibleChanges, "payload", payload)
 
       // Cuando los 2 listados se hayan llenado, se debe determinar el tipo de operacion
       if (this.possibleChangesSetted) {
-        // - reordenamiento de la lista de pendientes => no hace nada
+        // - reordenamiento de la lista de pendientes => no hace nada (a menos que esElUltimoDeLaCadenaDeMando=true)
         if (this.operationReoderPendingList) {
-          // actualizo localmente, aunque el cambio no es persistido
-          this.reqsPendientesAprobacion.list = this.possibleChanges.sourceList
+          if (this.esElUltimoDeLaCadenaDeMando) {
+            // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
+            const differentPosition =
+              this.possibleChanges.sourceChanges.addedIndex !==
+              this.possibleChanges.sourceChanges.removedIndex
+            if (differentPosition) {
+              const sourceBackup = [...this.reqsPendientesAprobacion.list]
+              this.reqsPendientesAprobacion.list = this.possibleChanges.targetList
+              this.reqsPendientesAprobacion.updatePrioridad()
+              const res = await this.persistChanges(
+                this.reqsPendientesAprobacion.toUpdatePendingPayload(),
+              )
+              if (!res) {
+                this.reqsPendientesAprobacion.list = sourceBackup
+              }
+            }
+          } else {
+            // actualizo localmente, aunque el cambio no es persistido
+            this.reqsPendientesAprobacion.list = this.possibleChanges.sourceList
+          }
           this.clearOperation()
         }
         // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes

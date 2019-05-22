@@ -59,7 +59,19 @@ export default class RequerimientosPriorizarList {
       if (this.aprobado) {
         result.prioridad = req.prioridad
       }
+      return result
+    })
+  }
 
+  toUpdatePendingPayload() {
+    this.updatePrioridad()
+
+    return this.listValue.map(req => {
+      const result = {
+        id: req.id,
+        aprobado: this.aprobado,
+        prioridad: req.prioridad,
+      }
       return result
     })
   }

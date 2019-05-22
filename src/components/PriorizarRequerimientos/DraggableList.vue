@@ -2,11 +2,7 @@
   <div class="shadow-3 bg-grey-2 rounded-borders">
     <div class="title">{{ title }}</div>
 
-    <transition
-      appear
-      enter-active-class="animated fadeIn"
-      leave-active-class="animated fadeOut"
-    >
+    <q-slide-transition>
       <Container
         v-if="!loadingList"
         :group-name="groupName"
@@ -23,18 +19,14 @@
           <priorizar-requerimientos-item :req="req" :index="index" />
         </Draggable>
       </Container>
-    </transition>
-    <transition
-      appear
-      enter-active-class="animated fadeIn"
-      leave-active-class="animated fadeOut"
-    >
+    </q-slide-transition>
+    <q-slide-transition>
       <div v-if="loadingList" class="row text-center loading-container">
         <div class="col self-center">
           <q-spinner-gears size="50px" color="accent" />
         </div>
       </div>
-    </transition>
+    </q-slide-transition>
 
     <!-- <q-inner-loading :showing="loadingList">
       <q-spinner-gears size="50px" color="accent" />
@@ -88,9 +80,9 @@ export default {
     }
   },
   computed: {
-    orderedRequerimientos() {
-      return _.sortBy(this.requerimientosList.list, ["prioridad"])
-    },
+    // orderedRequerimientos() {
+    //   return _.sortBy(this.requerimientosList.list, ["prioridad"])
+    // },
   },
   methods: {
     getPayload(index) {
@@ -98,12 +90,12 @@ export default {
       // return this.requerimientosList.list[index - 1]
       return this.requerimientosList.list[index]
     },
-    onDrop(list, dropResult) {
+    onDrop(listName, dropResult) {
       // console.log("onDrop", list, dropResult)
 
-      const result = applyDrag(this.requerimientosList.list, dropResult)
+      const listResult = applyDrag(this.requerimientosList.list, dropResult)
 
-      this.$emit("update-list", list, result, dropResult)
+      this.$emit("update-list", listName, listResult, dropResult)
 
       // this.$emit("update:requerimientos-list", result)
 

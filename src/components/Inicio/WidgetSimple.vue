@@ -1,14 +1,17 @@
-<template functional>
+<template>
   <div
-    class="row rounded-borders shadow-5 items-stretch widget--size widget--center"
+    class="row rounded-borders shadow-4 items-stretch widget widget--size widget--center"
+    :class="{ 'shadow-4': !hover, 'shadow-9': hover }"
+    @mouseover="hover = true"
+    @mouseleave="hover = false"
   >
     <div
       class="col-sm-5 col-xs-5 row items-center rounded-borders q-pa-sm"
-      :class="[props.iconBackgroundClass]"
+      :class="[iconBackgroundClass]"
     >
-      <div class="text-center col" :class="[props.iconTextClass]">
+      <div class="text-center col" :class="[iconTextClass]">
         <q-icon
-          :name="props.loading ? 'fas fa-spinner fa-spin' : props.icon"
+          :name="loading ? 'fas fa-spinner fa-spin' : icon"
           size="3.7rem"
         />
       </div>
@@ -16,15 +19,15 @@
 
     <div
       class="col-sm-7 col-xs-7 row items-center rounded-borders q-pa-sm"
-      :class="[props.infoBackgroundClass]"
+      :class="[infoBackgroundClass]"
     >
-      <div class="text-center col" :class="[props.infoTextClass]">
-        <template v-if="props.loading">
+      <div class="text-center col" :class="[infoTextClass]">
+        <template v-if="loading">
           <div class="text-h6">Cargando...</div>
         </template>
         <template v-else>
-          <div class="text-h3">{{ props.value }}</div>
-          <div class="text-subtitle">{{ props.description }}</div>
+          <div class="text-h3">{{ value }}</div>
+          <div class="text-subtitle">{{ description }}</div>
         </template>
       </div>
     </div>
@@ -66,6 +69,11 @@ export default {
       default: "text-red",
     },
   },
+  data() {
+    return {
+      hover: false,
+    }
+  },
 }
 </script>
 <style lang="scss">
@@ -75,5 +83,8 @@ export default {
 }
 .widget--center {
   margin: 0 auto;
+}
+.widget {
+  transition: box-shadow 0.4s;
 }
 </style>

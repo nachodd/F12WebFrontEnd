@@ -33,6 +33,11 @@ const getters = {
   userId: state => (state.user ? state.user.Id : null),
   roles: state => state.roles,
   check: state => state.user !== null,
+  userTreeLoaded: state => state.userTree.length > 0,
+  hasSuperiors: (state, getters) => getters.userSuperiors.length > 0,
+  hasSubordinates: (state, getters) => getters.userSubordinates.length > 0,
+  userSuperiors: state => state.userTree.filter(ut => ut.vinculacion === 1),
+  userSubordinates: state => state.userTree.filter(ut => ut.vinculacion === -1),
 }
 
 // mutations
@@ -92,13 +97,15 @@ const actions = {
         commit("SET_USER", user)
 
         // Busco el arbol de vinculacion directa (estructura de superiores - subordinados)
-        getVinculacion(user.Id)
-          .then(res => {
+        const result_vinculacion = await getVinculacion(user.Id)
+        commit("SET_TREE", result_vinculacion)
+        /* getVinculacion(user.Id)
+          .then(tree => {
             debugger
-            const tree = res.data.data
+            // const tree = res.data.data
             commit("SET_TREE", tree)
           })
-          .catch(e => console.log(e))
+          .catch(e => console.log(e)) */
 
         resolve()
       } catch (error) {
@@ -128,8 +135,12 @@ const actions = {
           reject("getInfo: roles must be a non-null array!")
         }
 
+        const result_vinculacion = await getVinculacion(user.Id)
+
         commit("SET_ROLES", roles)
         commit("SET_USER", user)
+        commit("SET_TREE", result_vinculacion)
+
         resolve({
           user,
           roles,
@@ -180,7 +191,6 @@ const actions = {
   refresh({ commit, state, dispatch }) {
     return new Promise(async (resolve, reject) => {
       if (!state.refreshToken) {
-        debugger
         dispatch("logout")
         commit("app/LOADING_RESET", null, { root: true })
         reject()
