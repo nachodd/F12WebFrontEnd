@@ -90,16 +90,23 @@ export default {
       "hasSubordinates",
       "userSuperiors",
       "userSubordinates",
+      "esElUltimoDeLaCadenaDeMando",
     ]),
     ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
     requerimientoIdToChange() {
       return _.get(this.possibleChanges.payload, "id", "")
     },
     possibleChangesSetted() {
+      // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
+      // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
       return (
-        this.possibleChanges.sourceList.length &&
-        this.possibleChanges.targetList.length &&
-        this.possibleChanges.payload.id
+        (this.possibleChanges.sourceList.length &&
+          this.possibleChanges.targetList.length &&
+          this.possibleChanges.payload.id &&
+          !this.esElUltimoDeLaCadenaDeMando) ||
+        (this.possibleChanges.sourceList.length &&
+          this.possibleChanges.payload.id &&
+          this.esElUltimoDeLaCadenaDeMando)
       )
     },
     // - reordenamiento de la lista de pendientes => no hace nada
@@ -142,10 +149,6 @@ export default {
         sourceChanges.addedIndex !== null
       )
     },
-    // Si no tiene subordinados, será el ultimo eslabon de la cadena de mando
-    esElUltimoDeLaCadenaDeMando() {
-      return !this.hasSubordinates
-    },
   },
   async created() {
     console.log("userTreeLoaded", this.userTreeLoaded)
@@ -157,7 +160,7 @@ export default {
     // FIXME: dependiendo del tipo de usuario (jerarquía), va a ver 1 sola columan y los titulos deberian cambiar
     const estadoPendiente = this.getEstadoByCodigo("PEND")
     const estadoAprobado = this.getEstadoByCodigo("APRV")
-    this.$store.dispatch("app/loadingIncBy", 2)
+    // this.$store.dispatch("app/loadingIncBy", 2)
 
     getRequerimientosByUserAndEstado(this.userId, estadoPendiente.id)
       .then(({ data: { data } }) => {
@@ -167,7 +170,7 @@ export default {
       .catch(e => console.log(e))
       .finally(() => {
         this.loadingReqsPendientesAprobacion = false
-        this.$store.dispatch("app/loadingDec")
+        // this.$store.dispatch("app/loadingDec")
       })
 
     if (!this.esElUltimoDeLaCadenaDeMando) {
@@ -179,8 +182,11 @@ export default {
         .catch(e => console.log(e))
         .finally(() => {
           this.loadingReqsAprobadosPriorizados = false
-          this.$store.dispatch("app/loadingDec")
+          // this.$store.dispatch("app/loadingDec")
         })
+    } else {
+      this.loadingReqsAprobadosPriorizados = false
+      // this.$store.dispatch("app/loadingDec")
     }
   },
   methods: {
@@ -201,7 +207,7 @@ export default {
               this.possibleChanges.sourceChanges.removedIndex
             if (differentPosition) {
               const sourceBackup = [...this.reqsPendientesAprobacion.list]
-              this.reqsPendientesAprobacion.list = this.possibleChanges.targetList
+              this.reqsPendientesAprobacion.list = this.possibleChanges.sourceList
               this.reqsPendientesAprobacion.updatePrioridad()
               const res = await this.persistChanges(
                 this.reqsPendientesAprobacion.toUpdatePendingPayload(),

@@ -3,7 +3,7 @@
     <!--:active="esImportante"  active-class="text-black bg-red-2" -->
     <q-item-section class="col-xs-3 text-center">
       <span class="text-accent text-weight-medium">#{{ req.id }}</span>
-      <template v-if="!esAprobado">
+      <!-- <template v-if="!esAprobado">
         <div>
           <q-icon
             v-if="esImportante"
@@ -18,16 +18,16 @@
           <q-icon v-else name="far fa-file-alt" color="grey-8" size="16px" />
         </div>
       </template>
-      <template v-else>
-        <div>
-          <q-chip dense class="no-margin">
-            <q-avatar color="red" text-color="white">
-              {{ indicePrioridad }}
-            </q-avatar>
-            Prioridad
-          </q-chip>
-        </div>
-      </template>
+      <template v-else> -->
+      <div>
+        <q-chip dense class="no-margin">
+          <q-avatar color="red" text-color="white">
+            {{ req.prioridad }}
+          </q-avatar>
+          Prioridad
+        </q-chip>
+      </div>
+      <!-- </template> -->
     </q-item-section>
 
     <q-item-section top>
@@ -77,6 +77,7 @@
   </q-item>
 </template>
 <script>
+import { mapGetters } from "vuex"
 export default {
   name: "PriorizarRequerimientosItem",
   props: {
@@ -90,6 +91,7 @@ export default {
     },
   },
   computed: {
+    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
     esImportante() {
       return this.req.importante === "SI"
     },

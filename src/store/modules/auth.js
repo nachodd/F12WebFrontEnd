@@ -38,6 +38,8 @@ const getters = {
   hasSubordinates: (state, getters) => getters.userSubordinates.length > 0,
   userSuperiors: state => state.userTree.filter(ut => ut.vinculacion === 1),
   userSubordinates: state => state.userTree.filter(ut => ut.vinculacion === -1),
+  // Si no tiene subordinados, será el ultimo eslabon de la cadena de mando
+  esElUltimoDeLaCadenaDeMando: (state, getters) => !getters.hasSubordinates,
 }
 
 // mutations

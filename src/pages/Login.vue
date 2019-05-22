@@ -63,8 +63,11 @@ export default {
     return {
       // usuario: "administrator",
       // password: "bldsavqc2010",
-      usuario: "cmunoz", // "emanavella",
-      password: "cmunoz5451", // "Gabriel70",
+      // usuario: "cmunoz", // "emanavella",
+      // password: "cmunoz5451", // "Gabriel70",
+      usuario: "hcosenza",
+      password: "c053nz4pocha",
+
       loading: false,
     }
   },
