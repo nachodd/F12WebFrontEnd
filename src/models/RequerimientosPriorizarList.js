@@ -55,10 +55,10 @@ export default class RequerimientosPriorizarList {
         aprobado: this.aprobado,
         comentario: req.comentario || null,
       }
-      // le envio solo la prioridad si es el listado de aprobados
-      if (this.aprobado) {
-        result.prioridad = req.prioridad
-      }
+      // // le envio solo la prioridad si es el listado de aprobados
+      // if (this.aprobado) {
+      result.prioridad = req.prioridad
+      // }
       return result
     })
   }

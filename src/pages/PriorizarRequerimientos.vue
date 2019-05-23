@@ -35,6 +35,7 @@
       @dialog-confirm-operation-cancel="clearOperation"
       @dialog-confirm-operation-confirm="confirmOperation"
     />
+    <dialog-detalle-requerimiento v-model="detalleRequerimientoOpen" />
   </q-page>
 </template>
 
@@ -45,6 +46,7 @@ import pageLoading from "@mixins/pageLoading"
 import { warn, success } from "@utils/helpers"
 import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
 import DialogConfirmOperation from "@comp/PriorizarRequerimientos/DialogConfirmOperation"
+import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
 import {
   getRequerimientosByUserAndEstado,
@@ -57,6 +59,7 @@ export default {
     PageHeader,
     DraggableList,
     DialogConfirmOperation,
+    DialogDetalleRequerimiento,
   },
   mixins: [pageLoading],
   data() {
@@ -71,15 +74,18 @@ export default {
         sourceChanges: {
           addedIndex: null,
           removedIndex: null,
+          changesSetted: false,
         },
         targetList: [],
         targetChanges: {
           addedIndex: null,
           removedIndex: null,
+          changesSetted: false,
         },
         payload: {},
       },
       approveComment: "",
+      detalleRequerimientoOpen: true,
     }
   },
   computed: {
@@ -100,11 +106,11 @@ export default {
       // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
       // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
       return (
-        (this.possibleChanges.sourceList.length &&
-          this.possibleChanges.targetList.length &&
+        (this.possibleChanges.sourceChanges.changesSetted &&
+          this.possibleChanges.targetChanges.changesSetted &&
           this.possibleChanges.payload.id &&
           !this.esElUltimoDeLaCadenaDeMando) ||
-        (this.possibleChanges.sourceList.length &&
+        (this.possibleChanges.sourceChanges.changesSetted &&
           this.possibleChanges.payload.id &&
           this.esElUltimoDeLaCadenaDeMando)
       )
@@ -186,7 +192,11 @@ export default {
     async processUpdateList(listName, listResult, dropResult) {
       const { removedIndex, addedIndex, payload } = dropResult
       this.possibleChanges[`${listName}List`] = listResult
-      this.possibleChanges[`${listName}Changes`] = { addedIndex, removedIndex }
+      this.possibleChanges[`${listName}Changes`] = {
+        addedIndex,
+        removedIndex,
+        changesSetted: true, // seteo que hubo cambios en este listado
+      }
       this.$set(this.possibleChanges, "payload", payload)
 
       // Cuando los 2 listados se hayan llenado, se debe determinar el tipo de operacion
@@ -287,6 +297,8 @@ export default {
           message = `Requerimiento #${this.requerimientoIdToChange} APROBADO`
         } else if (this.operationReoderApprovedList) {
           message = "Requerimientos aprobados PRIORIZADOS"
+        } else if (this.operationReoderPendingList) {
+          message = "Requerimientos PRIORIZADOS"
         }
         success({ message })
 
@@ -307,6 +319,7 @@ export default {
         this.possibleChanges[`${listName}Changes`] = {
           addedIndex: null,
           removedIndex: null,
+          changesSetted: false,
         }
       }
       this.$set(this.possibleChanges, "payload", {})

@@ -1,9 +1,6 @@
 <template>
-  <q-item
-    class="q-ma-sm shadow-2 rounded-borders bg-white"
-    @click="callOpenDetail"
-  >
-    <!--:active="esImportante"  active-class="text-black bg-red-2" -->
+  <!--:active="esImportante"  active-class="text-black bg-red-2" -->
+  <q-item class="q-ma-sm shadow-2 rounded-borders-10 bg-white cursor-pointer">
     <q-item-section class="col-xs-3 text-center">
       <span class="text-accent text-weight-medium">#{{ req.id }}</span>
       <!-- <template v-if="!esAprobado">
@@ -24,10 +21,9 @@
       <template v-else> -->
       <div>
         <q-chip dense class="no-margin">
-          <!-- color="red" -->
           <q-avatar
             text-color="white"
-            :style="{ backgroundColor: colorPrioridad(req.prioridad) }"
+            :style="{ backgroundColor: getColorPrioridad(req.prioridad) }"
           >
             {{ req.prioridad }}
           </q-avatar>
@@ -85,10 +81,11 @@
 </template>
 <script>
 import { mapGetters } from "vuex"
-import { getColorPrioridad } from "@utils/helpers"
+import priorityColor from "@mixins/priorityColor"
 
 export default {
   name: "PriorizarRequerimientosItem",
+  mixins: [priorityColor],
   props: {
     req: {
       type: Object,
@@ -115,9 +112,6 @@ export default {
     },
   },
   methods: {
-    colorPrioridad(prioridad) {
-      return getColorPrioridad(prioridad)
-    },
     callOpenDetail() {
       console.log("called open detail")
     },

@@ -1,10 +1,12 @@
 <template>
   <div class="shadow-3 bg-grey-2 rounded-borders">
-    <div class="title">{{ title }}</div>
-
+    <div class="bg-deep-purple-10 card-header rounded-borders-8">
+      {{ title }}
+    </div>
     <q-slide-transition>
       <Container
         v-if="!loadingList"
+        class="req-container"
         :group-name="groupName"
         :get-child-payload="getPayload"
         drag-class="card-ghost"
@@ -12,12 +14,23 @@
         :drop-placeholder="dropPlaceholderOptions"
         @drop="e => onDrop(listName, e)"
       >
-        <Draggable
-          v-for="(req, index) in requerimientosList.list"
-          :key="`req_${req.id}`"
-        >
-          <priorizar-requerimientos-item :req="req" :index="index" />
-        </Draggable>
+        <template v-if="listEmpty">
+          <div class="text-h6 text-center">
+            No hay requerimientos para mostrar!
+          </div>
+        </template>
+        <template v-else>
+          <Draggable
+            v-for="(req, index) in requerimientosList.list"
+            :key="`req_${req.id}`"
+          >
+            <priorizar-requerimientos-item
+              :req="req"
+              :index="index"
+              @click.native="$emit('abrir-detalle-req', req.id)"
+            />
+          </Draggable>
+        </template>
       </Container>
     </q-slide-transition>
     <q-slide-transition>
@@ -27,10 +40,6 @@
         </div>
       </div>
     </q-slide-transition>
-
-    <!-- <q-inner-loading :showing="loadingList">
-      <q-spinner-gears size="50px" color="accent" />
-    </q-inner-loading> -->
   </div>
 </template>
 
@@ -83,8 +92,14 @@ export default {
     // orderedRequerimientos() {
     //   return _.sortBy(this.requerimientosList.list, ["prioridad"])
     // },
+    listEmpty() {
+      return this.requerimientosList.list.length === 0
+    },
   },
   methods: {
+    callOpenDetail() {
+      console.log("called open detail")
+    },
     getPayload(index) {
       // console.log("getPayload", index)
       // return this.requerimientosList.list[index - 1]
@@ -123,11 +138,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.title {
-  text-align: center;
-  font-size: 1.2rem;
-}
 .loading-container {
   min-height: 100px;
+}
+.card-header {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #fff;
+  width: 90%;
+  position: relative;
+  top: -20px;
+  box-shadow: inherit;
+  margin: 0 auto;
+  padding: 5px;
+}
+.req-container {
+  position: relative;
+  top: -10px;
 }
 </style>

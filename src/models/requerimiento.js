@@ -10,12 +10,13 @@ export default class Requerimiento {
     this.area = req.area ? req.area : null
     this.sistema = req.sistema ? req.sistema : null
     this.requerimientoTipo = req.tipo ? req.tipo : null
-    // this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
     this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
     this.importante = req.importante && req.importante === "SI" ? true : false
     this.prioridad = req.prioridad ? req.prioridad : 5
     this.adjuntos = []
+    this.adjuntosCargados = req.adjuntos ? req.adjuntos : []
 
+    // this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
     this.fechaLimite =
       req.fecha_limite && date.isValid(req.fecha_limite)
         ? date.formatDate(req.fecha_limite, "DD/MM/YYYY")
