@@ -46,7 +46,6 @@
               {{ req.descripcion }}
             </p>
             <!-- <note title="Descripción:">
-
             </note> -->
           </div>
         </div>

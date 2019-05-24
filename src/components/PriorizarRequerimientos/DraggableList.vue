@@ -24,11 +24,7 @@
             v-for="(req, index) in requerimientosList.list"
             :key="`req_${req.id}`"
           >
-            <priorizar-requerimientos-item
-              :req="req"
-              :index="index"
-              @click.native="$emit('abrir-detalle-req', req.id)"
-            />
+            <priorizar-requerimientos-item :req="req" :index="index" />
           </Draggable>
         </template>
       </Container>
@@ -89,49 +85,20 @@ export default {
     }
   },
   computed: {
-    // orderedRequerimientos() {
-    //   return _.sortBy(this.requerimientosList.list, ["prioridad"])
-    // },
     listEmpty() {
       return this.requerimientosList.list.length === 0
     },
   },
   methods: {
-    callOpenDetail() {
-      console.log("called open detail")
-    },
     getPayload(index) {
-      // console.log("getPayload", index)
-      // return this.requerimientosList.list[index - 1]
       return this.requerimientosList.list[index]
     },
     onDrop(listName, dropResult) {
       // console.log("onDrop", list, dropResult)
-
       const listResult = applyDrag(this.requerimientosList.list, dropResult)
+      debugger
 
       this.$emit("update-list", listName, listResult, dropResult)
-
-      // this.$emit("update:requerimientos-list", result)
-
-      /* if (list === "source") {
-        if (dropResult.removedIndex !== null) {
-          result = applyDrag(this.requerimientosList, dropResult)
-          // this.$set(this, "list", res1)
-          this.$emit("update:requerimientos-list", result)
-        } else {
-          result = applyDrag(this.requerimientosList, dropResult)
-          // this.$set(this, "list", res1)
-          this.$emit("update:requerimientos-list", result)
-          console.log("tryed to drop on source list")
-        }
-      }
-
-      if (list === "target" && dropResult.addedIndex !== null) {
-        result = applyDrag(this.requerimientosList, dropResult)
-        // this.$set(this, "list", res)
-        this.$emit("update:requerimientos-list", result)
-      } */
     },
   },
 }

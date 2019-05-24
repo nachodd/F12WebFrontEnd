@@ -15,10 +15,6 @@ const state = {
   loadingOptions: true,
   loadingRequerimiento: true,
 
-  // List
-  misRequerimientos: [],
-  requerimientoDetalle: null,
-
   estados: [
     { codigo: "PEND", descripcion: "Pendiente aprobación", id: "1" },
     { codigo: "APRV", descripcion: "Aprobado", id: "2" },
@@ -50,12 +46,6 @@ const mutations = {
   },
   SET_LOADING_OPTS: (state, newState) => {
     state.loadingOptions = newState
-  },
-  SET_MIS_REQUERIMIENTOS: (state, misRequerimientos) => {
-    state.misRequerimientos = misRequerimientos
-  },
-  SET_REQUERIMIENTO_DETALLE: (state, requerimientoDetalle) => {
-    state.requerimientoDetalle = requerimientoDetalle
   },
 }
 

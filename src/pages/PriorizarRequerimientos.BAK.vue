@@ -40,16 +40,16 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex"
+import { mapGetters } from "vuex"
 import PageHeader from "@comp/Common/PageHeader"
 import pageLoading from "@mixins/pageLoading"
 import { warn, success } from "@utils/helpers"
 import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
 import DialogConfirmOperation from "@comp/PriorizarRequerimientos/DialogConfirmOperation"
 import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
-// import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
+import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
 import {
-  // getRequerimientosByUserAndEstado,
+  getRequerimientosByUserAndEstado,
   updateRequerimientosEstados,
 } from "@api/requerimientos"
 
@@ -64,26 +64,26 @@ export default {
   mixins: [pageLoading],
   data() {
     return {
-      // reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
-      // reqsAprobadosPriorizados: new RequerimientosPriorizarList([], true),
-      // loadingReqsPendientesAprobacion: true,
-      // loadingReqsAprobadosPriorizados: true,
-      // dialogConfirmOpen: false,
-      // possibleChanges: {
-      //   sourceList: [],
-      //   sourceChanges: {
-      //     addedIndex: null,
-      //     removedIndex: null,
-      //     changesSetted: false,
-      //   },
-      //   targetList: [],
-      //   targetChanges: {
-      //     addedIndex: null,
-      //     removedIndex: null,
-      //     changesSetted: false,
-      //   },
-      //   payload: {},
-      // },
+      reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
+      reqsAprobadosPriorizados: new RequerimientosPriorizarList([], true),
+      loadingReqsPendientesAprobacion: true,
+      loadingReqsAprobadosPriorizados: true,
+      dialogConfirmOpen: false,
+      possibleChanges: {
+        sourceList: [],
+        sourceChanges: {
+          addedIndex: null,
+          removedIndex: null,
+          changesSetted: false,
+        },
+        targetList: [],
+        targetChanges: {
+          addedIndex: null,
+          removedIndex: null,
+          changesSetted: false,
+        },
+        payload: {},
+      },
       approveComment: "",
       detalleRequerimientoOpen: true,
     }
@@ -92,30 +92,13 @@ export default {
     ...mapGetters("auth", [
       "userId",
       "userTreeLoaded",
-      // "hasSuperiors",
-      // "hasSubordinates",
-      // "userSuperiors",
-      // "userSubordinates",
+      "hasSuperiors",
+      "hasSubordinates",
+      "userSuperiors",
+      "userSubordinates",
       "esElUltimoDeLaCadenaDeMando",
     ]),
-    ...mapGetters("priorizarRequerimientos", [
-      "requerimientoIdToChange",
-      "possibleChangesSetted",
-      "operationReoderPendingList",
-      "operationReoderApprovedList",
-      "operationApprove",
-      "operationReject",
-    ]),
-    ...mapState("priorizarRequerimientos", {
-      reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
-      reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,
-      loadingReqsPendientesAprobacion: state =>
-        state.loadingReqsPendientesAprobacion,
-      loadingReqsAprobadosPriorizados: state =>
-        state.loadingReqsAprobadosPriorizados,
-      dialogConfirmOpen: state => state.dialogConfirmOpen,
-      possibleChanges: state => state.possibleChanges,
-    }),
+    ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
     requerimientoIdToChange() {
       return _.get(this.possibleChanges.payload, "id", "")
     },
@@ -174,22 +157,39 @@ export default {
     },
   },
   async created() {
-    this.$store.dispatch(
-      "priorizarRequerimientos/getRequerimientosByUserAndEstado",
-      { userId: this.userId, reqState: "PEND" },
-    )
+    const estadoPendiente = this.getEstadoByCodigo("PEND")
+    const estadoAprobado = this.getEstadoByCodigo("APRV")
+    // this.$store.dispatch("app/loadingIncBy", 2)
+
+    getRequerimientosByUserAndEstado(this.userId, estadoPendiente.id)
+      .then(({ data: { data } }) => {
+        this.reqsPendientesAprobacion.list = data
+        this.reqsPendientesAprobacion.sortByPrioridad()
+      })
+      .catch(e => console.log(e))
+      .finally(() => {
+        this.loadingReqsPendientesAprobacion = false
+        // this.$store.dispatch("app/loadingDec")
+      })
 
     if (!this.esElUltimoDeLaCadenaDeMando) {
-      this.$store.dispatch(
-        "priorizarRequerimientos/getRequerimientosByUserAndEstado",
-        { userId: this.userId, reqState: "APRV" },
-      )
+      getRequerimientosByUserAndEstado(this.userId, estadoAprobado.id)
+        .then(({ data: { data } }) => {
+          this.reqsAprobadosPriorizados.list = data
+          this.reqsAprobadosPriorizados.sortByPrioridad()
+        })
+        .catch(e => console.log(e))
+        .finally(() => {
+          this.loadingReqsAprobadosPriorizados = false
+          // this.$store.dispatch("app/loadingDec")
+        })
+    } else {
+      this.loadingReqsAprobadosPriorizados = false
+      // this.$store.dispatch("app/loadingDec")
     }
   },
   methods: {
-    async processUpdateList(/* listName, listResult, dropResult */) {
-      debugger
-      /*
+    async processUpdateList(listName, listResult, dropResult) {
       const { removedIndex, addedIndex, payload } = dropResult
       this.possibleChanges[`${listName}List`] = listResult
       this.possibleChanges[`${listName}Changes`] = {
@@ -249,7 +249,7 @@ export default {
           }
           this.clearOperation()
         }
-      } */
+      }
     },
     async confirmOperation(comentario) {
       // copio los listados (de manera de tener un backup)

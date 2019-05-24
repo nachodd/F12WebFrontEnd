@@ -1,24 +1,11 @@
 <template>
   <!--:active="esImportante"  active-class="text-black bg-red-2" -->
-  <q-item class="q-ma-sm shadow-2 rounded-borders-10 bg-white cursor-pointer">
+  <q-item
+    class="q-ma-sm shadow-2 rounded-borders-10 bg-white cursor-pointer"
+    @click.native="openRequerimiento"
+  >
     <q-item-section class="col-xs-3 text-center">
       <span class="text-accent text-weight-medium">#{{ req.id }}</span>
-      <!-- <template v-if="!esAprobado">
-        <div>
-          <q-icon
-            v-if="esImportante"
-            name="fas fa-exclamation-triangle"
-            color="red"
-            size="16px"
-          >
-            <q-tooltip>
-              Este requerimiento fue marcado como importante
-            </q-tooltip>
-          </q-icon>
-          <q-icon v-else name="far fa-file-alt" color="grey-8" size="16px" />
-        </div>
-      </template>
-      <template v-else> -->
       <div>
         <q-chip dense class="no-margin">
           <q-avatar
@@ -30,7 +17,6 @@
           Prioridad
         </q-chip>
       </div>
-      <!-- </template> -->
     </q-item-section>
 
     <q-item-section top>
@@ -112,9 +98,7 @@ export default {
     },
   },
   methods: {
-    callOpenDetail() {
-      console.log("called open detail")
-    },
+    openRequerimiento() {},
   },
 }
 </script>
