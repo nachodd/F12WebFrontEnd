@@ -6,24 +6,27 @@
     transition-hide="scale"
   >
     <q-card class="requerimiento-detail-card">
-      <q-card-section class="bg-deep-purple-10 text-white">
-        <div class="title-id row">
-          <div class="col">#{{ req.id }}</div>
-          <div class="col text-right offset-top">
+      <q-card-section class="row bg-deep-purple-10 text-white items-center">
+        <div class="col-11 col-xs-auto">
+          <div class="title-id">#{{ req.id }}</div>
+          <div class="title-title">{{ req.asunto }}</div>
+        </div>
+        <div class="col-1">
+          <q-btn v-close-popup icon="close" flat round dense />
+        </div>
+      </q-card-section>
+
+      <q-card-section>
+        <div class="row q-mt-sm">
+          <div class="col text-center">
             <chip-large
               avatar-text-color="black"
               :avatar-color="getColorPrioridad(req.prioridad)"
               :avatar-text="req.prioridad"
               text="Prioridad"
             />
-          </div>
-        </div>
-        <div class="title-title">{{ req.asunto }}</div>
-      </q-card-section>
-      <q-card-section>
-        <div class="row q-mt-sm">
-          <div class="col">
             <chip-large avatar-text="Area" :text="req.area.descripcion" />
+
             <chip-large
               avatar-text="Stistema"
               :text="req.sistema.descripcion"
@@ -33,33 +36,69 @@
               :text="req.requerimientoTipo.descripcion"
             />
           </div>
-          <div class="col">
-            Adjuntos:
-          </div>
         </div>
         <div class="row q-mt-sm">
           <div class="col">
-            <q-input
-              outlined
-              :value="req.descripcion"
-              label="Descripcion"
-              disable
-              type="textarea"
-            />
+            <p class="section-title">
+              Descripcion:
+            </p>
+            <p>
+              {{ req.descripcion }}
+            </p>
+            <!-- <note title="Descripción:">
+
+            </note> -->
+          </div>
+        </div>
+        <div v-if="req.adjuntos && req.adjuntos.length" class="row q-mt-sm">
+          <div class="col">
+            <note title="Adjuntos:">
+              test test test
+            </note>
           </div>
         </div>
         <div class="row q-mt-md text-center">
           <div class="col">
-            <q-btn outline rounded color="accent" label="Aprobar" />
-          </div>
-          <div class="col">
-            <q-btn outline rounded color="accent" label="Descartar" />
+            <q-btn-toggle
+              v-model="operation"
+              class="toggle"
+              rounded
+              toggle-color="accent"
+              color="white"
+              text-color="accent"
+              :options="[
+                { label: 'Aprobar', value: 'aprobar', icon: 'fas fa-check' },
+                {
+                  label: 'Descartar',
+                  value: 'descartar',
+                  icon: 'fas fa-trash',
+                },
+              ]"
+            />
           </div>
         </div>
+        <q-slide-transition>
+          <div v-show="isApproving" class="row q-mt-md ">
+            <div class="col">
+              <div>Seleccione una Prioridad para este Requerimiento:</div>
+              <br />
+              <q-slider
+                v-model="approvedPriority"
+                class="slider"
+                :min="1"
+                :max="10"
+                label
+                label-always
+                color="accent"
+              />
+            </div>
+          </div>
+        </q-slide-transition>
       </q-card-section>
 
-      <q-card-actions align="right" class="bg-white text-accent">
-        <q-btn v-close-popup flat label="cerrar" />
+      <q-card-actions align="right">
+        <q-btn label="CERRAR" color="negative" />
+        <q-btn v-show="operation !== null" label="ACEPTAR" color="green-6" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -68,9 +107,10 @@
 <script>
 import priorityColor from "@mixins/priorityColor"
 import ChipLarge from "@comp/Common/ChipLarge"
+import Note from "@comp/Common/Note"
 export default {
   name: "DialogDetalleRequerimiento",
-  components: { ChipLarge },
+  components: { ChipLarge, Note },
   mixins: [priorityColor],
   props: {
     value: {
@@ -94,6 +134,8 @@ export default {
         prioridad: "3",
         adjuntos: [],
       },
+      operation: null,
+      approvedPriority: 1,
     }
   },
   computed: {
@@ -105,11 +147,20 @@ export default {
         this.$emit("input", __opened)
       },
     },
+    isApproving() {
+      return this.operation === "aprobar"
+    },
+  },
+  mounted() {
+    this.operation = null
+    this.approvedPriority = 1
   },
 }
 </script>
 
 <style lang="scss" scoped>
+@import "src/css/variables.scss";
+
 .requerimiento-detail-card {
   min-width: 400px;
 }
@@ -131,5 +182,16 @@ export default {
   width: auto;
   border-radius: 16px;
   padding: 0 10px;
+}
+.toggle {
+  border: 1px solid $accent;
+}
+.slider {
+  margin: 0 auto;
+  width: 90%;
+}
+.section-title {
+  font-weight: 500;
+  margin-bottom: 0;
 }
 </style>
