@@ -1,6 +1,6 @@
 <template>
   <q-dialog
-    v-model="dialogConfirmShowed"
+    v-model="dialogConfirmOpen"
     persistent
     transition-show="slide-up"
     transition-hide="slide-down"
@@ -19,7 +19,7 @@
         <span class="text-h6">
           Confirmación -
           <q-chip dense color="accent-light" text-color="white">
-            Req #{{ requerimientoIdToChanged }}
+            Req #{{ requerimientoIdToChange }}
           </q-chip>
         </span>
       </q-card-section>
@@ -59,45 +59,53 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from "vuex"
 export default {
   name: "DialogConfirmOperation",
-  props: {
-    operationApprove: {
-      type: Boolean,
-      required: true,
-    },
-    operationReject: {
-      type: Boolean,
-      required: true,
-    },
-    dialogConfirmOpen: {
-      type: Boolean,
-      default: false,
-    },
-    requerimientoIdToChanged: {
-      type: [Number, String],
-      default: null,
-    },
-  },
   data() {
     return {
-      dialogConfirmShowed: this.dialogConfirmOpen,
       approveComment: "",
     }
   },
-  watch: {
-    dialogConfirmOpen(newVal) {
-      this.dialogConfirmShowed = newVal
+  computed: {
+    ...mapState("priorizarRequerimientos", {
+      dialogConfirmOpenState: state => state.dialogConfirmOpen,
+    }),
+    ...mapGetters("priorizarRequerimientos", [
+      "requerimientoIdToChange",
+      "operationApprove",
+      "operationReject",
+    ]),
+    dialogConfirmOpen: {
+      get() {
+        return this.dialogConfirmOpenState
+      },
+      set(value) {
+        this.$store.dispatch(
+          "priorizarRequerimientos/setDialogConfirmOperationOpen",
+          value,
+        )
+      },
     },
   },
   methods: {
+    // FIXME: pasar el metodo confirmOperation del page al store
     cancelOperation() {
-      this.$emit("dialog-confirm-operation-cancel")
+      this.$store.dispatch("priorizarRequerimientos/clearOperations")
+      this.dialogConfirmOpen = false
     },
     confirmOperation() {
       const comment = this.operationReject ? null : this.approveComment
-      this.$emit("dialog-confirm-operation-confirm", comment)
-      this.approveComment = ""
+
+      this.$store
+        .dispatch("priorizarRequerimientos/confirmOperation", comment)
+        .then(() => {
+          this.dialogConfirmOpen = false
+          this.approveComment = ""
+        })
+
+      // this.$emit("dialog-confirm-operation-confirm", comment)
+      // this.approveComment = ""
     },
   },
 }

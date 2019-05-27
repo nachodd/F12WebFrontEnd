@@ -7,14 +7,9 @@ export default class RequerimientosPriorizarList {
     this.list = list
   }
 
-  // setComentarioForRequerimiento(reqId, comentario) {
-  //   const req = _.find(this.list, { id: reqId })
-  //   req.comentario = comentario
-  // }
   set list(list) {
     this.listValue = list
-    this.updateEstado()
-    // console.log(this.listValue)
+    // this.updateEstado()
   }
   get list() {
     return this.listValue
@@ -46,8 +41,8 @@ export default class RequerimientosPriorizarList {
   }
 
   toUpdatePayload() {
-    this.updatePrioridad()
-    this.updateEstado()
+    // this.updatePrioridad()
+    // this.updateEstado()
 
     return this.listValue.map(req => {
       const result = {
@@ -64,7 +59,7 @@ export default class RequerimientosPriorizarList {
   }
 
   toUpdatePendingPayload() {
-    this.updatePrioridad()
+    // this.updatePrioridad()
 
     return this.listValue.map(req => {
       const result = {

@@ -38,15 +38,15 @@
     <q-item-section top class="col-2 q-my-xs">
       <q-item-label class="q-mt-sm" lines="1">
         <span class="text-weight-medium">Area:</span>
-        {{ req.area }}
+        {{ req.area.descripcion }}
       </q-item-label>
       <q-item-label lines="1">
         <span class="text-weight-medium">Sistema:</span>
-        {{ req.sistema }}
+        {{ req.sistema.descripcion }}
       </q-item-label>
       <q-item-label lines="1">
         <span class="text-weight-medium">Tipo:</span>
-        {{ req.requerimiento_tipo }}
+        {{ req.requerimiento_tipo.descripcion }}
       </q-item-label>
     </q-item-section>
 
