@@ -17,7 +17,7 @@
     "js-cookie": "^2.2.0",
     "jwt-decode": "https://github.com/auth0/jwt-decode.git",
     "lodash": "^4.17.11",
-    "quasar": "^1.0.0-rc.2",
+    "quasar": "^1.0.0-rc.3",
     "vue-smooth-dnd": "^0.8.0",
     "vuelidate": "^0.7.4"
   },
