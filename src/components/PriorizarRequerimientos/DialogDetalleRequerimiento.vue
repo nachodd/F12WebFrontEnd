@@ -1,6 +1,6 @@
 <template>
   <q-dialog
-    v-model="__opened"
+    v-model="detalleRequerimientoOpen"
     persistent
     transition-show="scale"
     transition-hide="scale"
@@ -20,8 +20,8 @@
         <div class="row q-mt-sm">
           <div class="col text-center">
             <chip-large
-              avatar-text-color="black"
               :avatar-color="getColorPrioridad(req.prioridad)"
+              :avatar-text-color="getColorPrioridadText(req.prioridad)"
               :avatar-text="req.prioridad"
               text="Prioridad"
             />
@@ -107,6 +107,7 @@
 import priorityColor from "@mixins/priorityColor"
 import ChipLarge from "@comp/Common/ChipLarge"
 import Note from "@comp/Common/Note"
+import { mapState } from "vuex"
 export default {
   name: "DialogDetalleRequerimiento",
   components: { ChipLarge, Note },
@@ -119,7 +120,7 @@ export default {
   },
   data() {
     return {
-      req: {
+      /* req: {
         id: 145,
         asunto: "Prueba dish aoisdhia osdh oisahd iashd oiash aoisdh",
         descripcion:
@@ -132,22 +133,46 @@ export default {
         importante: "NO",
         prioridad: "3",
         adjuntos: [],
-      },
+      }, */
       operation: null,
       approvedPriority: 1,
     }
   },
   computed: {
-    __opened: {
+    ...mapState("priorizarRequerimientos", {
+      // detalleRequerimientoOpen: state => state.detalleRequerimientoOpen,
+      req: state => state.detalleRequerimientoItem,
+    }),
+    detalleRequerimientoOpen: {
       get() {
-        return this.value
+        debugger
+        return this.$store.state.priorizarRequerimientos
+          .detalleRequerimientoOpen
       },
-      set(__opened) {
-        this.$emit("input", __opened)
+      set(value) {
+        debugger
+        return this.$store.dispatch(
+          "priorizarRequerimientos/setDetalleRequerimientoOpen",
+          value,
+        )
       },
     },
+    // __opened: {
+    //   get() {
+    //     return this.value
+    //   },
+    //   set(__opened) {
+    //     this.$emit("input", __opened)
+    //   },
+    // },
+
     isApproving() {
       return this.operation === "aprobar"
+    },
+  },
+  watch: {
+    req(val) {
+      console.log(val)
     },
   },
   mounted() {

@@ -4,6 +4,7 @@ import {
   updateRequerimientosEstados,
 } from "@api/requerimientos"
 import { warn, success } from "@utils/helpers"
+import Requerimiento from "@models/requerimiento"
 
 const state = {
   reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
@@ -28,8 +29,9 @@ const state = {
     },
     payload: {},
   },
-  approveComment: "",
-  detalleRequerimientoOpen: true,
+
+  detalleRequerimientoOpen: false,
+  detalleRequerimientoItem: null,
 }
 
 const getters = {
@@ -204,9 +206,6 @@ const mutations = {
   SET_DIALOG_CONFIRM_OPERATION_OPEN: (state, value) => {
     state.dialogConfirmOpen = value
   },
-  SET_DETALLE_REQ_OPEN: (state, value) => {
-    state.detalleRequerimientoOpen = value
-  },
   CLEAR_OPERATIONS: state => {
     for (const listName of ["source", "target"]) {
       state.possibleChanges[`${listName}List`] = []
@@ -217,7 +216,6 @@ const mutations = {
       }
     }
     state.possibleChanges.payload = {}
-    state.approveComment = ""
     state.dialogConfirmOpen = false
   },
   PROCESS_UPDATE_LISTS: (state, { listName, listResult, dropResult }) => {
@@ -235,9 +233,41 @@ const mutations = {
       id: reqId,
     }).comentario = comment
   },
+  SET_DETALLE_REQUERIMIENTO_ITEM: (state, requerimiento) => {
+    if (requerimiento) {
+      state.detalleRequerimientoItem = new Requerimiento(requerimiento)
+      // state.detalleRequerimientoItem = Object.assign(
+      //   {},
+      //   state.detalleRequerimientoItem,
+      //   new Requerimiento(requerimiento),
+      // )
+    } else {
+      state.detalleRequerimientoItem = null
+    }
+  },
+  SET_DETALLE_REQUERIMIENTO_OPEN: (state, value) => {
+    state.detalleRequerimientoOpen = value
+  },
 }
 
 const actions = {
+  inicializarPriorizarRequerimientos({ dispatch, rootGetters }) {
+    const esElUltimoDeLaCadenaDeMando =
+      rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
+    const currentUserId = rootGetters["auth/userId"]
+
+    dispatch("getRequerimientosByUserAndEstado", {
+      userId: currentUserId,
+      reqState: "PEND",
+    })
+
+    if (!esElUltimoDeLaCadenaDeMando) {
+      dispatch("getRequerimientosByUserAndEstado", {
+        userId: currentUserId,
+        reqState: "APRV",
+      })
+    }
+  },
   getRequerimientosByUserAndEstado(
     { commit, rootGetters },
     { userId, reqState },
@@ -261,10 +291,30 @@ const actions = {
         })
       })
   },
-  processUpdateList({ commit }, updatedListData) {
-    //{ listName, listResult, dropResult }
+  processUpdateList({ commit, getters, dispatch }, updatedListData) {
     return new Promise(resolve => {
+      // Updateo los listados temporales
       commit("PROCESS_UPDATE_LISTS", updatedListData)
+
+      // Chequeo si
+      //  - si esElUltimoDeLaCadenaDeMando===false => si AMBOS listados temporales fueron seteados los cambios
+      //  - si esElUltimoDeLaCadenaDeMando===true, => si SOLO en el listado temporal de pendientes (source) fueron seteados los cambios
+      if (!getters.possibleChangesSetted) {
+        return
+      }
+
+      switch (getters.operationType) {
+        case "reorder-pending":
+          dispatch("saveReorderPending")
+          break
+        case "reorder-approved":
+          dispatch("saveReorderApproved")
+          break
+        case "approve":
+        case "reject":
+          dispatch("setDialogConfirmOperationOpen", true)
+          break
+      }
       resolve()
     })
   },
@@ -437,8 +487,38 @@ const actions = {
       resolve()
     })
   },
-  action(/*{ commit, state }*/) {
-    return new Promise(async (/* resolve, reject */) => {})
+  abrirDetalleRequerimiento({ commit, state }, { reqId, listName }) {
+    return new Promise(async (/* resolve, reject */) => {
+      console.log(reqId, listName)
+      // Para seguir con la convencion de nombres, utilizo listType para la action
+      const listType = listName === "source" ? "pending" : "approved"
+      let list =
+        listType === "pending"
+          ? state.reqsPendientesAprobacion.list
+          : state.reqsAprobadosPriorizados.list
+
+      const requerimiento = _.find(list, { id: reqId })
+      if (requerimiento) {
+        commit("SET_DETALLE_REQUERIMIENTO_ITEM", requerimiento)
+      } else {
+        commit("SET_DETALLE_REQUERIMIENTO_ITEM", null)
+        // state.detalleRequerimientoItem = null
+      }
+
+      if (state.detalleRequerimientoItem) {
+        commit("SET_DETALLE_REQUERIMIENTO_OPEN", true)
+      }
+    })
+  },
+  setDetalleRequerimientoOpen({ commit }, value) {
+    return new Promise(resolve => {
+      commit("SET_DETALLE_REQUERIMIENTO_OPEN", value)
+      // si está cerrando, borro el requerimiento detalle
+      if (!value) {
+        commit("SET_DETALLE_REQUERIMIENTO_ITEM", null)
+      }
+      resolve()
+    })
   },
 }
 

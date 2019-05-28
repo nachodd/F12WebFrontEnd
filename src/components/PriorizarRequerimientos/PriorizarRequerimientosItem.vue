@@ -9,8 +9,11 @@
       <div>
         <q-chip dense class="no-margin">
           <q-avatar
-            text-color="white"
-            :style="{ backgroundColor: getColorPrioridad(req.prioridad) }"
+            class="prioridad-text"
+            :style="{
+              color: getColorPrioridadText(req.prioridad),
+              backgroundColor: getColorPrioridad(req.prioridad),
+            }"
           >
             {{ req.prioridad }}
           </q-avatar>
@@ -102,3 +105,9 @@ export default {
   },
 }
 </script>
+<style>
+.prioridad-text {
+  font-size: 14px;
+  font-weight: 700;
+}
+</style>

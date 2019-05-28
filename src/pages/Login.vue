@@ -1,8 +1,10 @@
 <template>
   <q-layout view="lHh Lpr lFf" class="flex flex-center items-center bg-grey-3">
     <q-page-container class>
-      <q-card class="card shadow-5">
-        <q-card-section class="bg-deep-purple-10 card-header-offset">
+      <q-card class="card shadow-5 rounded-borders-8">
+        <q-card-section
+          class="bg-deep-purple-10 card-header-offset rounded-borders-8"
+        >
           <div class="text-h3 text-center">
             <span class="text-h2 f twelve">F</span>
             <span class="text-h2 twelve">12</span>

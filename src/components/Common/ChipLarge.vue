@@ -23,7 +23,7 @@ export default {
       default: "#F0666B",
     },
     avatarText: {
-      type: String,
+      type: [String, Number],
       required: true,
     },
     text: {

@@ -24,5 +24,22 @@ export default {
           return "#94F971"
       }
     },
+    getColorPrioridadText(prioridad) {
+      switch (prioridad) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+          return "#FFF"
+        case 6:
+        case 7:
+          return "#555"
+        case 8:
+        case 9:
+        default:
+          return "#000"
+      }
+    },
   },
 }

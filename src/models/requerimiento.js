@@ -9,18 +9,32 @@ export default class Requerimiento {
     this.descripcion = req.descripcion ? req.descripcion : ""
     this.area = req.area ? req.area : null
     this.sistema = req.sistema ? req.sistema : null
-    this.requerimientoTipo = req.tipo ? req.tipo : null
-    this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
+    this.requerimientoTipo = req.requerimiento_tipo
+      ? req.requerimiento_tipo
+      : null
     this.importante = req.importante && req.importante === "SI" ? true : false
     this.prioridad = req.prioridad ? req.prioridad : 5
     this.adjuntos = []
     this.adjuntosCargados = req.adjuntos ? req.adjuntos : []
 
     // this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
+    // Consevervamos la original
+    this._fechaLimite = req.fecha_limite ? req.fecha_limite : null
     this.fechaLimite =
       req.fecha_limite && date.isValid(req.fecha_limite)
         ? date.formatDate(req.fecha_limite, "DD/MM/YYYY")
         : null
+    this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
+
+    this.estado = req.estado ? req.estado : null
+    // Consevervamos la original
+    this._fechaAlta = req.fecha_alta ? req.fecha_alta : null
+    this.fechaAlta =
+      req.fecha_alta && date.isValid(req.fecha_alta)
+        ? date.formatDate(req.fecha_alta, "DD/MM/YYYY")
+        : null
+
+    this.movimientos = req.movimientos ? req.movimientos : null
   }
 
   // get name() {

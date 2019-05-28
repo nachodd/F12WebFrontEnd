@@ -24,26 +24,31 @@
             v-for="(req, index) in requerimientosList.list"
             :key="`req_${req.id}`"
           >
-            <priorizar-requerimientos-item :req="req" :index="index" />
+            <priorizar-requerimientos-item
+              :req="req"
+              :index="index"
+              @click.native="
+                abrirDetalleRequerimiento({ reqId: req.id, listName })
+              "
+            />
           </Draggable>
         </template>
       </Container>
     </q-slide-transition>
-    <q-slide-transition>
-      <div v-if="loadingList" class="row text-center loading-container">
-        <div class="col self-center">
-          <q-spinner-gears size="50px" color="accent" />
-        </div>
+    <div v-if="loadingList" class="row text-center loading-container">
+      <div class="col self-center">
+        <q-spinner-gears size="50px" color="accent" />
       </div>
-    </q-slide-transition>
+    </div>
   </div>
 </template>
 
 <script>
+import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag } from "@utils/helpers"
 import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
-import RequerimientosPriorizarList from "../../models/RequerimientosPriorizarList"
+import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
 
 export default {
   name: "DraggableList",
@@ -90,6 +95,11 @@ export default {
     },
   },
   methods: {
+    // map `this.abrirDetalleRequerimiento(...)` to `this.$store.dispatch("priorizarRequerimientos/abrirDetalleRequerimiento",...)`
+    ...mapActions({
+      abrirDetalleRequerimiento:
+        "priorizarRequerimientos/abrirDetalleRequerimiento",
+    }),
     getPayload(index) {
       return this.requerimientosList.list[index]
     },
@@ -104,8 +114,14 @@ export default {
         updatedListData,
       )
 
-      this.$emit("list-updated")
+      // this.$emit("list-updated")
     },
+    // abrirDetalleRequerimiento(reqId) {
+    //   this.$store.dispatch(
+    //     "priorizarRequerimientos/abrirDetalleRequerimiento",
+    //     reqId,
+    //   )
+    // },
   },
 }
 </script>

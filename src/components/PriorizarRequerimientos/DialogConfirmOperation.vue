@@ -89,7 +89,6 @@ export default {
     },
   },
   methods: {
-    // FIXME: pasar el metodo confirmOperation del page al store
     cancelOperation() {
       this.$store.dispatch("priorizarRequerimientos/clearOperations")
       this.dialogConfirmOpen = false
@@ -105,7 +104,6 @@ export default {
         })
 
       // this.$emit("dialog-confirm-operation-confirm", comment)
-      // this.approveComment = ""
     },
   },
 }
