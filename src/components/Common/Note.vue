@@ -5,6 +5,7 @@
       'note--success': props.type === 'success',
       'note--danger': props.type === 'danger',
       'note--warning': props.type === 'warning',
+      'note--accent': props.type === 'accent',
     }"
   >
     <p class="note__title">{{ props.title }}</p>
@@ -21,6 +22,7 @@ export default {}
 </script>
 
 <style lang="scss">
+@import "src/css/variables.scss";
 .note {
   background-color: #eee;
   border-radius: 4px;
@@ -44,8 +46,12 @@ export default {}
   background-color: #f9e09b;
   border-color: #f2c037;
 }
+.note--accent {
+  background-color: $accent-lighter;
+  border-color: $accent;
+}
 .note__title {
-  font-weight: 500;
+  font-weight: 700;
 }
 .note > p {
   margin-bottom: 0;

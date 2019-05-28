@@ -5,7 +5,7 @@
     transition-show="scale"
     transition-hide="scale"
   >
-    <q-card class="requerimiento-detail-card">
+    <q-card v-if="requerimientoSetted" class="requerimiento-detail-card">
       <q-card-section class="row bg-deep-purple-10 text-white items-center">
         <div class="col-11 col-xs-auto">
           <div class="title-id">#{{ req.id }}</div>
@@ -25,6 +25,14 @@
               :avatar-text="req.prioridad"
               text="Prioridad"
             />
+            <chip-large
+              avatar-text="Usuario"
+              avatar-color="#6671f0"
+              :text="req.usuario.nombre"
+            />
+
+            <br />
+
             <chip-large avatar-text="Area" :text="req.area.descripcion" />
 
             <chip-large
@@ -39,14 +47,32 @@
         </div>
         <div class="row q-mt-sm">
           <div class="col">
-            <p class="section-title">
+            <!-- <p class="section-title">
               Descripcion:
             </p>
             <p>
               {{ req.descripcion }}
-            </p>
-            <!-- <note title="Descripción:">
-            </note> -->
+            </p> -->
+            <note title="Descripción:" type="accent">
+              {{ req.descripcion }}
+            </note>
+          </div>
+        </div>
+        <div v-if="req.vence" class="row q-mt-sm">
+          <div class="col">
+            <note
+              title="Este requerimiento posee Fecha de Vencimiento"
+              type="danger"
+            >
+              <div>
+                <span class="text-underline">Vencimiento:</span>
+                {{ req.fechaLimite }}
+              </div>
+              <div>
+                <span class="text-underline">Motivo:</span>
+                {{ req.motivoLimite }}
+              </div>
+            </note>
           </div>
         </div>
         <div v-if="req.adjuntos && req.adjuntos.length" class="row q-mt-sm">
@@ -84,6 +110,7 @@
               <q-slider
                 v-model="approvedPriority"
                 class="slider"
+                markers
                 :min="1"
                 :max="10"
                 label
@@ -96,8 +123,20 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn label="CERRAR" color="negative" />
-        <q-btn v-show="operation !== null" label="ACEPTAR" color="green-6" />
+        <q-btn
+          label="CERRAR"
+          rounded
+          outline
+          color="negative"
+          @click="detalleRequerimientoOpen = false"
+        />
+        <q-btn
+          v-show="operation !== null"
+          rounded
+          outline
+          label="ACEPTAR"
+          color="green-6"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -143,14 +182,15 @@ export default {
       // detalleRequerimientoOpen: state => state.detalleRequerimientoOpen,
       req: state => state.detalleRequerimientoItem,
     }),
+    requerimientoSetted() {
+      return !_.isEmpty(this.req)
+    },
     detalleRequerimientoOpen: {
       get() {
-        debugger
         return this.$store.state.priorizarRequerimientos
           .detalleRequerimientoOpen
       },
       set(value) {
-        debugger
         return this.$store.dispatch(
           "priorizarRequerimientos/setDetalleRequerimientoOpen",
           value,
@@ -165,7 +205,12 @@ export default {
     //     this.$emit("input", __opened)
     //   },
     // },
-
+    statePending() {
+      return this.req.estado.id === 1
+    },
+    stateApproved() {
+      return this.req.estado.id === 2
+    },
     isApproving() {
       return this.operation === "aprobar"
     },

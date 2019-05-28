@@ -35,11 +35,15 @@ export default class Requerimiento {
         : null
 
     this.movimientos = req.movimientos ? req.movimientos : null
+    this.usuario = req.usuario ? req.usuario : null
   }
 
   // get name() {
   //   return this.brand.concat(" ", this.model)
   // }
+  get vence() {
+    return this.fechaLimite !== null
+  }
 
   async toCreatePayload() {
     let fechaLimite = this.fechaLimite

@@ -99,6 +99,7 @@ export default {
 }
 .menu-items--active {
   color: $accent-light;
+  font-weight: 500;
   background: rgba(73, 65, 214, 0.15);
 }
 

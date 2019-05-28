@@ -1,10 +1,10 @@
 import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
+import Requerimiento from "@models/Requerimiento"
 import {
   getRequerimientosByUserAndEstado,
   updateRequerimientosEstados,
 } from "@api/requerimientos"
 import { warn, success } from "@utils/helpers"
-import Requerimiento from "@models/requerimiento"
 
 const state = {
   reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
@@ -31,7 +31,7 @@ const state = {
   },
 
   detalleRequerimientoOpen: false,
-  detalleRequerimientoItem: null,
+  detalleRequerimientoItem: {},
 }
 
 const getters = {
@@ -501,7 +501,7 @@ const actions = {
       if (requerimiento) {
         commit("SET_DETALLE_REQUERIMIENTO_ITEM", requerimiento)
       } else {
-        commit("SET_DETALLE_REQUERIMIENTO_ITEM", null)
+        commit("SET_DETALLE_REQUERIMIENTO_ITEM", {})
         // state.detalleRequerimientoItem = null
       }
 
