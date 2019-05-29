@@ -47,12 +47,6 @@
         </div>
         <div class="row q-mt-sm">
           <div class="col">
-            <!-- <p class="section-title">
-              Descripcion:
-            </p>
-            <p>
-              {{ req.descripcion }}
-            </p> -->
             <note title="Descripción:" type="accent">
               {{ req.descripcion }}
             </note>
@@ -67,6 +61,21 @@
               <div>
                 <span class="text-underline">Vencimiento:</span>
                 {{ req.fechaLimite }}
+                <template v-if="vencimientoDiff !== null">
+                  <span v-if="vencimientoDiff > 0" class="text-red">
+                    (Faltan
+                    <strong>{{ vencimientoDiff }}</strong>
+                    días)
+                  </span>
+                  <span v-if="vencimientoDiff === 0" class="text-red">
+                    (HOY es el día de vencimiento)
+                  </span>
+                  <span v-if="vencimientoDiff < 0" class="text-red">
+                    (
+                    <strong>Este req. se encuentra vencido</strong>
+                    )
+                  </span>
+                </template>
               </div>
               <div>
                 <span class="text-underline">Motivo:</span>
@@ -82,44 +91,115 @@
             </note>
           </div>
         </div>
-        <div class="row q-mt-md text-center">
+        <div class="row q-mt-sm">
           <div class="col">
-            <q-btn-toggle
+            <note title="Comentarios:">
+              {{ req.comentario }}
+            </note>
+          </div>
+        </div>
+        <div class="q-mt-md">
+          <note title="Acciones:">
+            <div class="row text-center">
+              <!-- <q-btn-toggle
               v-model="operation"
               class="toggle"
               rounded
+              stack
+              unelevated
               toggle-color="accent"
               color="white"
               text-color="accent"
-              :options="[
-                { label: 'Aprobar', value: 'aprobar', icon: 'fas fa-check' },
-                {
-                  label: 'Descartar',
-                  value: 'descartar',
-                  icon: 'fas fa-trash',
-                },
-              ]"
-            />
-          </div>
-        </div>
-        <q-slide-transition>
-          <div v-show="isApproving" class="row q-mt-md ">
-            <div class="col">
-              <div>Seleccione una Prioridad para este Requerimiento:</div>
-              <br />
-              <q-slider
-                v-model="approvedPriority"
-                class="slider"
-                markers
-                :min="1"
-                :max="10"
-                label
-                label-always
-                color="accent"
-              />
+              :options="options"
+            /> -->
+              <div v-if="seleccionarPrioridadShown" class="col">
+                <q-btn
+                  :class="{
+                    selectedAccent: operation === 'seleccionarPrioridad',
+                  }"
+                  color="accent"
+                  stack
+                  outline
+                  rounded
+                  icon="fas fa-sort-amount-down"
+                  label="Seleccionar Prioridad"
+                  @click="operation = 'seleccionarPrioridad'"
+                />
+              </div>
+              <div
+                v-if="statePending && !esElUltimoDeLaCadenaDeMando"
+                class="col"
+              >
+                <q-btn
+                  :class="{ selectedAccent: operation === 'aprobar' }"
+                  color="accent"
+                  stack
+                  outline
+                  rounded
+                  icon="fas fa-check"
+                  label="Aprobar"
+                  @click="operation = 'aprobar'"
+                />
+              </div>
+              <div v-if="stateApproved" class="col">
+                <q-btn
+                  :class="{ selectedAccent: operation === 'pendiente' }"
+                  color="accent"
+                  stack
+                  outline
+                  rounded
+                  icon="fas fa-undo"
+                  label="Vovler a Pend. Aprob."
+                  @click="operation = 'pendiente'"
+                />
+              </div>
+              <div class="col">
+                <q-btn
+                  :class="{ selectedRed: operation === 'descartar' }"
+                  color="red"
+                  stack
+                  outline
+                  rounded
+                  icon="fas fa-trash"
+                  label="Descartar"
+                  @click="operation = 'descartar'"
+                />
+              </div>
             </div>
-          </div>
-        </q-slide-transition>
+            <q-slide-transition>
+              <div v-show="isApprovingOrReordering" class="q-mt-md ">
+                <div class="row">
+                  <div class="col">
+                    <div>Seleccione una Prioridad para este Requerimiento:</div>
+                    <br />
+                    <q-slider
+                      v-model="approvedPriority"
+                      class="slider"
+                      markers
+                      :min="1"
+                      :max="maximoSliderPrioridad"
+                      label
+                      label-always
+                      color="accent"
+                    />
+                  </div>
+                </div>
+                <div v-if="operation === 'aprobar'" class="row">
+                  <div class="col">
+                    <q-input
+                      v-model="comment"
+                      color="accent"
+                      outlined
+                      autogrow
+                      label="Si desea, puede agregar un comentario: "
+                      :hide-bottom-space="true"
+                    />
+                  </div>
+                </div>
+              </div>
+            </q-slide-transition>
+          </note>
+        </div>
       </q-card-section>
 
       <q-card-actions align="right">
@@ -136,6 +216,7 @@
           outline
           label="ACEPTAR"
           color="green-6"
+          @click="saveChanges"
         />
       </q-card-actions>
     </q-card>
@@ -143,10 +224,12 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from "vuex"
 import priorityColor from "@mixins/priorityColor"
 import ChipLarge from "@comp/Common/ChipLarge"
 import Note from "@comp/Common/Note"
-import { mapState } from "vuex"
+import { date } from "quasar"
+
 export default {
   name: "DialogDetalleRequerimiento",
   components: { ChipLarge, Note },
@@ -159,31 +242,40 @@ export default {
   },
   data() {
     return {
-      /* req: {
-        id: 145,
-        asunto: "Prueba dish aoisdhia osdh oisahd iashd oiash aoisdh",
-        descripcion:
-          "Prueba dish aoisdhia osdh oisahd iashd oiash aoisdh Prueba dish aoisdhia osdh oisahd iashd oiash aoisdh Prueba dish aoisdhia osdh oisahd iashd oiash aoisdh Prueba dish aoisdhia osdh oisahd iashd oiash aoisdh",
-        area: { id: 1, descripcion: "Area sistemas" },
-        sistema: { id: 1, descripcion: "Visual bolsa" },
-        requerimientoTipo: { id: 1, descripcion: "Tipo de requerimiento 1" },
-        fechaLimite: "29/04/2019",
-        motivoLimite: "bla bla bla",
-        importante: "NO",
-        prioridad: "3",
-        adjuntos: [],
-      }, */
       operation: null,
       approvedPriority: 1,
+      comment: null,
     }
   },
   computed: {
     ...mapState("priorizarRequerimientos", {
-      // detalleRequerimientoOpen: state => state.detalleRequerimientoOpen,
       req: state => state.detalleRequerimientoItem,
     }),
+    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
+    ...mapGetters("priorizarRequerimientos", [
+      "cantidadRequerimientos",
+      "reqsPendientesAprobacionLength",
+      "reqsAprobadosPriorizadosLength",
+    ]),
+    maximoSliderPrioridad() {
+      // Si la operacion es de seleccionar prioridad, el max del slider será 1 menos que la cant de reqs
+      return this.operation === "seleccionarPrioridad"
+        ? this.cantidadRequerimientos - 1
+        : this.cantidadRequerimientos
+    },
     requerimientoSetted() {
       return !_.isEmpty(this.req)
+    },
+    vencimientoDiff() {
+      if (this.req && this.req.vence) {
+        const diff = date.getDateDiff(
+          new Date(this.req._fechaLimite),
+          new Date(),
+          "days",
+        )
+        return diff
+      }
+      return null
     },
     detalleRequerimientoOpen: {
       get() {
@@ -191,38 +283,86 @@ export default {
           .detalleRequerimientoOpen
       },
       set(value) {
-        return this.$store.dispatch(
-          "priorizarRequerimientos/setDetalleRequerimientoOpen",
-          value,
-        )
+        return this.$store
+          .dispatch(
+            "priorizarRequerimientos/setDetalleRequerimientoOpen",
+            value,
+          )
+          .then(() => {
+            // Reset de la operacion (para los botones) y la prioridad seleccionada
+            this.operation = null
+            this.approvedPriority = 1
+            this.comment = null
+          })
       },
     },
-    // __opened: {
-    //   get() {
-    //     return this.value
-    //   },
-    //   set(__opened) {
-    //     this.$emit("input", __opened)
-    //   },
-    // },
+    /* options() {
+      if (this.esElUltimoDeLaCadenaDeMando) {
+        return [
+          {
+            label: "Seleccionar Prioridad",
+            value: "aprobar",
+            icon: "fas fa-sort-amount-down",
+          },
+        ]
+      }
+      const options = [
+        {
+          label: "Descartar",
+          value: "descartar",
+          icon: "fas fa-trash",
+        },
+      ]
+      if (this.statePending) {
+        options.push({
+          label: "Aprobar",
+          value: "aprobar",
+          icon: "fas fa-check",
+        })
+      }
+      if (this.stateApproved) {
+        options.push({
+          label: "Vovler a Pend. Aprob.",
+          value: "pendiente",
+          icon: "fas fa-undo",
+        })
+      }
+
+      return options
+    }, */
     statePending() {
       return this.req.estado.id === 1
     },
     stateApproved() {
       return this.req.estado.id === 2
     },
-    isApproving() {
-      return this.operation === "aprobar"
+    isApprovingOrReordering() {
+      return (
+        this.operation === "aprobar" ||
+        this.operation === "seleccionarPrioridad"
+      )
+    },
+    seleccionarPrioridadShown() {
+      if (this.esElUltimoDeLaCadenaDeMando) {
+        return this.statePending && this.reqsPendientesAprobacionLength > 1
+      } else {
+        return this.stateApproved && this.reqsAprobadosPriorizadosLength > 1
+      }
     },
   },
-  watch: {
-    req(val) {
-      console.log(val)
+  methods: {
+    saveChanges() {
+      this.$store
+        .dispatch("priorizarRequerimientos/processManualChanges", {
+          operation: this.operation,
+          priority: this.approvedPriority,
+          comment: this.comment,
+          listName: this.statePending ? "source" : "target",
+        })
+        .then(() => {
+          this.detalleRequerimientoOpen = false
+        })
     },
-  },
-  mounted() {
-    this.operation = null
-    this.approvedPriority = 1
   },
 }
 </script>
@@ -257,10 +397,29 @@ export default {
 }
 .slider {
   margin: 0 auto;
-  width: 90%;
+  width: 85%;
 }
 .section-title {
   font-weight: 500;
   margin-bottom: 0;
+}
+
+.selected::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(black, 0.5);
+}
+.selectedAccent {
+  background-color: #311b92 !important;
+  color: #ffffff !important;
+}
+.selectedRed {
+  background-color: #f44336 !important;
+  color: #ffffff !important;
 }
 </style>

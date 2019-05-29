@@ -36,6 +36,7 @@ export default class Requerimiento {
 
     this.movimientos = req.movimientos ? req.movimientos : null
     this.usuario = req.usuario ? req.usuario : null
+    this.comentario = req.comentario ? req.comentario : null
   }
 
   // get name() {

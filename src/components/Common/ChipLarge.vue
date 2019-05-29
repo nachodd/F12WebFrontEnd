@@ -1,8 +1,11 @@
 <template functional>
   <q-chip dense style="padding-right: 10px;">
+    <!-- :text-color="props.avatarTextColor" -->
     <q-avatar
-      :text-color="props.avatarTextColor"
-      :style="{ backgroundColor: props.avatarColor }"
+      :style="{
+        color: props.avatarTextColor,
+        backgroundColor: props.avatarColor,
+      }"
       class="chip-large"
     >
       {{ props.avatarText }}
@@ -39,5 +42,6 @@ export default {
   width: auto;
   border-radius: 16px;
   padding: 0 5px;
+  font-weight: 600;
 }
 </style>

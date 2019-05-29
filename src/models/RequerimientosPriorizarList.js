@@ -11,6 +11,10 @@ export default class RequerimientosPriorizarList {
     return this.listValue
   }
 
+  get listLength() {
+    return this.listValue.length
+  }
+
   // updateEstado() {
   //   // Mapeo el valor del estado aca, porque si se produce un cambio de estado local
   //   // (de pendiente a aprobado y vicerversa) el nuevo listado va a tener el valor correcto en el campo estado

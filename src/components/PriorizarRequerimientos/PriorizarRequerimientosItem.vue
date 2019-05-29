@@ -29,13 +29,13 @@
       <q-item-label caption lines="2" style="margin-bottom: auto;">
         {{ req.descripcion }}
       </q-item-label>
-      <q-item-label
+      <!-- <q-item-label
         lines="1"
         class="q-mt-xs text-body2 text-weight-bold text-primary text-uppercase"
         style="margin-top: auto;"
       >
         <span class="cursor-pointer">VER DETALLE</span>
-      </q-item-label>
+      </q-item-label> -->
     </q-item-section>
 
     <q-item-section top class="col-2 q-my-xs">
@@ -54,9 +54,9 @@
     </q-item-section>
 
     <q-item-section top side>
-      <div class="text-grey-8 q-gutter-xs">
+      <!-- <div class="text-grey-8 q-gutter-xs">
         <q-btn class="gt-xs" size="12px" flat dense round icon="delete" />
-      </div>
+      </div> -->
 
       <div v-if="tieneComentario" class="text-grey-8 q-gutter-xs">
         <q-btn class="gt-xs" size="12px" flat dense round icon="fas fa-comment">
