@@ -21,7 +21,7 @@ const state = {
   refreshToken: getRefreshToken(),
   user: null,
   roles: [],
-  userTree: [],
+  vinculacion: {},
 }
 
 // getters
@@ -33,13 +33,13 @@ const getters = {
   userId: state => (state.user ? state.user.Id : null),
   roles: state => state.roles,
   check: state => state.user !== null,
-  userTreeLoaded: state => state.userTree.length > 0,
-  hasSuperiors: (state, getters) => getters.userSuperiors.length > 0,
-  hasSubordinates: (state, getters) => getters.userSubordinates.length > 0,
-  userSuperiors: state => state.userTree.filter(ut => ut.vinculacion === 1),
-  userSubordinates: state => state.userTree.filter(ut => ut.vinculacion === -1),
-  // Si no tiene subordinados, será el ultimo eslabon de la cadena de mando
-  esElUltimoDeLaCadenaDeMando: (state, getters) => !getters.hasSubordinates,
+  // userTreeLoaded: state => !_.isEmpty(state.vinculacion),
+  userJefes: state => state.vinculacion.jefes,
+  userReportantes: state => state.vinculacion.reportantes,
+  hasJefes: (state, getters) => getters.userJefes.length > 0,
+  hasReportantes: (state, getters) => getters.userReportantes.length > 0,
+  // Si no tiene reportantes, será el ultimo eslabon de la cadena de mando
+  esElUltimoDeLaCadenaDeMando: (state, getters) => !getters.hasReportantes,
 }
 
 // mutations
@@ -62,8 +62,8 @@ const mutations = {
   SET_ROLES: (state, roles) => {
     state.roles = roles
   },
-  SET_TREE: (state, tree) => {
-    state.userTree = tree
+  SET_VINCULACION: (state, vinculacion) => {
+    state.vinculacion = vinculacion
   },
 }
 
@@ -100,12 +100,12 @@ const actions = {
 
         // Busco el arbol de vinculacion directa (estructura de superiores - subordinados)
         const result_vinculacion = await getVinculacion(user.Id)
-        commit("SET_TREE", result_vinculacion)
+        commit("SET_VINCULACION", result_vinculacion)
         /* getVinculacion(user.Id)
           .then(tree => {
             debugger
             // const tree = res.data.data
-            commit("SET_TREE", tree)
+            commit("SET_VINCULACION", tree)
           })
           .catch(e => console.log(e)) */
 
@@ -141,7 +141,7 @@ const actions = {
 
         commit("SET_ROLES", roles)
         commit("SET_USER", user)
-        commit("SET_TREE", result_vinculacion)
+        commit("SET_VINCULACION", result_vinculacion)
 
         resolve({
           user,

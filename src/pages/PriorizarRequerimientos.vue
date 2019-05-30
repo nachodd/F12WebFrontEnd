@@ -53,11 +53,10 @@ export default {
   computed: {
     ...mapGetters("auth", [
       // "userId",
-      // "userTreeLoaded",
-      // "hasSuperiors",
-      // "hasSubordinates",
-      // "userSuperiors",
-      // "userSubordinates",
+      // "hasJefes",
+      // "hasReportantes",
+      // "userJefes",
+      // "userReportantes",
       "esElUltimoDeLaCadenaDeMando",
     ]),
     // ...mapGetters("priorizarRequerimientos", [
@@ -71,8 +70,6 @@ export default {
         state.loadingReqsPendientesAprobacion,
       loadingReqsAprobadosPriorizados: state =>
         state.loadingReqsAprobadosPriorizados,
-      // dialogConfirmOpen: state => state.dialogConfirmOpen,
-      // possibleChanges: state => state.possibleChanges,
     }),
   },
   async created() {

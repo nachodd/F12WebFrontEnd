@@ -84,7 +84,10 @@
             </note>
           </div>
         </div>
-        <div v-if="req.adjuntos && req.adjuntos.length" class="row q-mt-sm">
+        <div
+          v-if="req.adjuntosCargados && req.adjuntosCargados.length"
+          class="row q-mt-sm"
+        >
           <div class="col">
             <note title="Adjuntos:">
               test test test

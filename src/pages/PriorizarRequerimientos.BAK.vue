@@ -91,11 +91,11 @@ export default {
   computed: {
     ...mapGetters("auth", [
       "userId",
-      "userTreeLoaded",
-      "hasSuperiors",
-      "hasSubordinates",
-      "userSuperiors",
-      "userSubordinates",
+      // "userTreeLoaded",
+      // "hasSuperiors",
+      // "hasSubordinates",
+      // "userSuperiors",
+      // "userSubordinates",
       "esElUltimoDeLaCadenaDeMando",
     ]),
     ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
