@@ -1,5 +1,5 @@
 // import { required, alpha } from "vuelidate/lib/validators"
-// import { date } from "quasar"
+import { date } from "quasar"
 import { getBase64 } from "@utils/helpers"
 
 export default class Requerimiento {
@@ -9,23 +9,42 @@ export default class Requerimiento {
     this.descripcion = req.descripcion ? req.descripcion : ""
     this.area = req.area ? req.area : null
     this.sistema = req.sistema ? req.sistema : null
-    this.requerimientoTipo = req.tipo ? req.tipo : null
-    this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
-    this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
+    this.requerimientoTipo = req.requerimiento_tipo
+      ? req.requerimiento_tipo
+      : null
     this.importante = req.importante && req.importante === "SI" ? true : false
     this.prioridad = req.prioridad ? req.prioridad : 5
     this.adjuntos = []
+    this.adjuntosCargados = req.adjuntos ? req.adjuntos : []
 
-    // Validations of properites can be more complex
-    // this.producedAt =
-    //   req.producedAt && date.isValid(req.producedAt)
-    //   ? date.formatDate(req.producedAt, "DD/MM/YYYY")
-    //     : null
+    // this.fechaLimite = req.fecha_limite ? req.fecha_limite : null
+    // Consevervamos la original
+    this._fechaLimite = req.fecha_limite ? req.fecha_limite : null
+    this.fechaLimite =
+      req.fecha_limite && date.isValid(req.fecha_limite)
+        ? date.formatDate(req.fecha_limite, "DD/MM/YYYY")
+        : null
+    this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
+
+    this.estado = req.estado ? req.estado : null
+    // Consevervamos la original
+    this._fechaAlta = req.fecha_alta ? req.fecha_alta : null
+    this.fechaAlta =
+      req.fecha_alta && date.isValid(req.fecha_alta)
+        ? date.formatDate(req.fecha_alta, "DD/MM/YYYY")
+        : null
+
+    this.movimientos = req.movimientos ? req.movimientos : null
+    this.usuario = req.usuario ? req.usuario : null
+    this.comentario = req.comentario ? req.comentario : null
   }
 
   // get name() {
   //   return this.brand.concat(" ", this.model)
   // }
+  get vence() {
+    return this.fechaLimite !== null
+  }
 
   async toCreatePayload() {
     let fechaLimite = this.fechaLimite

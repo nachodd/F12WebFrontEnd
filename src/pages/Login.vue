@@ -1,8 +1,10 @@
 <template>
   <q-layout view="lHh Lpr lFf" class="flex flex-center items-center bg-grey-3">
     <q-page-container class>
-      <q-card class="card shadow-5">
-        <q-card-section class="bg-deep-purple-10 card-header">
+      <q-card class="card shadow-5 rounded-borders-8">
+        <q-card-section
+          class="bg-deep-purple-10 card-header-offset rounded-borders-8"
+        >
           <div class="text-h3 text-center">
             <span class="text-h2 f twelve">F</span>
             <span class="text-h2 twelve">12</span>
@@ -63,8 +65,11 @@ export default {
     return {
       // usuario: "administrator",
       // password: "bldsavqc2010",
-      usuario: "emanavella",
-      password: "Gabriel70",
+      // usuario: "cmunoz", // "emanavella",
+      // password: "cmunoz5451", // "Gabriel70",
+      usuario: "hcosenza",
+      password: "c053nz4pocha",
+
       loading: false,
     }
   },
@@ -104,12 +109,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.card-header {
-  position: relative;
-  top: -50px;
-  box-shadow: inherit;
-  color: #fff;
-}
 .card {
   width: 400px;
   padding: 20px;

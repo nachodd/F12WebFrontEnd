@@ -1,14 +1,12 @@
 <template>
   <div class="shadow-3 bg-grey-2 rounded-borders">
-    <div class="title">{{ title }}</div>
-
-    <transition
-      appear
-      enter-active-class="animated fadeIn"
-      leave-active-class="animated fadeOut"
-    >
+    <div class="bg-deep-purple-10 card-header rounded-borders-8">
+      {{ title }}
+    </div>
+    <q-slide-transition>
       <Container
         v-if="!loadingList"
+        class="req-container"
         :group-name="groupName"
         :get-child-payload="getPayload"
         drag-class="card-ghost"
@@ -16,37 +14,41 @@
         :drop-placeholder="dropPlaceholderOptions"
         @drop="e => onDrop(listName, e)"
       >
-        <Draggable
-          v-for="(req, index) in requerimientosList.list"
-          :key="`req_${req.id}`"
-        >
-          <priorizar-requerimientos-item :req="req" :index="index" />
-        </Draggable>
+        <template v-if="listEmpty">
+          <div class="text-h6 text-center">
+            No hay requerimientos para mostrar!
+          </div>
+        </template>
+        <template v-else>
+          <Draggable
+            v-for="(req, index) in requerimientosList.list"
+            :key="`req_${req.id}`"
+          >
+            <priorizar-requerimientos-item
+              :req="req"
+              :index="index"
+              @click.native="
+                abrirDetalleRequerimiento({ reqId: req.id, listName })
+              "
+            />
+          </Draggable>
+        </template>
       </Container>
-    </transition>
-    <transition
-      appear
-      enter-active-class="animated fadeIn"
-      leave-active-class="animated fadeOut"
-    >
-      <div v-if="loadingList" class="row text-center loading-container">
-        <div class="col self-center">
-          <q-spinner-gears size="50px" color="accent" />
-        </div>
+    </q-slide-transition>
+    <div v-if="loadingList" class="row text-center loading-container">
+      <div class="col self-center">
+        <q-spinner-gears size="50px" color="accent" />
       </div>
-    </transition>
-
-    <!-- <q-inner-loading :showing="loadingList">
-      <q-spinner-gears size="50px" color="accent" />
-    </q-inner-loading> -->
+    </div>
   </div>
 </template>
 
 <script>
+import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag } from "@utils/helpers"
 import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
-import RequerimientosPriorizarList from "../../models/RequerimientosPriorizarList"
+import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
 
 export default {
   name: "DraggableList",
@@ -88,54 +90,59 @@ export default {
     }
   },
   computed: {
-    orderedRequerimientos() {
-      return _.sortBy(this.requerimientosList.list, ["prioridad"])
+    listEmpty() {
+      return this.requerimientosList.list.length === 0
     },
   },
   methods: {
+    // map `this.abrirDetalleRequerimiento(...)` to `this.$store.dispatch("priorizarRequerimientos/abrirDetalleRequerimiento",...)`
+    ...mapActions({
+      abrirDetalleRequerimiento:
+        "priorizarRequerimientos/abrirDetalleRequerimiento",
+    }),
     getPayload(index) {
-      // console.log("getPayload", index)
-      // return this.requerimientosList.list[index - 1]
       return this.requerimientosList.list[index]
     },
-    onDrop(list, dropResult) {
+    onDrop(listName, dropResult) {
       // console.log("onDrop", list, dropResult)
+      const listResult = applyDrag(this.requerimientosList.list, dropResult)
 
-      const result = applyDrag(this.requerimientosList.list, dropResult)
+      const updatedListData = { listName, listResult, dropResult }
 
-      this.$emit("update-list", list, result, dropResult)
+      this.$store.dispatch(
+        "priorizarRequerimientos/processUpdateList",
+        updatedListData,
+      )
 
-      // this.$emit("update:requerimientos-list", result)
-
-      /* if (list === "source") {
-        if (dropResult.removedIndex !== null) {
-          result = applyDrag(this.requerimientosList, dropResult)
-          // this.$set(this, "list", res1)
-          this.$emit("update:requerimientos-list", result)
-        } else {
-          result = applyDrag(this.requerimientosList, dropResult)
-          // this.$set(this, "list", res1)
-          this.$emit("update:requerimientos-list", result)
-          console.log("tryed to drop on source list")
-        }
-      }
-
-      if (list === "target" && dropResult.addedIndex !== null) {
-        result = applyDrag(this.requerimientosList, dropResult)
-        // this.$set(this, "list", res)
-        this.$emit("update:requerimientos-list", result)
-      } */
+      // this.$emit("list-updated")
     },
+    // abrirDetalleRequerimiento(reqId) {
+    //   this.$store.dispatch(
+    //     "priorizarRequerimientos/abrirDetalleRequerimiento",
+    //     reqId,
+    //   )
+    // },
   },
 }
 </script>
 
 <style lang="scss" scoped>
-.title {
-  text-align: center;
-  font-size: 1.2rem;
-}
 .loading-container {
   min-height: 100px;
+}
+.card-header {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #fff;
+  width: 90%;
+  position: relative;
+  top: -20px;
+  box-shadow: inherit;
+  margin: 0 auto;
+  padding: 5px;
+}
+.req-container {
+  position: relative;
+  top: -10px;
 }
 </style>

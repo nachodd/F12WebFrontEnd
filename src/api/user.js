@@ -50,8 +50,24 @@ export function refresh(refreshToken) {
 }
 
 export function getVinculacion(userId) {
-  return request({
-    url: `v1/usuarios/${userId}/vinculacion`,
-    method: "get",
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/usuarios/${userId}/vinculacion`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener la Vinculación")
+      }
+    } catch (e) {
+      reject(e)
+    }
   })
+
+  // return request({
+  //   url: `v1/usuarios/${userId}/vinculacion`,
+  //   method: "get",
+  // })
 }

@@ -21,7 +21,7 @@ const state = {
   refreshToken: getRefreshToken(),
   user: null,
   roles: [],
-  userTree: [],
+  vinculacion: {},
 }
 
 // getters
@@ -33,6 +33,13 @@ const getters = {
   userId: state => (state.user ? state.user.Id : null),
   roles: state => state.roles,
   check: state => state.user !== null,
+  // userTreeLoaded: state => !_.isEmpty(state.vinculacion),
+  userJefes: state => state.vinculacion.jefes,
+  userReportantes: state => state.vinculacion.reportantes,
+  hasJefes: (state, getters) => getters.userJefes.length > 0,
+  hasReportantes: (state, getters) => getters.userReportantes.length > 0,
+  // Si no tiene reportantes, será el ultimo eslabon de la cadena de mando
+  esElUltimoDeLaCadenaDeMando: (state, getters) => !getters.hasReportantes,
 }
 
 // mutations
@@ -55,8 +62,8 @@ const mutations = {
   SET_ROLES: (state, roles) => {
     state.roles = roles
   },
-  SET_TREE: (state, tree) => {
-    state.userTree = tree
+  SET_VINCULACION: (state, vinculacion) => {
+    state.vinculacion = vinculacion
   },
 }
 
@@ -92,13 +99,15 @@ const actions = {
         commit("SET_USER", user)
 
         // Busco el arbol de vinculacion directa (estructura de superiores - subordinados)
-        getVinculacion(user.Id)
-          .then(res => {
+        const result_vinculacion = await getVinculacion(user.Id)
+        commit("SET_VINCULACION", result_vinculacion)
+        /* getVinculacion(user.Id)
+          .then(tree => {
             debugger
-            const tree = res.data.data
-            commit("SET_TREE", tree)
+            // const tree = res.data.data
+            commit("SET_VINCULACION", tree)
           })
-          .catch(e => console.log(e))
+          .catch(e => console.log(e)) */
 
         resolve()
       } catch (error) {
@@ -128,8 +137,12 @@ const actions = {
           reject("getInfo: roles must be a non-null array!")
         }
 
+        const result_vinculacion = await getVinculacion(user.Id)
+
         commit("SET_ROLES", roles)
         commit("SET_USER", user)
+        commit("SET_VINCULACION", result_vinculacion)
+
         resolve({
           user,
           roles,
@@ -180,7 +193,6 @@ const actions = {
   refresh({ commit, state, dispatch }) {
     return new Promise(async (resolve, reject) => {
       if (!state.refreshToken) {
-        debugger
         dispatch("logout")
         commit("app/LOADING_RESET", null, { root: true })
         reject()

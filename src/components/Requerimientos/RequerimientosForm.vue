@@ -35,7 +35,7 @@
         <div class="row q-col-gutter-sm">
           <div class="col col-sm-4 col-xs-12">
             <select-custom
-              v-model="area"
+              v-model="__area"
               :options="areas"
               label="Area"
               :loading="areas.length === 0"
@@ -44,19 +44,19 @@
           </div>
           <div class="col col-sm-4 col-xs-12">
             <select-custom
+              v-model="__sistema"
               :options="sistemas"
               label="Sistema"
               :loading="sistemas.length === 0"
-              :value="sistema"
               @input="$emit('update:sistema', $event)"
             />
           </div>
           <div class="col col-sm-4 col-xs-12">
             <select-custom
+              v-model="__requerimientoTipo"
               :options="requerimientosTipos"
               label="Tipo de Requerimiento"
               :loading="requerimientosTipos.length === 0"
-              :value="requerimientoTipo"
               @input="$emit('update:requerimientoTipo', $event)"
             />
           </div>
@@ -196,6 +196,30 @@ export default {
     }
   },
   computed: {
+    __area: {
+      get() {
+        return this.area
+      },
+      set(value) {
+        this.$emit("input", value)
+      },
+    },
+    __sistema: {
+      get() {
+        return this.sistema
+      },
+      set(value) {
+        this.$emit("input", value)
+      },
+    },
+    __requerimientoTipo: {
+      get() {
+        return this.requerimientoTipo
+      },
+      set(value) {
+        this.$emit("input", value)
+      },
+    },
     ...mapState("requerimientos", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,

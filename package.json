@@ -17,12 +17,12 @@
     "js-cookie": "^2.2.0",
     "jwt-decode": "https://github.com/auth0/jwt-decode.git",
     "lodash": "^4.17.11",
-    "quasar": "^1.0.0-beta.24",
+    "quasar": "^1.0.0-rc.4",
     "vue-smooth-dnd": "^0.8.0",
     "vuelidate": "^0.7.4"
   },
   "devDependencies": {
-    "@quasar/app": "^1.0.0-beta.26",
+    "@quasar/app": "^1.0.0-rc.5",
     "@vue/eslint-config-prettier": "^4.0.0",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.10.0",
@@ -30,8 +30,7 @@
     "eslint-plugin-vue": "^5.0.0",
     "node-sass": "^4.11.0",
     "quasar-app-extension-ide-helper": "^0.0.5",
-    "sass-loader": "^7.1.0",
-    "strip-ansi": "=3.0.1"
+    "sass-loader": "^7.1.0"
   },
   "engines": {
     "node": ">= 8.9.0",
@@ -40,8 +39,5 @@
   },
   "browserslist": [
     "last 1 version, not dead, ie >= 11"
-  ],
-  "resolutions": {
-    "ajv": "6.8.1"
-  }
+  ]
 }

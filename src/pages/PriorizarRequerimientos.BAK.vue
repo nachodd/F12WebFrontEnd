@@ -1,126 +1,331 @@
 <template>
   <q-page padding>
     <page-header title="Priorizar Requerimientos" />
-    <div class="row q-col-gutter-md">
-      <div class="col-6">
-        <div class="shadow-3 bg-grey-2 rounded-borders">
-          <div class="title">Requerimiento A ORDENAR</div>
-          <Container
-            group-name="requerimientos"
-            :get-child-payload="getSourcePayload"
-            :should-accept-drop="() => sourceAcceptDrop"
-            drag-class="card-ghost"
-            drop-class="card-ghost-drop"
-            :drop-placeholder="dropPlaceholderOptions"
-            @drop="e => onCardDrop('source', e)"
-          >
-            <Draggable
-              v-for="req in requerimientosAOrdernar"
-              :key="`req_${req.id}`"
-            >
-              <priorizar-requerimientos-item :req="req" />
-            </Draggable>
-          </Container>
-        </div>
+    <div class="row q-col-gutter-md justify-center">
+      <div class="col-sm-6 col-xs-12">
+        <draggable-list
+          ref="source"
+          title="Pendientes de Aprobación"
+          group-name="requerimientos"
+          list-name="source"
+          :requerimientos-list.sync="reqsPendientesAprobacion"
+          :loading-list="loadingReqsPendientesAprobacion"
+          @update-list="processUpdateList"
+        />
       </div>
 
-      <div class="col-6">
-        <div class="shadow-3 bg-grey-2 rounded-borders">
-          <div class="title">Requerimiento ORDENADOS</div>
-          <Container
-            group-name="requerimientos"
-            :get-child-payload="getTargetPayload"
-            drag-class="card-ghost"
-            drop-class="card-ghost-drop"
-            :drop-placeholder="dropPlaceholderOptions"
-            @drop="e => onCardDrop('target', e)"
-          >
-            <Draggable
-              v-for="req in requerimientosOrdenados"
-              :key="`req_target_${req.id}`"
-            >
-              <priorizar-requerimientos-item :req="req" />
-            </Draggable>
-          </Container>
-        </div>
+      <div v-if="!esElUltimoDeLaCadenaDeMando" class="col-sm-6 col-xs-12">
+        <draggable-list
+          ref="target"
+          title="Aprobados"
+          group-name="requerimientos"
+          list-name="target"
+          :requerimientos-list.sync="reqsAprobadosPriorizados"
+          :loading-list="loadingReqsAprobadosPriorizados"
+          @update-list="processUpdateList"
+        />
       </div>
     </div>
+
+    <dialog-confirm-operation
+      :operation-approve="operationApprove"
+      :operation-reject="operationReject"
+      :dialog-confirm-open="dialogConfirmOpen"
+      :requerimiento-id-to-changed="requerimientoIdToChange"
+      @dialog-confirm-operation-cancel="clearOperation"
+      @dialog-confirm-operation-confirm="confirmOperation"
+    />
+    <dialog-detalle-requerimiento v-model="detalleRequerimientoOpen" />
   </q-page>
 </template>
 
 <script>
-import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag } from "@utils/helpers"
+import { mapGetters } from "vuex"
 import PageHeader from "@comp/Common/PageHeader"
-import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
-import dummyRequerimientosList from "@utils/dummyRequerimientosList"
-import dummyRequerimientosList2 from "@utils/dummyRequerimientosList2"
+import pageLoading from "@mixins/pageLoading"
+import { warn, success } from "@utils/helpers"
+import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
+import DialogConfirmOperation from "@comp/PriorizarRequerimientos/DialogConfirmOperation"
+import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
+import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
+import {
+  getRequerimientosByUserAndEstado,
+  updateRequerimientosEstados,
+} from "@api/requerimientos"
 
 export default {
   name: "PriorizarRequerimientos",
   components: {
     PageHeader,
-    PriorizarRequerimientosItem,
-    Container,
-    Draggable,
+    DraggableList,
+    DialogConfirmOperation,
+    DialogDetalleRequerimiento,
   },
+  mixins: [pageLoading],
   data() {
     return {
-      requerimientosAOrdernar: dummyRequerimientosList,
-      requerimientosOrdenados: dummyRequerimientosList2,
-      dropPlaceholderOptions: {
-        className: "drop-preview",
-        animationDuration: "150",
-        showOnTop: true,
+      reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
+      reqsAprobadosPriorizados: new RequerimientosPriorizarList([], true),
+      loadingReqsPendientesAprobacion: true,
+      loadingReqsAprobadosPriorizados: true,
+      dialogConfirmOpen: false,
+      possibleChanges: {
+        sourceList: [],
+        sourceChanges: {
+          addedIndex: null,
+          removedIndex: null,
+          changesSetted: false,
+        },
+        targetList: [],
+        targetChanges: {
+          addedIndex: null,
+          removedIndex: null,
+          changesSetted: false,
+        },
+        payload: {},
       },
-      sourceAcceptDrop: true,
+      approveComment: "",
+      detalleRequerimientoOpen: true,
     }
   },
-  watch: {
-    sourceAcceptDrop(val) {
-      console.log("sourceAcceptDrop", val)
+  computed: {
+    ...mapGetters("auth", [
+      "userId",
+      // "userTreeLoaded",
+      // "hasSuperiors",
+      // "hasSubordinates",
+      // "userSuperiors",
+      // "userSubordinates",
+      "esElUltimoDeLaCadenaDeMando",
+    ]),
+    ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
+    requerimientoIdToChange() {
+      return _.get(this.possibleChanges.payload, "id", "")
+    },
+    possibleChangesSetted() {
+      // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
+      // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
+      return (
+        (this.possibleChanges.sourceChanges.changesSetted &&
+          this.possibleChanges.targetChanges.changesSetted &&
+          this.possibleChanges.payload.id &&
+          !this.esElUltimoDeLaCadenaDeMando) ||
+        (this.possibleChanges.sourceChanges.changesSetted &&
+          this.possibleChanges.payload.id &&
+          this.esElUltimoDeLaCadenaDeMando)
+      )
+    },
+    // - reordenamiento de la lista de pendientes => no hace nada
+    operationReoderPendingList() {
+      const { sourceChanges, targetChanges } = this.possibleChanges
+      return (
+        targetChanges.removedIndex === null &&
+        targetChanges.addedIndex === null &&
+        sourceChanges.removedIndex !== null &&
+        sourceChanges.addedIndex !== null
+      )
+    },
+    // - reordenamiento de la lista de aprobados => disparar update aprobados
+    operationReoderApprovedList() {
+      const { sourceChanges, targetChanges } = this.possibleChanges
+      return (
+        targetChanges.removedIndex !== null &&
+        targetChanges.addedIndex !== null &&
+        sourceChanges.removedIndex === null &&
+        sourceChanges.addedIndex === null
+      )
+    },
+    // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
+    operationApprove() {
+      const { sourceChanges, targetChanges } = this.possibleChanges
+      return (
+        targetChanges.removedIndex === null &&
+        targetChanges.addedIndex !== null &&
+        sourceChanges.removedIndex !== null &&
+        sourceChanges.addedIndex === null
+      )
+    },
+    // - arrastrar de aprobados a pendientes => confirmar y disparar update aprobados y pendientes
+    operationReject() {
+      const { sourceChanges, targetChanges } = this.possibleChanges
+      return (
+        targetChanges.removedIndex !== null &&
+        targetChanges.addedIndex === null &&
+        sourceChanges.removedIndex === null &&
+        sourceChanges.addedIndex !== null
+      )
     },
   },
+  async created() {
+    const estadoPendiente = this.getEstadoByCodigo("PEND")
+    const estadoAprobado = this.getEstadoByCodigo("APRV")
+    // this.$store.dispatch("app/loadingIncBy", 2)
+
+    getRequerimientosByUserAndEstado(this.userId, estadoPendiente.id)
+      .then(({ data: { data } }) => {
+        this.reqsPendientesAprobacion.list = data
+        this.reqsPendientesAprobacion.sortByPrioridad()
+      })
+      .catch(e => console.log(e))
+      .finally(() => {
+        this.loadingReqsPendientesAprobacion = false
+        // this.$store.dispatch("app/loadingDec")
+      })
+
+    if (!this.esElUltimoDeLaCadenaDeMando) {
+      getRequerimientosByUserAndEstado(this.userId, estadoAprobado.id)
+        .then(({ data: { data } }) => {
+          this.reqsAprobadosPriorizados.list = data
+          this.reqsAprobadosPriorizados.sortByPrioridad()
+        })
+        .catch(e => console.log(e))
+        .finally(() => {
+          this.loadingReqsAprobadosPriorizados = false
+          // this.$store.dispatch("app/loadingDec")
+        })
+    } else {
+      this.loadingReqsAprobadosPriorizados = false
+      // this.$store.dispatch("app/loadingDec")
+    }
+  },
   methods: {
-    getShouldAcceptDrop(src, payload) {
-      console.log(src, payload)
-      return true
-    },
-    getSourcePayload(index) {
-      console.log("card payload", index)
-      return this.requerimientosAOrdernar[index]
-    },
-    getTargetPayload(index) {
-      console.log("card payload", index)
-      return this.requerimientosOrdenados[index]
-    },
-    onCardDrop(list, dropResult) {
-      this.log("oncarddrop", list, dropResult)
-      if (list === "source" && dropResult.removedIndex !== null) {
-        const res1 = applyDrag(this.requerimientosAOrdernar, dropResult)
-        this.$set(this, "requerimientosAOrdernar", res1)
+    async processUpdateList(listName, listResult, dropResult) {
+      const { removedIndex, addedIndex, payload } = dropResult
+      this.possibleChanges[`${listName}List`] = listResult
+      this.possibleChanges[`${listName}Changes`] = {
+        addedIndex,
+        removedIndex,
+        changesSetted: true, // seteo que hubo cambios en este listado
       }
+      this.$set(this.possibleChanges, "payload", payload)
 
-      if (list === "target" && dropResult.addedIndex !== null) {
-        const res = applyDrag(this.requerimientosOrdenados, dropResult)
-        this.$set(this, "requerimientosOrdenados", res)
-
-        console.log(
-          "requerimientosOrdenados new:",
-          this.requerimientosOrdenados,
-        )
+      // Cuando los 2 listados se hayan llenado, se debe determinar el tipo de operacion
+      if (this.possibleChangesSetted) {
+        // - reordenamiento de la lista de pendientes => no hace nada (a menos que esElUltimoDeLaCadenaDeMando=true)
+        if (this.operationReoderPendingList) {
+          if (this.esElUltimoDeLaCadenaDeMando) {
+            // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
+            const differentPosition =
+              this.possibleChanges.sourceChanges.addedIndex !==
+              this.possibleChanges.sourceChanges.removedIndex
+            if (differentPosition) {
+              const sourceBackup = [...this.reqsPendientesAprobacion.list]
+              this.reqsPendientesAprobacion.list = this.possibleChanges.sourceList
+              this.reqsPendientesAprobacion.updatePrioridad()
+              const res = await this.persistChanges(
+                this.reqsPendientesAprobacion.toUpdatePendingPayload(),
+              )
+              if (!res) {
+                this.reqsPendientesAprobacion.list = sourceBackup
+              }
+            }
+          } else {
+            // actualizo localmente, aunque el cambio no es persistido
+            this.reqsPendientesAprobacion.list = this.possibleChanges.sourceList
+          }
+          this.clearOperation()
+        }
+        // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
+        // - arrastrar de aprobados a pendientes => confirmar y disparar update aprobados y pendientes
+        else if (this.operationApprove || this.operationReject) {
+          this.dialogConfirmOpen = true // la operacion es mandejada por el dialog de confirmación
+        }
+        // - reordenamiento de la lista de aprobados => disparar update aprobados
+        else if (this.operationReoderApprovedList) {
+          // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
+          const differentPosition =
+            this.possibleChanges.targetChanges.addedIndex !==
+            this.possibleChanges.targetChanges.removedIndex
+          if (differentPosition) {
+            const aprobadosBackup = [...this.reqsAprobadosPriorizados.list]
+            this.reqsAprobadosPriorizados.list = this.possibleChanges.targetList
+            this.reqsAprobadosPriorizados.updatePrioridad()
+            const res = await this.persistChanges(
+              this.reqsAprobadosPriorizados.toUpdatePayload(),
+            )
+            if (!res) {
+              this.reqsAprobadosPriorizados.list = aprobadosBackup
+            }
+          }
+          this.clearOperation()
+        }
       }
     },
-    log(...params) {
-      console.log(...params)
+    async confirmOperation(comentario) {
+      // copio los listados (de manera de tener un backup)
+      const pendientesBackup = [...this.reqsPendientesAprobacion.list]
+      const aprobadosBackup = [...this.reqsAprobadosPriorizados.list]
+
+      // Actualizo el comentario
+      let listToUpdateComment = this.operationReject
+        ? "sourceList"
+        : "targetList"
+      _.find(this.possibleChanges[listToUpdateComment], {
+        id: this.requerimientoIdToChange,
+      }).comentario = comentario
+
+      // actualizo localmente los listados
+      this.reqsPendientesAprobacion.list = this.possibleChanges.sourceList
+      this.reqsAprobadosPriorizados.list = this.possibleChanges.targetList
+
+      this.reqsAprobadosPriorizados.updatePrioridad()
+      this.reqsAprobadosPriorizados.sortByPrioridad()
+
+      const tempReqsConcated = [
+        ...this.reqsPendientesAprobacion.toUpdatePayload(),
+        ...this.reqsAprobadosPriorizados.toUpdatePayload(),
+      ]
+      // Persisto los cambios y si no gurado correctamente, reviertos los cambios
+      const res = await this.persistChanges(tempReqsConcated)
+      if (!res) {
+        this.reqsPendientesAprobacion.list = pendientesBackup
+        this.reqsAprobadosPriorizados.list = aprobadosBackup
+      }
+      this.clearOperation()
+    },
+    async persistChanges(list) {
+      try {
+        this.$store.dispatch("app/loadingInc")
+        await updateRequerimientosEstados(this.userId, list)
+
+        let message = ""
+        if (this.operationReject) {
+          message = `Requerimiento #${
+            this.requerimientoIdToChange
+          } marcado como "PEND. DE APROBACIÓN"`
+        } else if (this.operationApprove) {
+          message = `Requerimiento #${this.requerimientoIdToChange} APROBADO`
+        } else if (this.operationReoderApprovedList) {
+          message = "Requerimientos aprobados PRIORIZADOS"
+        } else if (this.operationReoderPendingList) {
+          message = "Requerimientos PRIORIZADOS"
+        }
+        success({ message })
+
+        return true
+      } catch (e) {
+        const message =
+          e.message ||
+          "Hubo un problema al cambiar el estado de los Requerimientos. Intente nuevamente más tarde"
+        warn({ message })
+        return false
+      } finally {
+        this.$store.dispatch("app/loadingDec")
+      }
+    },
+    clearOperation() {
+      for (const listName of ["source", "target"]) {
+        this.possibleChanges[`${listName}List`] = []
+        this.possibleChanges[`${listName}Changes`] = {
+          addedIndex: null,
+          removedIndex: null,
+          changesSetted: false,
+        }
+      }
+      this.$set(this.possibleChanges, "payload", {})
+      this.approveComment = ""
+      this.dialogConfirmOpen = false
     },
   },
 }
 </script>
-
-<style lang="scss" scoped>
-.title {
-  text-align: center;
-  font-size: 1.2rem;
-}
-</style>
