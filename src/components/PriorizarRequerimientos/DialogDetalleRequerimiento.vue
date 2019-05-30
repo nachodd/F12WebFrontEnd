@@ -90,7 +90,14 @@
         >
           <div class="col">
             <note title="Adjuntos:">
-              test test test
+              <ul>
+                <li
+                  v-for="(adjunto, i) in req.adjuntosCargados"
+                  :key="`req_${req.id}_${adjunto}`"
+                >
+                  <a v-auth-href :href="adjunto">Adjunto {{ i }}</a>
+                </li>
+              </ul>
             </note>
           </div>
         </div>

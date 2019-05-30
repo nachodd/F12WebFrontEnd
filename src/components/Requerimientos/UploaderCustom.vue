@@ -102,7 +102,6 @@ export default {
       this.$emit("filesRemoved", files)
     },
     clearFiles() {
-      debugger
       this.$refs.uploader.reset()
     },
     handleClickAddText() {
