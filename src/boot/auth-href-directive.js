@@ -4,29 +4,30 @@ import { lastPartOfPath } from "@utils/helpers"
 
 export default ({ Vue }) => {
   Vue.directive("auth-href", {
-    bind: function(el, binding) {
-      setClickListener(el, binding)
+    bind: function(element, binding) {
+      setClickListener(element, binding)
     },
-    componentUpdated: function(el, binding) {
-      setClickListener(el, binding)
+    componentUpdated: function(element, binding) {
+      setClickListener(element, binding)
     },
   })
 }
 
-function setClickListener(el, binding) {
+function setClickListener(element, binding) {
   // let type = binding.arg
   // let myFunction = binding.value
   if (binding.oldValue === undefined || binding.value !== binding.oldValue) {
     // const href = binding.value
-    const href = el.href
-    el.removeEventListener("click", eventClick.bind(null, href))
-    el.addEventListener("click", eventClick.bind(null, href))
+    element.removeEventListener("click", eventClick.bind(null, element))
+    element.addEventListener("click", eventClick.bind(null, element))
   }
 }
 
-async function eventClick(href) {
+async function eventClick(element) {
   // prevent default click
   event.preventDefault()
+  const href = element.href
+  debugger
 
   request({
     method: "GET",
