@@ -200,7 +200,6 @@ const actions = {
         reject()
       } else {
         try {
-          debugger
           const { data } = await refresh(state.refreshToken)
 
           const expires = expiresToUnixTS(data.expires_in)
