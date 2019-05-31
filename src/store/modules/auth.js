@@ -34,10 +34,12 @@ const getters = {
   roles: state => state.roles,
   check: state => state.user !== null,
   // userTreeLoaded: state => !_.isEmpty(state.vinculacion),
-  userJefes: state => state.vinculacion.jefes,
-  userReportantes: state => state.vinculacion.reportantes,
-  hasJefes: (state, getters) => getters.userJefes.length > 0,
-  hasReportantes: (state, getters) => getters.userReportantes.length > 0,
+  userJefes: state => state.vinculacion && state.vinculacion.jefes,
+  userReportantes: state => state.vinculacion && state.vinculacion.reportantes,
+  hasJefes: (state, getters) =>
+    getters.userJefes && getters.userJefes.length > 0,
+  hasReportantes: (state, getters) =>
+    getters.userReportantes && getters.userReportantes.length > 0,
   // Si no tiene reportantes, será el ultimo eslabon de la cadena de mando
   esElUltimoDeLaCadenaDeMando: (state, getters) => !getters.hasReportantes,
 }

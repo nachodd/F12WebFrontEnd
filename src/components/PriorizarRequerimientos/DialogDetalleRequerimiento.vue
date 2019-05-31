@@ -95,7 +95,7 @@
                   v-for="(adjunto, i) in req.adjuntosCargados"
                   :key="`req_${req.id}_${adjunto}`"
                 >
-                  <a v-auth-href :href="adjunto">Adjunto {{ i }}</a>
+                  <a v-auth-href :href="adjunto">Adjunto {{ i + 1 }}</a>
                 </li>
               </ul>
             </note>
