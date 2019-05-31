@@ -10,6 +10,10 @@ export function firstToUpper(string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
+export function lastPartOfPath(string) {
+  return string.substring(string.lastIndexOf("/") + 1)
+}
+
 export function warn({
   message = "Hubo un problema al procesar su petición. Intente nuevamente más tarde",
   timeout = 5000,

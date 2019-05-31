@@ -83,7 +83,7 @@ export default {
       this.form.requerimientoTipo = null
       this.form.fechaLimite = null
       this.form.motivoLimite = ""
-      this.form.importante = ""
+      this.form.importante = false
       this.form.adjuntos = []
       this.$root.$emit("clearFiles")
       this.$refs.form.resetValidation()

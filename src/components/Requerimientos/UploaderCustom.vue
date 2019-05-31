@@ -102,8 +102,10 @@ export default {
       this.$emit("filesRemoved", files)
     },
     clearFiles() {
-      debugger
-      this.$refs.uploader.reset()
+      // Hack, a veces el uploader no lo encuntraa
+      this.$nextTick(() => {
+        this.$refs.uploader.reset()
+      })
     },
     handleClickAddText() {
       // SUPER HACK: El scope.pickFile no funciona, entonces busco el boton de add
