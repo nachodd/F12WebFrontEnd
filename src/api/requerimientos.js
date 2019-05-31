@@ -31,6 +31,21 @@ export function getRequerimiento(requerimientoId) {
   })
 }
 
+export function refuseRequerimiento(requerimientoId, comentario) {
+  return request({
+    url: `/v1/f12/requerimientos/${requerimientoId}/rechazo`,
+    method: "put",
+    data: { comentario },
+  })
+}
+
+export function deleteRequerimiento(requerimientoId) {
+  return request({
+    url: `/v1/f12/requerimientos/${requerimientoId}`,
+    method: "DELETE",
+  })
+}
+
 export function getRequerimientosByUserAndEstado(userId, estadoId) {
   return request({
     url: `/v1/f12/${userId}/requerimientos/estados/${estadoId}`,

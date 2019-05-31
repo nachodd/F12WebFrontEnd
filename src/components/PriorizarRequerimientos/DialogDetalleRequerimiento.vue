@@ -101,7 +101,7 @@
             </note>
           </div>
         </div>
-        <div class="row q-mt-sm">
+        <div v-if="req.comentario" class="row q-mt-sm">
           <div class="col">
             <note title="Comentarios:">
               {{ req.comentario }}
@@ -124,15 +124,17 @@
             /> -->
               <div v-if="seleccionarPrioridadShown" class="col">
                 <q-btn
+                  class="btn__action small-icon"
                   :class="{
-                    selectedAccent: operation === 'seleccionarPrioridad',
+                    'selected--accent': operation === 'seleccionarPrioridad',
                   }"
                   color="accent"
                   stack
                   outline
+                  dense
                   rounded
                   icon="fas fa-sort-amount-down"
-                  label="Seleccionar Prioridad"
+                  label="Selec. Prioridad"
                   @click="operation = 'seleccionarPrioridad'"
                 />
               </div>
@@ -141,10 +143,12 @@
                 class="col"
               >
                 <q-btn
-                  :class="{ selectedAccent: operation === 'aprobar' }"
+                  class="btn__action small-icon"
+                  :class="{ 'selected--accent': operation === 'aprobar' }"
                   color="accent"
                   stack
                   outline
+                  dense
                   rounded
                   icon="fas fa-check"
                   label="Aprobar"
@@ -153,22 +157,26 @@
               </div>
               <div v-if="stateApproved" class="col">
                 <q-btn
-                  :class="{ selectedAccent: operation === 'pendiente' }"
+                  class="btn__action small-icon"
+                  :class="{ 'selected--accent': operation === 'pendiente' }"
                   color="accent"
                   stack
                   outline
+                  dense
                   rounded
                   icon="fas fa-undo"
-                  label="Vovler a Pend. Aprob."
+                  label="Pend. Aprob."
                   @click="operation = 'pendiente'"
                 />
               </div>
               <div class="col">
                 <q-btn
-                  :class="{ selectedRed: operation === 'descartar' }"
+                  class="btn__action small-icon"
+                  :class="{ 'selected--red': operation === 'descartar' }"
                   color="red"
                   stack
                   outline
+                  dense
                   rounded
                   icon="fas fa-trash"
                   label="Descartar"
@@ -208,6 +216,29 @@
                 </div>
               </div>
             </q-slide-transition>
+            <q-slide-transition>
+              <div
+                v-show="
+                  operation === 'descartar' && !esElUltimoDeLaCadenaDeMando
+                "
+                class="q-mt-md "
+              >
+                <div class="row">
+                  <div class="col">
+                    <q-input
+                      ref="commentDescartar"
+                      v-model="comment"
+                      color="accent"
+                      outlined
+                      autogrow
+                      label="Agregar un motivo:"
+                      :rules="[notEmpty]"
+                      :hide-bottom-space="true"
+                    />
+                  </div>
+                </div>
+              </div>
+            </q-slide-transition>
           </note>
         </div>
       </q-card-section>
@@ -235,15 +266,17 @@
 
 <script>
 import { mapState, mapGetters } from "vuex"
+import { date } from "quasar"
+import formValidation from "@mixins/formValidation"
 import priorityColor from "@mixins/priorityColor"
 import ChipLarge from "@comp/Common/ChipLarge"
 import Note from "@comp/Common/Note"
-import { date } from "quasar"
+import { warn, success } from "@utils/helpers"
 
 export default {
   name: "DialogDetalleRequerimiento",
   components: { ChipLarge, Note },
-  mixins: [priorityColor],
+  mixins: [priorityColor, formValidation],
   props: {
     value: {
       type: Boolean,
@@ -362,6 +395,16 @@ export default {
   },
   methods: {
     saveChanges() {
+      // TODO: agregar que llame al detalle de l req y muestre los movimientos.
+
+      if (
+        this.operation === "descartar" &&
+        !this.esElUltimoDeLaCadenaDeMando &&
+        !this.$refs.commentDescartar.validate()
+      ) {
+        return
+      }
+
       this.$store
         .dispatch("priorizarRequerimientos/processManualChanges", {
           operation: this.operation,
@@ -369,8 +412,12 @@ export default {
           comment: this.comment,
           listName: this.statePending ? "source" : "target",
         })
-        .then(() => {
+        .then(message => {
+          success({ message })
           this.detalleRequerimientoOpen = false
+        })
+        .catch(message => {
+          warn({ message })
         })
     },
   },
@@ -413,23 +460,17 @@ export default {
   font-weight: 500;
   margin-bottom: 0;
 }
-
-.selected::after {
-  content: "";
-  display: block;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background-color: rgba(black, 0.5);
-}
-.selectedAccent {
+.selected--accent {
   background-color: #311b92 !important;
   color: #ffffff !important;
 }
-.selectedRed {
+.selected--red {
   background-color: #f44336 !important;
   color: #ffffff !important;
+}
+.btn__action {
+  font-size: 12px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 </style>
