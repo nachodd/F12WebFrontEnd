@@ -9,7 +9,7 @@
         v-show="!props.loading"
         bordered
         separator
-        class="rounded-borders q-mb-md"
+        class="rounded-borders q-mb-md shadow-5"
       >
         <slot />
       </q-list>

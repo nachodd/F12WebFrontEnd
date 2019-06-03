@@ -22,6 +22,7 @@ const state = {
     { codigo: "RESC", descripcion: "Resuelto cerrado", id: "4" },
     { codigo: "REJC", descripcion: "Rechazado", id: "5" },
   ],
+  misRequerimientos: [],
 }
 
 // getters
@@ -46,6 +47,10 @@ const mutations = {
   },
   SET_LOADING_OPTS: (state, newState) => {
     state.loadingOptions = newState
+  },
+
+  SET_MIS_REQUERIMIENTOS: (state, newState) => {
+    state.misRequerimientos = newState
   },
 }
 
