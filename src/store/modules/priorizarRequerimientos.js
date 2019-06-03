@@ -3,6 +3,8 @@ import Requerimiento from "@models/Requerimiento"
 import {
   getRequerimientosByUserAndEstado,
   updateRequerimientosEstados,
+  refuseRequerimiento,
+  deleteRequerimiento,
 } from "@api/requerimientos"
 import { warn, success } from "@utils/helpers"
 
@@ -537,7 +539,7 @@ const actions = {
     { commit, state, dispatch, rootGetters },
     { operation, priority, comment, listName },
   ) {
-    return new Promise(resolve => {
+    return new Promise(async (resolve, reject) => {
       // Esta funcion arma manualmente los listados de requerimientos (como si hiciese un drag&drop) y emite los cambios
       const esElUltimoDeLaCadenaDeMando =
         rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
@@ -676,10 +678,59 @@ const actions = {
           break
         }
         case "descartar": {
+          const listType = listName === "source" ? "pending" : "approved"
+
+          // Rechazo o elimino el requerimiento el requerimiento:
+          try {
+            let res
+            if (esElUltimoDeLaCadenaDeMando) {
+              dispatch("app/loadingInc", null, { root: true })
+              res = await deleteRequerimiento(state.detalleRequerimientoItem.id)
+              console.log(res)
+            } else {
+              dispatch("app/loadingInc", null, { root: true })
+              res = await refuseRequerimiento(
+                state.detalleRequerimientoItem.id,
+                comment,
+              )
+              console.log(res)
+            }
+
+            // Lo elimino del listado correspondiente: busco el indice y lo quito y commiteo el cambio
+            if (listName === "source") {
+              const removedIndex = _.findIndex(
+                state.reqsPendientesAprobacion.list,
+                { id: state.detalleRequerimientoItem.id },
+              )
+              let listResult = [...state.reqsPendientesAprobacion.list]
+              listResult.splice(removedIndex, 1)
+
+              commit("SET_REQS_LIST", { listType, listData: listResult })
+            } else if (listName === "target") {
+              const removedIndex = _.findIndex(
+                state.reqsAprobadosPriorizados.list,
+                { id: state.detalleRequerimientoItem.id },
+              )
+              let listResult = [...state.reqsAprobadosPriorizados.list]
+              listResult.splice(removedIndex, 1)
+
+              commit("SET_REQS_LIST", { listType, listData: listResult })
+            }
+
+            resolve(res.data.data.message)
+          } catch (e) {
+            const message =
+              e.message ||
+              "Hubo un problema al cambiar el estado de este Requerimiento. Intente nuevamente más tarde"
+            // warn({ message })
+            reject(message)
+          } finally {
+            dispatch("app/loadingDec", null, { root: true })
+          }
+
           break
         }
       }
-      resolve()
     })
   },
 }
