@@ -113,6 +113,7 @@ const actions = {
         const {
           data: { data },
         } = await listRequerimientos(userRequerimientos)
+        console.log(data)
         commit("SET_MIS_REQUERIMIENTOS", data)
 
         resolve()

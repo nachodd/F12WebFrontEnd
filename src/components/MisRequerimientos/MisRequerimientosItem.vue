@@ -1,5 +1,9 @@
 <template>
-  <q-item :active="esImportante" active-class="text-black bg-red-2">
+  <q-item
+    :active="esImportante"
+    active-class="text-black bg-red-2 "
+    class="cursor-pointer"
+  >
     <q-item-section avatar top>
       <q-icon
         v-if="esImportante"
@@ -31,7 +35,7 @@
         class="q-mt-xs text-body2 text-weight-bold text-primary text-uppercase"
         style="margin-top: auto;"
       >
-        <span class="cursor-pointer">VER DETALLE</span>
+        <!-- <span class="cursor-pointer">VER DETALLE</span> -->
       </q-item-label>
     </q-item-section>
 
