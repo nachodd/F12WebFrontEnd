@@ -109,7 +109,7 @@
           </div>
         </q-slide-transition>
 
-        <q-item v-ripple tag="label" class="list-item--narrow">
+        <!-- <q-item v-ripple tag="label" class="list-item--narrow">
           <q-item-section avatar>
             <q-checkbox
               color="accent"
@@ -123,7 +123,7 @@
               <q-icon name="fas fa-exclamation-triangle" color="red" />
             </q-item-label>
           </q-item-section>
-        </q-item>
+        </q-item> -->
       </q-list>
     </div>
 
@@ -185,10 +185,10 @@ export default {
       type: String,
       default: "",
     },
-    importante: {
-      type: Boolean,
-      default: false,
-    },
+    // importante: {
+    //   type: Boolean,
+    //   default: false,
+    // },
     adjuntos: {
       type: Array,
       default: () => [],
@@ -234,6 +234,15 @@ export default {
       },
       set(value) {
         this.$emit("update:llevaFechaLimite", value)
+
+        if (!value) {
+          this.fechaLimite = null
+          this.motivoLimite = ""
+          this.$refs.fechaLimite.resetValidation()
+          this.$refs.motivoLimite.resetValidation()
+          this.$emit("update:fechaLimite", this.fechaLimite)
+          this.$emit("update:motivoLimite", this.motivoLimite)
+        }
       },
     },
     ...mapState("requerimientos", {
@@ -253,19 +262,11 @@ export default {
   watch: {
     motivoLimite(val) {
       if (val) {
-        this.llevaFechaLimite = true
+        this.__llevaFechaLimite = true
       }
     },
-    llevaFechaLimite(val) {
-      if (!val) {
-        this.fechaLimite = null
-        this.motivoLimite = ""
-        this.$refs.fechaLimite.resetValidation()
-        this.$refs.motivoLimite.resetValidation()
-        this.$emit("update:fechaLimite", this.fechaLimite)
-        this.$emit("update:motivoLimite", this.motivoLimite)
-      }
-    },
+    // llevaFechaLimite(val) {
+    // },
   },
   methods: {
     handleFilesAdded(files) {
