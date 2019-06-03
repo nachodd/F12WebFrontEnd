@@ -1,7 +1,12 @@
 <template>
   <q-page padding>
     <page-header title="Nuevo Requerimiento" />
-    <requerimiento-form ref="form" v-bind.sync="form" @submit="handleSubmit" />
+    <requerimiento-form
+      ref="form"
+      v-bind.sync="form"
+      :lleva-fecha-limite.sync="llevaFechaLimite"
+      @submit="handleSubmit"
+    />
   </q-page>
 </template>
 <script>
@@ -18,6 +23,7 @@ export default {
   data() {
     return {
       form: new Requerimiento(),
+      llevaFechaLimite: false,
     }
   },
   computed: {
