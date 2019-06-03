@@ -25,6 +25,7 @@
     />
 
     <uploader-custom
+      :files-uploaded="adjuntosCargados"
       @filesAdded="handleFilesAdded"
       @filesRemoved="handleFilesRemoved"
     />
@@ -160,6 +161,10 @@ export default {
     asunto: {
       type: String,
       default: "",
+    },
+    adjuntosCargados: {
+      type: Array,
+      default: () => [],
     },
     descripcion: {
       type: String,
