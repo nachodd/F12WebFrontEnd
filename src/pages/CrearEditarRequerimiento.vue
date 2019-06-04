@@ -1,7 +1,12 @@
 <template>
   <q-page padding>
     <page-header title="Nuevo Requerimiento" />
-    <requerimiento-form ref="form" v-bind.sync="form" @submit="handleSubmit" />
+    <requerimiento-form
+      ref="form"
+      v-bind.sync="form"
+      :lleva-fecha-limite.sync="llevaFechaLimite"
+      @submit="handleSubmit"
+    />
   </q-page>
 </template>
 <script>
@@ -9,8 +14,9 @@ import pageLoading from "@mixins/pageLoading"
 import PageHeader from "@comp/Common/PageHeader"
 import RequerimientoForm from "@comp/Requerimientos/RequerimientosForm"
 import Requerimiento from "@models/Requerimiento"
-import { warn, success } from "@utils/helpers"
+import { warn, success, warnDialog } from "@utils/helpers"
 import { getRequerimiento } from "@api/requerimientos"
+import router from "@router"
 
 export default {
   components: { PageHeader, RequerimientoForm },
@@ -18,6 +24,7 @@ export default {
   data() {
     return {
       form: new Requerimiento(),
+      llevaFechaLimite: false,
     }
   },
   computed: {
@@ -37,10 +44,17 @@ export default {
             this.$set(this, "form", new Requerimiento(data))
           })
           .catch(e => {
-            console.error(e)
-            warn({
-              message: "Hubo un problema al solicitar el Requerimiento",
-            })
+            if (e.status === 404) {
+              warnDialog({
+                message: "El requerimiento solicitado no existe",
+              }).then(() => {
+                router.replace({ name: "nuevo-requerimiento" })
+              })
+            } else {
+              warn({
+                message: "Hubo un problema al solicitar el Requerimiento",
+              })
+            }
           })
           .finally(async () => {
             this.$store.dispatch("app/loadingReset")

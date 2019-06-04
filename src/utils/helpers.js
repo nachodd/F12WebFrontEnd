@@ -85,14 +85,20 @@ export function warnDialog({
   title = "Aviso",
   titleBackgroundClass = "bg-red-6",
   titleClass = "text-white",
+  persistent = true,
 }) {
-  Dialog.create({
-    component: DialogCustom,
-    // props forwarded to component
-    message,
-    title,
-    titleBackgroundClass,
-    titleClass,
+  return new Promise(resolve => {
+    Dialog.create({
+      component: DialogCustom,
+      // props forwarded to component
+      message,
+      title,
+      titleBackgroundClass,
+      titleClass,
+      persistent,
+    }).onDismiss(() => {
+      resolve()
+    })
   })
 }
 

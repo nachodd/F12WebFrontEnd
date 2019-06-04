@@ -601,7 +601,9 @@ const actions = {
             },
           }
           commit("PROCESS_UPDATE_LISTS", updatedListData)
-          dispatch("confirmOperation", comment)
+          await dispatch("confirmOperation", comment)
+          commit("CLEAR_OPERATIONS")
+          resolve()
           break
         }
         case "pendiente": {
@@ -642,7 +644,9 @@ const actions = {
             },
           }
           commit("PROCESS_UPDATE_LISTS", updatedListData)
-          dispatch("confirmOperation", comment)
+          await dispatch("confirmOperation", comment)
+          commit("CLEAR_OPERATIONS")
+          resolve()
           break
         }
         case "seleccionarPrioridad": {
@@ -668,7 +672,9 @@ const actions = {
               },
             }
             commit("PROCESS_UPDATE_LISTS", updatedListData)
-            dispatch("saveReorderPending")
+            await dispatch("saveReorderPending")
+            commit("CLEAR_OPERATIONS")
+            resolve()
           } else if (listName === "target" && !esElUltimoDeLaCadenaDeMando) {
             const removedIndexTarget = _.findIndex(
               state.reqsAprobadosPriorizados.list,
@@ -690,7 +696,9 @@ const actions = {
               },
             }
             commit("PROCESS_UPDATE_LISTS", updatedListData)
-            dispatch("saveReorderApproved")
+            await dispatch("saveReorderApproved")
+            commit("CLEAR_OPERATIONS")
+            resolve()
           }
           break
         }
@@ -703,14 +711,14 @@ const actions = {
             if (esElUltimoDeLaCadenaDeMando) {
               dispatch("app/loadingInc", null, { root: true })
               res = await deleteRequerimiento(state.detalleRequerimientoItem.id)
-              console.log(res)
+              // console.log(res)
             } else {
               dispatch("app/loadingInc", null, { root: true })
               res = await refuseRequerimiento(
                 state.detalleRequerimientoItem.id,
                 comment,
               )
-              console.log(res)
+              // console.log(res)
             }
 
             // Lo elimino del listado correspondiente: busco el indice y lo quito y commiteo el cambio
@@ -734,7 +742,14 @@ const actions = {
               commit("SET_REQS_LIST", { listType, listData: listResult })
             }
 
-            resolve(res.data.data.message)
+            commit("CLEAR_OPERATIONS")
+            resolve(
+              _.get(
+                res,
+                "data.data.message",
+                "Operación completada satisfactoriamente",
+              ),
+            )
           } catch (e) {
             const message =
               e.message ||
