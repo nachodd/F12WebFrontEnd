@@ -17,6 +17,14 @@ export function storeRequerimiento(data) {
   })
 }
 
+export function updateRequerimiento(data, requerimientoId) {
+  return request({
+    url: `/v1/f12/requerimientos/${requerimientoId}`,
+    method: "put",
+    data,
+  })
+}
+
 export function listRequerimientos(userId) {
   return request({
     url: `/v1/f12/${userId}/requerimientos`,

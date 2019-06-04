@@ -25,7 +25,7 @@
     />
 
     <uploader-custom
-      :files-uploaded="adjuntosCargados"
+      :files-uploaded.sync="__adjuntosCargadosUrl"
       @filesAdded="handleFilesAdded"
       @filesRemoved="handleFilesRemoved"
     />
@@ -40,7 +40,6 @@
               :options="areas"
               label="Area"
               :loading="areas.length === 0"
-              @input="$emit('update:area', $event)"
             />
           </div>
           <div class="col col-sm-4 col-xs-12">
@@ -49,7 +48,6 @@
               :options="sistemas"
               label="Sistema"
               :loading="sistemas.length === 0"
-              @input="$emit('update:sistema', $event)"
             />
           </div>
           <div class="col col-sm-4 col-xs-12">
@@ -58,7 +56,6 @@
               :options="requerimientosTipos"
               label="Tipo de Requerimiento"
               :loading="requerimientosTipos.length === 0"
-              @input="$emit('update:requerimientoTipo', $event)"
             />
           </div>
         </div>
@@ -135,11 +132,11 @@
           type="submit"
           color="deep-purple-10"
           size="lg"
-          :outline="loadingRequerimiento"
+          :outline="submitLoading"
           class="full-width"
-          :loading="loadingRequerimiento"
+          :loading="submitLoading"
         >
-          Cargar Ticket
+          Cargar Requerimiento
         </q-btn>
       </div>
     </div>
@@ -162,7 +159,7 @@ export default {
       type: String,
       default: "",
     },
-    adjuntosCargados: {
+    adjuntosCargadosUrl: {
       type: Array,
       default: () => [],
     },
@@ -202,6 +199,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    procesandoArchivosCargados: {
+      type: Boolean,
+      default: false,
+    },
   },
   // data() {
   //   return {
@@ -209,12 +210,20 @@ export default {
   //   }
   // },
   computed: {
+    __adjuntosCargadosUrl: {
+      get() {
+        return this.adjuntosCargadosUrl
+      },
+      set(value) {
+        this.$emit("update:adjuntosCargadosUrl", value)
+      },
+    },
     __area: {
       get() {
         return this.area
       },
       set(value) {
-        this.$emit("input", value)
+        this.$emit("update:area", value)
       },
     },
     __sistema: {
@@ -222,7 +231,7 @@ export default {
         return this.sistema
       },
       set(value) {
-        this.$emit("input", value)
+        this.$emit("update:sistema", value)
       },
     },
     __requerimientoTipo: {
@@ -230,7 +239,7 @@ export default {
         return this.requerimientoTipo
       },
       set(value) {
-        this.$emit("input", value)
+        this.$emit("update:requerimientoTipo", value)
       },
     },
     __llevaFechaLimite: {
@@ -262,6 +271,9 @@ export default {
     },
     motivoLimiteRules() {
       return this.__llevaFechaLimite ? [this.notEmpty] : []
+    },
+    submitLoading() {
+      return this.procesandoArchivosCargados || this.loadingRequerimiento
     },
   },
   watch: {

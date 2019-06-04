@@ -46,7 +46,7 @@ const getters = {
 
 // mutations
 const mutations = {
-  SET_TOKEN: (state, token, expiresIn, refreshToken = null) => {
+  SET_TOKEN: (state, { token, expiresIn, refreshToken = null }) => {
     state.token = token
     state.expiresIn = expiresIn
     if (refreshToken) {
@@ -79,7 +79,11 @@ const actions = {
         const { data } = await login(userInfo)
 
         const expires = expiresToUnixTS(data.expires_in)
-        commit("SET_TOKEN", data.access_token, expires, data.refresh_token)
+        commit("SET_TOKEN", {
+          token: data.access_token,
+          expiresIn: expires,
+          refreshToken: data.refresh_token,
+        })
         setToken(data.access_token, expires, data.refresh_token)
 
         const result_user = await getInfo()
@@ -203,7 +207,11 @@ const actions = {
           const { data } = await refresh(state.refreshToken)
 
           const expires = expiresToUnixTS(data.expires_in)
-          commit("SET_TOKEN", data.access_token, expires, data.refresh_token)
+          commit("SET_TOKEN", {
+            token: data.access_token,
+            expiresIn: expires,
+            refreshToken: data.refresh_token,
+          })
           setToken(data.access_token, expires, data.refresh_token)
 
           resolve()
