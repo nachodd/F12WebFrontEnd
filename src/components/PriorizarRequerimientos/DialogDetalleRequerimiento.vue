@@ -120,7 +120,11 @@
               color
               text-color="grey"
             >
-              <div>{{ movimiento.comentario }}</div>
+              <div>
+                Usuario: {{ movimiento.usuario }}
+                <br />
+                {{ movimiento.comentario }}
+              </div>
             </q-timeline-entry>
           </q-timeline>
         </div>
