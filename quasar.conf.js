@@ -76,6 +76,8 @@ module.exports = function(ctx) {
         "QCard",
         "QCardSection",
         "QCardActions",
+        "QTimeline",
+        "QTimelineEntry",
       ],
 
       directives: ["Ripple", "ClosePopup"],

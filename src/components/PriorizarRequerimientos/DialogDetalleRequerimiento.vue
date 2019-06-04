@@ -103,11 +103,28 @@
         </div>
         <div v-if="req.comentario" class="row q-mt-sm">
           <div class="col">
-            <note title="Comentarios:">
-              {{ req.comentario }}
-            </note>
+            <note title="Comentarios:">{{ req.comentario }}</note>
           </div>
         </div>
+
+        <div v-if="req.movimientos" class="row q-mt-md">
+          <q-timeline color="secondary">
+            <q-timeline-entry heading body="Movimientos" />
+
+            <q-timeline-entry
+              v-for="(movimiento, index) in req.movimientos"
+              :key="`req_${index}`"
+              :title="movimiento.estado"
+              :subtitle="movimiento.fecha"
+              icon
+              color
+              text-color="grey"
+            >
+              <div>{{ movimiento.comentario }}</div>
+            </q-timeline-entry>
+          </q-timeline>
+        </div>
+
         <div class="q-mt-md">
           <note title="Acciones:">
             <div class="row text-center">
@@ -121,7 +138,7 @@
               color="white"
               text-color="accent"
               :options="options"
-            /> -->
+              />-->
               <div v-if="seleccionarPrioridadShown" class="col">
                 <q-btn
                   class="btn__action small-icon"
@@ -185,7 +202,7 @@
               </div>
             </div>
             <q-slide-transition>
-              <div v-show="isApprovingOrReordering" class="q-mt-md ">
+              <div v-show="isApprovingOrReordering" class="q-mt-md">
                 <div class="row">
                   <div class="col">
                     <div>Seleccione una Prioridad para este Requerimiento:</div>
@@ -221,7 +238,7 @@
                 v-show="
                   operation === 'descartar' && !esElUltimoDeLaCadenaDeMando
                 "
-                class="q-mt-md "
+                class="q-mt-md"
               >
                 <div class="row">
                   <div class="col">

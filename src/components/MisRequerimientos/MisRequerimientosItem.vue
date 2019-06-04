@@ -32,7 +32,7 @@
         style="margin-top: auto;"
       >
         <span class="cursor-pointer">VER DETALLE</span>
-			</q-item-label>-->
+      </q-item-label>-->
     </q-item-section>
 
     <q-item-section>
@@ -63,7 +63,7 @@
 
         <q-btn size="12px" flat dense round icon="more_vert" />
       </div>
-		</q-item-section>-->
+    </q-item-section>-->
   </q-item>
 </template>
 <style scope>
