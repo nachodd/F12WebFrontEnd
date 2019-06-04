@@ -15,7 +15,6 @@
       <q-item-label lines="2" class="q-mt-sm text-left text-center">
         <span class="text-weight-medium">{{ req.usuario.nombre }}</span>
       </q-item-label>
-      <!-- <q-item-label caption>February 22nd, 2019</q-item-label> -->
       <q-item-label caption>{{ req.fecha_alta | formatiarFecha }}</q-item-label>
     </q-item-section>
 

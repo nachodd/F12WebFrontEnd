@@ -9,9 +9,7 @@ export default class Requerimiento {
     this.descripcion = req.descripcion ? req.descripcion : ""
     this.area = req.area ? req.area : null
     this.sistema = req.sistema ? req.sistema : null
-    this.requerimientoTipo = req.requerimiento_tipo
-      ? req.requerimiento_tipo
-      : null
+    this.requerimientoTipo = req.tipo ? req.tipo : null
     this.importante = req.importante && req.importante === "SI" ? true : false
     this.prioridad = req.prioridad ? req.prioridad : 5
     this.adjuntos = []
