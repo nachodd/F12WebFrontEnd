@@ -136,14 +136,14 @@ service.interceptors.response.use(
 async function getAuthToken() {
   // if the current token expires soon
   const expiresIn = store.getters["auth/expiresIn"]
-  const expiresMinus5Minutes = new Date(+expiresIn)
-  const minutesBefore = 60 * 5
-  expiresMinus5Minutes.setSeconds(
-    expiresMinus5Minutes.getSeconds() - minutesBefore,
+  const expiresMinus15Minutes = new Date(+expiresIn)
+  const minutesBefore = 60 * 15
+  expiresMinus15Minutes.setSeconds(
+    expiresMinus15Minutes.getSeconds() - minutesBefore,
   ) // returns unix ts
-  const expiresDateMinus5Minutes = new Date(expiresMinus5Minutes)
+  const expiresDateMinus15Minutes = new Date(expiresMinus15Minutes)
   const isTokenExpiredOrAboutTo =
-    expiresDateMinus5Minutes.getTime() <= Date.now()
+    expiresDateMinus15Minutes.getTime() <= Date.now()
 
   if (isTokenExpiredOrAboutTo) {
     // refresh it and update it

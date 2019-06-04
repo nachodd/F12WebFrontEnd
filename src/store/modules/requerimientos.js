@@ -3,6 +3,7 @@ import {
   storeRequerimiento,
   listRequerimientos,
   getRequerimiento,
+  updateRequerimiento,
 } from "@api/requerimientos"
 
 const state = {
@@ -69,9 +70,7 @@ const actions = {
       } else {
         try {
           // destructuring value: https://medium.com/@pyrolistical/destructuring-nested-objects-9dabdd01a3b8
-          const {
-            data: { data },
-          } = await createRequerimiento()
+          const { data } = await createRequerimiento()
           commit("SET_OPTIONS", data)
 
           resolve()
@@ -90,7 +89,12 @@ const actions = {
       commit("SET_LOADING_REQ", true)
       commit("app/LOADING_INC", null, { root: true })
       try {
-        await storeRequerimiento(requerimiento)
+        // Si esta seteado el id, es porque esta editando
+        if (requerimiento.id) {
+          await updateRequerimiento(requerimiento, requerimiento.id)
+        } else {
+          await storeRequerimiento(requerimiento)
+        }
         resolve()
       } catch (error) {
         reject(error)
