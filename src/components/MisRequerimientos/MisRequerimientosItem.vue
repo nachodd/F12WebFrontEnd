@@ -1,31 +1,26 @@
 <template>
   <q-item
     :active="esImportante"
-    active-class="text-black bg-red-2 "
+    active-class="text-black"
     class="cursor-pointer"
   >
-    <!-- <q-item-section avatar top> -->
-    <!-- <q-avatar
-        v-if="esImportante"
-        icon="folder"
-        color="danger"
-        text-color="white"
-		/>-->
-    <!-- <q-icon
-        v-if="esImportante"
-        name="fas fa-exclamation-triangle"
-        color="red"
-        size="34px"
-      >
-        <q-tooltip>Este requerimiento fue marcado como importante</q-tooltip>
-		</q-icon>-->
-    <!-- <q-icon v-else name="far fa-file-alt" color="grey-8" size="34px" /> -->
+    <q-item-section avatar>
+      <q-avatar icon="account_box" color text-color="grey" class="avatar--lg" />
+    </q-item-section>
 
-    <!-- <q-avatar v-else icon="receipt" color="primary" text-color="white" /> -->
-    <!-- </q-item-section> -->
+    <q-item-section>
+      <!-- <q-item-label lines="1">{{ req.usuario.nombre }}</q-item-label> -->
+      <!-- <q-item-label caption>February 22nd, 2019</q-item-label> -->
 
-    <q-item-section class="col-3">
-      <q-item-label class="q-mt-sm text-left text-grey-8 text-center">
+      <q-item-label lines="2" class="q-mt-sm text-left text-center">
+        <span class="text-weight-medium">{{ req.usuario.nombre }}</span>
+      </q-item-label>
+      <!-- <q-item-label caption>February 22nd, 2019</q-item-label> -->
+      <q-item-label caption>{{ req.fecha_alta | formatiarFecha }}</q-item-label>
+    </q-item-section>
+
+    <q-item-section class="col-2">
+      <q-item-label class="q-mt-sm text-left text-center">
         <span class="text-weight-medium">{{ req.asunto }}</span>
       </q-item-label>
     </q-item-section>
@@ -43,7 +38,7 @@
 
     <q-item-section>
       <q-item-label lines="1" class="text-center">
-        {{ req.estado }}
+        <span class="text-weight-medium">{{ req.estado.descripcion }}</span>
         <!-- <span class="text-grey-8">- GitHub repository</span> -->
       </q-item-label>
     </q-item-section>
@@ -51,15 +46,15 @@
     <q-item-section top class="col-2 q-my-xs">
       <q-item-label class="q-mt-sm" lines="1">
         <span class="text-weight-medium">Area:</span>
-        {{ req.area }}
+        {{ req.area.descripcion }}
       </q-item-label>
       <q-item-label lines="1">
         <span class="text-weight-medium">Sistema:</span>
-        {{ req.sistema }}
+        {{ req.sistema.descripcion }}
       </q-item-label>
       <q-item-label lines="1">
         <span class="text-weight-medium">Tipo:</span>
-        {{ req.tipo }}
+        {{ req.tipo.descripcion }}
       </q-item-label>
     </q-item-section>
 
@@ -72,9 +67,26 @@
 		</q-item-section>-->
   </q-item>
 </template>
+<style scope>
+.avatar--lg {
+  font-size: 80px !important;
+  height: auto !important;
+  width: auto !important;
+}
+</style>
+
 <script>
+import { date } from "quasar"
+
 export default {
   name: "MisRequerimientosItem",
+
+  filters: {
+    formatiarFecha: function(value) {
+      return date.formatDate(value, "DD/MM/YYYY HH:mm")
+    },
+  },
+
   props: {
     req: {
       type: Object,
