@@ -6,7 +6,7 @@
 
     <q-item-section class="q-pa-sm">
       <q-item-label lines="2" class="">
-        <template v-if="hasSlot">
+        <template v-if="hasDefaultSlot">
           <slot />
         </template>
         <a v-else v-auth-href :href="adjunto">
@@ -56,8 +56,8 @@ export default {
     },
   },
   computed: {
-    hasSlot(name = "default") {
-      return !!this.$slots[name] || !!this.$scopedSlots[name]
+    hasDefaultSlot() {
+      return !!this.$slots["default"]
     },
     fileNameComp() {
       return `${this.fileName} ${this.nro}`
