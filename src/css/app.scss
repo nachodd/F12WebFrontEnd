@@ -90,9 +90,17 @@
   text-decoration: underline;
 }
 
-
 .q-btn.small-icon {
   i.q-icon {
     font-size: 1.4em !important;
   }
+}
+
+.item--thumb {
+  width: 100px;
+  height: 56px;
+}
+.item--thumb-xs {
+  width: 50px;
+  height: 56px;
 }

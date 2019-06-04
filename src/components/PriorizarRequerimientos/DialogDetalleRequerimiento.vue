@@ -395,8 +395,6 @@ export default {
   },
   methods: {
     saveChanges() {
-      // TODO: agregar que llame al detalle de l req y muestre los movimientos.
-
       if (
         this.operation === "descartar" &&
         !this.esElUltimoDeLaCadenaDeMando &&
@@ -413,7 +411,7 @@ export default {
           listName: this.statePending ? "source" : "target",
         })
         .then(message => {
-          success({ message })
+          if (message) success({ message })
           this.detalleRequerimientoOpen = false
         })
         .catch(message => {
