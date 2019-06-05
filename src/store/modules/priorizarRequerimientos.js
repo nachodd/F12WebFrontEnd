@@ -5,6 +5,7 @@ import {
   updateRequerimientosEstados,
   refuseRequerimiento,
   deleteRequerimiento,
+  getRequerimiento,
 } from "@api/requerimientos"
 import { warn, success } from "@utils/helpers"
 
@@ -503,16 +504,32 @@ const actions = {
       resolve()
     })
   },
-  abrirDetalleRequerimiento({ commit, state }, { reqId, listName }) {
+  abrirDetalleRequerimiento(
+    { dispatch, commit, state },
+    { reqId, listName, fetchRequerimiento = false },
+  ) {
     return new Promise(async (/* resolve, reject */) => {
       // Para seguir con la convencion de nombres, utilizo listType para la action
-      const listType = listName === "source" ? "pending" : "approved"
-      let list =
-        listType === "pending"
-          ? state.reqsPendientesAprobacion.list
-          : state.reqsAprobadosPriorizados.list
 
-      const requerimiento = _.find(list, { id: reqId })
+      let requerimiento = {}
+
+      if (fetchRequerimiento) {
+        dispatch("app/loadingInc", null, { root: true })
+        const {
+          data: { data },
+        } = await getRequerimiento(reqId)
+        requerimiento = data
+        dispatch("app/loadingDec", null, { root: true })
+      } else {
+        const listType = listName === "source" ? "pending" : "approved"
+        let list =
+          listType === "pending"
+            ? state.reqsPendientesAprobacion.list
+            : state.reqsAprobadosPriorizados.list
+
+        requerimiento = _.find(list, { id: reqId })
+      }
+
       if (requerimiento) {
         commit("SET_DETALLE_REQUERIMIENTO_ITEM", requerimiento)
       } else {

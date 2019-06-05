@@ -45,11 +45,11 @@ export default {
     DialogDetalleRequerimiento,
   },
   mixins: [pageLoading],
-  data() {
-    return {
-      detalleRequerimientoOpen: true,
-    }
-  },
+  // data() {
+  //   return {
+  //     detalleRequerimientoOpen: true,
+  //   }
+  // },
   computed: {
     ...mapGetters("auth", [
       // "userId",
