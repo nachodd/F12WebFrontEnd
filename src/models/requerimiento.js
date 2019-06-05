@@ -10,7 +10,6 @@ export default class Requerimiento {
     this.area = req.area ? req.area : null
     this.sistema = req.sistema ? req.sistema : null
     this.requerimientoTipo = req.tipo ? req.tipo : null
-    this.importante = req.importante && req.importante === "SI" ? true : false
     this.prioridad = req.prioridad ? req.prioridad : 5
     this.adjuntos = []
     this.adjuntosCargadosUrl = req.adjuntos ? req.adjuntos : []
@@ -61,14 +60,14 @@ export default class Requerimiento {
     return {
       asunto: this.asunto,
       descripcion: this.descripcion,
-      area: this.area ? this.area.id : null,
+      // area: this.area ? this.area.id : null,
       sistema: this.sistema ? this.sistema.id : null,
       requerimiento_tipo: this.requerimientoTipo
         ? this.requerimientoTipo.id
         : null,
       fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
-      importante: +this.importante, // + to Parse Boolean to Number
+      // importante: +this.importante, // + to Parse Boolean to Number
       prioridad: this.prioridad,
       adjuntos: filesBase64,
     }
@@ -81,14 +80,13 @@ export default class Requerimiento {
       id: this.id,
       asunto: this.asunto,
       descripcion: this.descripcion,
-      area: this.area ? this.area.id : null,
+      // area: this.area ? this.area.id : null,
       sistema: this.sistema ? this.sistema.id : null,
       requerimiento_tipo: this.requerimientoTipo
         ? this.requerimientoTipo.id
         : null,
       fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
-      importante: +this.importante, // + to Parse Boolean to Number
       prioridad: this.prioridad,
     }
 
