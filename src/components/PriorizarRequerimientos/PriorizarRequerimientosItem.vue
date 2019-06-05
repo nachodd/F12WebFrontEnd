@@ -49,7 +49,7 @@
       </q-item-label>
       <q-item-label lines="1">
         <span class="text-weight-medium">Tipo:</span>
-        {{ req.requerimiento_tipo.descripcion }}
+        {{ req.tipo.descripcion }}
       </q-item-label>
     </q-item-section>
 

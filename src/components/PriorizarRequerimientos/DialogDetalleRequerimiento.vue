@@ -132,17 +132,6 @@
         <div class="q-mt-md">
           <note title="Acciones:">
             <div class="row text-center">
-              <!-- <q-btn-toggle
-              v-model="operation"
-              class="toggle"
-              rounded
-              stack
-              unelevated
-              toggle-color="accent"
-              color="white"
-              text-color="accent"
-              :options="options"
-              />-->
               <div v-if="seleccionarPrioridadShown" class="col">
                 <q-btn
                   class="btn__action small-icon"
@@ -239,9 +228,7 @@
             </q-slide-transition>
             <q-slide-transition>
               <div
-                v-show="
-                  operation === 'descartar' && !esElUltimoDeLaCadenaDeMando
-                "
+                v-show="operation === 'descartar' && !esAutor"
                 class="q-mt-md"
               >
                 <div class="row">
@@ -361,40 +348,6 @@ export default {
           })
       },
     },
-    /* options() {
-      if (this.esElUltimoDeLaCadenaDeMando) {
-        return [
-          {
-            label: "Seleccionar Prioridad",
-            value: "aprobar",
-            icon: "fas fa-sort-amount-down",
-          },
-        ]
-      }
-      const options = [
-        {
-          label: "Descartar",
-          value: "descartar",
-          icon: "fas fa-trash",
-        },
-      ]
-      if (this.statePending) {
-        options.push({
-          label: "Aprobar",
-          value: "aprobar",
-          icon: "fas fa-check",
-        })
-      }
-      if (this.stateApproved) {
-        options.push({
-          label: "Vovler a Pend. Aprob.",
-          value: "pendiente",
-          icon: "fas fa-undo",
-        })
-      }
-
-      return options
-    }, */
     statePending() {
       return this.req.estado.id === 1
     },
@@ -417,9 +370,10 @@ export default {
   },
   methods: {
     saveChanges() {
+      // Valido, si esta descartando (operacion: descartar && NO es esAutor), debe completar el comentario
       if (
         this.operation === "descartar" &&
-        !this.esElUltimoDeLaCadenaDeMando &&
+        !this.esAutor &&
         !this.$refs.commentDescartar.validate()
       ) {
         return
