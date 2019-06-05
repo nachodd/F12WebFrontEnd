@@ -5,6 +5,7 @@
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
     />
+    <dialog-detalle-requerimiento />
   </q-page>
 </template>
 <script>
@@ -12,9 +13,14 @@ import { mapState } from "vuex"
 import { warn } from "@utils/helpers"
 import PageHeader from "@comp/Common/PageHeader"
 import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
+import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 
 export default {
-  components: { PageHeader, MisRequerimientosListado },
+  components: {
+    PageHeader,
+    MisRequerimientosListado,
+    DialogDetalleRequerimiento,
+  },
   computed: {
     ...mapState("requerimientos", {
       loadingRequerimiento: state => state.loadingRequerimiento,
