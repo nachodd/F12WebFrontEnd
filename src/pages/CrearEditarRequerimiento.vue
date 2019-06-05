@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <page-header title="Nuevo Requerimiento" />
+    <page-header :title="pageTitle" />
     <requerimiento-form
       ref="form"
       v-bind.sync="form"
@@ -10,6 +10,7 @@
   </q-page>
 </template>
 <script>
+import { mapState } from "vuex"
 import pageLoading from "@mixins/pageLoading"
 import PageHeader from "@comp/Common/PageHeader"
 import RequerimientoForm from "@comp/Requerimientos/RequerimientosForm"
@@ -25,11 +26,21 @@ export default {
     return {
       form: new Requerimiento(),
       llevaFechaLimite: false,
+      isEdit: false,
     }
   },
   computed: {
-    isEdit() {
-      return !!this.$route.params.id
+    ...mapState("requerimientos", {
+      loadingRequerimiento: state => state.loadingRequerimiento,
+    }),
+    pageTitle() {
+      if (this.loadingRequerimiento || this.form.procesandoArchivosCargados) {
+        return "Cargando, por favor espere..."
+      } else {
+        return this.isEdit
+          ? `Editar Requerimiento #${this.form.id}`
+          : "Nuevo Requerimiento"
+      }
     },
   },
   async created() {
@@ -39,11 +50,16 @@ export default {
       await this.$store.dispatch("requerimientos/createRequerimiento")
 
       if (this.$route.params.id) {
+        this.isEdit = true
         getRequerimiento(this.$route.params.id)
           .then(({ data: { data } }) => {
-            this.$set(this, "form", new Requerimiento(data))
+            const req = new Requerimiento(data)
+            // Mandamos a convertir asincronicamente a base64 los archivos previamente cargados (si es que tiene)
+            req.tryConvertDownloadedFiles()
+            this.$set(this, "form", req)
           })
           .catch(e => {
+            this.isEdit = false
             if (e.status === 404) {
               warnDialog({
                 message: "El requerimiento solicitado no existe",
@@ -73,14 +89,19 @@ export default {
     async handleSubmit() {
       try {
         const form = this.isEdit
-          ? await this.form.toCreatePayload()
+          ? await this.form.toUpdatePayload()
           : await this.form.toCreatePayload()
+
         await this.$store.dispatch("requerimientos/storeRequerimiento", form)
         success({
           message: "La solicitud fue procesada correctamente!",
         })
-        // this.form = new Requerimiento() // no funciona bien, no limpia los custom components
-        this.clearForm()
+        if (this.isEdit) {
+          this.$router.push({ name: "mis-requerimientos" })
+        } else {
+          // this.form = new Requerimiento() // no funciona bien, no limpia los custom components
+          this.clearForm()
+        }
       } catch (e) {}
     },
     onError() {

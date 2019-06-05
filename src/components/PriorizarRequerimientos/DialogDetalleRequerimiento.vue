@@ -99,11 +99,12 @@ export default {
     ...mapState("priorizarRequerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
-    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
+    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando", "userId"]),
     ...mapGetters("priorizarRequerimientos", [
       "cantidadRequerimientos",
       "reqsPendientesAprobacionLength",
       "reqsAprobadosPriorizadosLength",
+      "esAutor",
     ]),
     maximoSliderPrioridad() {
       // Si la operacion es de seleccionar prioridad, el max del slider será 1 menos que la cant de reqs

@@ -1,6 +1,7 @@
 import { Notify } from "quasar"
 import { Dialog } from "quasar"
 import DialogCustom from "@comp/Common/DialogCustom"
+import request from "@utils/request"
 
 export function firstWord(string) {
   return string.replace(/ .*/, "")
@@ -108,7 +109,7 @@ export function warnDialogParse(errors) {
   warnDialog({ message })
 }
 
-export function getBase64(file) {
+export function getBase64FromInput(file) {
   return new Promise(function(resolve, reject) {
     const reader = new FileReader()
     reader.onload = function() {
@@ -119,6 +120,30 @@ export function getBase64(file) {
     }
     reader.onerror = reject
     reader.readAsDataURL(file)
+  })
+}
+
+export function getBase64FromUrl(url) {
+  return new Promise(function(resolve, reject) {
+    request({
+      method: "GET",
+      url,
+      responseType: "blob",
+    })
+      .then(response => {
+        const reader = new FileReader()
+        reader.onload = function() {
+          const fileName = lastPartOfPath(url)
+          // Adds name to the base64 file
+          resolve(`${reader.result};name,${fileName}`)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(response.data)
+      })
+      .catch(e => {
+        console.log(e)
+        reject(e)
+      })
   })
 }
 
