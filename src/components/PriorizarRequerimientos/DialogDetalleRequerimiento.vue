@@ -5,12 +5,26 @@
     transition-hide="scale"
   >
     <q-card>
-      <q-card-section>
-        <div class="text-h6">Requerimiento</div>
+      <q-card-section class="bg-deep-purple-10 text-white items-center">
+        <div class="text-h6">Requerimiento Nº {{ req.id }}</div>
+        <div class="text-subtitle3 text-white-7">{{ req.usuario.nombre }}</div>
       </q-card-section>
 
       <q-separator />
-
+      <q-tabs
+        v-model="tab"
+        dense
+        class="bg-grey-3 text-grey-7"
+        active-color="purple"
+        indicator-color="purple"
+        align="justify"
+        narrow-indicator
+      >
+        <q-tab name="detalle" label="Detalle" />
+        <q-tab name="acciones" label="Acciones" />
+        <q-tab name="movimientos" label="Movimientos" />
+      </q-tabs>
+      <q-separator />
       <q-card-section
         style="max-height: 50vh;padding:0px !important;"
         class="scroll"
@@ -22,35 +36,71 @@
           minima, porro labore.
         </p>-->
 
-        <q-tabs
-          v-model="tab"
-          dense
-          class="bg-grey-3 text-grey-7"
-          active-color="primary"
-          indicator-color="primary"
-          align="justify"
-          narrow-indicator
-        >
-          <q-tab name="detalle" label="Detalle" />
-          <q-tab name="alarms" label="Movimientos" />
-          <!-- <q-tab name="movies" label="Movies" /> -->
-        </q-tabs>
-
-        <q-separator />
-
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="detalle">
-            <!-- <div class="text-h6">Detalle</div> -->
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+            <!-- <div class="text-h6">{{ req.asunto }}</div> -->
+            <div class="row">
+              <div class="col-4">
+                <div class="text-grey-7">Area</div>
+                <q-item-label lines="1">
+                  {{ req.area.descripcion }}
+                </q-item-label>
+              </div>
+              <div class="col-4">
+                <div class="text-grey-7">Sistema</div>
+                <q-item-label lines="1">
+                  {{ req.sistema.descripcion }}
+                </q-item-label>
+              </div>
+              <div class="col-4">
+                <div class="text-grey-7">Tipo</div>
+                <q-item-label lines="1">
+                  {{ req.requerimientoTipo.descripcion }}
+                </q-item-label>
+              </div>
+            </div>
+            <br />
+            <!-- <q-separator /> -->
+            <!-- <br /> -->
+
+            <div class="text-grey-7">Asunto</div>
+            {{ req.asunto }}
+            <br />
+            <br />
+            <div class="text-grey-7">Descripcion</div>
+            {{ req.descripcion }}
+            <br />
+            <br />
+            <!-- <q-separator /> -->
           </q-tab-panel>
 
-          <q-tab-panel name="alarms">
-            <!-- <div class="text-h6">Alarms</div> -->
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          <q-tab-panel name="movimientos">
+            <!-- <div class="text-h6">movimientos</div> -->
+            <div v-if="req.movimientos" class="row">
+              <q-timeline color="purple">
+                <!-- <q-timeline-entry heading body /> -->
+
+                <q-timeline-entry
+                  v-for="(movimiento, index) in req.movimientos"
+                  :key="`req_${index}`"
+                  :title="movimiento.estado"
+                  :subtitle="movimiento.fecha"
+                  icon
+                  color
+                  text-color="grey"
+                >
+                  <div>
+                    Usuario: {{ movimiento.usuario }}
+                    <br />
+                    {{ movimiento.comentario }}
+                  </div>
+                </q-timeline-entry>
+              </q-timeline>
+            </div>
           </q-tab-panel>
 
-          <q-tab-panel name="movies">
-            <div class="text-h6">Movies</div>
+          <q-tab-panel name="acciones">
+            <!-- <div class="text-h6">Movies</div> -->
             Lorem ipsum dolor sit amet consectetur adipisicing elit.
           </q-tab-panel>
         </q-tab-panels>
@@ -59,8 +109,8 @@
       <q-separator />
 
       <q-card-actions align="right">
-        <q-btn flat label="Decline" v-close-popup color="primary" />
-        <q-btn flat label="Accept" v-close-popup color="primary" />
+        <q-btn v-close-popup flat label="Cerrar" color="purple" />
+        <q-btn v-close-popup flat label="Guardar" color="purple" />
       </q-card-actions>
     </q-card>
   </q-dialog>
