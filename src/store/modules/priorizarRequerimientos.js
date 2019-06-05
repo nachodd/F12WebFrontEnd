@@ -154,6 +154,13 @@ const getters = {
     state.reqsPendientesAprobacion.listLength,
   reqsAprobadosPriorizadosLength: state =>
     state.reqsAprobadosPriorizados.listLength,
+  esAutor: (state, getters, rootState, rootGetters) => {
+    const userId = Number(rootGetters["auth/userId"])
+    const reqUserId = Number(
+      _.get(state, "detalleRequerimientoItem.usuario.id", null),
+    )
+    return userId === reqUserId
+  },
 }
 
 const mutations = {
