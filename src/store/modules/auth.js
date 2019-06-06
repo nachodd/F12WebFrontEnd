@@ -1,4 +1,12 @@
-import { login, logout, getInfo, refresh, getVinculacion } from "@api/user"
+import {
+  login,
+  logout,
+  refresh,
+  // getInfo,
+  //getVinculacion,
+  //getResponsabilidades,
+  getUsuarioGestion,
+} from "@api/user"
 import {
   getToken,
   getExpiresIn,
@@ -6,10 +14,10 @@ import {
   expiresToUnixTS,
   setToken,
   removeToken,
-  mapRoles,
+  // mapRoles,
 } from "@utils/auth"
 import { resetRouter } from "@router"
-import { getRoles } from "@api/user"
+// import { getRoles } from "@api/user"
 // import axios from "axios";
 // import Cookies from "js-cookie";
 // import * as types from "../mutation-types";
@@ -20,8 +28,10 @@ const state = {
   expiresIn: getExpiresIn(),
   refreshToken: getRefreshToken(),
   user: null,
-  roles: [],
-  vinculacion: {},
+  userArea: {},
+  userVinculacion: {},
+  userSistemas: [],
+  // roles: [],
 }
 
 // getters
@@ -30,18 +40,21 @@ const getters = {
   expiresIn: state => state.expiresIn,
   refreshToken: state => state.refreshToken,
   user: state => state.user,
-  userId: state => (state.user ? state.user.Id : null),
-  roles: state => state.roles,
+  userId: state => (state.user ? state.user.id : null),
+  // roles: state => state.roles,
   check: state => state.user !== null,
-  // userTreeLoaded: state => !_.isEmpty(state.vinculacion),
-  userJefes: state => state.vinculacion && state.vinculacion.jefes,
-  userReportantes: state => state.vinculacion && state.vinculacion.reportantes,
+  // userTreeLoaded: state => !_.isEmpty(state.userVinculacion),
+  userJefes: state => state.userVinculacion && state.userVinculacion.jefes,
+  userReportantes: state =>
+    state.userVinculacion && state.userVinculacion.reportantes,
   hasJefes: (state, getters) =>
     getters.userJefes && getters.userJefes.length > 0,
   hasReportantes: (state, getters) =>
     getters.userReportantes && getters.userReportantes.length > 0,
   // Si no tiene reportantes, será el ultimo eslabon de la cadena de mando
   esElUltimoDeLaCadenaDeMando: (state, getters) => !getters.hasReportantes,
+  userSistemas: state => state.userSistemas,
+  userEsResponsable: state => state.userSistemas.length > 0,
 }
 
 // mutations
@@ -58,15 +71,42 @@ const mutations = {
     state.expiresIn = ""
     state.refreshToken = ""
   },
-  SET_USER: (state, user) => {
-    state.user = user
+  SET_USER: (state, userData) => {
+    if (userData === null) {
+      state.user = null
+      state.userArea = {}
+      state.userVinculacion = {}
+      state.userSistemas = []
+    } else {
+      const user = {}
+      {
+        // Block assigment - next variables aren't valid outside this scope
+        let { id, usuario, razon_social, numero_documento } = userData
+        Object.assign(user, {
+          id,
+          usuario,
+          razonSocial: razon_social,
+          numeroDocumento: numero_documento,
+        })
+      }
+      state.user = user
+      state.userArea = userData.area
+      state.userSistemas = userData.sistemas
+      state.userVinculacion = {
+        jefes: userData.jefes,
+        reportantes: userData.reportantes,
+      }
+    }
   },
-  SET_ROLES: (state, roles) => {
-    state.roles = roles
-  },
-  SET_VINCULACION: (state, vinculacion) => {
-    state.vinculacion = vinculacion
-  },
+  // SET_ROLES: (state, roles) => {
+  //   state.roles = roles
+  // },
+  // SET_VINCULACION: (state, vinculacion) => {
+  //   state.vinculacion = vinculacion
+  // },
+  // SET_RESPONSABILIDADES: (state, responsabilidades) => {
+  //   state.responsabilidades = responsabilidades
+  // },
 }
 
 // actions
@@ -86,13 +126,15 @@ const actions = {
         })
         setToken(data.access_token, expires, data.refresh_token)
 
-        const result_user = await getInfo()
+        /* const result_user = await getInfo()
         if (!result_user.data || !result_user.data.data) {
           reject("Verification failed, please Login again.")
         }
         const user = result_user.data.data
+        commit("SET_USER", user)
+        */
 
-        const result_roles = await getRoles()
+        /* const result_roles = await getRoles()
         if (!result_roles.data || !result_roles.data.data) {
           reject("Verification failed, please Login again.")
         }
@@ -101,19 +143,17 @@ const actions = {
         if (!roles || roles.length <= 0) {
           reject("getInfo: roles must be a non-null array!")
         }
-        commit("SET_ROLES", roles)
-        commit("SET_USER", user)
+        commit("SET_ROLES", roles) */
 
         // Busco el arbol de vinculacion directa (estructura de superiores - subordinados)
-        const result_vinculacion = await getVinculacion(user.Id)
-        commit("SET_VINCULACION", result_vinculacion)
-        /* getVinculacion(user.Id)
-          .then(tree => {
-            debugger
-            // const tree = res.data.data
-            commit("SET_VINCULACION", tree)
-          })
-          .catch(e => console.log(e)) */
+        // const result_vinculacion = await getVinculacion(user.Id)
+        // commit("SET_VINCULACION", result_vinculacion)
+
+        // const result_responsabilidades = await getResponsabilidades(user.Id)
+        // commit("SET_RESPONSABILIDADES", result_responsabilidades)
+
+        const userData = await getUsuarioGestion()
+        commit("SET_USER", userData)
 
         resolve()
       } catch (error) {
@@ -123,35 +163,38 @@ const actions = {
   },
 
   // get user info
-  getInfo({ commit }) {
+  getInfo({ commit, state }) {
     return new Promise(async (resolve, reject) => {
       try {
-        const result_user = await getInfo()
+        /* const result_user = await getInfo()
         if (!result_user.data || !result_user.data.data) {
           reject("Verification failed, please Login again.")
         }
-        const user = result_user.data.data
+        const user = result_user.data.data */
 
-        const result_roles = await getRoles()
+        /* const result_roles = await getRoles()
         if (!result_roles.data || !result_roles.data.data) {
           reject("Verification failed, please Login again.")
         }
         const roles = mapRoles(result_roles.data.data)
-
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
           reject("getInfo: roles must be a non-null array!")
         }
-
-        const result_vinculacion = await getVinculacion(user.Id)
-
         commit("SET_ROLES", roles)
-        commit("SET_USER", user)
-        commit("SET_VINCULACION", result_vinculacion)
+        */
+        // const result_vinculacion = await getVinculacion(user.Id)
+        // const result_responsabilidades = await getResponsabilidades(user.Id)
+        // commit("SET_USER", user)
+        // commit("SET_VINCULACION", result_vinculacion)
+        // commit("SET_RESPONSABILIDADES", result_responsabilidades)
+
+        const userData = await getUsuarioGestion()
+        commit("SET_USER", userData)
 
         resolve({
-          user,
-          roles,
+          user: state.user,
+          sistemas: state.userSistemas,
         })
       } catch (error) {
         reject(error)
@@ -172,7 +215,8 @@ const actions = {
       }
       try {
         commit("CLEAR_TOKENS")
-        commit("SET_ROLES", [])
+        // commit("SET_ROLES", [])
+        // commit("SET_RESPONSABILIDADES", [])
         commit("SET_USER", null)
         commit("app/LOADING_RESET", null, { root: true })
         removeToken()
@@ -188,7 +232,8 @@ const actions = {
   resetToken({ commit }) {
     return new Promise(resolve => {
       commit("CLEAR_TOKENS")
-      commit("SET_ROLES", [])
+      // commit("SET_ROLES", [])
+      // commit("SET_RESPONSABILIDADES", [])
       commit("SET_USER", null)
       commit("app/LOADING_RESET", null, { root: true })
       removeToken()
