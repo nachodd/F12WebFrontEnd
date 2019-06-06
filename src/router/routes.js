@@ -27,7 +27,6 @@ const routes = [
         component: () => import("pages/CrearEditarRequerimiento.vue"),
         meta: {
           title: "Nuevo Requerimiento - F12",
-          // roles: ["menu_sistemas"],
         },
       },
       {
@@ -36,7 +35,6 @@ const routes = [
         component: () => import("pages/CrearEditarRequerimiento.vue"),
         meta: {
           title: "Editar Requerimiento - F12",
-          // roles: ["menu_sistemas"],
         },
       },
       {
@@ -45,7 +43,6 @@ const routes = [
         component: () => import("pages/MisRequerimientos.vue"),
         meta: {
           title: "Mis Requerimientos - F12",
-          // roles: ["menu_sistemas"],
         },
       },
       {
@@ -54,7 +51,15 @@ const routes = [
         component: () => import("pages/PriorizarRequerimientos.vue"),
         meta: {
           title: "Priorizar Requerimientos - F12",
-          // roles: ["menu_sistemas"],
+        },
+      },
+      {
+        path: "/asignar-requerimientos",
+        name: "asignar-requerimientos",
+        component: () => import("pages/AsignarRequerimientos.vue"),
+        meta: {
+          title: "Asignar Requerimientos - F12",
+          checkHasResponsabilities: true,
         },
       },
     ],
