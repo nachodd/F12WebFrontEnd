@@ -208,9 +208,9 @@
                 <!-- <q-timeline-entry heading body /> -->
 
                 <q-timeline-entry
-                  v-for="(movimiento, index) in detalleMovimientos"
+                  v-for="(movimiento, index) in req.movimientos"
                   :key="`req_${index}`"
-                  :title="movimiento.estado"
+                  :title="movimiento.estado | formatiarEstado(movimiento)"
                   :subtitle="movimiento | formatiarFecha"
                   icon
                   color
@@ -258,12 +258,18 @@ import { warn, success } from "@utils/helpers"
 export default {
   name: "DialogDetalleRequerimiento",
   filters: {
-    formatiarFecha: function(value) {
+    formatiarFecha(value) {
       let fechaFormatiada = date.formatDate(value.fecha, "DD/MM/YYYY HH:mm")
 
       let retorno = value.usuario + " | " + fechaFormatiada
 
       return retorno
+    },
+    formatiarEstado(value, objMovimiento) {
+      if (objMovimiento.tipo == "Alta") {
+        value = "Alta"
+      }
+      return value
     },
   },
   // components: { ChipLarge, Note },
@@ -295,7 +301,6 @@ export default {
       "reqsPendientesAprobacionLength",
       "reqsAprobadosPriorizadosLength",
       "esAutor",
-      "detalleMovimientos",
     ]),
     maximoSliderPrioridad() {
       // Si la operacion es de seleccionar prioridad, el max del slider será 1 menos que la cant de reqs

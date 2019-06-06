@@ -162,18 +162,6 @@ const getters = {
     )
     return userId === reqUserId
   },
-
-  detalleMovimientos: state => {
-    let retorno = state.detalleRequerimientoItem.movimientos.map(movimiento => {
-      if (movimiento.tipo == "Alta") {
-        movimiento.estado = "Alta"
-      }
-
-      return movimiento
-    })
-
-    return retorno
-  },
 }
 
 const mutations = {
