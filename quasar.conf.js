@@ -15,7 +15,7 @@ module.exports = function(ctx) {
     boot: [
       "axios",
       "router-hooks",
-      "permission-directive",
+      // "permission-directive",
       "filters",
       "auth-href-directive",
     ], // "vuelidate"

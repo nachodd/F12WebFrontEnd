@@ -1,6 +1,5 @@
 import { getToken } from "@utils/auth"
-// import { checkPermission } from "@utils/permission"
-// NOTE: tal vez, si es necesario mas adelanet, se podria armar una funcion similar a la checkPermission pero qeu chequee si tiene o no determinada responsabilidad
+import { checkPermission } from "@utils/permission"
 
 const whiteList = ["/login", "/refresh", "/register"] // no redirect whitelist
 
@@ -21,16 +20,33 @@ export default async ({ router, store }) => {
         // if is logged in, redirect to the home page
         next({ path: "/inicio" })
       } else {
-        const userHasResponsabilities = store.getters["auth/userEsResponsable"]
-        const checkResponsabilities = to.meta && to.meta.checkResponsabilities
+        // get the roles, and if it doesn't have the roles, fetch them (ie, force GET to a page, will have the token buy not the permissions setted)
+        let rolesUser = store.getters["auth/roles"]
+        if (!rolesUser || rolesUser.length === 0) {
+          const { roles } = await store.dispatch("auth/getInfo")
+          rolesUser = roles
+        }
 
-        // if the route need to check for responsabilites, and the user don't have them, logout
-        if (checkResponsabilities && !userHasResponsabilities) {
+        if (rolesUser && rolesUser.length > 0) {
+          // check if it have the permission to access
+          const rolesNeeded = to.meta && to.meta.roles
+          if (rolesNeeded && rolesNeeded.length > 0) {
+            const canAccess = checkPermission(rolesNeeded, rolesUser)
+            if (!canAccess) {
+              await store.dispatch("auth/logout")
+              next(`/login?redirect=${to.path}`)
+            } else {
+              checkAndSetTitle(to.meta)
+              next()
+            }
+          } else {
+            checkAndSetTitle(to.meta)
+            next()
+          }
+        } else {
+          // remove token and go to login page to re-login
           await store.dispatch("auth/logout")
           next(`/login?redirect=${to.path}`)
-        } else {
-          checkAndSetTitle(to.meta)
-          next()
         }
       }
     } else {

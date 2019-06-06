@@ -21,12 +21,12 @@ export function getInfo() {
   })
 }
 
-export function getRoles() {
-  return request({
-    url: "/v1/usuario/roles",
-    method: "get",
-  })
-}
+// export function getRoles() {
+//   return request({
+//     url: "/v1/usuario/roles",
+//     method: "get",
+//   })
+// }
 
 export function logout() {
   return request({
@@ -65,9 +65,40 @@ export function getVinculacion(userId) {
       reject(e)
     }
   })
+}
 
-  // return request({
-  //   url: `v1/usuarios/${userId}/vinculacion`,
-  //   method: "get",
-  // })
+export function getResponsabilidades(userId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/${userId}/responsable`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener los modulos Responsables")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
+export function getUsuarioGestion() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/usuario`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener los modulos Responsables")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
 }
