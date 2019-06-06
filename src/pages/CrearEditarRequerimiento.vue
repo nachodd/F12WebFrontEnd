@@ -34,7 +34,7 @@ export default {
       loadingRequerimiento: state => state.loadingRequerimiento,
     }),
     pageTitle() {
-      if (this.loadingRequerimiento || this.form.procesandoArchivosCargados) {
+      if (this.isPageLoading || this.form.procesandoArchivosCargados) {
         return "Cargando, por favor espere..."
       } else {
         return this.isEdit
@@ -43,7 +43,7 @@ export default {
       }
     },
   },
-  async created() {
+  async mounted() {
     try {
       // incremento el loading así esta fijo ANTES de que haga los llamados
       await this.$store.dispatch("app/loadingInc")
@@ -102,7 +102,10 @@ export default {
           // this.form = new Requerimiento() // no funciona bien, no limpia los custom components
           this.clearForm()
         }
-      } catch (e) {}
+      } catch ({ message }) {
+        // Si es un error simple (no es de validacion de form con array de errores), muestro el msj nomas
+        warn({ message })
+      }
     },
     onError() {
       warn({

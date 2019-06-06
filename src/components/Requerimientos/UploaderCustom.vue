@@ -51,7 +51,7 @@
           <div
             v-show="scope.files.length === 0"
             class="row text-center cursor-pointer q-mt-md"
-            @click="handleClickAddText"
+            @click="scope.pickFiles()"
           >
             <!-- @click="scope.pickFiles()" -->
             <span class="col text-body1">
@@ -63,7 +63,7 @@
         <div class="col order-first">
           <div
             v-show="scope.files.length > 0"
-            class="row justify-around q-col-gutter-sm q-mt-sm"
+            class="row justify-around q-col-gutter-sm q-mt-sm q-mb-md"
           >
             <div v-for="file in scope.files" :key="file.name" class="col-4">
               <q-item class="shadow-2 bg-grey-3 no-padding">

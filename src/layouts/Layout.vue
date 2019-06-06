@@ -5,7 +5,8 @@
     <f12-sidebar />
 
     <q-page-container>
-      <router-view />
+      <!-- FIX: https://stackoverflow.com/questions/42603583/vue-js-same-component-with-different-routes -->
+      <router-view :key="$route.path" />
     </q-page-container>
   </q-layout>
 </template>

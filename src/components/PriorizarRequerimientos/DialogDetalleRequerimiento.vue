@@ -208,19 +208,18 @@
                 <!-- <q-timeline-entry heading body /> -->
 
                 <q-timeline-entry
-                  v-for="(movimiento, index) in req.movimientos"
+                  v-for="(movimiento, index) in detalleMovimientos"
                   :key="`req_${index}`"
                   :title="movimiento.estado"
-                  :subtitle="movimiento.fecha"
+                  :subtitle="
+                    movimiento.usuario + ' | ' + movimiento.fechaFormatiada
+                  "
                   icon
                   color
                   text-color="grey"
+                  class="title-custom"
                 >
-                  <div>
-                    Usuario: {{ movimiento.usuario }}
-                    <br />
-                    {{ movimiento.comentario }}
-                  </div>
+                  <div>{{ movimiento.comentario }}</div>
                 </q-timeline-entry>
               </q-timeline>
             </div>
@@ -260,6 +259,11 @@ import { warn, success } from "@utils/helpers"
 
 export default {
   name: "DialogDetalleRequerimiento",
+  filters: {
+    formatiarFecha: function(value) {
+      return date.formatDate(value, "DD/MM/YYYY HH:mm")
+    },
+  },
   // components: { ChipLarge, Note },
   // components: { Note },
 
@@ -289,6 +293,7 @@ export default {
       "reqsPendientesAprobacionLength",
       "reqsAprobadosPriorizadosLength",
       "esAutor",
+      "detalleMovimientos",
     ]),
     maximoSliderPrioridad() {
       // Si la operacion es de seleccionar prioridad, el max del slider será 1 menos que la cant de reqs
@@ -393,9 +398,10 @@ export default {
   },
   methods: {
     saveChanges() {
+      // Valido, si esta descartando (operacion: descartar && NO es esAutor), debe completar el comentario
       if (
         this.operation === "descartar" &&
-        !this.esElUltimoDeLaCadenaDeMando &&
+        !this.esAutor &&
         !this.$refs.commentDescartar.validate()
       ) {
         return
@@ -420,10 +426,14 @@ export default {
 }
 </script>
 
-<style scope>
+<style lang="scss" scope>
 .avatar--lg {
   font-size: 80px !important;
   height: auto !important;
   width: auto !important;
+}
+
+.title-custom .q-timeline__title {
+  margin: 0px;
 }
 </style>

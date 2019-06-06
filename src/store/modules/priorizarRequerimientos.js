@@ -1,5 +1,6 @@
 import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
 import Requerimiento from "@models/Requerimiento"
+import { date } from "quasar"
 import {
   getRequerimientosByUserAndEstado,
   updateRequerimientosEstados,
@@ -160,6 +161,23 @@ const getters = {
       _.get(state, "detalleRequerimientoItem.usuario.id", null),
     )
     return userId === reqUserId
+  },
+
+  detalleMovimientos: state => {
+    let retorno = state.detalleRequerimientoItem.movimientos.map(movimiento => {
+      movimiento.fechaFormatiada = date.formatDate(
+        movimiento.fecha,
+        "DD/MM/YYYY HH:mm",
+      )
+
+      if (movimiento.tipo == "Alta") {
+        movimiento.estado = "Alta"
+      }
+
+      return movimiento
+    })
+
+    return retorno
   },
 }
 
@@ -519,7 +537,7 @@ const actions = {
       // Para seguir con la convencion de nombres, utilizo listType para la action
 
       let requerimiento = {}
-
+      fetchRequerimiento = true
       if (fetchRequerimiento) {
         dispatch("app/loadingInc", null, { root: true })
         const {

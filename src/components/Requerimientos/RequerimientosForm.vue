@@ -34,15 +34,15 @@
     <div class="row">
       <div class="col">
         <div class="row q-col-gutter-sm">
-          <div class="col col-sm-4 col-xs-12">
+          <!-- <div class="col col-sm-4 col-xs-12">
             <select-custom
               v-model="__area"
               :options="areas"
               label="Area"
               :loading="areas.length === 0"
             />
-          </div>
-          <div class="col col-sm-4 col-xs-12">
+          </div> -->
+          <div class="col col-sm-6 col-xs-12">
             <select-custom
               v-model="__sistema"
               :options="sistemas"
@@ -50,7 +50,7 @@
               :loading="sistemas.length === 0"
             />
           </div>
-          <div class="col col-sm-4 col-xs-12">
+          <div class="col col-sm-6 col-xs-12">
             <select-custom
               v-model="__requerimientoTipo"
               :options="requerimientosTipos"
@@ -106,22 +106,6 @@
             </div>
           </div>
         </q-slide-transition>
-
-        <!-- <q-item v-ripple tag="label" class="list-item--narrow">
-          <q-item-section avatar>
-            <q-checkbox
-              color="accent"
-              :value="importante"
-              @input="$emit('update:importante', $event)"
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>
-              MARCAR ESTE TICKET COMO IMPORTANTE
-              <q-icon name="fas fa-exclamation-triangle" color="red" />
-            </q-item-label>
-          </q-item-section>
-        </q-item> -->
       </q-list>
     </div>
 
@@ -136,7 +120,7 @@
           class="full-width"
           :loading="submitLoading"
         >
-          Cargar Requerimiento
+          {{ submitText }}
         </q-btn>
       </div>
     </div>
@@ -155,6 +139,10 @@ export default {
   components: { SelectCustom, InputDateCustom, UploaderCustom },
   mixins: [formValidation],
   props: {
+    id: {
+      type: Number,
+      default: null,
+    },
     asunto: {
       type: String,
       default: "",
@@ -166,10 +154,6 @@ export default {
     descripcion: {
       type: String,
       default: "",
-    },
-    area: {
-      type: Object,
-      default: null,
     },
     sistema: {
       type: Object,
@@ -187,10 +171,6 @@ export default {
       type: String,
       default: "",
     },
-    // importante: {
-    //   type: Boolean,
-    //   default: false,
-    // },
     adjuntos: {
       type: Array,
       default: () => [],
@@ -204,11 +184,6 @@ export default {
       default: false,
     },
   },
-  // data() {
-  //   return {
-  //     llevaFechaLimite: false,
-  //   }
-  // },
   computed: {
     __adjuntosCargadosUrl: {
       get() {
@@ -216,14 +191,6 @@ export default {
       },
       set(value) {
         this.$emit("update:adjuntosCargadosUrl", value)
-      },
-    },
-    __area: {
-      get() {
-        return this.area
-      },
-      set(value) {
-        this.$emit("update:area", value)
       },
     },
     __sistema: {
@@ -266,8 +233,8 @@ export default {
       loadingOptions: state => state.loadingOptions,
       loadingRequerimiento: state => state.loadingRequerimiento,
     }),
-    isEdit() {
-      return !!this.form.id
+    submitText() {
+      return this.id ? "Editar Requerimiento" : "Cargar Requerimiento"
     },
     motivoLimiteRules() {
       return this.__llevaFechaLimite ? [this.notEmpty] : []
@@ -298,7 +265,7 @@ export default {
     handleFilesRemoved(files) {
       files.forEach(file => {
         const indexInArray = _.findIndex(this.adjuntos, { name: file.name })
-        if (indexInArray) {
+        if (indexInArray >= 0) {
           this.adjuntos.splice(indexInArray, 1)
         }
       })
