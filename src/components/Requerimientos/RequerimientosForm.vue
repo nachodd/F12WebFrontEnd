@@ -265,7 +265,7 @@ export default {
     handleFilesRemoved(files) {
       files.forEach(file => {
         const indexInArray = _.findIndex(this.adjuntos, { name: file.name })
-        if (indexInArray) {
+        if (indexInArray >= 0) {
           this.adjuntos.splice(indexInArray, 1)
         }
       })
