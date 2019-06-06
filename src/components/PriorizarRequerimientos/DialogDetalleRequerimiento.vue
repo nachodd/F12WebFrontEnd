@@ -211,9 +211,7 @@
                   v-for="(movimiento, index) in detalleMovimientos"
                   :key="`req_${index}`"
                   :title="movimiento.estado"
-                  :subtitle="
-                    movimiento.usuario + ' | ' + movimiento.fechaFormatiada
-                  "
+                  :subtitle="movimiento | formatiarFecha"
                   icon
                   color
                   text-color="grey"
@@ -261,7 +259,11 @@ export default {
   name: "DialogDetalleRequerimiento",
   filters: {
     formatiarFecha: function(value) {
-      return date.formatDate(value, "DD/MM/YYYY HH:mm")
+      let fechaFormatiada = date.formatDate(value.fecha, "DD/MM/YYYY HH:mm")
+
+      let retorno = value.usuario + " | " + fechaFormatiada
+
+      return retorno
     },
   },
   // components: { ChipLarge, Note },
@@ -276,7 +278,7 @@ export default {
   },
   data() {
     return {
-      operation: "descartar",
+      operation: null,
       approvedPriority: 1,
       comment: null,
       fixed: false,
@@ -343,12 +345,12 @@ export default {
           // icon: "fas fa-trash",
         },
       ]
-
+      console.log("Es el ultimo de la cadena", this.esElUltimoDeLaCadenaDeMando)
       if (this.esElUltimoDeLaCadenaDeMando) {
         return [
           {
             label: "Seleccionar Prioridad",
-            value: "aprobar",
+            value: "seleccionarPrioridad",
             // icon: "fas fa-sort-amount-down",
           },
         ]
@@ -359,7 +361,7 @@ export default {
         // icon: "fas fa-trash",
       })
 
-      if (this.statePending) {
+      if (this.statePending && !this.esElUltimoDeLaCadenaDeMando) {
         optiones.push({
           label: "Aprobar",
           value: "aprobar",

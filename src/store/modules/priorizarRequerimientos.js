@@ -1,6 +1,6 @@
 import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
 import Requerimiento from "@models/Requerimiento"
-import { date } from "quasar"
+
 import {
   getRequerimientosByUserAndEstado,
   updateRequerimientosEstados,
@@ -165,11 +165,6 @@ const getters = {
 
   detalleMovimientos: state => {
     let retorno = state.detalleRequerimientoItem.movimientos.map(movimiento => {
-      movimiento.fechaFormatiada = date.formatDate(
-        movimiento.fecha,
-        "DD/MM/YYYY HH:mm",
-      )
-
       if (movimiento.tipo == "Alta") {
         movimiento.estado = "Alta"
       }
