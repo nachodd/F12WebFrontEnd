@@ -163,7 +163,7 @@ const actions = {
   },
 
   // get user info
-  getInfo({ commit, state }) {
+  getInfo({ commit }) {
     return new Promise(async (resolve, reject) => {
       try {
         /* const result_user = await getInfo()
@@ -189,13 +189,15 @@ const actions = {
         // commit("SET_VINCULACION", result_vinculacion)
         // commit("SET_RESPONSABILIDADES", result_responsabilidades)
 
+        // resolve({
+        //   user: state.user,
+        //   sistemas: state.userSistemas,
+        // })
+
         const userData = await getUsuarioGestion()
         commit("SET_USER", userData)
 
-        resolve({
-          user: state.user,
-          sistemas: state.userSistemas,
-        })
+        resolve()
       } catch (error) {
         reject(error)
       }

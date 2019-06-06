@@ -17,15 +17,21 @@ export default async ({ router, store }) => {
     // determine whether the user has logged in
     const hasToken = getToken()
     if (hasToken) {
+      // Si tiene el token y no tiene seteado el usuario, lo traigo
+      if (store.getters["auth/user"] === null) {
+        await store.dispatch("auth/getInfo")
+      }
+
       if (to.path === "/login") {
         // if is logged in, redirect to the home page
         next({ path: "/inicio" })
       } else {
-        const userHasResponsabilities = store.getters["auth/userEsResponsable"]
-        const checkResponsabilities = to.meta && to.meta.checkResponsabilities
+        const userHasSistemas = store.getters["auth/userEsResponsable"]
+        const checkHasResponsabilities =
+          to.meta && to.meta.checkHasResponsabilities
 
         // if the route need to check for responsabilites, and the user don't have them, logout
-        if (checkResponsabilities && !userHasResponsabilities) {
+        if (checkHasResponsabilities && !userHasSistemas) {
           await store.dispatch("auth/logout")
           next(`/login?redirect=${to.path}`)
         } else {
