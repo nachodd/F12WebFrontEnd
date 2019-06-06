@@ -9,7 +9,7 @@ import {
 const state = {
   // Create
   options: {
-    areas: [],
+    // areas: [],
     sistemas: [],
     requerimientosTipos: [],
   },
@@ -34,9 +34,9 @@ const getters = {
 }
 
 const mutations = {
-  SET_OPTIONS: (state, { areas, sistemas, requerimientos_tipos }) => {
+  SET_OPTIONS: (state, { sistemas, requerimientos_tipos }) => {
     // state.options.areas = Vue.set(state.options, "areas", areas)
-    state.options.areas = areas
+    // state.options.areas = areas
     state.options.sistemas = sistemas
     state.options.requerimientosTipos = requerimientos_tipos
   },
@@ -58,29 +58,25 @@ const mutations = {
 const actions = {
   createRequerimiento({ commit, state }) {
     return new Promise(async (resolve, reject) => {
-      const { areas, sistemas, requerimientosTipos } = state.options
-      commit("SET_LOADING_OPTS", true)
-      commit("SET_LOADING_REQ", true)
-      commit("app/LOADING_INC", null, { root: true })
-      if (areas.length && sistemas.length && requerimientosTipos.length) {
-        commit("SET_LOADING_OPTS", false)
-        commit("SET_LOADING_REQ", false)
-        commit("app/LOADING_DEC", null, { root: true })
-        resolve()
-      } else {
-        try {
+      try {
+        const { sistemas, requerimientosTipos } = state.options
+        commit("SET_LOADING_OPTS", true)
+        commit("SET_LOADING_REQ", true)
+        commit("app/LOADING_INC", null, { root: true })
+        if (sistemas.length && requerimientosTipos.length) {
+          resolve()
+        } else {
           // destructuring value: https://medium.com/@pyrolistical/destructuring-nested-objects-9dabdd01a3b8
           const { data } = await createRequerimiento()
           commit("SET_OPTIONS", data)
-
           resolve()
-        } catch (error) {
-          reject(error)
-        } finally {
-          commit("SET_LOADING_OPTS", false)
-          commit("SET_LOADING_REQ", false)
-          commit("app/LOADING_DEC", null, { root: true })
         }
+      } catch (error) {
+        reject(error)
+      } finally {
+        commit("SET_LOADING_OPTS", false)
+        commit("SET_LOADING_REQ", false)
+        commit("app/LOADING_DEC", null, { root: true })
       }
     })
   },
