@@ -106,7 +106,7 @@ const actions = {
       commit("app/LOADING_INC", null, { root: true })
       try {
         let userRequerimientos = userId
-        const actualUserId = _.get(rootState, "auth.user.Id", null)
+        const actualUserId = _.get(rootState, "auth.user.id", null)
         if (!userRequerimientos && actualUserId) {
           userRequerimientos = actualUserId
         }

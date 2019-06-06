@@ -88,8 +88,9 @@ export default {
       return this.$q.screen.gt.xs
     },
     razonSocial() {
-      if (this.user && this.user.RazonSocial) {
-        return this.user.RazonSocial
+      debugger
+      if (this.user && this.user.razonSocial) {
+        return this.user.razonSocial
       }
       return "Usuario"
     },
