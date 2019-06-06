@@ -5,7 +5,8 @@
     class="cursor-pointer"
   >
     <q-item-section avatar>
-      <q-avatar icon="account_box" color text-color="grey" class="avatar--lg" />
+      <!-- <q-avatar icon="account_box" color text-color="grey" class="avatar--lg" /> -->
+      <q-badge color="grey">#{{ req.id }}</q-badge>
     </q-item-section>
 
     <q-item-section>

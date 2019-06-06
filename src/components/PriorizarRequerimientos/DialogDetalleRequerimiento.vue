@@ -1,10 +1,11 @@
 <template>
   <q-dialog
     v-model="detalleRequerimientoOpen"
+    persistent
     transition-show="scale"
     transition-hide="scale"
   >
-    <q-card>
+    <q-card v-if="requerimientoSetted">
       <q-card-section class="bg-deep-purple-10 text-white items-center">
         <div class="text-h6">Requerimiento Nº {{ req.id }}</div>
         <div class="text-subtitle3 text-white-7">{{ req.usuario.nombre }}</div>
@@ -15,8 +16,8 @@
         v-model="tab"
         dense
         class="bg-grey-3 text-grey-7"
-        active-color="purple"
-        indicator-color="purple"
+        active-color="deep-purple-10"
+        indicator-color="deep-purple-10"
         align="justify"
         narrow-indicator
       >
@@ -26,7 +27,8 @@
       </q-tabs>
       <q-separator />
       <q-card-section
-        style="max-height: 50vh;padding:0px !important;"
+        id="test"
+        style="height: 50vh;width:84vh;padding:0px !important;"
         class="scroll"
       >
         <!-- <p v-for="n in 15" :key="n">
@@ -39,6 +41,10 @@
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="detalle">
             <!-- <div class="text-h6">{{ req.asunto }}</div> -->
+
+            <!-- aviso de vencimiento -->
+
+            <!-- detalle -->
             <div class="row">
               <div class="col-4">
                 <div class="text-grey-7">Area</div>
@@ -72,6 +78,127 @@
             <br />
             <br />
             <!-- <q-separator /> -->
+
+            <q-banner
+              v-if="req.vence"
+              inline-actions
+              class="text-white bg-red-4"
+              style="margin-bottom:20px;"
+              rounded
+            >
+              <div>
+                <span>Vencimiento:</span>
+                <br />
+                {{ req.fechaLimite }}
+                <template v-if="vencimientoDiff !== null">
+                  <span v-if="vencimientoDiff > 0" class="text-white">
+                    (Faltan
+                    <strong>{{ vencimientoDiff }}</strong>
+                    días)
+                  </span>
+
+                  <span v-if="vencimientoDiff === 0" class="text-white">
+                    (HOY es el día de vencimiento)
+                  </span>
+
+                  <strong v-if="vencimientoDiff < 0">
+                    (Este req. se encuentra vencido )
+                  </strong>
+                </template>
+                <br />
+                <br />
+                <span class>Motivo:</span>
+                <br />
+                {{ req.motivoLimite }}
+              </div>
+              <template v-slot:action>
+                <!-- <q-btn flat color="white" label="Turn ON Wifi" /> -->
+                <q-avatar
+                  icon="info"
+                  color
+                  text-color="white"
+                  class="avatar--lg"
+                />
+              </template>
+            </q-banner>
+          </q-tab-panel>
+
+          <q-tab-panel name="acciones">
+            <!-- <div class="text-h6">Movies</div> -->
+
+            <div class="text-grey-7">
+              Seleccione una acción a ejecutar sobre el requerimiento
+            </div>
+
+            <q-select
+              v-model="operation"
+              filled
+              :options="options"
+              options-cover
+              emit-value
+              map-options
+            />
+
+            <div class="q-mt-md">
+              <!-- seleccion de prioridad y motivo para cuando aprueba o reordena-->
+              <q-slide-transition>
+                <div v-show="isApprovingOrReordering" class="q-mt-md">
+                  <div class="row">
+                    <div class="col">
+                      <div>
+                        Seleccione una Prioridad para este Requerimiento:
+                      </div>
+                      <br />
+                      <q-slider
+                        v-model="approvedPriority"
+                        class="slider"
+                        markers
+                        :min="1"
+                        :max="maximoSliderPrioridad"
+                        label
+                        label-always
+                        color="accent"
+                      />
+                    </div>
+                  </div>
+                  <div v-if="operation === 'aprobar'" class="row">
+                    <div class="col">
+                      <q-input
+                        v-model="comment"
+                        color="accent"
+                        outlined
+                        autogrow
+                        label="Si desea, puede agregar un comentario: "
+                        :hide-bottom-space="true"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </q-slide-transition>
+
+              <!-- motivo para cuando descarta -->
+              <q-slide-transition>
+                <div
+                  v-show="
+                    operation === 'descartar' && !esElUltimoDeLaCadenaDeMando
+                  "
+                  class="row"
+                >
+                  <div class="col">
+                    <q-input
+                      ref="commentDescartar"
+                      v-model="comment"
+                      color="accent"
+                      outlined
+                      autogrow
+                      label="Agregar un motivo:"
+                      :hide-bottom-space="true"
+                      :rules="[notEmpty]"
+                    />
+                  </div>
+                </div>
+              </q-slide-transition>
+            </div>
           </q-tab-panel>
 
           <q-tab-panel name="movimientos">
@@ -98,19 +225,25 @@
               </q-timeline>
             </div>
           </q-tab-panel>
-
-          <q-tab-panel name="acciones">
-            <!-- <div class="text-h6">Movies</div> -->
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
 
       <q-separator />
 
+      <!-- Botones de accion para el requerimiento -->
       <q-card-actions align="right">
-        <q-btn v-close-popup flat label="Cerrar" color="purple" />
-        <q-btn v-close-popup flat label="Guardar" color="purple" />
+        <q-btn
+          flat
+          label="Cerrar"
+          color="deep-purple-10"
+          @click="detalleRequerimientoOpen = false"
+        />
+        <q-btn
+          v-show="operation !== null"
+          label="Guardar"
+          color="deep-purple-10"
+          @click="saveChanges"
+        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -128,6 +261,7 @@ import { warn, success } from "@utils/helpers"
 export default {
   name: "DialogDetalleRequerimiento",
   // components: { ChipLarge, Note },
+  // components: { Note },
 
   mixins: [priorityColor, formValidation],
   props: {
@@ -138,7 +272,7 @@ export default {
   },
   data() {
     return {
-      operation: null,
+      operation: "descartar",
       approvedPriority: 1,
       comment: null,
       fixed: false,
@@ -195,40 +329,48 @@ export default {
           })
       },
     },
-    /* options() {
+
+    options() {
+      const optiones = [
+        {
+          label: "Ninguna seleccionada",
+          value: null,
+          // icon: "fas fa-trash",
+        },
+      ]
+
       if (this.esElUltimoDeLaCadenaDeMando) {
         return [
           {
             label: "Seleccionar Prioridad",
             value: "aprobar",
-            icon: "fas fa-sort-amount-down",
+            // icon: "fas fa-sort-amount-down",
           },
         ]
       }
-      const options = [
-        {
-          label: "Descartar",
-          value: "descartar",
-          icon: "fas fa-trash",
-        },
-      ]
+      optiones.push({
+        label: "Descartar",
+        value: "descartar",
+        // icon: "fas fa-trash",
+      })
+
       if (this.statePending) {
-        options.push({
+        optiones.push({
           label: "Aprobar",
           value: "aprobar",
-          icon: "fas fa-check",
+          // icon: "fas fa-check",
         })
       }
       if (this.stateApproved) {
-        options.push({
-          label: "Vovler a Pend. Aprob.",
+        optiones.push({
+          label: "Volver a Pend. Aprob.",
           value: "pendiente",
           icon: "fas fa-undo",
         })
       }
 
-      return options
-    }, */
+      return optiones
+    },
     statePending() {
       return this.req.estado.id === 1
     },
@@ -277,3 +419,11 @@ export default {
   },
 }
 </script>
+
+<style scope>
+.avatar--lg {
+  font-size: 80px !important;
+  height: auto !important;
+  width: auto !important;
+}
+</style>

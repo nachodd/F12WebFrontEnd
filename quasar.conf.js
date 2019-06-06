@@ -82,6 +82,7 @@ module.exports = function(ctx) {
         "QTabs",
         "QTabPanel",
         "QTabPanels",
+        "QBanner"
       ],
 
       directives: ["Ripple", "ClosePopup"],
