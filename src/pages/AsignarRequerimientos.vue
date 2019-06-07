@@ -20,16 +20,18 @@
         />
       </div>
       <div class="col-sm-4 col-xs-12">
-        <list-requerimientos
+        <asignar-requerimientos-list
+          :requerimientos-list="requerimientosAsignados"
           :loading-list="loadingList"
           title="Requerimientos Asignados"
-        ></list-requerimientos>
+        />
       </div>
       <div class="col-sm-4 col-xs-12">
-        <list-requerimientos
+        <asignar-requerimientos-list
+          :requerimientos-list="requerimientosPendientes"
           :loading-list="loadingList"
           title="Requerimientos en Ejecucion"
-        ></list-requerimientos>
+        />
       </div>
     </div>
 
@@ -40,23 +42,25 @@
 </template>
 
 <script>
-import PageHeader from "@comp/Common/PageHeader"
-import ListRequerimientos from "@comp/Common/ListRequerimientos"
-import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequerimientosList"
 import { mapGetters, mapState } from "vuex"
+import pageLoading from "@mixins/pageLoading"
+import PageHeader from "@comp/Common/PageHeader"
+import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequerimientosList"
 
 export default {
+  name: "AsignarRequerimientos",
   components: {
     PageHeader,
-    ListRequerimientos,
     AsignarRequerimientosList,
   },
+  mixins: [pageLoading],
   data: () => ({
-    loadingList: false,
+    // loadingList: false,
   }),
   computed: {
     ...mapState("asignacionRequerimientos", {
       reqs: state => state.requerimientos,
+      loadingList: state => state.loadingRequerimientos,
     }),
     ...mapGetters("asignacionRequerimientos", [
       "requerimientosSinAsignar",
@@ -65,7 +69,7 @@ export default {
     ]),
   },
   watch: {
-    requerimientosSinAsignar(val) {
+    /* requerimientosSinAsignar(val) {
       console.log("requerimientosSinAsignar", val)
     },
     requerimientosAsignados(val) {
@@ -76,7 +80,7 @@ export default {
     },
     reqs(val) {
       console.log("reqs", val)
-    },
+    }, */
   },
   created() {
     this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
