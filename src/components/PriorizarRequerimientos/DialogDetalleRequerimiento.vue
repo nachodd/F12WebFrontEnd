@@ -61,7 +61,7 @@
               <div class="col-4">
                 <div class="text-grey-7">Tipo</div>
                 <q-item-label lines="1">
-                  {{ req.requerimientoTipo.descripcion }}
+                  {{ req.tipo.descripcion }}
                 </q-item-label>
               </div>
             </div>
