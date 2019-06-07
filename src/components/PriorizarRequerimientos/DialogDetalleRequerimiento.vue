@@ -22,7 +22,7 @@
         narrow-indicator
       >
         <q-tab name="detalle" label="Detalle" />
-        <q-tab name="acciones" label="Acciones" />
+        <q-tab v-if="verTabAcciones" name="acciones" label="Acciones" />
         <q-tab name="movimientos" label="Movimientos" />
       </q-tabs>
       <q-separator />
@@ -123,7 +123,7 @@
             </q-banner>
           </q-tab-panel>
 
-          <q-tab-panel name="acciones">
+          <q-tab-panel v-if="verTabAcciones" name="acciones">
             <!-- <div class="text-h6">Movies</div> -->
 
             <div class="text-grey-7">
@@ -401,6 +401,12 @@ export default {
       } else {
         return this.stateApproved && this.reqsAprobadosPriorizadosLength > 1
       }
+    },
+    verTabAcciones() {
+      if (this.$route.name == "mis-requerimientos") {
+        return false
+      }
+      return true
     },
   },
   methods: {
