@@ -292,7 +292,7 @@ export default {
     }
   },
   computed: {
-    ...mapState("priorizarRequerimientos", {
+    ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando", "userId"]),
@@ -324,15 +324,11 @@ export default {
     },
     detalleRequerimientoOpen: {
       get() {
-        return this.$store.state.priorizarRequerimientos
-          .detalleRequerimientoOpen
+        return this.$store.state.requerimientos.detalleRequerimientoOpen
       },
       set(value) {
         return this.$store
-          .dispatch(
-            "priorizarRequerimientos/setDetalleRequerimientoOpen",
-            value,
-          )
+          .dispatch("requerimientos/setDetalleRequerimientoOpen", value)
           .then(() => {
             // Reset de la operacion (para los botones) y la prioridad seleccionada
             this.operation = null

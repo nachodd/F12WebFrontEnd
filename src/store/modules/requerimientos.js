@@ -6,6 +6,8 @@ import {
   updateRequerimiento,
 } from "@api/requerimientos"
 
+import Requerimiento from "@models/Requerimiento"
+
 const state = {
   // Create
   options: {
@@ -26,6 +28,8 @@ const state = {
     { codigo: "REJC", descripcion: "Rechazado", id: 7 },
   ],
   misRequerimientos: [],
+  detalleRequerimientoOpen: false,
+  detalleRequerimientoItem: {},
 }
 
 // getters
@@ -54,6 +58,22 @@ const mutations = {
 
   SET_MIS_REQUERIMIENTOS: (state, newState) => {
     state.misRequerimientos = newState
+  },
+
+  SET_DETALLE_REQUERIMIENTO_ITEM: (state, requerimiento) => {
+    if (requerimiento) {
+      state.detalleRequerimientoItem = new Requerimiento(requerimiento)
+      // state.detalleRequerimientoItem = Object.assign(
+      //   {},
+      //   state.detalleRequerimientoItem,
+      //   new Requerimiento(requerimiento),
+      // )
+    } else {
+      state.detalleRequerimientoItem = null
+    }
+  },
+  SET_DETALLE_REQUERIMIENTO_OPEN: (state, value) => {
+    state.detalleRequerimientoOpen = value
   },
 }
 
@@ -143,6 +163,66 @@ const actions = {
         commit("SET_LOADING_REQ", false)
         commit("app/LOADING_DEC", null, { root: true })
       }
+    })
+  },
+
+  abrirDetalleRequerimiento(
+    { commit, state, rootState },
+    { reqId, listName, fetchRequerimiento = false },
+  ) {
+    return new Promise(async (/* resolve, reject */) => {
+      // Para seguir con la convencion de nombres, utilizo listType para la action
+
+      let requerimiento = {}
+
+      // fetchRequerimiento = false;
+
+      if (fetchRequerimiento) {
+        // cuando es true viene desde "mis-requerimientos" cambiar nombre de la variable
+        let list = state.misRequerimientos
+        requerimiento = _.find(list, { id: reqId })
+      } else {
+        let listType = listName === "source" ? "pending" : "approved"
+
+        let reqsPendientesAprobacion = _.get(
+          rootState,
+          "priorizarRequerimientos.reqsPendientesAprobacion",
+          null,
+        )
+
+        let reqsAprobadosPriorizados = _.get(
+          rootState,
+          "priorizarRequerimientos.reqsAprobadosPriorizados",
+          null,
+        )
+        const list =
+          listType === "pending"
+            ? reqsPendientesAprobacion.list
+            : reqsAprobadosPriorizados.list
+
+        requerimiento = _.find(list, { id: reqId })
+      }
+
+      if (requerimiento) {
+        commit("SET_DETALLE_REQUERIMIENTO_ITEM", requerimiento)
+      } else {
+        commit("SET_DETALLE_REQUERIMIENTO_ITEM", {})
+      }
+
+      if (state.detalleRequerimientoItem) {
+        commit("SET_DETALLE_REQUERIMIENTO_OPEN", true)
+      }
+    })
+  },
+
+  setDetalleRequerimientoOpen({ commit }, value) {
+    return new Promise(resolve => {
+      commit("SET_DETALLE_REQUERIMIENTO_OPEN", value)
+      // si está cerrando, borro el requerimiento detalle
+      if (!value) {
+        commit("SET_DETALLE_REQUERIMIENTO_ITEM", null)
+      }
+      resolve()
     })
   },
 }
