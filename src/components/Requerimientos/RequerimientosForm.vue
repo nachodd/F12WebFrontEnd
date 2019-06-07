@@ -52,7 +52,7 @@
           </div>
           <div class="col col-sm-6 col-xs-12">
             <select-custom
-              v-model="__requerimientoTipo"
+              v-model="__tipo"
               :options="requerimientosTipos"
               label="Tipo de Requerimiento"
               :loading="requerimientosTipos.length === 0"
@@ -159,7 +159,7 @@ export default {
       type: Object,
       default: null,
     },
-    requerimientoTipo: {
+    tipo: {
       type: Object,
       default: null,
     },
@@ -201,12 +201,12 @@ export default {
         this.$emit("update:sistema", value)
       },
     },
-    __requerimientoTipo: {
+    __tipo: {
       get() {
-        return this.requerimientoTipo
+        return this.tipo
       },
       set(value) {
-        this.$emit("update:requerimientoTipo", value)
+        this.$emit("update:tipo", value)
       },
     },
     __llevaFechaLimite: {

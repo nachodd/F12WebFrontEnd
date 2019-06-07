@@ -17,11 +17,13 @@ const state = {
   loadingRequerimiento: true,
 
   estados: [
-    { codigo: "PEND", descripcion: "Pendiente aprobación", id: "1" },
-    { codigo: "APRV", descripcion: "Aprobado", id: "2" },
-    { codigo: "EXEC", descripcion: "En ejecución", id: "3" },
-    { codigo: "RESC", descripcion: "Resuelto cerrado", id: "4" },
-    { codigo: "REJC", descripcion: "Rechazado", id: "5" },
+    { codigo: "PEND", descripcion: "Pendiente aprobación", id: 1 },
+    { codigo: "APRV", descripcion: "Aprobado", id: 2 },
+    { codigo: "NOAS", descripcion: "Sin Asignar", id: 3 },
+    { codigo: "ASSI", descripcion: "Asignado", id: 4 },
+    { codigo: "EXEC", descripcion: "En ejecución", id: 5 },
+    { codigo: "RESC", descripcion: "Resuelto cerrado", id: 6 },
+    { codigo: "REJC", descripcion: "Rechazado", id: 7 },
   ],
   misRequerimientos: [],
 }
@@ -113,7 +115,6 @@ const actions = {
         const {
           data: { data },
         } = await listRequerimientos(userRequerimientos)
-        console.log(data)
         commit("SET_MIS_REQUERIMIENTOS", data)
 
         resolve()
