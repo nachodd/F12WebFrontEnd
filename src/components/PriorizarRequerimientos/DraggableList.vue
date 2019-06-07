@@ -88,8 +88,7 @@ export default {
   methods: {
     // map `this.abrirDetalleRequerimiento(...)` to `this.$store.dispatch("priorizarRequerimientos/abrirDetalleRequerimiento",...)`
     ...mapActions({
-      abrirDetalleRequerimiento:
-        "priorizarRequerimientos/abrirDetalleRequerimiento",
+      abrirDetalleRequerimiento: "requerimientos/abrirDetalleRequerimiento",
     }),
     getPayload(index) {
       return this.requerimientosList.list[index]

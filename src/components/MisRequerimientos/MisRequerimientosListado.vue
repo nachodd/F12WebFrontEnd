@@ -39,8 +39,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      abrirDetalleRequerimiento:
-        "priorizarRequerimientos/abrirDetalleRequerimiento",
+      abrirDetalleRequerimiento: "requerimientos/abrirDetalleRequerimiento",
     }),
   },
 }
