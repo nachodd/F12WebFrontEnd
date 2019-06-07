@@ -68,3 +68,39 @@ export function updateRequerimientosEstados(userId, requerimientosList) {
     data: requerimientosList,
   })
 }
+
+export function getRequerimientosForAsignar(userId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/${userId}/requerimientos/asignacion`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener la Requerimientos Pendientes de Asignación")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
+export function getRequerimientosAsignados(userId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/${userId}/requerimientos/asignados`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener la Requerimientos Pendientes de Asignación")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}

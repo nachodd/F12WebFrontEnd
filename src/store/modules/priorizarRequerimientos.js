@@ -1,5 +1,5 @@
 import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
-import Requerimiento from "@models/Requerimiento"
+import Requerimiento from "src/models/Requerimiento"
 import {
   getRequerimientosByUserAndEstado,
   updateRequerimientosEstados,

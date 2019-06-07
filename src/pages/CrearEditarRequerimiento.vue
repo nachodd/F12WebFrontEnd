@@ -118,7 +118,7 @@ export default {
       this.form.descripcion = ""
       this.form.area = null
       this.form.sistema = null
-      this.form.requerimientoTipo = null
+      this.form.tipo = null
       this.form.fechaLimite = null
       this.form.motivoLimite = ""
       this.form.importante = false

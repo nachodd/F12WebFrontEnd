@@ -9,7 +9,7 @@ export default class Requerimiento {
     this.descripcion = req.descripcion ? req.descripcion : ""
     this.area = req.area ? req.area : null
     this.sistema = req.sistema ? req.sistema : null
-    this.requerimientoTipo = req.tipo ? req.tipo : null
+    this.tipo = req.tipo ? req.tipo : null
     this.prioridad = req.prioridad ? req.prioridad : 5
     this.adjuntos = []
     this.adjuntosCargadosUrl = req.adjuntos ? req.adjuntos : []
@@ -36,6 +36,7 @@ export default class Requerimiento {
     this.movimientos = req.movimientos ? req.movimientos : null
     this.usuario = req.usuario ? req.usuario : null
     this.comentario = req.comentario ? req.comentario : null
+    this.movimientos = req.movimientos ? req.movimientos : []
   }
 
   // get name() {
@@ -62,9 +63,7 @@ export default class Requerimiento {
       descripcion: this.descripcion,
       // area: this.area ? this.area.id : null,
       sistema: this.sistema ? this.sistema.id : null,
-      requerimiento_tipo: this.requerimientoTipo
-        ? this.requerimientoTipo.id
-        : null,
+      requerimiento_tipo: this.tipo ? this.tipo.id : null,
       fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
       // importante: +this.importante, // + to Parse Boolean to Number
@@ -82,9 +81,7 @@ export default class Requerimiento {
       descripcion: this.descripcion,
       // area: this.area ? this.area.id : null,
       sistema: this.sistema ? this.sistema.id : null,
-      requerimiento_tipo: this.requerimientoTipo
-        ? this.requerimientoTipo.id
-        : null,
+      requerimiento_tipo: this.tipo ? this.tipo.id : null,
       fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
       prioridad: this.prioridad,

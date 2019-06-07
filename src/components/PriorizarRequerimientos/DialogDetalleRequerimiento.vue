@@ -39,10 +39,7 @@
               avatar-text="Stistema"
               :text="req.sistema.descripcion"
             />
-            <chip-large
-              avatar-text="Req. Tipo"
-              :text="req.requerimientoTipo.descripcion"
-            />
+            <chip-large avatar-text="Req. Tipo" :text="req.tipo.descripcion" />
           </div>
         </div>
         <div class="row q-mt-sm">
