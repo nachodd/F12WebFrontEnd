@@ -1,11 +1,12 @@
 import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
 import Requerimiento from "@models/Requerimiento"
+
 import {
   getRequerimientosByUserAndEstado,
   updateRequerimientosEstados,
   refuseRequerimiento,
   deleteRequerimiento,
-  getRequerimiento,
+  // getRequerimiento,
 } from "@api/requerimientos"
 import { warn, success } from "@utils/helpers"
 
@@ -512,7 +513,7 @@ const actions = {
     })
   },
   abrirDetalleRequerimiento(
-    { dispatch, commit, state },
+    { commit, state, rootState },
     { reqId, listName, fetchRequerimiento = false },
   ) {
     return new Promise(async (/* resolve, reject */) => {
@@ -520,15 +521,15 @@ const actions = {
 
       let requerimiento = {}
 
+      // fetchRequerimiento = false;
+
       if (fetchRequerimiento) {
-        dispatch("app/loadingInc", null, { root: true })
-        const {
-          data: { data },
-        } = await getRequerimiento(reqId)
-        requerimiento = data
-        dispatch("app/loadingDec", null, { root: true })
+        // cuando es true viene desde "mis-requerimientos" cambiar nombre de la variable
+        let list = _.get(rootState, "requerimientos.misRequerimientos", null)
+        requerimiento = _.find(list, { id: reqId })
       } else {
         const listType = listName === "source" ? "pending" : "approved"
+
         let list =
           listType === "pending"
             ? state.reqsPendientesAprobacion.list
