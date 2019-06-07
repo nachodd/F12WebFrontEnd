@@ -524,15 +524,7 @@ const actions = {
       // fetchRequerimiento = false;
 
       if (fetchRequerimiento) {
-        // dispatch("app/loadingInc", null, { root: true })
-
-        // const {
-        //   data: { data },
-        // } = await getRequerimiento(reqId)
-
-        // requerimiento = data
-        // dispatch("app/loadingDec", null, { root: true })
-
+        // cuando es true viene desde "mis-requerimientos" cambiar nombre de la variable
         let list = _.get(rootState, "requerimientos.misRequerimientos", null)
         requerimiento = _.find(list, { id: reqId })
       } else {
