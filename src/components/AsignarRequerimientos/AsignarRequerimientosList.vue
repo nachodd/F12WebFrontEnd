@@ -11,12 +11,19 @@
         :key="`req_${req.id}`"
         :req="req"
         :index="index"
+        @click.native="
+          abrirDetalleRequerimiento({
+            reqId: req.id,
+            listName: 'asignar-requerimientos',
+          })
+        "
       />
     </template>
   </list-requerimientos>
 </template>
 
 <script>
+import { mapActions } from "vuex"
 import ListRequerimientos from "@comp/Common/ListRequerimientos"
 import AsignarRequerimientosItem from "@comp/AsignarRequerimientos/AsignarRequerimientosItem"
 
@@ -43,6 +50,11 @@ export default {
     listEmpty() {
       return this.requerimientosList.length === 0
     },
+  },
+  methods: {
+    ...mapActions({
+      abrirDetalleRequerimiento: "requerimientos/abrirDetalleRequerimiento",
+    }),
   },
 }
 </script>

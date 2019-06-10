@@ -1,17 +1,16 @@
 <template>
   <q-page padding>
-    <page-header title="Asignar Requerimientos" />
-
-    <!-- <q-page class="scrolling-wrapper">
-      <div class="scrolling-wrapper__card">
-        <list-requerimientos
-          :loading-list="loadingList"
-          title="Requerimientos Por Asignar"
-        ></list-requerimientos>
+    <page-header title="Asignar Requerimientos" no-margin />
+    <div class="row q-py-md">
+      <div class="col">
+        <div class="square bg-red-7">&nbsp;</div>
+        Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
+        <div class="square bg-light-blue-7">&nbsp;</div>
+        Desarrollo / Mejora
       </div>
-    </q-page> -->
+    </div>
 
-    <div class="row q-col-gutter-sm">
+    <div class="row q-pt-md q-col-gutter-sm">
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
           :requerimientos-list="requerimientosSinAsignar"
@@ -20,63 +19,54 @@
         />
       </div>
       <div class="col-sm-4 col-xs-12">
-        <list-requerimientos
+        <asignar-requerimientos-list
+          :requerimientos-list="requerimientosAsignados"
           :loading-list="loadingList"
           title="Requerimientos Asignados"
-        ></list-requerimientos>
+        />
       </div>
       <div class="col-sm-4 col-xs-12">
-        <list-requerimientos
+        <asignar-requerimientos-list
+          :requerimientos-list="requerimientosPendientes"
           :loading-list="loadingList"
           title="Requerimientos en Ejecucion"
-        ></list-requerimientos>
+        />
       </div>
     </div>
 
-    <!--
-    <dialog-confirm-operation /> -->
-    <!-- <dialog-detalle-requerimiento /> -->
+    <dialog-detalle-requerimiento />
+    <!-- <dialog-confirm-operation /> -->
   </q-page>
 </template>
 
 <script>
-import PageHeader from "@comp/Common/PageHeader"
-import ListRequerimientos from "@comp/Common/ListRequerimientos"
-import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequerimientosList"
 import { mapGetters, mapState } from "vuex"
+import pageLoading from "@mixins/pageLoading"
+import PageHeader from "@comp/Common/PageHeader"
+import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequerimientosList"
+import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 
 export default {
+  name: "AsignarRequerimientos",
   components: {
     PageHeader,
-    ListRequerimientos,
     AsignarRequerimientosList,
+    DialogDetalleRequerimiento,
   },
+  mixins: [pageLoading],
   data: () => ({
-    loadingList: false,
+    // loadingList: false,
   }),
   computed: {
     ...mapState("asignacionRequerimientos", {
       reqs: state => state.requerimientos,
+      loadingList: state => state.loadingRequerimientos,
     }),
     ...mapGetters("asignacionRequerimientos", [
       "requerimientosSinAsignar",
       "requerimientosAsignados",
       "requerimientosPendientes",
     ]),
-  },
-  watch: {
-    requerimientosSinAsignar(val) {
-      console.log("requerimientosSinAsignar", val)
-    },
-    requerimientosAsignados(val) {
-      console.log("requerimientosAsignados", val)
-    },
-    requerimientosPendientes(val) {
-      console.log("requerimientosPendientes", val)
-    },
-    reqs(val) {
-      console.log("reqs", val)
-    },
   },
   created() {
     this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
@@ -99,5 +89,12 @@ export default {
   flex: 0 0 auto;
   min-width: 400px;
   margin-right: 1em;
+}
+
+.square {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  vertical-align: middle;
 }
 </style>
