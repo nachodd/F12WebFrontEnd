@@ -11,9 +11,10 @@ const state = {
 const getters = {
   requerimientosSinAsignar: (state, getters, rootState, rootGetters) => {
     const estSinAsig = rootGetters["requerimientos/getEstadoByCodigo"]("NOAS")
-    return _.filter(state.requerimientos, {
+    const reqsSinAsig = _.filter(state.requerimientos, {
       estado: { id: estSinAsig.id },
     })
+    return _.orderBy(reqsSinAsig, "tipo.id", "asc")
   },
   requerimientosAsignados: (state, getters, rootState, rootGetters) => {
     const estAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
@@ -37,11 +38,13 @@ const mutations = {
     state.loadingRequerimientos = loadingRequerimientos
   },
 }
+
 const actions = {
   fetchRequerimientos({ commit, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {
         commit("app/LOADING_INC", null, { root: true })
+        commit("SET_LOADING_REQUERIMIENTOS", true)
         // Determino el userId para los requerimientos
         const userIdForRequerimientos = userId
           ? userId
@@ -55,6 +58,7 @@ const actions = {
         reject(error)
       } finally {
         commit("app/LOADING_DEC", null, { root: true })
+        commit("SET_LOADING_REQUERIMIENTOS", false)
       }
     })
   },

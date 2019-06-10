@@ -22,7 +22,17 @@
         narrow-indicator
       >
         <q-tab name="detalle" label="Detalle" />
-        <q-tab v-if="verTabAcciones" name="acciones" label="Acciones" />
+        <q-tab
+          v-if="tabAccionesPriorizarReqs"
+          name="accionesPriorizarReqs"
+          label="Acciones"
+        />
+        <q-tab
+          v-if="tabAccionesAsignarReqs"
+          name="accionesAsignarReqs"
+          label="Acciones"
+        />
+
         <q-tab name="movimientos" label="Movimientos" />
       </q-tabs>
       <q-separator />
@@ -123,7 +133,12 @@
             </q-banner>
           </q-tab-panel>
 
-          <q-tab-panel v-if="verTabAcciones" name="acciones">
+          <!-- <component :is="adas"> -->
+
+          <q-tab-panel
+            v-if="tabAccionesPriorizarReqs"
+            name="accionesPriorizarReqs"
+          >
             <!-- <div class="text-h6">Movies</div> -->
 
             <div class="text-grey-7">
@@ -133,7 +148,7 @@
             <q-select
               v-model="operation"
               filled
-              :options="options"
+              :options="optionsPriorizar"
               options-cover
               emit-value
               map-options
@@ -192,6 +207,54 @@
                       outlined
                       autogrow
                       label="Agregar un motivo:"
+                      :hide-bottom-space="true"
+                      :rules="[notEmpty]"
+                    />
+                  </div>
+                </div>
+              </q-slide-transition>
+            </div>
+          </q-tab-panel>
+
+          <slot name="acciones" />
+
+          <q-tab-panel v-if="tabAccionesAsignarReqs" name="accionesAsignarReqs">
+            <div class="text-grey-7">
+              Seleccione una acción:
+            </div>
+
+            <q-select
+              v-model="operationAsignar"
+              filled
+              :options="optionsAsignar"
+              options-cover
+              emit-value
+              map-options
+            />
+
+            <div class="q-mt-md">
+              <!-- coemntario para cuando asigna -->
+              <q-slide-transition>
+                <div v-show="operationAsignar === 'asignar'" class="row">
+                  <div class="col-12">
+                    <q-select
+                      v-model="usuarioAsignado"
+                      filled
+                      :options="asignacionUsuarios"
+                      options-cover
+                      emit-value
+                      map-options
+                    />
+                  </div>
+
+                  <div class="col-12">
+                    <q-input
+                      ref="commentAsignar"
+                      v-model="comment"
+                      color="accent"
+                      outlined
+                      autogrow
+                      label="Agregar un comentario:"
                       :hide-bottom-space="true"
                       :rules="[notEmpty]"
                     />
@@ -272,15 +335,12 @@ export default {
       return value
     },
   },
-  // components: { ChipLarge, Note },
-  // components: { Note },
-
   mixins: [priorityColor, formValidation],
   props: {
-    value: {
-      type: Boolean,
-      default: false,
-    },
+    // value: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
   data() {
     return {
@@ -289,13 +349,20 @@ export default {
       comment: null,
       fixed: false,
       tab: "detalle",
+      asignacionUsuarios: [],
+      operationAsignar: null,
+      usuarioAsignado: null,
     }
   },
   computed: {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
-    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando", "userId"]),
+    ...mapGetters("auth", [
+      "esElUltimoDeLaCadenaDeMando",
+      "userId",
+      "userReportantes",
+    ]),
     ...mapGetters("priorizarRequerimientos", [
       "cantidadRequerimientos",
       "reqsPendientesAprobacionLength",
@@ -337,16 +404,13 @@ export default {
           })
       },
     },
-
-    options() {
-      const optiones = [
+    optionsPriorizar() {
+      const opciones = [
         {
           label: "Ninguna seleccionada",
           value: null,
-          // icon: "fas fa-trash",
         },
       ]
-      console.log("Es el ultimo de la cadena", this.esElUltimoDeLaCadenaDeMando)
       if (this.esElUltimoDeLaCadenaDeMando) {
         return [
           {
@@ -356,34 +420,55 @@ export default {
           },
         ]
       }
-      optiones.push({
+      opciones.push({
         label: "Descartar",
         value: "descartar",
         // icon: "fas fa-trash",
       })
 
       if (this.statePending && !this.esElUltimoDeLaCadenaDeMando) {
-        optiones.push({
+        opciones.push({
           label: "Aprobar",
           value: "aprobar",
           // icon: "fas fa-check",
         })
       }
       if (this.stateApproved) {
-        optiones.push({
+        opciones.push({
           label: "Volver a Pend. Aprob.",
           value: "pendiente",
           icon: "fas fa-undo",
         })
       }
 
-      return optiones
+      return opciones
+    },
+    optionsAsignar() {
+      const opt = [
+        {
+          label: "Ninguna seleccionada",
+          value: null,
+        },
+      ]
+      if (this.stateNotAssigned) {
+        opt.push({
+          label: "Asignar",
+          value: "asignar",
+        })
+      }
+      return opt
     },
     statePending() {
       return this.req.estado.id === 1
     },
     stateApproved() {
       return this.req.estado.id === 2
+    },
+    stateNotAssigned() {
+      return this.req.estado.id === 3
+    },
+    stateAssigned() {
+      return this.req.estado.id === 4
     },
     isApprovingOrReordering() {
       return (
@@ -398,12 +483,20 @@ export default {
         return this.stateApproved && this.reqsAprobadosPriorizadosLength > 1
       }
     },
-    verTabAcciones() {
-      if (this.$route.name == "mis-requerimientos") {
-        return false
-      }
-      return true
+    tabAccionesPriorizarReqs() {
+      return this.$route.name === "priorizar-requerimientos"
     },
+    tabAccionesAsignarReqs() {
+      return this.$route.name === "asignar-requerimientos"
+    },
+  },
+  created() {
+    this.asignacionUsuarios = _.map(this.userReportantes, ur => {
+      return {
+        label: ur.RazonSocial,
+        value: ur.IdUsuario,
+      }
+    })
   },
   methods: {
     saveChanges() {
