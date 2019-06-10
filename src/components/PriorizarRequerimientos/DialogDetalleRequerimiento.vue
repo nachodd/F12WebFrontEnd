@@ -41,19 +41,8 @@
         style="height: 50vh;width:84vh;padding:0px !important;"
         class="scroll"
       >
-        <!-- <p v-for="n in 15" :key="n">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
-          repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis
-          perferendis totam, ea at omnis vel numquam exercitationem aut, natus
-          minima, porro labore.
-        </p>-->
-
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="detalle">
-            <!-- <div class="text-h6">{{ req.asunto }}</div> -->
-
-            <!-- aviso de vencimiento -->
-
             <!-- detalle -->
             <div class="row">
               <div class="col-4">
@@ -76,9 +65,6 @@
               </div>
             </div>
             <br />
-            <!-- <q-separator /> -->
-            <!-- <br /> -->
-
             <div class="text-grey-7">Asunto</div>
             {{ req.asunto }}
             <br />
@@ -87,8 +73,6 @@
             {{ req.descripcion }}
             <br />
             <br />
-            <!-- <q-separator /> -->
-
             <q-banner
               v-if="req.vence"
               inline-actions
@@ -133,136 +117,7 @@
             </q-banner>
           </q-tab-panel>
 
-          <!-- <component :is="adas"> -->
-
-          <q-tab-panel
-            v-if="tabAccionesPriorizarReqs"
-            name="accionesPriorizarReqs"
-          >
-            <!-- <div class="text-h6">Movies</div> -->
-
-            <div class="text-grey-7">
-              Seleccione una acción a ejecutar sobre el requerimiento
-            </div>
-
-            <q-select
-              v-model="operation"
-              filled
-              :options="optionsPriorizar"
-              options-cover
-              emit-value
-              map-options
-            />
-
-            <div class="q-mt-md">
-              <!-- seleccion de prioridad y motivo para cuando aprueba o reordena-->
-              <q-slide-transition>
-                <div v-show="isApprovingOrReordering" class="q-mt-md">
-                  <div class="row">
-                    <div class="col">
-                      <div>
-                        Seleccione una Prioridad para este Requerimiento:
-                      </div>
-                      <br />
-                      <q-slider
-                        v-model="approvedPriority"
-                        class="slider"
-                        markers
-                        :min="1"
-                        :max="maximoSliderPrioridad"
-                        label
-                        label-always
-                        color="accent"
-                      />
-                    </div>
-                  </div>
-                  <div v-if="operation === 'aprobar'" class="row">
-                    <div class="col">
-                      <q-input
-                        v-model="comment"
-                        color="accent"
-                        outlined
-                        autogrow
-                        label="Si desea, puede agregar un comentario: "
-                        :hide-bottom-space="true"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </q-slide-transition>
-
-              <!-- motivo para cuando descarta -->
-              <q-slide-transition>
-                <div
-                  v-show="
-                    operation === 'descartar' && !esElUltimoDeLaCadenaDeMando
-                  "
-                  class="row"
-                >
-                  <div class="col">
-                    <q-input
-                      ref="commentDescartar"
-                      v-model="comment"
-                      color="accent"
-                      outlined
-                      autogrow
-                      label="Agregar un motivo:"
-                      :hide-bottom-space="true"
-                      :rules="[notEmpty]"
-                    />
-                  </div>
-                </div>
-              </q-slide-transition>
-            </div>
-          </q-tab-panel>
-
-          <slot name="acciones" />
-
-          <q-tab-panel v-if="tabAccionesAsignarReqs" name="accionesAsignarReqs">
-            <div class="text-grey-7">
-              Seleccione una acción:
-            </div>
-
-            <q-select
-              v-model="operationAsignar"
-              filled
-              :options="optionsAsignar"
-              options-cover
-              emit-value
-              map-options
-            />
-
-            <div class="q-mt-md">
-              <!-- coemntario para cuando asigna -->
-              <q-slide-transition>
-                <div v-show="operationAsignar === 'asignar'" class="row">
-                  <div class="col-12">
-                    <q-select
-                      v-model="usuarioAsignado"
-                      filled
-                      :options="asignacionUsuarios"
-                      options-cover
-                      emit-value
-                      map-options
-                    />
-                  </div>
-
-                  <div class="col-12">
-                    <q-input
-                      ref="commentAsignar"
-                      v-model="comment"
-                      color="accent"
-                      outlined
-                      autogrow
-                      label="Agregar un comentario:"
-                      :hide-bottom-space="true"
-                      :rules="[notEmpty]"
-                    />
-                  </div>
-                </div>
-              </q-slide-transition>
-            </div>
-          </q-tab-panel>
+          <component :is="actionsComponent" />
 
           <q-tab-panel name="movimientos">
             <!-- <div class="text-h6">movimientos</div> -->
@@ -314,9 +169,10 @@ import { mapState, mapGetters } from "vuex"
 import { date } from "quasar"
 import formValidation from "@mixins/formValidation"
 import priorityColor from "@mixins/priorityColor"
-// import ChipLarge from "@comp/Common/ChipLarge"
-// import Note from "@comp/Common/Note"
 import { warn, success } from "@utils/helpers"
+
+import PriorizarRequerimientosActions from "@comp/PriorizarRequerimientos/AsignaRequerimientosActions"
+import AsignaRequerimientosActions from "@comp/AsignaRequerimientos/AsignaRequerimientosActions"
 
 export default {
   name: "DialogDetalleRequerimiento",
@@ -335,13 +191,11 @@ export default {
       return value
     },
   },
-  mixins: [priorityColor, formValidation],
-  props: {
-    // value: {
-    //   type: Boolean,
-    //   default: false,
-    // },
+  components: {
+    priorizarRequerimientosActions: PriorizarRequerimientosActions,
+    asignaRequerimientosActions: AsignaRequerimientosActions,
   },
+  mixins: [priorityColor, formValidation],
   data() {
     return {
       operation: null,
@@ -389,6 +243,14 @@ export default {
       }
       return null
     },
+    actionsComponent() {
+      if (this.$route.name === "priorizar-requerimientos") {
+        return "priorizarRequerimientosActions"
+      } else if (this.$route.name === "asignar-requerimientos") {
+        return "asignaRequerimientosActions"
+      }
+      return null
+    },
     detalleRequerimientoOpen: {
       get() {
         return this.$store.state.requerimientos.detalleRequerimientoOpen
@@ -403,45 +265,6 @@ export default {
             this.comment = null
           })
       },
-    },
-    optionsPriorizar() {
-      const opciones = [
-        {
-          label: "Ninguna seleccionada",
-          value: null,
-        },
-      ]
-      if (this.esElUltimoDeLaCadenaDeMando) {
-        return [
-          {
-            label: "Seleccionar Prioridad",
-            value: "seleccionarPrioridad",
-            // icon: "fas fa-sort-amount-down",
-          },
-        ]
-      }
-      opciones.push({
-        label: "Descartar",
-        value: "descartar",
-        // icon: "fas fa-trash",
-      })
-
-      if (this.statePending && !this.esElUltimoDeLaCadenaDeMando) {
-        opciones.push({
-          label: "Aprobar",
-          value: "aprobar",
-          // icon: "fas fa-check",
-        })
-      }
-      if (this.stateApproved) {
-        opciones.push({
-          label: "Volver a Pend. Aprob.",
-          value: "pendiente",
-          icon: "fas fa-undo",
-        })
-      }
-
-      return opciones
     },
     optionsAsignar() {
       const opt = [
@@ -483,12 +306,12 @@ export default {
         return this.stateApproved && this.reqsAprobadosPriorizadosLength > 1
       }
     },
-    tabAccionesPriorizarReqs() {
-      return this.$route.name === "priorizar-requerimientos"
-    },
-    tabAccionesAsignarReqs() {
-      return this.$route.name === "asignar-requerimientos"
-    },
+    // tabAccionesPriorizarReqs() {
+    //   return this.$route.name === "priorizar-requerimientos"
+    // },
+    // tabAccionesAsignarReqs() {
+    //   return this.$route.name === "asignar-requerimientos"
+    // },
   },
   created() {
     this.asignacionUsuarios = _.map(this.userReportantes, ur => {
