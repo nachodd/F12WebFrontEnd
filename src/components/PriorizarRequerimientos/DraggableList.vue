@@ -23,7 +23,10 @@
             :req="req"
             :index="index"
             @click.native="
-              abrirDetalleRequerimiento({ reqId: req.id, listName })
+              abrirDetalleRequerimiento({
+                reqId: req.id,
+                listName: listNameForDetalle,
+              })
             "
           />
         </Draggable>
@@ -83,6 +86,11 @@ export default {
   computed: {
     listEmpty() {
       return this.requerimientosList.list.length === 0
+    },
+    listNameForDetalle() {
+      return this.listName === "source"
+        ? "reqs-pendientes-aprobacion"
+        : "reqs-aprobados-priorizados"
     },
   },
   methods: {

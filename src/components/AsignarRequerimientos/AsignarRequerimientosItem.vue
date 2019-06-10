@@ -1,78 +1,45 @@
 <template>
   <q-item
-    class="q-ma-sm shadow-2 rounded-borders-10 bg-white cursor-pointer"
-    :active="esArregloRapido"
-    active-class="text-black bg-light-blue-2"
+    class="q-ma-sm shadow-2 rounded-borders-8 bg-white cursor-pointer card-row"
+    :class="{ 'card--default': !esArregloRapido, 'card--qf': esArregloRapido }"
   >
-    <q-item-section top>
-      <q-item-label lines="1">
-        <q-badge>#{{ req.id }}</q-badge>
-        &nbsp;
-        <span class="text-weight-medium">{{ req.asunto }}</span>
-      </q-item-label>
-      <q-item-label caption lines="2" style="margin-bottom: auto;">
-        {{ req.descripcion }}
-      </q-item-label>
-    </q-item-section>
+    <div class="row">
+      <div class="col-12">
+        <q-item-label lines="1">
+          <span class="text-weight-medium">{{ req.asunto }}</span>
+        </q-item-label>
+        <q-item-label caption lines="2" style="margin-bottom: auto;">
+          {{ req.descripcion }}
+        </q-item-label>
+      </div>
+    </div>
 
-    <q-item-section v-if="!esArregloRapido" top side>
-      <!-- <q-item-label class="text-center">
-        <q-badge>#{{ req.id }}</q-badge>
-      </q-item-label> -->
-      <q-item-label>
+    <div class="row justify-around">
+      <div
+        class="text-left"
+        :class="{ 'col-6': !esArregloRapido, 'col-12': esArregloRapido }"
+      >
+        <q-badge
+          :class="{
+            'nro-req--default': !esArregloRapido,
+            'nro-req--qf': esArregloRapido,
+          }"
+        >
+          #{{ req.id }}
+        </q-badge>
+        &nbsp;
+      </div>
+      <div v-if="!esArregloRapido" class="col-6 text-right">
         <q-badge
           :style="{
             color: getColorPrioridadText(req.prioridad),
             backgroundColor: getColorPrioridad(req.prioridad),
           }"
         >
-          {{ req.prioridad }}
+          PR: {{ req.prioridad }}
         </q-badge>
-      </q-item-label>
-    </q-item-section>
-
-    <!-- <q-item-section class="col-xs-3 text-center">
-      <span class="text-accent text-weight-medium">#{{ req.id }}</span>
-      <div>
-        <q-chip dense class="no-margin">
-          <q-avatar
-            class="prioridad-text"
-            :style="{
-              color: getColorPrioridadText(req.prioridad),
-              backgroundColor: getColorPrioridad(req.prioridad),
-            }"
-          >
-            {{ req.prioridad }}
-          </q-avatar>
-          Prioridad
-        </q-chip>
       </div>
-    </q-item-section> -->
-
-    <!-- <q-item-section top class="col-2 q-my-xs">
-      <q-item-label class="q-mt-sm" lines="1">
-        <span class="text-weight-medium">Area:</span>
-        {{ req.area.descripcion }}
-      </q-item-label>
-      <q-item-label lines="1">
-        <span class="text-weight-medium">Sistema:</span>
-        {{ req.sistema.descripcion }}
-      </q-item-label>
-      <q-item-label lines="1">
-        <span class="text-weight-medium">Tipo:</span>
-        {{ req.tipo.descripcion }}
-      </q-item-label>
-    </q-item-section> -->
-
-    <!-- <q-item-section top side>
-      <div v-if="tieneComentario" class="text-grey-8 q-gutter-xs">
-        <q-btn class="gt-xs" size="12px" flat dense round icon="fas fa-comment">
-          <q-tooltip>
-            {{ req.comentario }}
-          </q-tooltip>
-        </q-btn>
-      </div>
-    </q-item-section> -->
+    </div>
   </q-item>
 </template>
 <script>
@@ -103,9 +70,20 @@ export default {
   },
 }
 </script>
-<style>
-.prioridad-text {
+<style lang="stylus" scoped>
+.prioridad-text
   font-size: 14px;
   font-weight: 700;
-}
+
+.nro-req--default
+  background-color: $light-blue-7
+.nro-req--qf
+  background-color: $red-7
+
+.card--default
+  border-left: 3px solid $light-blue-7
+.card--qf
+  border-left: 3px solid $red-7
+.card-row
+  flex-direction: column
 </style>

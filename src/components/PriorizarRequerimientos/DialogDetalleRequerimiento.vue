@@ -22,7 +22,17 @@
         narrow-indicator
       >
         <q-tab name="detalle" label="Detalle" />
-        <q-tab v-if="verTabAcciones" name="acciones" label="Acciones" />
+        <q-tab
+          v-if="tabAccionesPriorizarReqs"
+          name="accionesPriorizarReqs"
+          label="Acciones"
+        />
+        <q-tab
+          v-if="tabAccionesAsignarReqs"
+          name="accionesAsignarReqs"
+          label="Acciones"
+        />
+
         <q-tab name="movimientos" label="Movimientos" />
       </q-tabs>
       <q-separator />
@@ -123,7 +133,10 @@
             </q-banner>
           </q-tab-panel>
 
-          <q-tab-panel v-if="verTabAcciones" name="acciones">
+          <q-tab-panel
+            v-if="tabAccionesPriorizarReqs"
+            name="accionesPriorizarReqs"
+          >
             <!-- <div class="text-h6">Movies</div> -->
 
             <div class="text-grey-7">
@@ -199,6 +212,10 @@
                 </div>
               </q-slide-transition>
             </div>
+          </q-tab-panel>
+
+          <q-tab-panel v-if="tabAccionesAsignarReqs" name="accionesAsignarReqs">
+            dsadasds
           </q-tab-panel>
 
           <q-tab-panel name="movimientos">
@@ -398,11 +415,11 @@ export default {
         return this.stateApproved && this.reqsAprobadosPriorizadosLength > 1
       }
     },
-    verTabAcciones() {
-      if (this.$route.name == "mis-requerimientos") {
-        return false
-      }
-      return true
+    tabAccionesPriorizarReqs() {
+      return this.$route.name === "priorizar-requerimientos"
+    },
+    tabAccionesAsignarReqs() {
+      return this.$route.name === "asignar-requerimientos"
     },
   },
   methods: {

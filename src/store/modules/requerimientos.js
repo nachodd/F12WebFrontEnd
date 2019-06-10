@@ -166,41 +166,36 @@ const actions = {
     })
   },
 
-  abrirDetalleRequerimiento(
-    { commit, state, rootState },
-    { reqId, listName, fetchRequerimiento = false },
-  ) {
+  abrirDetalleRequerimiento({ commit, state, rootState }, { reqId, listName }) {
     return new Promise(async (/* resolve, reject */) => {
       // Para seguir con la convencion de nombres, utilizo listType para la action
-
       let requerimiento = {}
 
-      // fetchRequerimiento = false;
-
-      if (fetchRequerimiento) {
+      if (listName === "mis-requerimientos") {
         // cuando es true viene desde "mis-requerimientos" cambiar nombre de la variable
-        let list = state.misRequerimientos
-        requerimiento = _.find(list, { id: reqId })
-      } else {
-        let listType = listName === "source" ? "pending" : "approved"
-
-        let reqsPendientesAprobacion = _.get(
+        let reqList = state.misRequerimientos
+        requerimiento = _.find(reqList, { id: reqId })
+      } else if (listName === "reqs-pendientes-aprobacion") {
+        let reqList = _.get(
           rootState,
           "priorizarRequerimientos.reqsPendientesAprobacion",
           null,
         )
-
-        let reqsAprobadosPriorizados = _.get(
+        requerimiento = _.find(reqList.list, { id: reqId })
+      } else if (listName === "reqs-aprobados-priorizados") {
+        let reqList = _.get(
           rootState,
           "priorizarRequerimientos.reqsAprobadosPriorizados",
           null,
         )
-        const list =
-          listType === "pending"
-            ? reqsPendientesAprobacion.list
-            : reqsAprobadosPriorizados.list
-
-        requerimiento = _.find(list, { id: reqId })
+        requerimiento = _.find(reqList.list, { id: reqId })
+      } else if (listName === "asignar-requerimientos") {
+        let reqList = _.get(
+          rootState,
+          "asignacionRequerimientos.requerimientos",
+          null,
+        )
+        requerimiento = _.find(reqList, { id: reqId })
       }
 
       if (requerimiento) {

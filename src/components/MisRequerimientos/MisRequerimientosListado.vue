@@ -7,7 +7,7 @@
       @click.native="
         abrirDetalleRequerimiento({
           reqId: req.id,
-          fetchRequerimiento: true,
+          listName: 'mis-requerimientos',
         })
       "
     />
