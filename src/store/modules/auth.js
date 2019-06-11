@@ -55,6 +55,8 @@ const getters = {
   esElUltimoDeLaCadenaDeMando: (state, getters) => !getters.hasReportantes,
   userSistemas: state => state.userSistemas,
   userEsResponsable: state => state.userSistemas.length > 0,
+  puedeVerRequerimientosAsignados: state =>
+    _.filter([8, 16, 36, 37, 48], id => id == state.userArea.id).length > 0,
 }
 
 // mutations

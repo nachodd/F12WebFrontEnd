@@ -58,7 +58,7 @@
             <!-- <div class="icons">
               <i class="fas fa-sort-amount-down icon-default"></i>
               <i class="fas fa-sort-amount-up icon-hover"></i>
-						</div>-->
+            </div>-->
           </q-item-section>
           <q-item-section>
             <q-item-label>Priorizar Requerimientos</q-item-label>
@@ -79,6 +79,21 @@
             <q-item-label>Asignar Requerimientos</q-item-label>
           </q-item-section>
         </q-item>
+
+        <q-item
+          v-if="puedeVerRequerimientosAsignados"
+          v-ripple
+          clickable
+          :to="{ name: 'requerimientos-asignados' }"
+          active-class="menu-items--active"
+        >
+          <q-item-section avatar>
+            <q-icon name="fas fa-tasks" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Requerimientos Asignados</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-scroll-area>
   </q-drawer>
@@ -91,7 +106,10 @@ export default {
   name: "F12Sidebar",
   computed: {
     // ...mapGetters("app", ["sidebarOpen"]),
-    ...mapGetters("auth", ["userEsResponsable"]),
+    ...mapGetters("auth", [
+      "userEsResponsable",
+      "puedeVerRequerimientosAsignados",
+    ]),
     ...mapState("app", {
       sidebarOpenStore: state => state.sidebarOpen,
     }),
