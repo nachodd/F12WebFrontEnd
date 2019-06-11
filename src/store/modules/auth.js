@@ -1,12 +1,4 @@
-import {
-  login,
-  logout,
-  refresh,
-  // getInfo,
-  //getVinculacion,
-  //getResponsabilidades,
-  getUsuarioGestion,
-} from "@api/user"
+import { login, logout, refresh, getUsuarioGestion } from "@api/user"
 import {
   getToken,
   getExpiresIn,
@@ -14,12 +6,8 @@ import {
   expiresToUnixTS,
   setToken,
   removeToken,
-  // mapRoles,
 } from "@utils/auth"
 import { resetRouter } from "@router"
-// import { getRoles } from "@api/user"
-// import axios from "axios";
-// import Cookies from "js-cookie";
 // import * as types from "../mutation-types";
 
 // state
@@ -45,8 +33,15 @@ const getters = {
   check: state => state.user !== null,
   // userTreeLoaded: state => !_.isEmpty(state.userVinculacion),
   userJefes: state => state.userVinculacion && state.userVinculacion.jefes,
-  userReportantes: state =>
-    state.userVinculacion && state.userVinculacion.reportantes,
+  userReportantes: state => {
+    const userReps = _.get(state, "userVinculacion.reportantes", [])
+    return _.map(userReps, ur => {
+      return {
+        label: ur.RazonSocial,
+        value: ur.IdUsuario,
+      }
+    })
+  },
   hasJefes: (state, getters) =>
     getters.userJefes && getters.userJefes.length > 0,
   hasReportantes: (state, getters) =>

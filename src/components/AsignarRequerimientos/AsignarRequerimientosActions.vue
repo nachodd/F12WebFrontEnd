@@ -1,11 +1,11 @@
 <template>
-  <q-tab-panel v-if="tabAccionesAsignarReqs" name="accionesAsignarReqs">
+  <div>
     <div class="text-grey-7">
       Seleccione una acción:
     </div>
 
     <q-select
-      v-model="operationAsignar"
+      v-model="operation"
       filled
       :options="optionsAsignar"
       options-cover
@@ -14,14 +14,13 @@
     />
 
     <div class="q-mt-md">
-      <!-- coemntario para cuando asigna -->
       <q-slide-transition>
-        <div v-show="operationAsignar === 'asignar'" class="row">
+        <div v-show="operation === 'asignar'" class="row">
           <div class="col-12">
             <q-select
               v-model="usuarioAsignado"
               filled
-              :options="asignacionUsuarios"
+              :options="userReportantes"
               options-cover
               emit-value
               map-options
@@ -43,5 +42,71 @@
         </div>
       </q-slide-transition>
     </div>
-  </q-tab-panel>
+    <div v-show="operation !== null" class="q-mt-md">
+      <q-btn
+        class="full-width"
+        label="Guardar"
+        color="deep-purple-10"
+        @click="saveChanges"
+      />
+    </div>
+  </div>
 </template>
+
+<script>
+import { mapGetters } from "vuex"
+import formValidation from "@mixins/formValidation"
+
+export default {
+  name: "AsignarRequerimientosActions",
+  mixins: [formValidation],
+  data() {
+    return {
+      operation: null,
+      comment: null,
+    }
+  },
+  computed: {
+    ...mapGetters("auth", ["userReportantes"]),
+    ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
+    stateNotAssigned() {
+      return this.detalleRequerimientoState === "NOAS"
+    },
+    stateAssigned() {
+      return this.detalleRequerimientoState === "ASSI"
+    },
+    stateInExcecution() {
+      return this.detalleRequerimientoState === "EXEC"
+    },
+    optionsAsignar() {
+      const opt = []
+      opt.push({
+        label: "Ninguna seleccionada",
+        value: null,
+      })
+      if (this.stateNotAssigned) {
+        opt.push({
+          label: "Asignar",
+          value: "asignar",
+        })
+        opt.push({
+          label: "Enviar a Procesos",
+          value: "aProcesos",
+        })
+      }
+
+      if (this.stateAssigned) {
+        opt.push({
+          label: "Volver a Pendiente de Asignación",
+          value: "asignar",
+        })
+      }
+
+      return opt
+    },
+  },
+  methods: {
+    saveChanges() {},
+  },
+}
+</script>
