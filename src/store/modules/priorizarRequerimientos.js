@@ -495,7 +495,7 @@ const actions = {
     })
   },
   processManualChanges(
-    { commit, state, dispatch, rootGetters },
+    { commit, state, dispatch, rootGetters, rootState },
     { operation, priority, comment, listName },
   ) {
     return new Promise(async (resolve, reject) => {
@@ -650,16 +650,22 @@ const actions = {
           // Rechazo o elimino el requerimiento el requerimiento:
           try {
             let res
+
+            let requerimientoItem = _.get(
+              rootState,
+              "requerimientos.detalleRequerimientoItem",
+              null,
+            )
+
+            console.log(requerimientoItem)
             if (esElUltimoDeLaCadenaDeMando) {
               dispatch("app/loadingInc", null, { root: true })
-              res = await deleteRequerimiento(state.detalleRequerimientoItem.id)
+
+              res = await deleteRequerimiento(requerimientoItem.id)
               // console.log(res)
             } else {
               dispatch("app/loadingInc", null, { root: true })
-              res = await refuseRequerimiento(
-                state.detalleRequerimientoItem.id,
-                comment,
-              )
+              res = await refuseRequerimiento(requerimientoItem.id, comment)
               // console.log(res)
             }
 
@@ -667,7 +673,7 @@ const actions = {
             if (listName === "source") {
               const removedIndex = _.findIndex(
                 state.reqsPendientesAprobacion.list,
-                { id: state.detalleRequerimientoItem.id },
+                { id: requerimientoItem.id },
               )
               let listResult = [...state.reqsPendientesAprobacion.list]
               listResult.splice(removedIndex, 1)
@@ -676,7 +682,7 @@ const actions = {
             } else if (listName === "target") {
               const removedIndex = _.findIndex(
                 state.reqsAprobadosPriorizados.list,
-                { id: state.detalleRequerimientoItem.id },
+                { id: requerimientoItem.id },
               )
               let listResult = [...state.reqsAprobadosPriorizados.list]
               listResult.splice(removedIndex, 1)
