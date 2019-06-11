@@ -155,7 +155,11 @@ const getters = {
   esAutor: (state, getters, rootState, rootGetters) => {
     const userId = Number(rootGetters["auth/userId"])
     const reqUserId = Number(
-      _.get(state, "detalleRequerimientoItem.usuario.id", null),
+      _.get(
+        rootState,
+        "requerimientos.detalleRequerimientoItem.usuario.id",
+        null,
+      ),
     )
     return userId === reqUserId
   },
@@ -495,7 +499,7 @@ const actions = {
     })
   },
   processManualChanges(
-    { commit, state, dispatch, rootGetters, rootState },
+    { commit, state, dispatch, rootGetters, rootState, getters },
     { operation, priority, comment, listName },
   ) {
     return new Promise(async (resolve, reject) => {
@@ -504,12 +508,18 @@ const actions = {
         rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
       let updatedListData = {}
+      let requerimientoItem = _.get(
+        rootState,
+        "requerimientos.detalleRequerimientoItem",
+        null,
+      )
+
       switch (operation) {
         case "aprobar": {
           // se debe llamar 2 veces a "PROCESS_UPDATE_LISTS", uno por cada lista
           const removedIndexSource = _.findIndex(
             state.reqsPendientesAprobacion.list,
-            { id: state.detalleRequerimientoItem.id },
+            { id: requerimientoItem.id },
           )
           const addedIndexSource = null
           // lista source, se saca el item del listado
@@ -552,7 +562,7 @@ const actions = {
           // se debe llamar 2 veces a "PROCESS_UPDATE_LISTS", uno por cada lista
           const removedIndexTarget = _.findIndex(
             state.reqsAprobadosPriorizados.list,
-            { id: state.detalleRequerimientoItem.id },
+            { id: requerimientoItem.id },
           )
           const addedIndexTarget = null
           // lista target, se saca el item del listado
@@ -596,7 +606,7 @@ const actions = {
           if (listName === "source" && esElUltimoDeLaCadenaDeMando) {
             const removedIndexSource = _.findIndex(
               state.reqsPendientesAprobacion.list,
-              { id: state.detalleRequerimientoItem.id },
+              { id: requerimientoItem.id },
             )
             const addedIndexSource = priority - 1
             // lista source, se saca el item del listado y luego lo pongo en la nueva pos
@@ -620,7 +630,7 @@ const actions = {
           } else if (listName === "target" && !esElUltimoDeLaCadenaDeMando) {
             const removedIndexTarget = _.findIndex(
               state.reqsAprobadosPriorizados.list,
-              { id: state.detalleRequerimientoItem.id },
+              { id: requerimientoItem.id },
             )
             const addedIndexTarget = priority - 1
             // lista source, se saca el item del listado y luego lo pongo en la nueva pos
@@ -650,15 +660,7 @@ const actions = {
           // Rechazo o elimino el requerimiento el requerimiento:
           try {
             let res
-
-            let requerimientoItem = _.get(
-              rootState,
-              "requerimientos.detalleRequerimientoItem",
-              null,
-            )
-
-            console.log(requerimientoItem)
-            if (esElUltimoDeLaCadenaDeMando) {
+            if (getters.esAutor) {
               dispatch("app/loadingInc", null, { root: true })
 
               res = await deleteRequerimiento(requerimientoItem.id)
@@ -694,7 +696,7 @@ const actions = {
             resolve(
               _.get(
                 res,
-                "data.data.message",
+                "data.message",
                 "Operación completada satisfactoriamente",
               ),
             )

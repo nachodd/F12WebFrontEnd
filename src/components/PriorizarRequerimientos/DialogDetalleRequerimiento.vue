@@ -33,6 +33,7 @@
         class="scroll"
       >
         <q-tab-panels v-model="tab" animated>
+          <!-- Tab Detalle -->
           <q-tab-panel name="detalle">
             <!-- detalle -->
             <div class="row">
@@ -108,16 +109,15 @@
             </q-banner>
           </q-tab-panel>
 
+          <!-- Tab Acciones (dinamico) -->
           <q-tab-panel v-if="showAcciones" name="acciones">
             <component :is="actionsComponent" @closeDialog="closeDialog" />
           </q-tab-panel>
 
+          <!-- Tab movicmientos -->
           <q-tab-panel name="movimientos">
-            <!-- <div class="text-h6">movimientos</div> -->
             <div v-if="req.movimientos" class="row">
               <q-timeline color="purple">
-                <!-- <q-timeline-entry heading body /> -->
-
                 <q-timeline-entry
                   v-for="(movimiento, index) in req.movimientos"
                   :key="`req_${index}`"
@@ -229,7 +229,6 @@ export default {
       return null
     },
     actionsComponent() {
-      debugger
       if (this.$route.name === "priorizar-requerimientos") {
         return "priorizarRequerimientosActions"
       } else if (this.$route.name === "asignar-requerimientos") {

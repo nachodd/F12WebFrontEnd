@@ -81,14 +81,14 @@ service.interceptors.response.use(
       })
     }
 
-    // Maybe we can erase this:
-    // if (req !== undefined && req.responseURL.includes("login")) {
-    //   return Promise.reject({
-    //     message,
-    //     status,
-    //     data: errorData,
-    //   })
-    // }
+    //Si esta en el login, rejecto el error
+    if (req !== undefined && req.responseURL.includes("login")) {
+      return Promise.reject({
+        message,
+        status,
+        data: errorData,
+      })
+    }
 
     // TODO: ver de pasar esta logica al metodo del store auth/refresh
 

@@ -38,12 +38,15 @@ const getters = {
     return codigo => _.find(state.estados, { codigo })
   },
   detalleRequerimientoState: state => {
-    if (!state.detalleRequerimientoItem.estado) {
-      return null
+    if (
+      state.detalleRequerimientoItem &&
+      state.detalleRequerimientoItem.estado
+    ) {
+      return _.find(state.estados, {
+        id: state.detalleRequerimientoItem.estado.id,
+      }).codigo
     }
-    return _.find(state.estados, {
-      id: state.detalleRequerimientoItem.estado.id,
-    }).codigo
+    return null
   },
 }
 

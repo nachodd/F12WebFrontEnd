@@ -97,7 +97,8 @@ export default {
       } catch (e) {
         this.$q.notify({
           color: "negative",
-          message: e.message || "Hubo un problema al procesar su petición",
+          message:
+            (e && e.message) || "Hubo un problema al procesar su petición",
           icon: "warning",
           position: "top-right",
         })

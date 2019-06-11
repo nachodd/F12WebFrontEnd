@@ -8,7 +8,6 @@
       v-model="operation"
       filled
       :options="optionsPriorizar"
-      options-cover
       emit-value
       map-options
     />
@@ -52,10 +51,7 @@
 
       <!-- motivo para cuando descarta -->
       <q-slide-transition>
-        <div
-          v-show="operation === 'descartar' && !esElUltimoDeLaCadenaDeMando"
-          class="row"
-        >
+        <div v-show="showDescartarComment" class="row">
           <div class="col">
             <q-input
               ref="commentDescartar"
@@ -111,22 +107,21 @@ export default {
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     optionsPriorizar() {
       const opt = []
+      opt.push({
+        label: "Ninguna seleccionada",
+        value: null,
+      })
       if (this.esElUltimoDeLaCadenaDeMando) {
         opt.push({
           label: "Seleccionar Prioridad",
           value: "seleccionarPrioridad",
         })
+        opt.push({
+          label: "Descartar",
+          value: "descartar",
+        })
         return opt
       }
-
-      opt.push({
-        label: "Ninguna seleccionada",
-        value: null,
-      })
-      opt.push({
-        label: "Descartar",
-        value: "descartar",
-      })
 
       if (this.statePending && !this.esElUltimoDeLaCadenaDeMando) {
         opt.push({
@@ -134,7 +129,6 @@ export default {
           value: "aprobar",
         })
       }
-
       if (this.stateApproved) {
         opt.push({
           label: "Volver a Pend. Aprob.",
@@ -142,6 +136,10 @@ export default {
           icon: "fas fa-undo",
         })
       }
+      opt.push({
+        label: "Descartar",
+        value: "descartar",
+      })
 
       return opt
     },
@@ -170,6 +168,10 @@ export default {
         ? this.cantidadRequerimientos - 1
         : this.cantidadRequerimientos
     },
+    showDescartarComment() {
+      const res = this.operation === "descartar" && !this.esAutor
+      return res
+    },
   },
   methods: {
     saveChanges() {
@@ -191,7 +193,6 @@ export default {
         })
         .then(message => {
           if (message) success({ message })
-          // this.detalleRequerimientoOpen = false
           this.operation = null
           this.approvedPriority = 1
           this.comment = null
