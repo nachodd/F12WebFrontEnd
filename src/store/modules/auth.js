@@ -158,8 +158,8 @@ const actions = {
         commit("SET_USER", userData)
 
         resolve()
-      } catch (error) {
-        reject(error)
+      } catch (e) {
+        reject(e)
       }
     })
   },
