@@ -22,16 +22,7 @@
         narrow-indicator
       >
         <q-tab name="detalle" label="Detalle" />
-        <q-tab
-          v-if="tabAccionesPriorizarReqs"
-          name="accionesPriorizarReqs"
-          label="Acciones"
-        />
-        <q-tab
-          v-if="tabAccionesAsignarReqs"
-          name="accionesAsignarReqs"
-          label="Acciones"
-        />
+        <q-tab v-if="showAcciones" name="acciones" label="Acciones" />
 
         <q-tab name="movimientos" label="Movimientos" />
       </q-tabs>
@@ -117,7 +108,9 @@
             </q-banner>
           </q-tab-panel>
 
-          <component :is="actionsComponent" />
+          <q-tab-panel v-if="showAcciones" name="acciones">
+            <component :is="actionsComponent" @closeDialog="closeDialog" />
+          </q-tab-panel>
 
           <q-tab-panel name="movimientos">
             <!-- <div class="text-h6">movimientos</div> -->
@@ -153,12 +146,6 @@
           color="deep-purple-10"
           @click="detalleRequerimientoOpen = false"
         />
-        <q-btn
-          v-show="operation !== null"
-          label="Guardar"
-          color="deep-purple-10"
-          @click="saveChanges"
-        />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -168,11 +155,9 @@
 import { mapState, mapGetters } from "vuex"
 import { date } from "quasar"
 import formValidation from "@mixins/formValidation"
-import priorityColor from "@mixins/priorityColor"
-import { warn, success } from "@utils/helpers"
-
-import PriorizarRequerimientosActions from "@comp/PriorizarRequerimientos/AsignaRequerimientosActions"
-import AsignaRequerimientosActions from "@comp/AsignaRequerimientos/AsignaRequerimientosActions"
+// import { warn, success } from "@utils/helpers"
+import PriorizarRequerimientosActions from "@comp/PriorizarRequerimientos/PriorizarRequerimientosActions"
+import AsignarRequerimientosActions from "@comp/AsignarRequerimientos/AsignarRequerimientosActions"
 
 export default {
   name: "DialogDetalleRequerimiento",
@@ -193,9 +178,9 @@ export default {
   },
   components: {
     priorizarRequerimientosActions: PriorizarRequerimientosActions,
-    asignaRequerimientosActions: AsignaRequerimientosActions,
+    asignarRequerimientosActions: AsignarRequerimientosActions,
   },
-  mixins: [priorityColor, formValidation],
+  mixins: [formValidation],
   data() {
     return {
       operation: null,
@@ -217,18 +202,18 @@ export default {
       "userId",
       "userReportantes",
     ]),
-    ...mapGetters("priorizarRequerimientos", [
-      "cantidadRequerimientos",
-      "reqsPendientesAprobacionLength",
-      "reqsAprobadosPriorizadosLength",
-      "esAutor",
-    ]),
-    maximoSliderPrioridad() {
+    // ...mapGetters("priorizarRequerimientos", [
+    //   "cantidadRequerimientos",
+    //   "reqsPendientesAprobacionLength",
+    //   "reqsAprobadosPriorizadosLength",
+    //   "esAutor",
+    // ]),
+    /* maximoSliderPrioridad() {
       // Si la operacion es de seleccionar prioridad, el max del slider será 1 menos que la cant de reqs
       return this.operation === "seleccionarPrioridad"
         ? this.cantidadRequerimientos - 1
         : this.cantidadRequerimientos
-    },
+    }, */
     requerimientoSetted() {
       return !_.isEmpty(this.req)
     },
@@ -244,12 +229,22 @@ export default {
       return null
     },
     actionsComponent() {
+      debugger
       if (this.$route.name === "priorizar-requerimientos") {
         return "priorizarRequerimientosActions"
       } else if (this.$route.name === "asignar-requerimientos") {
         return "asignaRequerimientosActions"
       }
       return null
+    },
+    showAcciones() {
+      switch (this.$route.name) {
+        case "priorizar-requerimientos":
+        case "asignar-requerimientos":
+          return true
+        default:
+          return false
+      }
     },
     detalleRequerimientoOpen: {
       get() {
@@ -260,9 +255,9 @@ export default {
           .dispatch("requerimientos/setDetalleRequerimientoOpen", value)
           .then(() => {
             // Reset de la operacion (para los botones) y la prioridad seleccionada
-            this.operation = null
-            this.approvedPriority = 1
-            this.comment = null
+            // this.operation = null
+            // this.approvedPriority = 1
+            // this.comment = null
           })
       },
     },
@@ -281,32 +276,32 @@ export default {
       }
       return opt
     },
-    statePending() {
+    /* statePending() {
       return this.req.estado.id === 1
     },
     stateApproved() {
       return this.req.estado.id === 2
-    },
+    }, */
     stateNotAssigned() {
       return this.req.estado.id === 3
     },
     stateAssigned() {
       return this.req.estado.id === 4
     },
-    isApprovingOrReordering() {
+    /* isApprovingOrReordering() {
       return (
         this.operation === "aprobar" ||
         this.operation === "seleccionarPrioridad"
       )
-    },
-    seleccionarPrioridadShown() {
+    }, */
+    /* seleccionarPrioridadShown() {
       if (this.esElUltimoDeLaCadenaDeMando) {
         return this.statePending && this.reqsPendientesAprobacionLength > 1
       } else {
         return this.stateApproved && this.reqsAprobadosPriorizadosLength > 1
       }
-    },
-    // tabAccionesPriorizarReqs() {
+    }, */
+    // tabAcciones() {
     //   return this.$route.name === "priorizar-requerimientos"
     // },
     // tabAccionesAsignarReqs() {
@@ -322,7 +317,10 @@ export default {
     })
   },
   methods: {
-    saveChanges() {
+    closeDialog() {
+      this.detalleRequerimientoOpen = false
+    },
+    /* saveChanges() {
       // Valido, si esta descartando (operacion: descartar && NO es esAutor), debe completar el comentario
       if (
         this.operation === "descartar" &&
@@ -346,7 +344,7 @@ export default {
         .catch(message => {
           warn({ message })
         })
-    },
+    }, */
   },
 }
 </script>

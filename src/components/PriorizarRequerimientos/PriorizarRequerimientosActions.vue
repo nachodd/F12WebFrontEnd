@@ -1,7 +1,5 @@
 <template>
-  <q-tab-panel name="accionesPriorizarReqs">
-    <!-- <div class="text-h6">Movies</div> -->
-
+  <div>
     <div class="text-grey-7">
       Seleccione una acción a ejecutar sobre el requerimiento
     </div>
@@ -73,15 +71,30 @@
         </div>
       </q-slide-transition>
     </div>
-  </q-tab-panel>
+
+    <div v-show="operation !== null" class="q-mt-md">
+      <q-btn
+        class="full-width"
+        label="Guardar"
+        color="deep-purple-10"
+        @click="saveChanges"
+      />
+    </div>
+  </div>
 </template>
 
 <script>
 import { mapState, mapGetters } from "vuex"
+import formValidation from "@mixins/formValidation"
+import { warn, success } from "@utils/helpers"
+
 export default {
+  mixins: [formValidation],
   data() {
     return {
       operation: null,
+      approvedPriority: 1,
+      comment: null,
     }
   },
   computed: {
@@ -89,61 +102,112 @@ export default {
       req: state => state.detalleRequerimientoItem,
     }),
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
-    // ...mapGetters("priorizarRequerimientos", [
-    //   "cantidadRequerimientos",
-    //   "reqsPendientesAprobacionLength",
-    //   "reqsAprobadosPriorizadosLength",
-    //   "esAutor",
-    // ]),
+    ...mapGetters("priorizarRequerimientos", [
+      "cantidadRequerimientos",
+      "reqsPendientesAprobacionLength",
+      "reqsAprobadosPriorizadosLength",
+      "esAutor",
+    ]),
+    ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     optionsPriorizar() {
-      const opciones = [
-        {
-          label: "Ninguna seleccionada",
-          value: null,
-        },
-      ]
+      const opt = []
       if (this.esElUltimoDeLaCadenaDeMando) {
-        return [
-          {
-            label: "Seleccionar Prioridad",
-            value: "seleccionarPrioridad",
-          },
-        ]
+        opt.push({
+          label: "Seleccionar Prioridad",
+          value: "seleccionarPrioridad",
+        })
+        return opt
       }
-      opciones.push({
+
+      opt.push({
+        label: "Ninguna seleccionada",
+        value: null,
+      })
+      opt.push({
         label: "Descartar",
         value: "descartar",
       })
 
       if (this.statePending && !this.esElUltimoDeLaCadenaDeMando) {
-        opciones.push({
+        opt.push({
           label: "Aprobar",
           value: "aprobar",
-          // icon: "fas fa-check",
         })
       }
+
       if (this.stateApproved) {
-        opciones.push({
+        opt.push({
           label: "Volver a Pend. Aprob.",
           value: "pendiente",
           icon: "fas fa-undo",
         })
       }
 
-      return opciones
+      return opt
     },
     statePending() {
-      return this.req.estado.id === 1
+      return this.detalleRequerimientoState === "PEND"
     },
     stateApproved() {
-      return this.req.estado.id === 2
+      return this.detalleRequerimientoState === "APRV"
     },
-    stateNotAssigned() {
-      return this.req.estado.id === 3
+    isApprovingOrReordering() {
+      return (
+        this.operation === "aprobar" ||
+        this.operation === "seleccionarPrioridad"
+      )
     },
-    stateAssigned() {
-      return this.req.estado.id === 4
+    seleccionarPrioridadShown() {
+      if (this.esElUltimoDeLaCadenaDeMando) {
+        return this.statePending && this.reqsPendientesAprobacionLength > 1
+      } else {
+        return this.stateApproved && this.reqsAprobadosPriorizadosLength > 1
+      }
+    },
+    maximoSliderPrioridad() {
+      // Si la operacion es de seleccionar prioridad, el max del slider será 1 menos que la cant de reqs
+      return this.operation === "seleccionarPrioridad"
+        ? this.cantidadRequerimientos - 1
+        : this.cantidadRequerimientos
+    },
+  },
+  methods: {
+    saveChanges() {
+      // Valido, si esta descartando (operacion: descartar && NO es esAutor), debe completar el comentario
+      if (
+        this.operation === "descartar" &&
+        !this.esAutor &&
+        !this.$refs.commentDescartar.validate()
+      ) {
+        return
+      }
+
+      this.$store
+        .dispatch("priorizarRequerimientos/processManualChanges", {
+          operation: this.operation,
+          priority: this.approvedPriority,
+          comment: this.comment,
+          listName: this.statePending ? "source" : "target",
+        })
+        .then(message => {
+          if (message) success({ message })
+          // this.detalleRequerimientoOpen = false
+          this.operation = null
+          this.approvedPriority = 1
+          this.comment = null
+          this.$emit("closeDialog")
+        })
+        .catch(message => {
+          warn({ message })
+        })
     },
   },
 }
 </script>
+
+<style lang="scss" scope>
+.slider {
+  margin: 0 auto;
+  width: 95%;
+}
+</style>

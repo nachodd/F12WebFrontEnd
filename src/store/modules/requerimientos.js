@@ -37,6 +37,14 @@ const getters = {
   getEstadoByCodigo(state) {
     return codigo => _.find(state.estados, { codigo })
   },
+  detalleRequerimientoState: state => {
+    if (!state.detalleRequerimientoItem.estado) {
+      return null
+    }
+    return _.find(state.estados, {
+      id: state.detalleRequerimientoItem.estado.id,
+    }).codigo
+  },
 }
 
 const mutations = {
