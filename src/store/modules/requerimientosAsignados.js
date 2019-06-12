@@ -4,13 +4,19 @@ import { getRequerimientosAsignadosByUser } from "@api/requerimientos"
 // import { warn, success } from "@utils/helpers"
 
 const state = {
-  reqsAsignadosnEnCurso: new RequerimientosAsignadosList([], false),
+  reqsAsignadosEnCurso: new RequerimientosAsignadosList([], true),
   reqsAsignadoPendientes: new RequerimientosAsignadosList([], true),
 }
 
 const getters = {}
 
-const mutations = {}
+const mutations = {
+  SET_REQS_LIST: (state, { listData }) => {
+    // listType === "EXEC"
+    //   ? (state.reqsAsignadosEnCurso.list = listData)
+    //   : (state.reqsAsignadoPendientes.list = listData)
+  },
+}
 
 const actions = {
   inicializarRequerimientosAsignados({ dispatch, rootGetters }) {
@@ -23,6 +29,7 @@ const actions = {
   },
   getRequerimientosAsignadosByUser(
     // { commit, rootGetters },
+    { commit },
     { rootGetters },
     { userId, reqState },
   ) {
@@ -32,10 +39,12 @@ const actions = {
 
     // commit("SET_LOADING_STATE_REQS_LISTS", { listType, loadingState: true })
 
-    return getRequerimientosAsignadosByUser(userId)
+    return getRequerimientosAsignadosByUser(userId, estadoReq)
       .then(({ data: { data } }) => {
-        console.log("requerimientosAsignados", data)
-        // commit("SET_REQS_LIST", { listType, listData: data })
+        // console.log("requerimientosAsignados", data)
+
+        commit("SET_REQS_LIST", { listData: data })
+
         // commit("UPDATE_LIST_ESTADO", listType)
         // commit("SORT_LIST_BY_PRIORITY", listType)
       })
@@ -46,6 +55,33 @@ const actions = {
         //   loadingState: false,
         // })
       })
+  },
+  processUpdateList({ commit, getters, dispatch }, updatedListData) {
+    return new Promise(resolve => {
+      // Updateo los listados temporales
+      // commit("PROCESS_UPDATE_LISTS", updatedListData)
+
+      // Chequeo si
+      //  - si esElUltimoDeLaCadenaDeMando===false => si AMBOS listados temporales fueron seteados los cambios
+      //  - si esElUltimoDeLaCadenaDeMando===true, => si SOLO en el listado temporal de pendientes (source) fueron seteados los cambios
+      if (!getters.possibleChangesSetted) {
+        return
+      }
+
+      switch (getters.operationType) {
+        case "reorder-pending":
+          dispatch("saveReorderPending")
+          break
+        case "reorder-approved":
+          dispatch("saveReorderApproved")
+          break
+        case "approve":
+        case "reject":
+          dispatch("setDialogConfirmOperationOpen", true)
+          break
+      }
+      resolve()
+    })
   },
 }
 
