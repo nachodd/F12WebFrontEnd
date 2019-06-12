@@ -6,38 +6,70 @@
 
     <q-select
       v-model="operation"
+      color="purple-10"
       filled
       :options="optionsAsignar"
-      options-cover
       emit-value
       map-options
     />
 
     <div class="q-mt-md">
       <q-slide-transition>
-        <div v-show="operation === 'asignar'" class="row">
-          <div class="col-12">
-            <q-select
-              v-model="usuarioAsignado"
-              filled
-              :options="userReportantes"
-              options-cover
-              emit-value
-              map-options
-            />
+        <div v-show="operation === 'asignar'">
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Seleccione un usuario para asignar este Requerimiento:
+            </div>
           </div>
 
-          <div class="col-12">
-            <q-input
-              ref="commentAsignar"
-              v-model="comment"
-              color="accent"
-              outlined
-              autogrow
-              label="Agregar un comentario:"
-              :hide-bottom-space="true"
-              :rules="[notEmpty]"
-            />
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-select
+                ref="usuarioAsignado"
+                v-model="usuarioAsignado"
+                color="purple-10"
+                filled
+                :options="optionsUsersReportantes"
+                emit-value
+                map-options
+                :rules="[notEmpty]"
+              />
+            </div>
+          </div>
+
+          <div class="row q-mt-xs q-col-gutter-sm">
+            <div class="col-6">
+              <input-date-custom
+                ref="fechaFinalizacion"
+                v-model="fechaFinalizacion"
+                label="Fecha Finalización"
+                past-disabled
+                :validate="true"
+              />
+            </div>
+            <div class="col-6">
+              <q-input
+                v-model.number="horasEstimadas"
+                type="number"
+                label="Horas Estimadas"
+                filled
+                outlined
+                :rules="[notEmpty]"
+              />
+            </div>
+          </div>
+
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-input
+                ref="comment"
+                v-model="comment"
+                color="accent"
+                outlined
+                autogrow
+                label="Agregar un comentario:"
+              />
+            </div>
           </div>
         </div>
       </q-slide-transition>
@@ -56,14 +88,22 @@
 <script>
 import { mapGetters } from "vuex"
 import formValidation from "@mixins/formValidation"
+import { warn, success } from "@utils/helpers"
+import InputDateCustom from "@comp/Common/InputDateCustom"
 
 export default {
   name: "AsignarRequerimientosActions",
+  components: {
+    InputDateCustom,
+  },
   mixins: [formValidation],
   data() {
     return {
       operation: null,
       comment: null,
+      usuarioAsignado: null,
+      fechaFinalizacion: null,
+      horasEstimadas: null,
     }
   },
   computed: {
@@ -93,20 +133,60 @@ export default {
           label: "Enviar a Procesos",
           value: "aProcesos",
         })
+        opt.push({
+          label: "Descartar",
+          value: "descartar",
+        })
       }
-
       if (this.stateAssigned) {
         opt.push({
           label: "Volver a Pendiente de Asignación",
           value: "asignar",
         })
       }
-
       return opt
+    },
+    optionsUsersReportantes() {
+      return [
+        {
+          label: "Seleccione un usuario...",
+          value: null,
+        },
+        ...this.userReportantes,
+      ]
     },
   },
   methods: {
-    saveChanges() {},
+    saveChanges() {
+      // Si es descartar, debo incluir un comentario
+      if (this.operation === "descartar" && !this.$refs.comment.validate()) {
+        return
+      }
+
+      // Si es asignar, debo elegir un usuario
+      if (
+        this.operation === "asignar" &&
+        !this.$refs.usuarioAsignado.validate()
+      ) {
+        return
+      }
+
+      this.$store
+        .dispatch("asignarRequerimientos/updateRequerimientoState", {
+          operation: this.operation,
+          comment: this.comment,
+        })
+        .then(message => {
+          if (message) success({ message })
+          this.operation = null
+          this.usuarioAsignado = null
+          this.comment = null
+          this.$emit("closeDialog")
+        })
+        .catch(message => {
+          warn({ message })
+        })
+    },
   },
 }
 </script>

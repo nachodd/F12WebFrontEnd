@@ -62,6 +62,7 @@ module.exports = function(ctx) {
         "QInput",
         "QLayout",
         "QHeader",
+        "QFooter",
         "QDrawer",
         "QPageContainer",
         "QPage",
@@ -82,7 +83,7 @@ module.exports = function(ctx) {
         "QTabs",
         "QTabPanel",
         "QTabPanels",
-        "QBanner"
+        "QBanner",
       ],
 
       directives: ["Ripple", "ClosePopup"],

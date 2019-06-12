@@ -35,7 +35,6 @@
     </div>
 
     <dialog-detalle-requerimiento />
-    <!-- <dialog-confirm-operation /> -->
   </q-page>
 </template>
 
