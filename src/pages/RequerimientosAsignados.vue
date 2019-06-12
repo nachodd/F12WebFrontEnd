@@ -7,7 +7,7 @@
           title="Pendientes"
           group-name="requerimientos"
           list-name="source"
-          :requerimientos-list.sync="reqsPendientesAprobacion"
+          :requerimientos-list.sync="reqsAsignadosPendientes"
           :loading-list="loadingReqsPendientesAprobacion"
         />
       </div>
@@ -17,7 +17,7 @@
           title="En Ejecución"
           group-name="requerimientos"
           list-name="target"
-          :requerimientos-list.sync="reqsAprobadosPriorizados"
+          :requerimientos-list.sync="reqsAsignadosEnEjecucion"
           :loading-list="loadingReqsAprobadosPriorizados"
         />
       </div>
@@ -32,7 +32,7 @@
 import { mapGetters, mapState } from "vuex"
 import PageHeader from "@comp/Common/PageHeader"
 import pageLoading from "@mixins/pageLoading"
-import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
+import DraggableList from "@comp/RequerimientosAsignados/DraggableList"
 import DialogConfirmOperation from "@comp/PriorizarRequerimientos/DialogConfirmOperation"
 import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 
@@ -60,6 +60,11 @@ export default {
         state.loadingReqsPendientesAprobacion,
       loadingReqsAprobadosPriorizados: state =>
         state.loadingReqsAprobadosPriorizados,
+    }),
+
+    ...mapState("requerimientosAsignados", {
+      reqsAsignadosPendientes: state => state.reqsAsignadosPendientes,
+      reqsAsignadosEnEjecucion: state => state.reqsAsignadosEnEjecucion,
     }),
   },
   async created() {

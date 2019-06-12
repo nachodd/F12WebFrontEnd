@@ -19,7 +19,7 @@
           v-for="(req, index) in requerimientosList.list"
           :key="`req_${req.id}`"
         >
-          <priorizar-requerimientos-item
+          <requerimientos-asignados-Item
             :req="req"
             :index="index"
             @click.native="
@@ -39,15 +39,15 @@
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag } from "@utils/helpers"
-import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
+import RequerimientosAsignadosItem from "@comp/RequerimientosAsignados/RequerimientosAsignadosItem"
 import ListRequerimientos from "@comp/Common/ListRequerimientos"
-import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
+import RequerimientosAsignadosList from "@models/RequerimientosAsignadosList"
 
 export default {
   name: "DraggableList",
   components: {
     ListRequerimientos,
-    PriorizarRequerimientosItem,
+    RequerimientosAsignadosItem,
     Container,
     Draggable,
   },
@@ -61,7 +61,7 @@ export default {
       required: true,
     },
     requerimientosList: {
-      type: RequerimientosPriorizarList,
+      type: RequerimientosAsignadosList,
       required: true,
     },
     listName: {
@@ -108,7 +108,7 @@ export default {
       const updatedListData = { listName, listResult, dropResult }
 
       this.$store.dispatch(
-        "priorizarRequerimientos/processUpdateList",
+        "requerimientosAsignados/processUpdateList",
         updatedListData,
       )
     },
