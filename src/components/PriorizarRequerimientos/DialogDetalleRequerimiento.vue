@@ -22,6 +22,7 @@
         narrow-indicator
       >
         <q-tab name="detalle" label="Detalle" />
+
         <q-tab v-if="showAcciones" name="acciones" label="Acciones" />
 
         <q-tab name="movimientos" label="Movimientos" />
@@ -197,23 +198,7 @@ export default {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
-    ...mapGetters("auth", [
-      "esElUltimoDeLaCadenaDeMando",
-      "userId",
-      "userReportantes",
-    ]),
-    // ...mapGetters("priorizarRequerimientos", [
-    //   "cantidadRequerimientos",
-    //   "reqsPendientesAprobacionLength",
-    //   "reqsAprobadosPriorizadosLength",
-    //   "esAutor",
-    // ]),
-    /* maximoSliderPrioridad() {
-      // Si la operacion es de seleccionar prioridad, el max del slider será 1 menos que la cant de reqs
-      return this.operation === "seleccionarPrioridad"
-        ? this.cantidadRequerimientos - 1
-        : this.cantidadRequerimientos
-    }, */
+    ...mapGetters("auth", ["userReportantes"]),
     requerimientoSetted() {
       return !_.isEmpty(this.req)
     },
@@ -229,12 +214,14 @@ export default {
       return null
     },
     actionsComponent() {
-      if (this.$route.name === "priorizar-requerimientos") {
-        return "priorizarRequerimientosActions"
-      } else if (this.$route.name === "asignar-requerimientos") {
-        return "asignaRequerimientosActions"
+      switch (this.$route.name) {
+        case "priorizar-requerimientos":
+          return "priorizarRequerimientosActions"
+        case "asignar-requerimientos":
+          return "asignarRequerimientosActions"
+        default:
+          return null
       }
-      return null
     },
     showAcciones() {
       switch (this.$route.name) {
@@ -250,62 +237,12 @@ export default {
         return this.$store.state.requerimientos.detalleRequerimientoOpen
       },
       set(value) {
-        return this.$store
-          .dispatch("requerimientos/setDetalleRequerimientoOpen", value)
-          .then(() => {
-            // Reset de la operacion (para los botones) y la prioridad seleccionada
-            // this.operation = null
-            // this.approvedPriority = 1
-            // this.comment = null
-          })
+        return this.$store.dispatch(
+          "requerimientos/setDetalleRequerimientoOpen",
+          value,
+        )
       },
     },
-    optionsAsignar() {
-      const opt = [
-        {
-          label: "Ninguna seleccionada",
-          value: null,
-        },
-      ]
-      if (this.stateNotAssigned) {
-        opt.push({
-          label: "Asignar",
-          value: "asignar",
-        })
-      }
-      return opt
-    },
-    /* statePending() {
-      return this.req.estado.id === 1
-    },
-    stateApproved() {
-      return this.req.estado.id === 2
-    }, */
-    stateNotAssigned() {
-      return this.req.estado.id === 3
-    },
-    stateAssigned() {
-      return this.req.estado.id === 4
-    },
-    /* isApprovingOrReordering() {
-      return (
-        this.operation === "aprobar" ||
-        this.operation === "seleccionarPrioridad"
-      )
-    }, */
-    /* seleccionarPrioridadShown() {
-      if (this.esElUltimoDeLaCadenaDeMando) {
-        return this.statePending && this.reqsPendientesAprobacionLength > 1
-      } else {
-        return this.stateApproved && this.reqsAprobadosPriorizadosLength > 1
-      }
-    }, */
-    // tabAcciones() {
-    //   return this.$route.name === "priorizar-requerimientos"
-    // },
-    // tabAccionesAsignarReqs() {
-    //   return this.$route.name === "asignar-requerimientos"
-    // },
   },
   created() {
     this.asignacionUsuarios = _.map(this.userReportantes, ur => {

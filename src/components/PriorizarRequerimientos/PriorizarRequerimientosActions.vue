@@ -80,11 +80,12 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex"
+import { mapGetters } from "vuex"
 import formValidation from "@mixins/formValidation"
 import { warn, success } from "@utils/helpers"
 
 export default {
+  name: "PriorizarRequerimientosActions",
   mixins: [formValidation],
   data() {
     return {
@@ -94,9 +95,6 @@ export default {
     }
   },
   computed: {
-    ...mapState("requerimientos", {
-      req: state => state.detalleRequerimientoItem,
-    }),
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
     ...mapGetters("priorizarRequerimientos", [
       "cantidadRequerimientos",
@@ -112,10 +110,12 @@ export default {
         value: null,
       })
       if (this.esElUltimoDeLaCadenaDeMando) {
-        opt.push({
-          label: "Seleccionar Prioridad",
-          value: "seleccionarPrioridad",
-        })
+        if (this.seleccionarPrioridadShown) {
+          opt.push({
+            label: "Seleccionar Prioridad",
+            value: "seleccionarPrioridad",
+          })
+        }
         opt.push({
           label: "Descartar",
           value: "descartar",
@@ -130,8 +130,14 @@ export default {
         })
       }
       if (this.stateApproved) {
+        if (this.seleccionarPrioridadShown) {
+          opt.push({
+            label: "Seleccionar Prioridad",
+            value: "seleccionarPrioridad",
+          })
+        }
         opt.push({
-          label: "Volver a Pend. Aprob.",
+          label: "Volver a Pendiente de Aprobacion",
           value: "pendiente",
           icon: "fas fa-undo",
         })
