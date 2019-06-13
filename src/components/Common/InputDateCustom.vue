@@ -1,8 +1,9 @@
 <template>
+  <!-- :value="selectedValue" -->
   <q-input
     ref="input"
+    v-model="selectedValue"
     outlined
-    :value="selectedValue"
     :label="label"
     :rules="rulesDate"
     :hide-bottom-space="true"
@@ -41,7 +42,7 @@ export default {
       type: String,
       default: "",
     },
-    validate: {
+    applyValidation: {
       type: Boolean,
       default: false,
     },
@@ -56,7 +57,6 @@ export default {
   },
   data() {
     return {
-      selectedValue: this.value || null,
       datePopupShowed: false,
     }
   },
@@ -65,22 +65,25 @@ export default {
       return date.formatDate(this.selectedValue, "DD/MM/YYYY")
     },
     rulesDate() {
-      return this.validate ? [this.notEmpty, this.validDate] : []
+      return this.applyValidation ? [this.notEmpty, this.validDate] : []
+    },
+    selectedValue: {
+      get() {
+        return this.value
+      },
+      set(newVal) {
+        this.$emit("input", newVal)
+      },
     },
   },
-  watch: {
-    // Escuchamos los cambios en value para saber cuando se cambia, y los propagamos al valor interno
-    value(val) {
-      this.selectedValue = val
-      // Si hay valor elegido, cerramos el popup
+  methods: {
+    handleInput(val) {
       if (val) {
         this.datePopupShowed = false
       }
     },
-  },
-  methods: {
-    handleInput() {
-      this.$emit("input", this.selectedValue)
+    validate() {
+      this.$refs.input.validate()
     },
     clearValues() {
       this.selectedValue = null
