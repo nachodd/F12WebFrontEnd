@@ -44,7 +44,7 @@
                 v-model="fechaFinalizacion"
                 label="Fecha Finalización"
                 past-disabled
-                :validate="true"
+                :apply-validation="true"
               />
             </div>
             <div class="col-6">
