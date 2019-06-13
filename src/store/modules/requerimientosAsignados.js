@@ -1,5 +1,8 @@
 import RequerimientosAsignadosList from "src/models/RequerimientosAsignadosList"
-import { getRequerimientosAsignadosByUser } from "@api/requerimientos"
+import {
+  getRequerimientosAsignadosByUser,
+  ejecutarRequerimiento,
+} from "@api/requerimientos"
 
 // import { warn, success } from "@utils/helpers"
 
@@ -31,9 +34,9 @@ const getters = {
     return (
       (state.possibleChanges.sourceChanges.changesSetted &&
         state.possibleChanges.targetChanges.changesSetted &&
-        state.possibleChanges.payload.id) ||
+        Boolean(state.possibleChanges.payload.id)) ||
       (state.possibleChanges.sourceChanges.changesSetted &&
-        state.possibleChanges.payload.id)
+        Boolean(state.possibleChanges.payload.id))
     )
   },
 
@@ -111,12 +114,16 @@ const getters = {
       return ""
     }
   },
+
+  requerimientoIdToChange: state =>
+    _.get(state.possibleChanges.payload, "id", ""),
 }
 
 const mutations = {
   SET_REQS_LIST: (state, { listName, listData }) => {
-    state[listName].list = listData
+    state[`${listName}`].list = listData
   },
+
   PROCESS_UPDATE_LISTS: (state, { listName, listResult, dropResult }) => {
     const { removedIndex, addedIndex, payload } = dropResult
     state.possibleChanges[`${listName}List`] = listResult
@@ -131,6 +138,40 @@ const mutations = {
   SET_DIALOG_CONFIRM_OPERATION_OPEN: (state, value) => {
     state.dialogConfirmOpen = value
   },
+
+  CLEAR_OPERATIONS: state => {
+    for (const listName of ["source", "target"]) {
+      state.possibleChanges[`${listName}List`] = []
+      state.possibleChanges[`${listName}Changes`] = {
+        addedIndex: null,
+        removedIndex: null,
+        changesSetted: false,
+      }
+    }
+    state.possibleChanges.payload = {}
+    state.dialogConfirmOpen = false
+  },
+
+  UPDATE_LIST_ESTADO: (state, listType) => {
+    let list = [...state[`${listType}`].list]
+
+    // Mapeo el valor del estado aca, porque si se produce un cambio de estado local
+    // (de pendiente a aprobado y vicerversa) el nuevo listado va a tener el valor correcto en el campo estado
+    list = list.map(req => {
+      if (listType === "reqsAsignadosEnEjecucion") {
+        req.estado = { id: 5, descripcion: "En ejecución" }
+      } else {
+        req.estado = { id: 4, descripcion: "Asignado" }
+      }
+      return req
+    })
+    // Persisto los cambios localmente
+    state[`${listType}`].list = list
+
+    // listType === "reqsAsignadosPendientes"
+    //   ? (state.reqsAsignadosPendientes.list = list)
+    //   : (state.reqsAsignadosEnEjecucion.list = list)
+  },
 }
 
 const actions = {
@@ -141,6 +182,7 @@ const actions = {
       userId: currentUserId,
     })
   },
+
   getRequerimientosAsignadosByUser({ commit, rootGetters }, { userId }) {
     // const listType = reqState === "PEND" ? "pending" : "approved"
 
@@ -190,8 +232,9 @@ const actions = {
         // })
       })
   },
+
   processUpdateList({ commit, getters, dispatch }, updatedListData) {
-    console.log(getters.operationType)
+    // console.log(getters.operationType)
     return new Promise(resolve => {
       // updatea los listados temporales
       commit("PROCESS_UPDATE_LISTS", updatedListData)
@@ -218,6 +261,66 @@ const actions = {
 
   setDialogConfirmOperationOpen({ commit }, value = true) {
     commit("SET_DIALOG_CONFIRM_OPERATION_OPEN", value)
+  },
+
+  clearOperations({ commit }) {
+    return new Promise(resolve => {
+      commit("CLEAR_OPERATIONS")
+      resolve()
+    })
+  },
+
+  // async confirmOperation({ commit, getters, state, dispatch }, comment) {
+  async confirmOperation({ commit, getters, state, dispatch }) {
+    return new Promise(async (resolve, reject) => {
+      const reqId = getters.requerimientoIdToChange
+      // copio los listados (de manera de tener un backup)
+      const sourceBackup = [...state.reqsAsignadosPendientes.list]
+      const targetBackup = [...state.reqsAsignadosEnEjecucion.list]
+
+      commit("SET_REQS_LIST", {
+        listName: "reqsAsignadosPendientes",
+        listData: state.possibleChanges.sourceList,
+      })
+
+      commit("SET_REQS_LIST", {
+        listName: "reqsAsignadosEnEjecucion",
+        listData: state.possibleChanges.targetList,
+      })
+
+      // marca todos los estados en ejecucion para igualar con el resto el nuevo requrimiento
+      commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
+
+      try {
+        dispatch("app/loadingInc", null, { root: true })
+
+        // Persisto los cambios en el remoto
+        await ejecutarRequerimiento(reqId)
+
+        resolve()
+      } catch (e) {
+        //si no guardo correctamente, revierto los cambios.
+        // pendientes
+        commit("SET_REQS_LIST", {
+          listName: "reqsAsignadosPendientes",
+          listData: sourceBackup,
+        })
+        commit("UPDATE_LIST_ESTADO", "reqsAsignadosPendientes")
+
+        // En ejecucion
+        commit("SET_REQS_LIST", {
+          listName: "reqsAsignadosEnEjecucion",
+          listData: targetBackup,
+        })
+
+        commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
+        reject(e)
+      } finally {
+        dispatch("app/loadingDec", null, { root: true })
+      }
+
+      resolve()
+    })
   },
 }
 

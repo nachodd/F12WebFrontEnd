@@ -102,7 +102,6 @@ export default {
       return this.requerimientosList.list[index]
     },
     onDrop(listName, dropResult) {
-      // console.log("onDrop", list, dropResult)
       const listResult = applyDrag(this.requerimientosList.list, dropResult)
 
       const updatedListData = { listName, listResult, dropResult }

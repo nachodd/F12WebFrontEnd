@@ -35,7 +35,7 @@
         style="margin-top: auto;"
       >
         <span class="cursor-pointer">VER DETALLE</span>
-      </q-item-label> -->
+      </q-item-label>-->
     </q-item-section>
 
     <q-item-section top class="col-2 q-my-xs">
@@ -56,13 +56,11 @@
     <q-item-section top side>
       <!-- <div class="text-grey-8 q-gutter-xs">
         <q-btn class="gt-xs" size="12px" flat dense round icon="delete" />
-      </div> -->
+      </div>-->
 
       <div v-if="tieneComentario" class="text-grey-8 q-gutter-xs">
         <q-btn class="gt-xs" size="12px" flat dense round icon="fas fa-comment">
-          <q-tooltip>
-            {{ req.comentario }}
-          </q-tooltip>
+          <q-tooltip>{{ req.comentario }}</q-tooltip>
         </q-btn>
       </div>
     </q-item-section>

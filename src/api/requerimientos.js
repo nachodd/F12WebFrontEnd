@@ -111,3 +111,10 @@ export function getRequerimientosAsignadosByUser(userId) {
     method: "get",
   })
 }
+
+export function ejecutarRequerimiento($requerimientoId) {
+  return request({
+    url: `/v1/f12/requerimientos/${$requerimientoId}/ejecucion`,
+    method: "put",
+  })
+}
