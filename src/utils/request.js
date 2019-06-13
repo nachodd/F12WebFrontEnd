@@ -7,7 +7,7 @@ import { warn, warnDialogParse } from "@utils/helpers"
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API,
+  baseURL: process.env.APP_BASE_API,
   // withCredentials: true,
   timeout: 30000, // request timeout,
   // Flag to handle the error directly in the respose
