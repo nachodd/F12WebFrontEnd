@@ -104,3 +104,17 @@ export function getRequerimientosAsignados(userId) {
     }
   })
 }
+
+export function getRequerimientosAsignadosByUser(userId) {
+  return request({
+    url: `/v1/f12/${userId}/requerimientos/asignados`,
+    method: "get",
+  })
+}
+
+export function ejecutarRequerimiento($requerimientoId) {
+  return request({
+    url: `/v1/f12/requerimientos/${$requerimientoId}/ejecucion`,
+    method: "put",
+  })
+}

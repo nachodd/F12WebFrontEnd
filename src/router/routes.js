@@ -62,6 +62,14 @@ const routes = [
           checkHasResponsabilities: true,
         },
       },
+      {
+        path: "/requerimientos-asignados",
+        name: "requerimientos-asignados",
+        component: () => import("pages/RequerimientosAsignados.vue"),
+        meta: {
+          title: "Requerimientos Asignados - F12",
+        },
+      },
     ],
   },
 ]
