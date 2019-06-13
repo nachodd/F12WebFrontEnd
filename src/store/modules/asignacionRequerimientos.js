@@ -113,6 +113,11 @@ const actions = {
             break
           }
           case "descartar": {
+            // TODO: Implementar!
+            break
+          }
+          case "desasignar": {
+            // TODO: Implementar!
             break
           }
         }

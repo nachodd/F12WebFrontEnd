@@ -14,6 +14,12 @@
       </div>
     </div>
 
+    <div v-if="estaAsignado" class="row">
+      <div class="col-12">
+        <q-badge color="green" text-color="">{{ usuarioAsignado }}</q-badge>
+      </div>
+    </div>
+
     <div class="row justify-around">
       <div
         class="text-left"
@@ -63,6 +69,13 @@ export default {
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
     esArregloRapido() {
       return this.req.tipo.id === 1
+    },
+    estaAsignado() {
+      const estaAsignado = _.get(this, "req.estado.asignacion", null)
+      return estaAsignado !== null
+    },
+    usuarioAsignado() {
+      return _.get(this, "req.estado.asignacion.usuario_nombre", "")
     },
     tieneComentario() {
       return this.req.comentario && this.req.comentario.length > 0
