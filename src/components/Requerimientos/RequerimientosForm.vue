@@ -81,13 +81,22 @@
             <div class="col">
               <div class="row q-col-gutter-sm">
                 <div class="col col-sm-4 col-xs-12">
-                  <input-date-custom
+                  <!-- Se podria escrivir asi tambien, asigandolé directamente el :value y emitiendo valores onInput -->
+                  <!-- <input-date-custom
                     ref="fechaLimite"
                     label="Fecha Límite"
                     past-disabled
-                    :validate="__llevaFechaLimite"
+                    :apply-validation="__llevaFechaLimite"
                     :value="fechaLimite"
                     @input="$emit('update:fechaLimite', $event)"
+                  /> -->
+                  <!-- o bien, usar un v-model con una computed property, que en el setter emita su valor arriba y el getter sea la prop  -->
+                  <input-date-custom
+                    ref="fechaLimite"
+                    v-model="__fechaLimite"
+                    label="Fecha Límite"
+                    past-disabled
+                    :apply-validation="__llevaFechaLimite"
                   />
                 </div>
                 <div class="col col-sm-8 col-xs-12">
@@ -130,7 +139,7 @@
 <script>
 import { mapState } from "vuex"
 import SelectCustom from "@comp/Requerimientos/SelectCustom"
-import InputDateCustom from "@comp/Requerimientos/InputDateCustom"
+import InputDateCustom from "@comp/Common/InputDateCustom"
 import UploaderCustom from "@comp/Requerimientos/UploaderCustom"
 import formValidation from "@mixins/formValidation"
 import { warn } from "@utils/helpers"
@@ -209,6 +218,14 @@ export default {
         this.$emit("update:tipo", value)
       },
     },
+    __fechaLimite: {
+      get() {
+        return this.fechaLimite
+      },
+      set(newVal) {
+        this.$emit("update:fechaLimite", newVal)
+      },
+    },
     __llevaFechaLimite: {
       get() {
         return this.llevaFechaLimite
@@ -217,11 +234,12 @@ export default {
         this.$emit("update:llevaFechaLimite", value)
 
         if (!value) {
-          this.fechaLimite = null
+          // this.fechaLimite = null
+          this.__fechaLimite = null
           this.motivoLimite = ""
           this.$refs.fechaLimite.resetValidation()
           this.$refs.motivoLimite.resetValidation()
-          this.$emit("update:fechaLimite", this.fechaLimite)
+          // this.$emit("update:fechaLimite", this.fechaLimite)
           this.$emit("update:motivoLimite", this.motivoLimite)
         }
       },

@@ -62,6 +62,25 @@ const actions = {
       }
     })
   },
+  updateRequerimientoState({ commit }, data) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        commit("app/LOADING_INC", null, { root: true })
+
+        const data1 = {
+          usuario_asignado: 49132,
+          fecha_finalizacion_estimada: "10/06/2019",
+          horas_estimadas: 10,
+        }
+
+        console.log(data, data1)
+      } catch (error) {
+        reject(error)
+      } finally {
+        commit("app/LOADING_DEC", null, { root: true })
+      }
+    })
+  },
 }
 
 export default {
