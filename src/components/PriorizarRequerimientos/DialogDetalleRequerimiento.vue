@@ -2,10 +2,174 @@
   <q-dialog
     v-model="detalleRequerimientoOpen"
     persistent
+    full-height
     transition-show="scale"
     transition-hide="scale"
   >
-    <q-card v-if="requerimientoSetted">
+    <q-layout
+      v-if="requerimientoSetted"
+      container
+      view="hHh lpR fFf"
+      class="bg-white"
+    >
+      <q-header elevated class="bg-deep-purple-10 text-white items-center">
+        <q-toolbar class="q-pa-md">
+          <q-toolbar-title>
+            <div class="text-h6">Requerimiento Nº {{ req.id }}</div>
+            <div class="text-subtitle3 text-white-7">
+              {{ req.usuario.nombre }}
+            </div>
+          </q-toolbar-title>
+        </q-toolbar>
+
+        <q-tabs
+          v-model="tab"
+          dense
+          class="bg-deep-purple-9 text-grey-5"
+          active-color="white"
+          indicator-color="white"
+          align="justify"
+          narrow-indicator
+        >
+          <q-tab name="detalle" label="Detalle" />
+
+          <q-tab v-if="showAcciones" name="acciones" label="Acciones" />
+
+          <q-tab name="movimientos" label="Movimientos" />
+        </q-tabs>
+      </q-header>
+
+      <q-page-container>
+        <!-- :content-style="contentStyle"
+        :content-active-style="contentActiveStyle" -->
+        <q-scroll-area
+          :thumb-style="{
+            right: '2px',
+            borderRadius: '5px',
+            backgroundColor: '#027be3',
+            width: '5px',
+            opacity: 0.75,
+          }"
+          class="modal-body"
+        >
+          <q-tab-panels v-model="tab" animated>
+            <!-- Tab Detalle -->
+            <q-tab-panel name="detalle">
+              <!-- detalle -->
+              <div class="row">
+                <div class="col-4">
+                  <div class="text-grey-7">Area</div>
+                  <q-item-label lines="1">
+                    {{ req.area.descripcion }}
+                  </q-item-label>
+                </div>
+                <div class="col-4">
+                  <div class="text-grey-7">Sistema</div>
+                  <q-item-label lines="1">
+                    {{ req.sistema.descripcion }}
+                  </q-item-label>
+                </div>
+                <div class="col-4">
+                  <div class="text-grey-7">Tipo</div>
+                  <q-item-label lines="1">
+                    {{ req.tipo.descripcion }}
+                  </q-item-label>
+                </div>
+              </div>
+              <br />
+              <div class="text-grey-7">Asunto</div>
+              {{ req.asunto }}
+              <br />
+              <br />
+              <div class="text-grey-7">Descripcion</div>
+              {{ req.descripcion }}
+              <br />
+              <br />
+              <q-banner
+                v-if="req.vence"
+                inline-actions
+                class="text-white bg-red-4"
+                style="margin-bottom:20px;"
+                rounded
+              >
+                <div>
+                  <span>Vencimiento:</span>
+                  <br />
+                  {{ req.fechaLimite }}
+                  <template v-if="vencimientoDiff !== null">
+                    <span v-if="vencimientoDiff > 0" class="text-white">
+                      (Faltan
+                      <strong>{{ vencimientoDiff }}</strong>
+                      días)
+                    </span>
+
+                    <span v-if="vencimientoDiff === 0" class="text-white">
+                      (HOY es el día de vencimiento)
+                    </span>
+
+                    <strong v-if="vencimientoDiff < 0">
+                      (Este req. se encuentra vencido )
+                    </strong>
+                  </template>
+                  <br />
+                  <br />
+                  <span class>Motivo:</span>
+                  <br />
+                  {{ req.motivoLimite }}
+                </div>
+                <template v-slot:action>
+                  <!-- <q-btn flat color="white" label="Turn ON Wifi" /> -->
+                  <q-avatar
+                    icon="info"
+                    color
+                    text-color="white"
+                    class="avatar--lg"
+                  />
+                </template>
+              </q-banner>
+            </q-tab-panel>
+
+            <!-- Tab Acciones (dinamico) -->
+            <q-tab-panel v-if="showAcciones" name="acciones" class="modal-body">
+              <component :is="actionsComponent" @closeDialog="closeDialog" />
+            </q-tab-panel>
+
+            <!-- Tab movicmientos -->
+            <q-tab-panel name="movimientos">
+              <div v-if="req.movimientos" class="row">
+                <q-timeline color="purple">
+                  <q-timeline-entry
+                    v-for="(movimiento, index) in req.movimientos"
+                    :key="`req_${index}`"
+                    :title="movimiento.estado | formatiarEstado(movimiento)"
+                    :subtitle="movimiento | formatiarFecha"
+                    icon
+                    color
+                    text-color="grey"
+                    class="title-custom"
+                  >
+                    <div>{{ movimiento.comentario }}</div>
+                  </q-timeline-entry>
+                </q-timeline>
+              </div>
+            </q-tab-panel>
+          </q-tab-panels>
+        </q-scroll-area>
+      </q-page-container>
+
+      <q-footer elevated class="bg-white">
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            label="Cerrar"
+            color="deep-purple-10"
+            @click="detalleRequerimientoOpen = false"
+          />
+        </q-card-actions>
+      </q-footer>
+    </q-layout>
+
+    <!-- <q-card v-if="requerimientoSetted">
       <q-card-section class="bg-deep-purple-10 text-white items-center">
         <div class="text-h6">Requerimiento Nº {{ req.id }}</div>
         <div class="text-subtitle3 text-white-7">{{ req.usuario.nombre }}</div>
@@ -28,118 +192,10 @@
         <q-tab name="movimientos" label="Movimientos" />
       </q-tabs>
       <q-separator />
-      <q-card-section
-        id="test"
-        style="height: 50vh;width:84vh;padding:0px !important;"
-        class="scroll"
-      >
-        <q-tab-panels v-model="tab" animated>
-          <!-- Tab Detalle -->
-          <q-tab-panel name="detalle">
-            <!-- detalle -->
-            <div class="row">
-              <div class="col-4">
-                <div class="text-grey-7">Area</div>
-                <q-item-label lines="1">
-                  {{ req.area.descripcion }}
-                </q-item-label>
-              </div>
-              <div class="col-4">
-                <div class="text-grey-7">Sistema</div>
-                <q-item-label lines="1">
-                  {{ req.sistema.descripcion }}
-                </q-item-label>
-              </div>
-              <div class="col-4">
-                <div class="text-grey-7">Tipo</div>
-                <q-item-label lines="1">
-                  {{ req.tipo.descripcion }}
-                </q-item-label>
-              </div>
-            </div>
-            <br />
-            <div class="text-grey-7">Asunto</div>
-            {{ req.asunto }}
-            <br />
-            <br />
-            <div class="text-grey-7">Descripcion</div>
-            {{ req.descripcion }}
-            <br />
-            <br />
-            <q-banner
-              v-if="req.vence"
-              inline-actions
-              class="text-white bg-red-4"
-              style="margin-bottom:20px;"
-              rounded
-            >
-              <div>
-                <span>Vencimiento:</span>
-                <br />
-                {{ req.fechaLimite }}
-                <template v-if="vencimientoDiff !== null">
-                  <span v-if="vencimientoDiff > 0" class="text-white">
-                    (Faltan
-                    <strong>{{ vencimientoDiff }}</strong>
-                    días)
-                  </span>
-
-                  <span v-if="vencimientoDiff === 0" class="text-white">
-                    (HOY es el día de vencimiento)
-                  </span>
-
-                  <strong v-if="vencimientoDiff < 0">
-                    (Este req. se encuentra vencido )
-                  </strong>
-                </template>
-                <br />
-                <br />
-                <span class>Motivo:</span>
-                <br />
-                {{ req.motivoLimite }}
-              </div>
-              <template v-slot:action>
-                <!-- <q-btn flat color="white" label="Turn ON Wifi" /> -->
-                <q-avatar
-                  icon="info"
-                  color
-                  text-color="white"
-                  class="avatar--lg"
-                />
-              </template>
-            </q-banner>
-          </q-tab-panel>
-
-          <!-- Tab Acciones (dinamico) -->
-          <q-tab-panel v-if="showAcciones" name="acciones">
-            <component :is="actionsComponent" @closeDialog="closeDialog" />
-          </q-tab-panel>
-
-          <!-- Tab movicmientos -->
-          <q-tab-panel name="movimientos">
-            <div v-if="req.movimientos" class="row">
-              <q-timeline color="purple">
-                <q-timeline-entry
-                  v-for="(movimiento, index) in req.movimientos"
-                  :key="`req_${index}`"
-                  :title="movimiento.estado | formatiarEstado(movimiento)"
-                  :subtitle="movimiento | formatiarFecha"
-                  icon
-                  color
-                  text-color="grey"
-                  class="title-custom"
-                >
-                  <div>{{ movimiento.comentario }}</div>
-                </q-timeline-entry>
-              </q-timeline>
-            </div>
-          </q-tab-panel>
-        </q-tab-panels>
-      </q-card-section>
+      <q-card-section class="modal-body-container"></q-card-section>
 
       <q-separator />
 
-      <!-- Botones de accion para el requerimiento -->
       <q-card-actions align="right">
         <q-btn
           flat
@@ -148,7 +204,7 @@
           @click="detalleRequerimientoOpen = false"
         />
       </q-card-actions>
-    </q-card>
+    </q-card>-->
   </q-dialog>
 </template>
 
@@ -256,31 +312,6 @@ export default {
     closeDialog() {
       this.detalleRequerimientoOpen = false
     },
-    /* saveChanges() {
-      // Valido, si esta descartando (operacion: descartar && NO es esAutor), debe completar el comentario
-      if (
-        this.operation === "descartar" &&
-        !this.esAutor &&
-        !this.$refs.commentDescartar.validate()
-      ) {
-        return
-      }
-
-      this.$store
-        .dispatch("priorizarRequerimientos/processManualChanges", {
-          operation: this.operation,
-          priority: this.approvedPriority,
-          comment: this.comment,
-          listName: this.statePending ? "source" : "target",
-        })
-        .then(message => {
-          if (message) success({ message })
-          this.detalleRequerimientoOpen = false
-        })
-        .catch(message => {
-          warn({ message })
-        })
-    }, */
   },
 }
 </script>
@@ -294,5 +325,17 @@ export default {
 
 .title-custom .q-timeline__title {
   margin: 0px;
+}
+.modal-body-container {
+  height: 60vh;
+  width: 84vh;
+  padding: 0px !important;
+}
+.modal-body {
+  min-height: 100px;
+  height: calc(100vh - 121px - 100px);
+}
+.text-subtitle3 {
+  font-size: 14px;
 }
 </style>

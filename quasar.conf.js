@@ -3,7 +3,6 @@ const path = require("path")
 // eslint-disable-next-line no-undef
 const webpack = require("webpack")
 // eslint-disable-next-line no-undef
-const env = require("./env")
 
 // var envparser = require("./envparser")
 
@@ -62,6 +61,7 @@ module.exports = function(ctx) {
         "QInput",
         "QLayout",
         "QHeader",
+        "QFooter",
         "QDrawer",
         "QPageContainer",
         "QPage",
@@ -82,7 +82,7 @@ module.exports = function(ctx) {
         "QTabs",
         "QTabPanel",
         "QTabPanels",
-        "QBanner"
+        "QBanner",
       ],
 
       directives: ["Ripple", "ClosePopup"],
@@ -99,12 +99,11 @@ module.exports = function(ctx) {
     build: {
       scopeHoisting: true,
       vueRouterMode: "history",
-      // env: envparser(),
-      env: {
-        VUE_APP_BASE_API: JSON.stringify(env.VUE_APP_BASE_API),
-        VUE_APP_CLIENT_ID: JSON.stringify(env.VUE_APP_CLIENT_ID),
-        VUE_APP_CLIENT_SECRET: JSON.stringify(env.VUE_APP_CLIENT_SECRET),
-      },
+      // env: {
+      //   VUE_APP_BASE_API: JSON.stringify(env.VUE_APP_BASE_API),
+      //   VUE_APP_CLIENT_ID: JSON.stringify(env.VUE_APP_CLIENT_ID),
+      //   VUE_APP_CLIENT_SECRET: JSON.stringify(env.VUE_APP_CLIENT_SECRET),
+      // },
       // vueCompiler: true,
       // gzip: true,
       // analyze: true,
