@@ -104,3 +104,11 @@ export function getRequerimientosAsignados(userId) {
     }
   })
 }
+
+export function asignarRequerimientos(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/asignacion`,
+    method: "put",
+    data,
+  })
+}

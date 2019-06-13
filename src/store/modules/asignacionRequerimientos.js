@@ -1,6 +1,7 @@
 import {
   getRequerimientosForAsignar,
   // getRequerimientosAsignados,
+  asignarRequerimientos,
 } from "@api/requerimientos"
 import Requerimiento from "@models/Requerimiento"
 
@@ -37,6 +38,13 @@ const mutations = {
   SET_LOADING_REQUERIMIENTOS: (state, loadingRequerimientos) => {
     state.loadingRequerimientos = loadingRequerimientos
   },
+  ASIGNAR_REQUERIMIENTO: (state, { requerimientoId, newState }) => {
+    const reqToUpdate = _.find(state.requerimientos, { id: requerimientoId })
+    reqToUpdate.estado = {
+      ...reqToUpdate.estado,
+      ...newState,
+    }
+  },
 }
 
 const actions = {
@@ -62,18 +70,53 @@ const actions = {
       }
     })
   },
-  updateRequerimientoState({ commit }, data) {
+  updateRequerimientoState(
+    { commit, rootGetters },
+    { operation, requerimientoId, comentario, ...data },
+  ) {
     return new Promise(async (resolve, reject) => {
       try {
         commit("app/LOADING_INC", null, { root: true })
+        const userId = rootGetters["auth/userId"]
+        // const reqsBackUp = [...state.requerimientos]
+        let message = ""
 
-        const data1 = {
-          usuario_asignado: 49132,
-          fecha_finalizacion_estimada: "10/06/2019",
-          horas_estimadas: 10,
+        switch (operation) {
+          case "asignar": {
+            // se arma el objeto para enviar a la api y se la llama
+            const dataAsignar = {
+              usuario: userId,
+              usuario_asignado: data.usuarioAsignado.value,
+              fecha_finalizacion_estimada: data.fechaFinalizacion,
+              horas_estimadas: data.horasEstimadas,
+              comentario,
+            }
+            const res = await asignarRequerimientos(
+              requerimientoId,
+              dataAsignar,
+            )
+            message = _.get(res, "data.message", null)
+
+            // Se armar el objeto 'estado' para actualizar el objeto en el array local
+            const estadoAsignado = rootGetters[
+              "requerimientos/getEstadoByCodigo"
+            ]("ASSI")
+            const newState = {
+              id: estadoAsignado.id,
+              descripcion: estadoAsignado.descripcion,
+              asignacion: {
+                usuario_id: data.usuarioAsignado.value,
+                usuario_nombre: data.usuarioAsignado.label,
+              },
+            }
+            commit("ASIGNAR_REQUERIMIENTO", { requerimientoId, newState })
+            break
+          }
+          case "descartar": {
+            break
+          }
         }
-
-        console.log(data, data1)
+        resolve(message)
       } catch (error) {
         reject(error)
       } finally {

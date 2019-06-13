@@ -49,8 +49,10 @@
             </div>
             <div class="col-6">
               <q-input
+                ref="horasEstimadas"
                 v-model.number="horasEstimadas"
                 type="number"
+                color="accent"
                 label="Horas Estimadas"
                 filled
                 outlined
@@ -86,7 +88,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
+import { mapGetters, mapState } from "vuex"
 import formValidation from "@mixins/formValidation"
 import { warn, success } from "@utils/helpers"
 import InputDateCustom from "@comp/Common/InputDateCustom"
@@ -100,15 +102,18 @@ export default {
   data() {
     return {
       operation: null,
-      comment: null,
       usuarioAsignado: null,
       fechaFinalizacion: null,
       horasEstimadas: null,
+      comment: null,
     }
   },
   computed: {
     ...mapGetters("auth", ["userReportantes"]),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
+    ...mapState("requerimientos", {
+      req: state => state.detalleRequerimientoItem,
+    }),
     stateNotAssigned() {
       return this.detalleRequerimientoState === "NOAS"
     },
@@ -152,34 +157,46 @@ export default {
           label: "Seleccione un usuario...",
           value: null,
         },
-        ...this.userReportantes,
+        ..._.orderBy(this.userReportantes, "label"),
       ]
     },
   },
   methods: {
-    saveChanges() {
+    async saveChanges() {
       // Si es descartar, debo incluir un comentario
       if (this.operation === "descartar" && !this.$refs.comment.validate()) {
         return
       }
 
       // Si es asignar, debo elegir un usuario
-      if (
-        this.operation === "asignar" &&
-        !this.$refs.usuarioAsignado.validate()
-      ) {
-        return
+      if (this.operation === "asignar") {
+        const validations = [
+          !this.$refs.usuarioAsignado.validate(),
+          !this.$refs.fechaFinalizacion.validate(),
+          !this.$refs.horasEstimadas.validate(),
+        ]
+        if (_.some(validations)) {
+          return
+        }
       }
 
       this.$store
-        .dispatch("asignarRequerimientos/updateRequerimientoState", {
+        .dispatch("asignacionRequerimientos/updateRequerimientoState", {
+          requerimientoId: this.req.id,
           operation: this.operation,
-          comment: this.comment,
+          usuarioAsignado: _.find(this.optionsUsersReportantes, {
+            value: this.usuarioAsignado,
+          }),
+          fechaFinalizacion: this.fechaFinalizacion,
+          horasEstimadas: this.horasEstimadas,
+          comentario: this.comment,
         })
         .then(message => {
           if (message) success({ message })
           this.operation = null
           this.usuarioAsignado = null
+          this.fechaFinalizacion = null
+          this.horasEstimadas = null
           this.comment = null
           this.$emit("closeDialog")
         })
