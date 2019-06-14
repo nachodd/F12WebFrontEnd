@@ -209,6 +209,18 @@ const actions = {
           null,
         )
         requerimiento = _.find(reqList, { id: reqId })
+      } else if (
+        // detalle desde vista de Requerimientos Asignados
+        listName === "reqsAsignadosPendientes" ||
+        listName === "reqsAsignadosEnEjecucion"
+      ) {
+        let reqList = _.get(
+          rootState,
+          `requerimientosAsignados.${listName}`,
+          null,
+        )
+
+        requerimiento = _.find(reqList.list, { id: reqId })
       }
 
       if (requerimiento) {

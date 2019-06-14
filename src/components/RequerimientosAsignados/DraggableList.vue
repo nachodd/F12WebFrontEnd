@@ -89,8 +89,8 @@ export default {
     },
     listNameForDetalle() {
       return this.listName === "source"
-        ? "reqs-pendientes-aprobacion"
-        : "reqs-aprobados-priorizados"
+        ? "reqsAsignadosPendientes"
+        : "reqsAsignadosEnEjecucion"
     },
   },
   methods: {

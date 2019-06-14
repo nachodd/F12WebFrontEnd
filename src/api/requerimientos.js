@@ -101,6 +101,22 @@ export function ejecutarRequerimiento($requerimientoId) {
   })
 }
 
+export function cancelaEjecucionRequerimiento(requerimientoId, data) {
+  return request({
+    url: `/v1/f12/requerimientos/${requerimientoId}/cancelaejecucion`,
+    method: "put",
+    data,
+  })
+}
+
+export function finalizarRequerimiento(requerimientoId, data) {
+  return request({
+    url: `/v1/f12/requerimientos/${requerimientoId}/finalizacion`,
+    method: "put",
+    data,
+  })
+}
+
 export function asignarRequerimiento(requerimientoId, data) {
   return request({
     url: `v1/f12/requerimientos/${requerimientoId}/asignacion`,
