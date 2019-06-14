@@ -75,6 +75,29 @@
           </div>
         </div>
       </q-slide-transition>
+      <q-slide-transition>
+        <div
+          v-show="
+            operation === 'desasignar' ||
+              operation === 'descartar' ||
+              operation === 'aProcesos'
+          "
+        >
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-input
+                ref="commentDesasignarDescartar"
+                v-model="comment"
+                color="accent"
+                outlined
+                autogrow
+                :rules="shouldValidateComment"
+                label="Agregar un comentario:"
+              />
+            </div>
+          </div>
+        </div>
+      </q-slide-transition>
     </div>
     <div v-show="operation !== null" class="q-mt-md">
       <q-btn
@@ -123,6 +146,9 @@ export default {
     stateInExcecution() {
       return this.detalleRequerimientoState === "EXEC"
     },
+    stateSentToProcess() {
+      return this.detalleRequerimientoState === "STPR"
+    },
     optionsAsignar() {
       const opt = []
       opt.push({
@@ -138,17 +164,17 @@ export default {
           label: "Enviar a Procesos",
           value: "aProcesos",
         })
-        opt.push({
-          label: "Descartar",
-          value: "descartar",
-        })
       }
       if (this.stateAssigned) {
         opt.push({
           label: "Volver a Pendiente de Asignación",
-          value: "asignar",
+          value: "desasignar",
         })
       }
+      opt.push({
+        label: "Descartar",
+        value: "descartar",
+      })
       return opt
     },
     optionsUsersReportantes() {
@@ -160,11 +186,17 @@ export default {
         ..._.orderBy(this.userReportantes, "label"),
       ]
     },
+    shouldValidateComment() {
+      return this.operation === "descartar" ? [this.notEmpty] : null
+    },
   },
   methods: {
     async saveChanges() {
       // Si es descartar, debo incluir un comentario
-      if (this.operation === "descartar" && !this.$refs.comment.validate()) {
+      if (
+        this.operation === "descartar" &&
+        !this.$refs.commentDesasignarDescartar.validate()
+      ) {
         return
       }
 
@@ -200,8 +232,8 @@ export default {
           this.comment = null
           this.$emit("closeDialog")
         })
-        .catch(message => {
-          warn({ message })
+        .catch(e => {
+          warn({ message: e.message })
         })
     },
   },

@@ -39,11 +39,11 @@ export function getRequerimiento(requerimientoId) {
   })
 }
 
-export function refuseRequerimiento(requerimientoId, comentario) {
+export function refuseRequerimiento(requerimientoId, data) {
   return request({
     url: `/v1/f12/requerimientos/${requerimientoId}/rechazo`,
     method: "put",
-    data: { comentario },
+    data,
   })
 }
 
@@ -69,29 +69,11 @@ export function updateRequerimientosEstados(userId, requerimientosList) {
   })
 }
 
-export function getRequerimientosForAsignar(userId) {
+export function getRequerimientosForPanelAsignacion(userId) {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await request({
         url: `v1/f12/${userId}/requerimientos/asignacion`,
-        method: "get",
-      })
-      if (res && res.data && res.data.data) {
-        resolve(res.data.data)
-      } else {
-        reject("Error al obtener la Requerimientos Pendientes de Asignación")
-      }
-    } catch (e) {
-      reject(e)
-    }
-  })
-}
-
-export function getRequerimientosAsignados(userId) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const res = await request({
-        url: `v1/f12/${userId}/requerimientos/asignados`,
         method: "get",
       })
       if (res && res.data && res.data.data) {
@@ -119,9 +101,25 @@ export function ejecutarRequerimiento($requerimientoId) {
   })
 }
 
-export function asignarRequerimientos(requerimientoId, data) {
+export function asignarRequerimiento(requerimientoId, data) {
   return request({
     url: `v1/f12/requerimientos/${requerimientoId}/asignacion`,
+    method: "put",
+    data,
+  })
+}
+
+export function desasignarRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/desasignacion`,
+    method: "put",
+    data,
+  })
+}
+
+export function pasarAProcesosRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/pasoprocesos`,
     method: "put",
     data,
   })

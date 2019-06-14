@@ -168,43 +168,6 @@
         </q-card-actions>
       </q-footer>
     </q-layout>
-
-    <!-- <q-card v-if="requerimientoSetted">
-      <q-card-section class="bg-deep-purple-10 text-white items-center">
-        <div class="text-h6">Requerimiento Nº {{ req.id }}</div>
-        <div class="text-subtitle3 text-white-7">{{ req.usuario.nombre }}</div>
-      </q-card-section>
-
-      <q-separator />
-      <q-tabs
-        v-model="tab"
-        dense
-        class="bg-grey-3 text-grey-7"
-        active-color="deep-purple-10"
-        indicator-color="deep-purple-10"
-        align="justify"
-        narrow-indicator
-      >
-        <q-tab name="detalle" label="Detalle" />
-
-        <q-tab v-if="showAcciones" name="acciones" label="Acciones" />
-
-        <q-tab name="movimientos" label="Movimientos" />
-      </q-tabs>
-      <q-separator />
-      <q-card-section class="modal-body-container"></q-card-section>
-
-      <q-separator />
-
-      <q-card-actions align="right">
-        <q-btn
-          flat
-          label="Cerrar"
-          color="deep-purple-10"
-          @click="detalleRequerimientoOpen = false"
-        />
-      </q-card-actions>
-    </q-card>-->
   </q-dialog>
 </template>
 
@@ -220,11 +183,8 @@ export default {
   name: "DialogDetalleRequerimiento",
   filters: {
     formatiarFecha(value) {
-      let fechaFormatiada = date.formatDate(value.fecha, "DD/MM/YYYY HH:mm")
-
-      let retorno = value.usuario + " | " + fechaFormatiada
-
-      return retorno
+      const fechaFormatiada = date.formatDate(value.fecha, "DD/MM/YYYY HH:mm")
+      return value.usuario + " | " + fechaFormatiada
     },
     formatiarEstado(value, objMovimiento) {
       if (objMovimiento.tipo == "Alta") {
@@ -254,7 +214,11 @@ export default {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
+    ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     ...mapGetters("auth", ["userReportantes"]),
+    stateSentToProcess() {
+      return this.detalleRequerimientoState === "STPR"
+    },
     requerimientoSetted() {
       return !_.isEmpty(this.req)
     },
@@ -282,8 +246,10 @@ export default {
     showAcciones() {
       switch (this.$route.name) {
         case "priorizar-requerimientos":
-        case "asignar-requerimientos":
           return true
+        case "asignar-requerimientos":
+          // Si el estado del req es "enviado a procesos", las acciones no se muestran
+          return this.stateSentToProcess ? false : true
         default:
           return false
       }
