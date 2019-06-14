@@ -49,8 +49,10 @@
             </div>
             <div class="col-6">
               <q-input
+                ref="horasEstimadas"
                 v-model.number="horasEstimadas"
                 type="number"
+                color="accent"
                 label="Horas Estimadas"
                 filled
                 outlined
@@ -73,6 +75,29 @@
           </div>
         </div>
       </q-slide-transition>
+      <q-slide-transition>
+        <div
+          v-show="
+            operation === 'desasignar' ||
+              operation === 'descartar' ||
+              operation === 'aProcesos'
+          "
+        >
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-input
+                ref="commentDesasignarDescartar"
+                v-model="comment"
+                color="accent"
+                outlined
+                autogrow
+                :rules="shouldValidateComment"
+                label="Agregar un comentario:"
+              />
+            </div>
+          </div>
+        </div>
+      </q-slide-transition>
     </div>
     <div v-show="operation !== null" class="q-mt-md">
       <q-btn
@@ -86,7 +111,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
+import { mapGetters, mapState } from "vuex"
 import formValidation from "@mixins/formValidation"
 import { warn, success } from "@utils/helpers"
 import InputDateCustom from "@comp/Common/InputDateCustom"
@@ -100,15 +125,18 @@ export default {
   data() {
     return {
       operation: null,
-      comment: null,
       usuarioAsignado: null,
       fechaFinalizacion: null,
       horasEstimadas: null,
+      comment: null,
     }
   },
   computed: {
     ...mapGetters("auth", ["userReportantes"]),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
+    ...mapState("requerimientos", {
+      req: state => state.detalleRequerimientoItem,
+    }),
     stateNotAssigned() {
       return this.detalleRequerimientoState === "NOAS"
     },
@@ -117,6 +145,9 @@ export default {
     },
     stateInExcecution() {
       return this.detalleRequerimientoState === "EXEC"
+    },
+    stateSentToProcess() {
+      return this.detalleRequerimientoState === "STPR"
     },
     optionsAsignar() {
       const opt = []
@@ -133,17 +164,17 @@ export default {
           label: "Enviar a Procesos",
           value: "aProcesos",
         })
-        opt.push({
-          label: "Descartar",
-          value: "descartar",
-        })
       }
       if (this.stateAssigned) {
         opt.push({
           label: "Volver a Pendiente de Asignación",
-          value: "asignar",
+          value: "desasignar",
         })
       }
+      opt.push({
+        label: "Descartar",
+        value: "descartar",
+      })
       return opt
     },
     optionsUsersReportantes() {
@@ -152,39 +183,57 @@ export default {
           label: "Seleccione un usuario...",
           value: null,
         },
-        ...this.userReportantes,
+        ..._.orderBy(this.userReportantes, "label"),
       ]
+    },
+    shouldValidateComment() {
+      return this.operation === "descartar" ? [this.notEmpty] : null
     },
   },
   methods: {
-    saveChanges() {
+    async saveChanges() {
       // Si es descartar, debo incluir un comentario
-      if (this.operation === "descartar" && !this.$refs.comment.validate()) {
-        return
-      }
-
-      // Si es asignar, debo elegir un usuario
       if (
-        this.operation === "asignar" &&
-        !this.$refs.usuarioAsignado.validate()
+        this.operation === "descartar" &&
+        !this.$refs.commentDesasignarDescartar.validate()
       ) {
         return
       }
 
+      // Si es asignar, debo elegir un usuario
+      if (this.operation === "asignar") {
+        const validations = [
+          !this.$refs.usuarioAsignado.validate(),
+          !this.$refs.fechaFinalizacion.validate(),
+          !this.$refs.horasEstimadas.validate(),
+        ]
+        if (_.some(validations)) {
+          return
+        }
+      }
+
       this.$store
-        .dispatch("asignarRequerimientos/updateRequerimientoState", {
+        .dispatch("asignacionRequerimientos/updateRequerimientoState", {
+          requerimientoId: this.req.id,
           operation: this.operation,
-          comment: this.comment,
+          usuarioAsignado: _.find(this.optionsUsersReportantes, {
+            value: this.usuarioAsignado,
+          }),
+          fechaFinalizacion: this.fechaFinalizacion,
+          horasEstimadas: this.horasEstimadas,
+          comentario: this.comment,
         })
         .then(message => {
           if (message) success({ message })
           this.operation = null
           this.usuarioAsignado = null
+          this.fechaFinalizacion = null
+          this.horasEstimadas = null
           this.comment = null
           this.$emit("closeDialog")
         })
-        .catch(message => {
-          warn({ message })
+        .catch(e => {
+          warn({ message: e.message })
         })
     },
   },

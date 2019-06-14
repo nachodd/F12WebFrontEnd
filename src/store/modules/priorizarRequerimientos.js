@@ -667,7 +667,9 @@ const actions = {
               // console.log(res)
             } else {
               dispatch("app/loadingInc", null, { root: true })
-              res = await refuseRequerimiento(requerimientoItem.id, comment)
+              res = await refuseRequerimiento(requerimientoItem.id, {
+                comentario: comment,
+              })
               // console.log(res)
             }
 

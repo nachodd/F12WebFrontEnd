@@ -3,10 +3,11 @@
     <page-header title="Asignar Requerimientos" no-margin />
     <div class="row q-py-md">
       <div class="col">
-        <div class="square bg-red-7">&nbsp;</div>
+        <div class="square d-ib bg-red-7">&nbsp;</div>
         Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
-        <div class="square bg-light-blue-7">&nbsp;</div>
-        Desarrollo / Mejora
+        <div class="square d-ib bg-light-blue-7">&nbsp;</div>
+        Desarrollo / Mejora &nbsp;&nbsp; - &nbsp;&nbsp; En Procesos
+        <div class="square d-ib bg-green-7"></div>
       </div>
     </div>
 
@@ -90,10 +91,13 @@ export default {
   margin-right: 1em;
 }
 
-.square {
+.d-ib {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+}
+
+.square {
+  width: 4px;
+  height: 18px;
   vertical-align: middle;
 }
 </style>
