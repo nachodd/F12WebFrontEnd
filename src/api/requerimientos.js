@@ -118,3 +118,11 @@ export function ejecutarRequerimiento($requerimientoId) {
     method: "put",
   })
 }
+
+export function cancelaEjecucionRequerimiento(requerimientoId, data) {
+  return request({
+    url: `/v1/f12/requerimientos/${requerimientoId}/cancelaejecucion`,
+    method: "put",
+    data,
+  })
+}

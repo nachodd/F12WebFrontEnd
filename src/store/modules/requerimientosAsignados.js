@@ -2,6 +2,7 @@ import RequerimientosAsignadosList from "src/models/RequerimientosAsignadosList"
 import {
   getRequerimientosAsignadosByUser,
   ejecutarRequerimiento,
+  cancelaEjecucionRequerimiento,
 } from "@api/requerimientos"
 
 // import { warn, success } from "@utils/helpers"
@@ -271,7 +272,7 @@ const actions = {
   },
 
   // async confirmOperation({ commit, getters, state, dispatch }, comment) {
-  async confirmOperation({ commit, getters, state, dispatch }) {
+  async confirmOperation({ commit, getters, state, dispatch }, comentario) {
     return new Promise(async (resolve, reject) => {
       const reqId = getters.requerimientoIdToChange
       // copio los listados (de manera de tener un backup)
@@ -294,8 +295,12 @@ const actions = {
       try {
         dispatch("app/loadingInc", null, { root: true })
 
-        // Persisto los cambios en el remoto
-        await ejecutarRequerimiento(reqId)
+        // Persisto los cambios en el remoto.
+        if (getters.operationApprove) {
+          await ejecutarRequerimiento(reqId)
+        } else {
+          await cancelaEjecucionRequerimiento(reqId, { comentario })
+        }
 
         resolve()
       } catch (e) {
