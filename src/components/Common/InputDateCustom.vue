@@ -3,6 +3,7 @@
   <q-input
     ref="input"
     v-model="selectedValue"
+    color="accent"
     outlined
     :label="label"
     :rules="rulesDate"
@@ -83,7 +84,7 @@ export default {
       }
     },
     validate() {
-      this.$refs.input.validate()
+      return this.$refs.input.validate()
     },
     clearValues() {
       this.selectedValue = null
