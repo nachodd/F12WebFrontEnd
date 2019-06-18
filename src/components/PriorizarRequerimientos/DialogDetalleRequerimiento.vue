@@ -85,48 +85,48 @@
               {{ req.descripcion }}
               <br />
               <br />
-              <q-banner
-                v-if="req.vence"
-                inline-actions
-                class="text-white bg-red-4"
-                style="margin-bottom:20px;"
-                rounded
-              >
-                <div>
-                  <span>Vencimiento:</span>
-                  <br />
-                  {{ req.fechaLimite }}
-                  <template v-if="vencimientoDiff !== null">
-                    <span v-if="vencimientoDiff > 0" class="text-white">
-                      (Faltan
-                      <strong>{{ vencimientoDiff }}</strong>
-                      días)
-                    </span>
+              <div class="text-grey-7">Ultimo movimiento</div>
+              <div class="text-grey-7">
+                <!-- <strong class="text-black">
+                  {{ ultimoMovimiento.usuario }} |
+                </strong>-->
+                {{ ultimoMovimiento | formatiarFecha }} |
+                {{ ultimoMovimiento.tipo }} :
+              </div>
+              {{ ultimoMovimiento.comentario }}
+              <br />
+              <br />
+              <div v-if="req.vence" class="row q-mt-sm">
+                <div class="col">
+                  <note title="Vencimiento:" type="danger">
+                    <div>
+                      {{ req.fechaLimite }}
+                      <template v-if="vencimientoDiff !== null">
+                        <span v-if="vencimientoDiff > 0" class="text-black">
+                          (Faltan
+                          <strong>{{ vencimientoDiff }}</strong>
+                          días)
+                        </span>
 
-                    <span v-if="vencimientoDiff === 0" class="text-white">
-                      (HOY es el día de vencimiento)
-                    </span>
+                        <span v-if="vencimientoDiff === 0" class="text-black">
+                          (HOY es el día de vencimiento)
+                        </span>
 
-                    <strong v-if="vencimientoDiff < 0">
-                      (Este req. se encuentra vencido )
-                    </strong>
-                  </template>
-                  <br />
-                  <br />
-                  <span class>Motivo:</span>
-                  <br />
-                  {{ req.motivoLimite }}
+                        <strong v-if="vencimientoDiff < 0">
+                          (Este req. se encuentra vencido )
+                        </strong>
+                      </template>
+                      <br />
+
+                      <span class>
+                        <strong>Motivo:</strong>
+                      </span>
+                      <br />
+                      {{ req.motivoLimite }}
+                    </div>
+                  </note>
                 </div>
-                <template v-slot:action>
-                  <!-- <q-btn flat color="white" label="Turn ON Wifi" /> -->
-                  <q-avatar
-                    icon="info"
-                    color
-                    text-color="white"
-                    class="avatar--lg"
-                  />
-                </template>
-              </q-banner>
+              </div>
             </q-tab-panel>
 
             <!-- Tab Acciones (dinamico) -->
@@ -139,7 +139,7 @@
               <div v-if="req.movimientos" class="row">
                 <q-timeline color="purple">
                   <q-timeline-entry
-                    v-for="(movimiento, index) in req.movimientos"
+                    v-for="(movimiento, index) in movimientosOrdenados"
                     :key="`req_${index}`"
                     :title="movimiento.estado | formatiarEstado(movimiento)"
                     :subtitle="movimiento | formatiarFecha"
@@ -179,6 +179,7 @@ import formValidation from "@mixins/formValidation"
 import PriorizarRequerimientosActions from "@comp/PriorizarRequerimientos/PriorizarRequerimientosActions"
 import AsignarRequerimientosActions from "@comp/AsignarRequerimientos/AsignarRequerimientosActions"
 import RequerimientosAsignadosActions from "@comp/RequerimientosAsignados/RequerimientosAsignadosActions"
+import Note from "@comp/Common/Note"
 
 export default {
   name: "DialogDetalleRequerimiento",
@@ -198,6 +199,7 @@ export default {
     priorizarRequerimientosActions: PriorizarRequerimientosActions,
     asignarRequerimientosActions: AsignarRequerimientosActions,
     RequerimientosAsignadosActions: RequerimientosAsignadosActions,
+    Note,
   },
   mixins: [formValidation],
   data() {
@@ -269,6 +271,16 @@ export default {
           value,
         )
       },
+    },
+    movimientosOrdenados() {
+      let movimientos = [...this.req.movimientos]
+      _.orderBy(movimientos, ["fecha"], ["desc"])
+      return movimientos
+    },
+
+    ultimoMovimiento() {
+      let movimiento = _.maxBy([...this.req.movimientos], "fecha")
+      return movimiento
     },
   },
   created() {
