@@ -1,10 +1,6 @@
 <template>
   <q-item
     class="q-ma-sm shadow-2 rounded-borders-8 bg-white cursor-pointer card-row"
-    :class="{
-      'card--default': !esArregloRapido,
-      'card--qf': esArregloRapido,
-    }"
   >
     <div class="row">
       <div class="col-12">
