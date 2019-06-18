@@ -25,10 +25,11 @@ export function updateRequerimiento(data, requerimientoId) {
   })
 }
 
-export function listRequerimientos(userId) {
+export function listRequerimientos(userId, filtros) {
   return request({
     url: `/v1/f12/${userId}/requerimientos`,
     method: "get",
+    params: filtros,
   })
 }
 

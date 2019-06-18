@@ -135,7 +135,7 @@ const actions = {
       }
     })
   },
-  listRequerimientos({ commit, rootState }, userId = null) {
+  listRequerimientos({ commit, rootState }, { userId = null, filtros }) {
     return new Promise(async (resolve, reject) => {
       commit("SET_LOADING_REQ", true)
       commit("app/LOADING_INC", null, { root: true })
@@ -147,7 +147,7 @@ const actions = {
         }
         const {
           data: { data },
-        } = await listRequerimientos(userRequerimientos)
+        } = await listRequerimientos(userRequerimientos, filtros)
         commit("SET_MIS_REQUERIMIENTOS", data)
 
         resolve()

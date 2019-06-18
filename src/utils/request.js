@@ -13,11 +13,17 @@ const service = axios.create({
   // Flag to handle the error directly in the respose
   __handleErrorsInResponse: true,
   // validateStatus: status => status < 204, // Reject only if the status code is greater than or equal to 500
+  // Default Headers & empty data. Empty data is used because if it isn't present, this headers are not sent
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+  data: {},
 })
 
 // Add headers to every request:
-service.defaults.headers.common["Content-Type"] = "application/json"
-service.defaults.headers.common["Accept"] = "application/json"
+// service.defaults.headers.common["Content-Type"] = "application/json"
+// service.defaults.headers.common["Accept"] = "application/json"
 
 // request interceptor
 service.interceptors.request.use(
@@ -38,8 +44,8 @@ service.interceptors.request.use(
       // TODO: Ver si se puede refrscar el token async
       request.headers["Authorization"] = "Bearer " + (await getAuthToken())
     }
-    request.headers.common["Content-Type"] = "application/json"
-    request.headers.common["Accept"] = "application/json"
+    // request.headers.common["Content-Type"] = "application/json"
+    // request.headers.common["Accept"] = "application/json"
 
     return request
   },
