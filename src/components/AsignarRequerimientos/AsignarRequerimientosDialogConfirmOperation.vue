@@ -1,0 +1,105 @@
+<template>
+  <q-dialog
+    v-model="dialogConfirmOpen"
+    persistent
+    transition-show="slide-up"
+    transition-hide="slide-down"
+  >
+    <q-card class="bg-accent text-white">
+      <q-bar>
+        <q-btn dense flat icon="fas fa-exclamation-triangle" />
+        <q-space />
+        <q-btn dense flat icon="close" @click="cancelOperation">
+          <q-tooltip content-class="bg-white text-primary">Cancelar</q-tooltip>
+        </q-btn>
+      </q-bar>
+      <q-card-section>
+        <span class="text-h6">
+          Confirmación -
+          <q-chip dense color="accent-light" text-color="white">
+            Req #{{ requerimientoId }}
+          </q-chip>
+        </span>
+      </q-card-section>
+      <q-card-section>
+        <!-- FIXME ver de que manera le podemos pasar a este comp la accion, de manra de que no rompa. Tal vez la podría leer del store directamente ? -->
+        <asignar-requerimientos-actions
+          ref="modalActions"
+          :dark="true"
+          hide-save-button
+          color="white"
+        />
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn label="CANCELAR" color="negative" @click="cancelOperation" />
+        <q-btn
+          label="CONFIRMAR"
+          outline
+          color="white"
+          @click="confirmOperation"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+</template>
+
+<script>
+import { mapState } from "vuex"
+import AsignarRequerimientosActions from "@comp/AsignarRequerimientos/AsignarRequerimientosActions"
+export default {
+  name: "AsignarRequerimientosDialogConfirmOperation",
+  components: {
+    AsignarRequerimientosActions,
+  },
+  data() {
+    return {
+      approveComment: "",
+    }
+  },
+  computed: {
+    ...mapState("asignacionRequerimientos", {
+      dialogConfirmOpenState: state => state.dialogConfirmOpen,
+    }),
+    // ...mapGetters("priorizarRequerimientos", [
+    //   "requerimientoIdToChange",
+    // ]),
+    ...mapState("requerimientos", {
+      req: state => state.detalleRequerimientoItem,
+    }),
+    requerimientoId() {
+      return _.get(this, "req.id", "")
+    },
+    dialogConfirmOpen: {
+      get() {
+        return this.dialogConfirmOpenState
+      },
+      set(value) {
+        this.$store.dispatch(
+          "asignacionRequerimientos/setDialogConfirmOperationOpen",
+          value,
+        )
+      },
+    },
+  },
+  methods: {
+    cancelOperation() {
+      // FIXME
+      // this.$store.dispatch("priorizarRequerimientos/clearOperations")
+      this.dialogConfirmOpen = false
+    },
+    confirmOperation() {
+      this.$refs.modalActions.saveChanges()
+      //const comment = this.operationReject ? null : this.approveComment
+      //this.$store
+      //  .dispatch("priorizarRequerimientos/confirmOperation", comment)
+      //  .then(() => {
+      //    this.dialogConfirmOpen = false
+      //    this.comment = ""
+      //  })
+      // this.$emit("dialog-confirm-operation-confirm", comment)
+    },
+  },
+}
+</script>
+
+<style lang="scss" scoped></style>

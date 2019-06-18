@@ -179,8 +179,8 @@ const actions = {
     })
   },
 
-  abrirDetalleRequerimiento({ commit, state, rootState }, { reqId, listName }) {
-    return new Promise(async (/* resolve, reject */) => {
+  setDetalleRequerimiento({ commit, state, rootState }, { reqId, listName }) {
+    return new Promise(async resolve => {
       // Para seguir con la convencion de nombres, utilizo listType para la action
       let requerimiento = {}
 
@@ -229,9 +229,17 @@ const actions = {
         commit("SET_DETALLE_REQUERIMIENTO_ITEM", {})
       }
 
+      resolve()
+    })
+  },
+  abrirDetalleRequerimiento({ commit, state, dispatch }, { reqId, listName }) {
+    return new Promise(async resolve => {
+      await dispatch("setDetalleRequerimiento", { reqId, listName })
+
       if (state.detalleRequerimientoItem) {
         commit("SET_DETALLE_REQUERIMIENTO_OPEN", true)
       }
+      resolve()
     })
   },
 
