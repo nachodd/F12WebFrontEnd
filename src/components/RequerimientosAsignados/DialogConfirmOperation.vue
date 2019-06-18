@@ -24,17 +24,17 @@
       <q-card-section>
         <p v-if="operationApprove">
           Esta a punto de cambiar estado del requerimiento a
-          <strong>APROBADO.</strong>
+          <strong>EJECUCIÓN.</strong>
         </p>
         <p v-else-if="operationReject">
           Esta a punto de volver el estado del requerimiento a
-          <strong>PENDIENTE DE APROBACIÓN.</strong>
+          <strong>PENDIENTE.</strong>
         </p>
         ¿Desea confimar este cambio?
       </q-card-section>
-      <q-card-section v-if="operationApprove">
+      <q-card-section v-if="operationReject">
         <q-input
-          v-model="approveComment"
+          v-model="comment"
           color="white"
           dark
           outlined
@@ -44,27 +44,27 @@
         />
       </q-card-section>
       <q-card-actions align="right">
-        <q-btn label="CANCELAR" color="negative" @click="cancelOperation" />
         <q-btn
-          label="CONFIRMAR"
+          label="CANCELAR"
           outline
           color="white"
-          @click="confirmOperation"
+          @click="cancelOperation"
         />
+        <q-btn label="CONFIRMAR" color="purple-10" @click="confirmOperation" />
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import { warn, success } from "@utils/helpers"
 
 export default {
   name: "DialogConfirmOperation",
   data() {
     return {
-      approveComment: "",
+      comment: "",
     }
   },
   computed: {
@@ -72,6 +72,12 @@ export default {
       dialogConfirmOpenState: state => state.dialogConfirmOpen,
       requerimientoIdToChange: state => state.possibleChanges.payload.id,
     }),
+
+    ...mapGetters("requerimientosAsignados", [
+      "requerimientoIdToChange",
+      "operationApprove",
+      "operationReject",
+    ]),
 
     dialogConfirmOpen: {
       get() {
@@ -91,18 +97,27 @@ export default {
       this.dialogConfirmOpen = false
     },
     confirmOperation() {
+      const comment = this.operationReject ? null : this.comment
+
       this.$store
-        .dispatch("requerimientosAsignados/confirmOperation")
+        .dispatch("requerimientosAsignados/confirmOperation", comment)
         .then(() => {
           this.dialogConfirmOpen = false
+          this.comment = ""
         })
         .then(() => {
           //
-          success({
-            message: `Requerimiento #${
+          let message = `Requerimiento #${
+            this.requerimientoIdToChange
+          } en EJECUCIÓN.`
+
+          if (this.operationReject) {
+            message = `Requerimiento #${
               this.requerimientoIdToChange
-            } en ejecución.`,
-          })
+            } volvió a PENDIENTE.`
+          }
+
+          success({ message })
         })
         .catch(e => {
           warn({ message: e.message })

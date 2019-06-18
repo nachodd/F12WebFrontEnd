@@ -10,9 +10,7 @@
         <q-btn dense flat icon="fas fa-exclamation-triangle" />
         <q-space />
         <q-btn dense flat icon="close" @click="cancelOperation">
-          <q-tooltip content-class="bg-white text-primary">
-            Cancelar
-          </q-tooltip>
+          <q-tooltip content-class="bg-white text-primary">Cancelar</q-tooltip>
         </q-btn>
       </q-bar>
       <q-card-section>
@@ -100,7 +98,7 @@ export default {
         .dispatch("priorizarRequerimientos/confirmOperation", comment)
         .then(() => {
           this.dialogConfirmOpen = false
-          this.approveComment = ""
+          this.comment = ""
         })
 
       // this.$emit("dialog-confirm-operation-confirm", comment)

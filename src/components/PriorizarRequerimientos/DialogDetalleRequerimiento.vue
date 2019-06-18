@@ -41,7 +41,7 @@
 
       <q-page-container>
         <!-- :content-style="contentStyle"
-        :content-active-style="contentActiveStyle" -->
+        :content-active-style="contentActiveStyle"-->
         <q-scroll-area
           :thumb-style="{
             right: '2px',
@@ -178,6 +178,7 @@ import formValidation from "@mixins/formValidation"
 // import { warn, success } from "@utils/helpers"
 import PriorizarRequerimientosActions from "@comp/PriorizarRequerimientos/PriorizarRequerimientosActions"
 import AsignarRequerimientosActions from "@comp/AsignarRequerimientos/AsignarRequerimientosActions"
+import RequerimientosAsignadosActions from "@comp/RequerimientosAsignados/RequerimientosAsignadosActions"
 
 export default {
   name: "DialogDetalleRequerimiento",
@@ -196,6 +197,7 @@ export default {
   components: {
     priorizarRequerimientosActions: PriorizarRequerimientosActions,
     asignarRequerimientosActions: AsignarRequerimientosActions,
+    RequerimientosAsignadosActions: RequerimientosAsignadosActions,
   },
   mixins: [formValidation],
   data() {
@@ -239,6 +241,8 @@ export default {
           return "priorizarRequerimientosActions"
         case "asignar-requerimientos":
           return "asignarRequerimientosActions"
+        case "requerimientos-asignados":
+          return "RequerimientosAsignadosActions"
         default:
           return null
       }
@@ -246,6 +250,7 @@ export default {
     showAcciones() {
       switch (this.$route.name) {
         case "priorizar-requerimientos":
+        case "requerimientos-asignados":
           return true
         case "asignar-requerimientos":
           // Si el estado del req es "enviado a procesos", las acciones no se muestran
