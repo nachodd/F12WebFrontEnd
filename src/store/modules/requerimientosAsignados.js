@@ -332,7 +332,7 @@ const actions = {
 
   processManualChanges(
     { commit, state, dispatch, rootState },
-    { operation, priority, comment, listName, horasEjecucion },
+    { operation, priority, comment, listName, horasEstimadas },
   ) {
     return new Promise(async (resolve, reject) => {
       // Esta funcion arma manualmente los listados de requerimientos (como si hiciese un drag&drop) y emite los cambios
@@ -358,7 +358,7 @@ const actions = {
 
             // genera persistencia de los cambios
             await finalizarRequerimiento(requerimientoItem.id, {
-              horas_ejecucion: horasEjecucion,
+              horas_ejecucion: horasEstimadas,
             })
 
             commit("SET_REQS_LIST", { listName, listData: listResultTarget })

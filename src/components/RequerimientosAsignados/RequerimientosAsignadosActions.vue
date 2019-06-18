@@ -13,7 +13,6 @@
     />
 
     <div class="q-mt-md">
-      <!-- motivo para cuando descarta -->
       <q-slide-transition>
         <div v-show="showComment" class="row">
           <div class="col">
@@ -25,6 +24,22 @@
               autogrow
               label="Agregar un motivo:"
               :hide-bottom-space="true"
+              :rules="[notEmpty]"
+            />
+          </div>
+        </div>
+      </q-slide-transition>
+      <q-slide-transition>
+        <div v-show="showHoras">
+          <div class="col">
+            <q-input
+              ref="horasEstimadas"
+              v-model.number="horasEstimadas"
+              type="number"
+              color="accent"
+              label="Horas Estimadas"
+              filled
+              outlined
               :rules="[notEmpty]"
             />
           </div>
@@ -55,6 +70,7 @@ export default {
     return {
       operation: null,
       comment: null,
+      horasEstimadas: null,
     }
   },
   computed: {
@@ -110,17 +126,31 @@ export default {
       const res = this.operation === "volverPendiente"
       return res
     },
+
+    showHoras() {
+      const res = this.operation == "finalizar"
+
+      return res
+    },
   },
   methods: {
     saveChanges() {
-      // Valido, si esta descartando (operacion: descartar && NO es esAutor), debe completar el comentario
+      // Valido, si esta descartando debe completar el comentario
       if (this.operation === "descartar" && !this.$refs.comment.validate()) {
+        return
+      }
+
+      // Valido, si esta finalizando debe completar horas de ejecucion
+      if (
+        this.operation === "finalizar" &&
+        !this.$refs.horasEstimadas.validate()
+      ) {
         return
       }
 
       this.$store
         .dispatch("requerimientosAsignados/processManualChanges", {
-          horasEjecucion: 15,
+          horasEstimadas: this.horasEstimadas,
           operation: this.operation,
           priority: this.approvedPriority,
           comment: this.comment,
@@ -148,6 +178,7 @@ export default {
           success({ message })
           this.operation = null
           this.comment = null
+          this.horasEstimadas = null
 
           this.$emit("closeDialog")
         })
