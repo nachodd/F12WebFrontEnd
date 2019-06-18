@@ -29,7 +29,22 @@ export default {
   },
   async mounted() {
     try {
-      await this.$store.dispatch("requerimientos/listRequerimientos")
+      const filtros = {
+        seccion_id: null,
+        sistema_id: null,
+        requerimiento_tipo: null,
+        requerimiento_estado: null,
+        fecha_desde: null,
+        fecha_hasta: null,
+        descripcion: null,
+
+        page: 1,
+        perPage: 10,
+      }
+
+      await this.$store.dispatch("requerimientos/listRequerimientos", {
+        filtros,
+      })
     } catch (e) {
       const message =
         e.message ||
