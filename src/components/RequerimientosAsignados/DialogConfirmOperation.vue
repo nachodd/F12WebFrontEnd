@@ -97,7 +97,7 @@ export default {
       this.dialogConfirmOpen = false
     },
     confirmOperation() {
-      const comment = this.operationReject ? null : this.comment
+      const comment = this.operationReject ? this.comment : null
 
       this.$store
         .dispatch("requerimientosAsignados/confirmOperation", comment)
