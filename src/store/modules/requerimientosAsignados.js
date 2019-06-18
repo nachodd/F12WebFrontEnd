@@ -331,15 +331,12 @@ const actions = {
   },
 
   processManualChanges(
-    { commit, state, dispatch, rootGetters, rootState, getters },
-    { operation, priority, comment, listName, horasEjecucion },
+    { commit, state, dispatch, rootState },
+    { operation, priority, comment, listName, horasEstimadas },
   ) {
     return new Promise(async (resolve, reject) => {
       // Esta funcion arma manualmente los listados de requerimientos (como si hiciese un drag&drop) y emite los cambios
-      const esElUltimoDeLaCadenaDeMando =
-        rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
-      let updatedListData = {}
       let requerimientoItem = _.get(
         rootState,
         "requerimientos.detalleRequerimientoItem",
@@ -361,7 +358,7 @@ const actions = {
 
             // genera persistencia de los cambios
             await finalizarRequerimiento(requerimientoItem.id, {
-              horas_ejecucion: horasEjecucion,
+              horas_ejecucion: horasEstimadas,
             })
 
             commit("SET_REQS_LIST", { listName, listData: listResultTarget })
@@ -383,50 +380,32 @@ const actions = {
 
             await ejecutarRequerimiento(reqId)
 
-            // pendientes
+            /**
+             * pendientes
+             */
             const removedIndexSource = _.findIndex(
               state.reqsAsignadosPendientes.list,
               { id: requerimientoItem.id },
             )
-            const addedIndexSource = null
 
             let listResultSource = [...state.reqsAsignadosPendientes.list]
             const payload = listResultSource.splice(removedIndexSource, 1)[0]
 
-            updatedListData = {
-              listName: "source",
-              listResult: listResultSource,
-              dropResult: {
-                removedIndex: removedIndexSource,
-                addedIndex: addedIndexSource,
-                payload,
-              },
-            }
-            // commit("PROCESS_UPDATE_LISTS", updatedListData)
             commit("SET_REQS_LIST", {
               listName: "reqsAsignadosPendientes",
               listData: listResultSource,
             })
             commit("UPDATE_LIST_ESTADO", "reqsAsignadosPendientes")
 
-            // Ejecucion
-            const removedIndexTarget = null
+            /**
+             *  Ejecucion
+             *
+             */
             const addedIndexTarget = priority - 1
             // lista target: se inserta el item en el listado
             let listResultTarget = [...state.reqsAsignadosEnEjecucion.list]
             listResultTarget.splice(addedIndexTarget, 0, payload)
 
-            updatedListData = {
-              listName: "target",
-              listResult: listResultTarget,
-              dropResult: {
-                removedIndex: removedIndexTarget,
-                addedIndex: addedIndexTarget,
-                payload,
-              },
-            }
-
-            // commit("PROCESS_UPDATE_LISTS", updatedListData)
             commit("SET_REQS_LIST", {
               listName: "reqsAsignadosEnEjecucion",
               listData: listResultTarget,
@@ -444,154 +423,49 @@ const actions = {
 
           break
         }
-        case "pendiente": {
-          // se debe llamar 2 veces a "PROCESS_UPDATE_LISTS", uno por cada lista
-          const removedIndexTarget = _.findIndex(
-            state.reqsAprobadosPriorizados.list,
-            { id: requerimientoItem.id },
-          )
-          const addedIndexTarget = null
-          // lista target, se saca el item del listado
-          let listResultTarget = [...state.reqsAprobadosPriorizados.list]
-          const payload = listResultTarget.splice(removedIndexTarget, 1)[0]
+        case "volverPendiente": {
+          try {
+            dispatch("app/loadingInc", null, { root: true })
+            const reqId = requerimientoItem.id
+            await cancelaEjecucionRequerimiento(reqId, { comment })
 
-          updatedListData = {
-            listName: "target",
-            listResult: listResultTarget,
-            dropResult: {
-              removedIndex: removedIndexTarget,
-              addedIndex: addedIndexTarget,
-              payload,
-            },
-          }
-          commit("PROCESS_UPDATE_LISTS", updatedListData)
-
-          const removedIndexSource = null
-          const addedIndexSource = 0
-          // lista source: se inserta el item en el listado
-          let listResultSource = [...state.reqsPendientesAprobacion.list]
-          listResultSource.splice(addedIndexSource, 0, payload)
-
-          updatedListData = {
-            listName: "source",
-            listResult: listResultSource,
-            dropResult: {
-              removedIndex: removedIndexSource,
-              addedIndex: addedIndexSource,
-              payload,
-            },
-          }
-          commit("PROCESS_UPDATE_LISTS", updatedListData)
-          await dispatch("confirmOperation", comment)
-          commit("CLEAR_OPERATIONS")
-          resolve()
-          break
-        }
-        case "seleccionarPrioridad": {
-          // o podría preguntar por el getters.operationType
-          if (listName === "source" && esElUltimoDeLaCadenaDeMando) {
-            const removedIndexSource = _.findIndex(
-              state.reqsPendientesAprobacion.list,
+            /****************************
+            CAMBIOS EN EL Target
+            -------------------------
+            Se saca el item del listado
+            *****************************/
+            const removedIndexTarget = _.findIndex(
+              state.reqsAsignadosEnEjecucion.list,
               { id: requerimientoItem.id },
             )
-            const addedIndexSource = priority - 1
-            // lista source, se saca el item del listado y luego lo pongo en la nueva pos
-            let listResultSource = [...state.reqsPendientesAprobacion.list]
-            const payload = listResultSource.splice(removedIndexSource, 1)[0]
+            let listResultTarget = [...state.reqsAsignadosEnEjecucion.list]
+            const payload = listResultTarget.splice(removedIndexTarget, 1)[0]
+
+            commit("SET_REQS_LIST", {
+              listName: "reqsAsignadosEnEjecucion",
+              listData: listResultTarget,
+            })
+            commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
+
+            /*********************************
+            CAMBIOS EN EL SOURCE
+            -----------------------------
+            se inserta el item en el listado
+            **********************************/
+            const addedIndexSource = 0
+            let listResultSource = [...state.reqsAsignadosPendientes.list]
             listResultSource.splice(addedIndexSource, 0, payload)
 
-            updatedListData = {
-              listName: "source",
-              listResult: listResultSource,
-              dropResult: {
-                removedIndex: removedIndexSource,
-                addedIndex: addedIndexSource,
-                payload,
-              },
-            }
-            commit("PROCESS_UPDATE_LISTS", updatedListData)
-            await dispatch("saveReorderPending")
+            commit("SET_REQS_LIST", {
+              listName: "reqsAsignadosPendientes",
+              listData: listResultSource,
+            })
+
+            commit("UPDATE_LIST_ESTADO", "reqsAsignadosPendientes")
             commit("CLEAR_OPERATIONS")
             resolve()
-          } else if (listName === "target" && !esElUltimoDeLaCadenaDeMando) {
-            const removedIndexTarget = _.findIndex(
-              state.reqsAprobadosPriorizados.list,
-              { id: requerimientoItem.id },
-            )
-            const addedIndexTarget = priority - 1
-            // lista source, se saca el item del listado y luego lo pongo en la nueva pos
-            let listResultTarget = [...state.reqsAprobadosPriorizados.list]
-            const payload = listResultTarget.splice(removedIndexTarget, 1)[0]
-            listResultTarget.splice(addedIndexTarget, 0, payload)
-
-            updatedListData = {
-              listName: "target",
-              listResult: listResultTarget,
-              dropResult: {
-                removedIndex: removedIndexTarget,
-                addedIndex: addedIndexTarget,
-                payload,
-              },
-            }
-            commit("PROCESS_UPDATE_LISTS", updatedListData)
-            await dispatch("saveReorderApproved")
-            commit("CLEAR_OPERATIONS")
-            resolve()
-          }
-          break
-        }
-        case "descartar": {
-          const listType = listName === "source" ? "pending" : "approved"
-
-          // Rechazo o elimino el requerimiento el requerimiento:
-          try {
-            let res
-            if (getters.esAutor) {
-              dispatch("app/loadingInc", null, { root: true })
-
-              // res = await deleteRequerimiento(requerimientoItem.id)
-              // console.log(res)
-            } else {
-              dispatch("app/loadingInc", null, { root: true })
-              // res = await refuseRequerimiento(requerimientoItem.id, comment)
-              // console.log(res)
-            }
-
-            // Lo elimino del listado correspondiente: busco el indice y lo quito y commiteo el cambio
-            if (listName === "source") {
-              const removedIndex = _.findIndex(
-                state.reqsPendientesAprobacion.list,
-                { id: requerimientoItem.id },
-              )
-              let listResult = [...state.reqsPendientesAprobacion.list]
-              listResult.splice(removedIndex, 1)
-
-              commit("SET_REQS_LIST", { listType, listData: listResult })
-            } else if (listName === "target") {
-              const removedIndex = _.findIndex(
-                state.reqsAprobadosPriorizados.list,
-                { id: requerimientoItem.id },
-              )
-              let listResult = [...state.reqsAprobadosPriorizados.list]
-              listResult.splice(removedIndex, 1)
-
-              commit("SET_REQS_LIST", { listType, listData: listResult })
-            }
-
-            commit("CLEAR_OPERATIONS")
-            resolve(
-              _.get(
-                res,
-                "data.message",
-                "Operación completada satisfactoriamente",
-              ),
-            )
           } catch (e) {
-            const message =
-              e.message ||
-              "Hubo un problema al cambiar el estado de este Requerimiento. Intente nuevamente más tarde"
-            // warn({ message })
-            reject(message)
+            reject(e)
           } finally {
             dispatch("app/loadingDec", null, { root: true })
           }
