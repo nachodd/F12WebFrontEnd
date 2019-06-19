@@ -6,11 +6,12 @@
 
     <q-select
       v-model="operation"
-      color="purple-10"
+      :color="color"
       filled
       :options="optionsAsignar"
       emit-value
       map-options
+      :dark="dark"
     />
 
     <div class="q-mt-md">
@@ -27,7 +28,8 @@
               <q-select
                 ref="usuarioAsignado"
                 v-model="usuarioAsignado"
-                color="purple-10"
+                :color="color"
+                :dark="dark"
                 filled
                 :options="optionsUsersReportantes"
                 emit-value
@@ -45,6 +47,10 @@
                 label="Fecha Finalización"
                 past-disabled
                 :apply-validation="true"
+                :dark="dark"
+                :outlined="false"
+                :filled="true"
+                :color="color"
               />
             </div>
             <div class="col-6">
@@ -52,10 +58,10 @@
                 ref="horasEstimadas"
                 v-model.number="horasEstimadas"
                 type="number"
-                color="accent"
+                :color="color"
                 label="Horas Estimadas"
                 filled
-                outlined
+                :dark="dark"
                 :rules="[notEmpty]"
               />
             </div>
@@ -66,7 +72,8 @@
               <q-input
                 ref="comment"
                 v-model="comment"
-                color="accent"
+                :color="color"
+                :dark="dark"
                 outlined
                 autogrow
                 label="Agregar un comentario:"
@@ -89,6 +96,7 @@
                 ref="commentDesasignarDescartar"
                 v-model="comment"
                 color="accent"
+                :dark="dark"
                 outlined
                 autogrow
                 :rules="shouldValidateComment"
@@ -99,7 +107,7 @@
         </div>
       </q-slide-transition>
     </div>
-    <div v-show="operation !== null" class="q-mt-md">
+    <div v-show="operation !== null && !hideSaveButton" class="q-mt-md">
       <q-btn
         class="full-width"
         label="Guardar"
@@ -122,6 +130,20 @@ export default {
     InputDateCustom,
   },
   mixins: [formValidation],
+  props: {
+    dark: {
+      type: Boolean,
+      default: false,
+    },
+    hideSaveButton: {
+      type: Boolean,
+      default: false,
+    },
+    color: {
+      type: String,
+      default: "purple-10", // accent
+    },
+  },
   data() {
     return {
       operation: null,
