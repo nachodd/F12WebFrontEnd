@@ -4,7 +4,6 @@
     :class="{
       'card--default': !esArregloRapido,
       'card--qf': esArregloRapido,
-      'card--inprocess': estadoEnProcesos,
     }"
   >
     <div v-if="estadoEnProcesos" class="row card__process-row">
@@ -58,7 +57,7 @@
     <div class="row justify-around">
       <div
         class="text-left"
-        :class="{ 'col-6': !esArregloRapido, 'col-12': esArregloRapido }"
+        :class="{ 'col-3': !esArregloRapido, 'col-12': esArregloRapido }"
       >
         <q-badge
           :class="{
@@ -70,7 +69,11 @@
         </q-badge>
         &nbsp;
       </div>
-      <div v-if="!esArregloRapido" class="col-6 text-right">
+      <div v-if="!esArregloRapido" class="col-9 text-right">
+        <q-badge v-if="estadoEnProcesos" color="green-7" text-color="white">
+          EN PROCESOS
+        </q-badge>
+        &nbsp;
         <q-badge
           :style="{
             color: getColorPrioridadText(req.prioridad),
@@ -79,6 +82,7 @@
         >
           PR: {{ req.prioridad }}
         </q-badge>
+        &nbsp;
       </div>
     </div>
   </q-item>
@@ -155,8 +159,8 @@ export default {
   border-left: 3px solid $light-blue-7
 .card--qf
   border-left: 3px solid $red-7
-.card--inprocess
-  border-right: 3px solid $green-7
+/* .card--inprocess
+  border-right: 3px solid $green-7 */
 
 .card-row
   flex-direction: column
