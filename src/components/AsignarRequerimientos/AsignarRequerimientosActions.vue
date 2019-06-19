@@ -12,6 +12,7 @@
       emit-value
       map-options
       :dark="dark"
+      :disable="operationDisabled"
     />
 
     <div class="q-mt-md">
@@ -143,6 +144,10 @@ export default {
       type: String,
       default: "purple-10", // accent
     },
+    operationType: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -151,6 +156,7 @@ export default {
       fechaFinalizacion: null,
       horasEstimadas: null,
       comment: null,
+      operationDisabled: false,
     }
   },
   computed: {
@@ -211,6 +217,24 @@ export default {
     shouldValidateComment() {
       return this.operation === "descartar" ? [this.notEmpty] : null
     },
+  },
+  mounted() {
+    this.operationDisabled = true
+    if (this.operationType === "approve") {
+      // this.$set(this, "operation", {
+      //   label: "Asignar",
+      //   value: "asignar",
+      // })
+      this.operation = "asignar"
+    } else if (this.operationType === "reject") {
+      // this.$set(this, "operation", {
+      //   label: "Volver a Pendiente de Asignación",
+      //   value: "desasignar",
+      // })
+      this.operation = "desasignar"
+    } else {
+      this.operationDisabled = false
+    }
   },
   methods: {
     async saveChanges() {

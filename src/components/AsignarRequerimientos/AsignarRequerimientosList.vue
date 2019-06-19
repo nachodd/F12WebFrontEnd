@@ -109,6 +109,7 @@ export default {
   methods: {
     ...mapActions({
       setDetalleRequerimiento: "requerimientos/setDetalleRequerimiento",
+      abrirDetalleRequerimiento: "requerimientos/abrirDetalleRequerimiento",
     }),
     getPayload(index) {
       return this.requerimientosList[index]
@@ -118,20 +119,21 @@ export default {
 
       const updatedListData = { listName, listResult, dropResult }
 
-      console.log(updatedListData)
-      // this.$store.dispatch(
-      //   "priorizarRequerimientos/processUpdateList",
-      //   updatedListData,
-      // )
-      this.setDetalleRequerimiento({
-        reqId: dropResult.payload.id,
-        listName: "asignar-requerimientos",
-      }).then(() => {
-        this.$store.dispatch(
-          "asignacionRequerimientos/setDialogConfirmOperationOpen",
-          true,
-        )
-      })
+      // console.log(updatedListData)
+      this.$store.dispatch(
+        "asignacionRequerimientos/processUpdateList",
+        updatedListData,
+      )
+
+      // this.setDetalleRequerimiento({
+      //   reqId: dropResult.payload.id,
+      //   listName: "asignar-requerimientos",
+      // }).then(() => {
+      //   this.$store.dispatch(
+      //     "asignacionRequerimientos/setDialogConfirmOperationOpen",
+      //     true,
+      //   )
+      // })
     },
   },
 }

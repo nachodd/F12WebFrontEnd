@@ -42,6 +42,7 @@ const getters = {
     )
   },
 
+  // FIXME: cambiar el nombre de las operaciones a uno mas adecuando (y eliminar las operaciones que no se necesitan)
   // - reordenamiento de la lista de pendientes => no hace nada (a menos que esElUltimoDeLaCadenaDeMando=true)
   operationReoderPendingList: state => {
     const { sourceChanges, targetChanges } = state.possibleChanges
@@ -83,6 +84,7 @@ const getters = {
     )
   },
 
+  // FIXME: cambiar el nombre de las operaciones devueltas aca, por uno mas apropiado (ej, put-on-exec y put-on-pending)
   operationType: (state, getters) => {
     if (
       getters.operationReoderPendingList &&
@@ -245,13 +247,14 @@ const actions = {
         return
       }
 
+      // FIXME aca tampoco serian approve y rejet
       switch (getters.operationType) {
-        case "reorder-pending":
-          dispatch("saveReorderPending")
-          break
-        case "reorder-approved":
-          dispatch("saveReorderApproved")
-          break
+        // case "reorder-pending":
+        //   dispatch("saveReorderPending")
+        //   break
+        // case "reorder-approved":
+        //   dispatch("saveReorderApproved")
+        //   break
         case "approve":
         case "reject":
           dispatch("setDialogConfirmOperationOpen", true)
@@ -276,6 +279,7 @@ const actions = {
   async confirmOperation({ commit, getters, state, dispatch }, comentario) {
     return new Promise(async (resolve, reject) => {
       const reqId = getters.requerimientoIdToChange
+      // FIXME: cambiar la logica de esto para que primero haga la llamada al save, y si esta todo bien, recien ahí actualizo la vista
       // copio los listados (de manera de tener un backup)
       const sourceBackup = [...state.reqsAsignadosPendientes.list]
       const targetBackup = [...state.reqsAsignadosEnEjecucion.list]
@@ -290,6 +294,7 @@ const actions = {
         listData: state.possibleChanges.targetList,
       })
 
+      // FIXME: en vez de llamar a esta mutation, se podría llamar a otra que actualice SOLO el campo estado del req en cuestion (como la mutation asginacionRequerimientos/SET_ESTADO_REQUERIMIENTO)
       // actualiza todos los estados de las listas para que correspondan con la columna en la que estan.
       commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
       commit("UPDATE_LIST_ESTADO", "reqsAsignadosPendientes")

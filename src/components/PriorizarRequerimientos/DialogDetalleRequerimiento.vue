@@ -202,19 +202,20 @@ export default {
   mixins: [formValidation],
   data() {
     return {
-      operation: null,
+      // operation: null,
       approvedPriority: 1,
       comment: null,
       fixed: false,
       tab: "detalle",
       asignacionUsuarios: [],
-      operationAsignar: null,
+      // operationAsignar: null,
       usuarioAsignado: null,
     }
   },
   computed: {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
+      test: state => state.detalleRequerimientoOpen,
     }),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     ...mapGetters("auth", ["userReportantes"]),
@@ -270,6 +271,17 @@ export default {
         )
       },
     },
+  },
+  watch: {
+    // FIXME: no esta funcionando esto, el detalle cuando se abre queda en el tab que estaba
+    // FIXME, deberiamos limpiar todos los reqs, para ver si esta bien todo lo de las acciones cuando se arrastran
+    // Si se abrio, setear el tab detalle
+    // detalleRequerimientoOpen(opened) {
+    //   debugger
+    //   if (opened) {
+    //     this.tab = "detalle"
+    //   }
+    // },
   },
   created() {
     this.asignacionUsuarios = _.map(this.userReportantes, ur => {

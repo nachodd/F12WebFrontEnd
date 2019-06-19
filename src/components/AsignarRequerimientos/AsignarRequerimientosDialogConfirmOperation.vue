@@ -28,6 +28,7 @@
           :dark="true"
           hide-save-button
           color="white"
+          :operation-type="operationType"
         />
       </q-card-section>
       <q-card-actions align="right">
@@ -44,7 +45,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import AsignarRequerimientosActions from "@comp/AsignarRequerimientos/AsignarRequerimientosActions"
 export default {
   name: "AsignarRequerimientosDialogConfirmOperation",
@@ -60,6 +61,7 @@ export default {
     ...mapState("asignacionRequerimientos", {
       dialogConfirmOpenState: state => state.dialogConfirmOpen,
     }),
+    ...mapGetters("asignacionRequerimientos", ["operationType"]),
     // ...mapGetters("priorizarRequerimientos", [
     //   "requerimientoIdToChange",
     // ]),
