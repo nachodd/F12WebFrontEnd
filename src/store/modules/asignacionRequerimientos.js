@@ -10,6 +10,7 @@ import Requerimiento from "@models/Requerimiento"
 const state = {
   requerimientos: [],
   loadingRequerimientos: false,
+  dialogConfirmOpen: false,
 }
 const getters = {
   requerimientosSinAsignar: (state, getters, rootState, rootGetters) => {
@@ -49,6 +50,9 @@ const mutations = {
       ...reqToUpdate.estado,
       ...newState,
     }
+  },
+  SET_DIALOG_CONFIRM_OPERATION_OPEN: (state, value) => {
+    state.dialogConfirmOpen = value
   },
 }
 
@@ -165,6 +169,9 @@ const actions = {
         commit("app/LOADING_DEC", null, { root: true })
       }
     })
+  },
+  setDialogConfirmOperationOpen({ commit }, value = true) {
+    commit("SET_DIALOG_CONFIRM_OPERATION_OPEN", value)
   },
 }
 

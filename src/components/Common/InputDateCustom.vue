@@ -3,8 +3,10 @@
   <q-input
     ref="input"
     v-model="selectedValue"
-    color="accent"
-    outlined
+    :dark="dark"
+    :color="color"
+    :outlined="outlined"
+    :filled="filled"
     :label="label"
     :rules="rulesDate"
     :hide-bottom-space="true"
@@ -21,7 +23,7 @@
           <q-date
             v-model="selectedValue"
             today-btn
-            color="accent"
+            :color="color"
             :options="pastDisabledFn"
             mask="DD/MM/YYYY"
             @input="handleInput"
@@ -54,6 +56,22 @@ export default {
     pastDisabled: {
       type: Boolean,
       default: false,
+    },
+    dark: {
+      type: Boolean,
+      default: false,
+    },
+    outlined: {
+      type: Boolean,
+      default: true,
+    },
+    filled: {
+      type: Boolean,
+      default: false,
+    },
+    color: {
+      type: String,
+      default: "accent",
     },
   },
   data() {

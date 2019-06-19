@@ -17,6 +17,9 @@
           :requerimientos-list="requerimientosSinAsignar"
           :loading-list="loadingList"
           title="Requerimientos Por Asignar"
+          :draggable="true"
+          group-name="asignarRequerimientos"
+          list-name="source"
         />
       </div>
       <div class="col-sm-4 col-xs-12">
@@ -24,6 +27,9 @@
           :requerimientos-list="requerimientosAsignados"
           :loading-list="loadingList"
           title="Requerimientos Asignados"
+          :draggable="true"
+          group-name="asignarRequerimientos"
+          list-name="target"
         />
       </div>
       <div class="col-sm-4 col-xs-12">
@@ -36,6 +42,7 @@
     </div>
 
     <dialog-detalle-requerimiento />
+    <asignar-requerimientos-dialog-confirm-operation />
   </q-page>
 </template>
 
@@ -45,6 +52,7 @@ import pageLoading from "@mixins/pageLoading"
 import PageHeader from "@comp/Common/PageHeader"
 import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequerimientosList"
 import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
+import AsignarRequerimientosDialogConfirmOperation from "@comp/AsignarRequerimientos/AsignarRequerimientosDialogConfirmOperation"
 
 export default {
   name: "AsignarRequerimientos",
@@ -52,6 +60,7 @@ export default {
     PageHeader,
     AsignarRequerimientosList,
     DialogDetalleRequerimiento,
+    AsignarRequerimientosDialogConfirmOperation,
   },
   mixins: [pageLoading],
   data: () => ({
