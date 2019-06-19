@@ -287,14 +287,11 @@ export default {
     },
     movimientosOrdenados() {
       let movimientos = [...this.req.movimientos]
-      _.orderBy(movimientos, ["fecha"], ["desc"])
-      return movimientos
+      return _.orderBy(movimientos, ["fecha"], ["desc"])
+      // return movimientos
     },
-
     ultimoMovimiento() {
-      let movimiento = _.maxBy([...this.req.movimientos], "fecha")
-      console.log(movimiento)
-      return movimiento
+      return _.maxBy([...this.req.movimientos], "fecha")
     },
   },
   created() {
