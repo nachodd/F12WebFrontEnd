@@ -36,7 +36,7 @@
           <div class="q-uploader__title">Adjunte Imagenes, documentos, etc</div>
           <!-- <div class="q-uploader__subtitle">
             {{ scope.uploadSizeLabel }} / {{ scope.uploadProgressLabel }}
-					</div>-->
+          </div>-->
         </div>
         <q-btn v-if="scope.editable" icon="add_box" round dense flat>
           <q-uploader-add-trigger ref="addButton" />
@@ -75,9 +75,7 @@
                 </q-item-section>
 
                 <q-item-section class="q-pa-sm">
-                  <q-item-label lines="2" class="">
-                    {{ file.name }}
-                  </q-item-label>
+                  <q-item-label lines="2" class>{{ file.name }}</q-item-label>
                 </q-item-section>
                 <q-item-section top side>
                   <q-btn
@@ -111,6 +109,7 @@
               <adjunto-card
                 :adjunto="adjunto"
                 :nro="i + 1"
+                :show-remove="true"
                 @removeAttach="removeUploadedFile"
               />
             </div>
