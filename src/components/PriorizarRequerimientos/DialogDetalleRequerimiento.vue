@@ -76,36 +76,49 @@
                   </q-item-label>
                 </div>
               </div>
-              <br />
-              <div class="text-grey-6">Asunto</div>
-              {{ req.asunto }}
-              <br />
-              <br />
-              <div class="text-grey-6">Descripcion</div>
-              {{ req.descripcion }}
-              <br />
-              <br />
-              <div class="text-grey-6">Ultimo movimiento</div>
 
-              <div class="text-grey-7">
-                <strong>{{ ultimoMovimiento.usuario }}</strong>
-                @
-                <span class="text-italic text-grey-6">
-                  {{ ultimoMovimiento.fecha | formatiarFecha }}
-                </span>
-              </div>
+              <br />
 
-              <div class="text-black-7">
-                <!-- <strong> -->
-                {{
-                  ultimoMovimiento.estado | formatiarEstado(ultimoMovimiento)
-                }}:
-                <!-- </strong> -->
-                {{ ultimoMovimiento.comentario }}
+              <div class="row">
+                <div class="col">
+                  <div class="text-grey-6">Asunto</div>
+                  <q-item-label>{{ req.asunto }}</q-item-label>
+                </div>
               </div>
 
               <br />
+
+              <div class="row">
+                <div class="col">
+                  <div class="text-grey-6">Descripcion</div>
+                  {{ req.descripcion }}
+                </div>
+              </div>
+
               <br />
+
+              <div class="row">
+                <div class="col">
+                  <div class="text-grey-6">Ultimo movimiento</div>
+                  <div class="text-grey-7">
+                    <strong>{{ ultimoMovimiento.usuario }}</strong>
+                    @
+                    <span class="text-italic text-grey-6">
+                      {{ ultimoMovimiento.fecha | formatiarFecha }}
+                    </span>
+                  </div>
+                  <div class="text-black-7">
+                    {{
+                      ultimoMovimiento.estado
+                        | formatiarEstado(ultimoMovimiento)
+                    }}:
+                    {{ ultimoMovimiento.comentario }}
+                  </div>
+                </div>
+              </div>
+
+              <br />
+
               <div v-if="req.vence" class="row q-mt-sm">
                 <div class="col">
                   <note title="Vencimiento:" type="danger">
@@ -135,6 +148,18 @@
                       {{ req.motivoLimite }}
                     </div>
                   </note>
+                </div>
+              </div>
+
+              <q-separator v-show="tieneAdjuntos" />
+              <br v-show="tieneAdjuntos" />
+              <div v-show="tieneAdjuntos" class="row q-col-gutter-sm">
+                <div
+                  v-for="(adjunto, i) in req.adjuntosCargadosUrl"
+                  :key="`req_${i}_${adjunto}`"
+                  class="col-6"
+                >
+                  <adjunto-card :adjunto="adjunto" :nro="i + 1" />
                 </div>
               </div>
             </q-tab-panel>
@@ -190,6 +215,7 @@ import PriorizarRequerimientosActions from "@comp/PriorizarRequerimientos/Priori
 import AsignarRequerimientosActions from "@comp/AsignarRequerimientos/AsignarRequerimientosActions"
 import RequerimientosAsignadosActions from "@comp/RequerimientosAsignados/RequerimientosAsignadosActions"
 import Note from "@comp/Common/Note"
+import AdjuntoCard from "@comp/Common/AdjuntoCard"
 
 export default {
   name: "DialogDetalleRequerimiento",
@@ -213,6 +239,7 @@ export default {
     asignarRequerimientosActions: AsignarRequerimientosActions,
     RequerimientosAsignadosActions: RequerimientosAsignadosActions,
     Note,
+    AdjuntoCard,
   },
   mixins: [formValidation],
   data() {
@@ -292,6 +319,9 @@ export default {
     },
     ultimoMovimiento() {
       return _.maxBy([...this.req.movimientos], "fecha")
+    },
+    tieneAdjuntos() {
+      return this.req.adjuntosCargadosUrl.length > 0
     },
   },
   created() {
