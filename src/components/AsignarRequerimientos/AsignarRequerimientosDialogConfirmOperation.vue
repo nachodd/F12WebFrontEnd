@@ -24,10 +24,11 @@
       <q-card-section>
         <!-- FIXME ver de que manera le podemos pasar a este comp la accion, de manra de que no rompa. Tal vez la podría leer del store directamente ? -->
         <asignar-requerimientos-actions
-          ref="modalActions"
+          ref="actions"
           :dark="true"
           hide-save-button
           color="white"
+          :operation-type="operationType"
         />
       </q-card-section>
       <q-card-actions align="right">
@@ -44,22 +45,23 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import AsignarRequerimientosActions from "@comp/AsignarRequerimientos/AsignarRequerimientosActions"
 export default {
   name: "AsignarRequerimientosDialogConfirmOperation",
   components: {
     AsignarRequerimientosActions,
   },
-  data() {
-    return {
-      approveComment: "",
-    }
-  },
+  // data() {
+  //   return {
+  //     approveComment: "",
+  //   }
+  // },
   computed: {
     ...mapState("asignacionRequerimientos", {
       dialogConfirmOpenState: state => state.dialogConfirmOpen,
     }),
+    ...mapGetters("asignacionRequerimientos", ["operationType"]),
     // ...mapGetters("priorizarRequerimientos", [
     //   "requerimientoIdToChange",
     // ]),
@@ -83,20 +85,11 @@ export default {
   },
   methods: {
     cancelOperation() {
-      // FIXME
-      // this.$store.dispatch("priorizarRequerimientos/clearOperations")
       this.dialogConfirmOpen = false
     },
     confirmOperation() {
-      this.$refs.modalActions.saveChanges()
-      //const comment = this.operationReject ? null : this.approveComment
-      //this.$store
-      //  .dispatch("priorizarRequerimientos/confirmOperation", comment)
-      //  .then(() => {
-      //    this.dialogConfirmOpen = false
-      //    this.comment = ""
-      //  })
-      // this.$emit("dialog-confirm-operation-confirm", comment)
+      // se llama al save del children (del componente AsignarRequerimientosActions)
+      this.$refs.actions.saveChanges()
     },
   },
 }

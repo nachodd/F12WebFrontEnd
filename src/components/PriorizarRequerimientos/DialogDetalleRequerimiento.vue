@@ -5,6 +5,7 @@
     full-height
     transition-show="scale"
     transition-hide="scale"
+    @before-show="tab = 'detalle'"
   >
     <q-layout
       v-if="requerimientoSetted"
@@ -202,19 +203,20 @@ export default {
   mixins: [formValidation],
   data() {
     return {
-      operation: null,
+      // operation: null,
       approvedPriority: 1,
       comment: null,
       fixed: false,
       tab: "detalle",
       asignacionUsuarios: [],
-      operationAsignar: null,
+      // operationAsignar: null,
       usuarioAsignado: null,
     }
   },
   computed: {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
+      test: state => state.detalleRequerimientoOpen,
     }),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     ...mapGetters("auth", ["userReportantes"]),

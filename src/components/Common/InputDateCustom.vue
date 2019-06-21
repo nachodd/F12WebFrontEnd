@@ -10,6 +10,7 @@
     :label="label"
     :rules="rulesDate"
     :hide-bottom-space="true"
+    class="custom-error"
   >
     <template v-slot:append>
       <q-icon
@@ -23,7 +24,7 @@
           <q-date
             v-model="selectedValue"
             today-btn
-            :color="color"
+            color="accent"
             :options="pastDisabledFn"
             mask="DD/MM/YYYY"
             @input="handleInput"
@@ -122,3 +123,10 @@ export default {
   },
 }
 </script>
+<style lang="stylus">
+.custom-error.q-field--dark.q-field--error .q-field__bottom
+  color $red-5
+
+.custom-error.q-field--dark.q-field--error .text-negative
+  color $red-5 !important
+</style>
