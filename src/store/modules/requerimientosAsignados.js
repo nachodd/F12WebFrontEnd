@@ -37,6 +37,7 @@ const getters = {
       (state.possibleChanges.sourceChanges.changesSetted &&
         state.possibleChanges.targetChanges.changesSetted &&
         Boolean(state.possibleChanges.payload.id)) ||
+      // FIXME: revisar porque la siguiente condicion no iria (en teoria)
       (state.possibleChanges.sourceChanges.changesSetted &&
         Boolean(state.possibleChanges.payload.id))
     )

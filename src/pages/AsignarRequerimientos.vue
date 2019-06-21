@@ -6,8 +6,7 @@
         <div class="square d-ib bg-red-7">&nbsp;</div>
         Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
         <div class="square d-ib bg-light-blue-7">&nbsp;</div>
-        Desarrollo / Mejora &nbsp;&nbsp; - &nbsp;&nbsp; En Procesos
-        <div class="square d-ib bg-green-7"></div>
+        Desarrollo / Mejora &nbsp;&nbsp;
       </div>
     </div>
 

@@ -32,6 +32,7 @@
                 :color="color"
                 :dark="dark"
                 filled
+                class="custom-error"
                 :options="optionsUsersReportantes"
                 emit-value
                 map-options
@@ -58,12 +59,14 @@
               <q-input
                 ref="horasEstimadas"
                 v-model.number="horasEstimadas"
+                class="custom-error"
+                min="1"
                 type="number"
                 :color="color"
                 label="Horas Estimadas"
                 filled
                 :dark="dark"
-                :rules="[notEmpty]"
+                :rules="[numberPositive, notEmpty]"
               />
             </div>
           </div>
@@ -75,7 +78,7 @@
                 v-model="comment"
                 :color="color"
                 :dark="dark"
-                outlined
+                filled
                 autogrow
                 label="Agregar un comentario:"
               />
@@ -96,9 +99,9 @@
               <q-input
                 ref="commentDesasignarDescartar"
                 v-model="comment"
-                color="accent"
+                :color="color"
                 :dark="dark"
-                outlined
+                filled
                 autogrow
                 :rules="shouldValidateComment"
                 label="Agregar un comentario:"
@@ -165,6 +168,10 @@ export default {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
+    // ...mapActions({
+    //   setDialogConfirmOperationOpen:
+    //     "asignacionRequerimientos/setDialogConfirmOperationOpen",
+    // }),
     stateNotAssigned() {
       return this.detalleRequerimientoState === "NOAS"
     },
@@ -219,18 +226,11 @@ export default {
     },
   },
   mounted() {
+    // Si se le setea el operationType por prop, asigno el valor correspondiente al combo
     this.operationDisabled = true
-    if (this.operationType === "approve") {
-      // this.$set(this, "operation", {
-      //   label: "Asignar",
-      //   value: "asignar",
-      // })
+    if (this.operationType === "assign") {
       this.operation = "asignar"
-    } else if (this.operationType === "reject") {
-      // this.$set(this, "operation", {
-      //   label: "Volver a Pendiente de Asignación",
-      //   value: "desasignar",
-      // })
+    } else if (this.operationType === "pending") {
       this.operation = "desasignar"
     } else {
       this.operationDisabled = false
@@ -276,7 +276,12 @@ export default {
           this.fechaFinalizacion = null
           this.horasEstimadas = null
           this.comment = null
-          this.$emit("closeDialog")
+          this.$emit("closeDialog") // close details dialog
+          // close confirm op. dialog
+          this.$store.dispatch(
+            "asignacionRequerimientos/setDialogConfirmOperationOpen",
+            false,
+          )
         })
         .catch(e => {
           warn({ message: e.message })
@@ -285,3 +290,10 @@ export default {
   },
 }
 </script>
+<style lang="stylus">
+.custom-error.q-field--dark.q-field--error .q-field__bottom
+  color $red-5
+
+.custom-error.q-field--dark.q-field--error .text-negative
+  color $red-5 !important
+</style>

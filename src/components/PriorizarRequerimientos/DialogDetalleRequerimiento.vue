@@ -5,6 +5,7 @@
     full-height
     transition-show="scale"
     transition-hide="scale"
+    @before-show="tab = 'detalle'"
   >
     <q-layout
       v-if="requerimientoSetted"
@@ -271,17 +272,6 @@ export default {
         )
       },
     },
-  },
-  watch: {
-    // FIXME: no esta funcionando esto, el detalle cuando se abre queda en el tab que estaba
-    // FIXME, deberiamos limpiar todos los reqs, para ver si esta bien todo lo de las acciones cuando se arrastran
-    // Si se abrio, setear el tab detalle
-    // detalleRequerimientoOpen(opened) {
-    //   debugger
-    //   if (opened) {
-    //     this.tab = "detalle"
-    //   }
-    // },
   },
   created() {
     this.asignacionUsuarios = _.map(this.userReportantes, ur => {

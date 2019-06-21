@@ -24,7 +24,7 @@
       <q-card-section>
         <!-- FIXME ver de que manera le podemos pasar a este comp la accion, de manra de que no rompa. Tal vez la podría leer del store directamente ? -->
         <asignar-requerimientos-actions
-          ref="modalActions"
+          ref="actions"
           :dark="true"
           hide-save-button
           color="white"
@@ -52,11 +52,11 @@ export default {
   components: {
     AsignarRequerimientosActions,
   },
-  data() {
-    return {
-      approveComment: "",
-    }
-  },
+  // data() {
+  //   return {
+  //     approveComment: "",
+  //   }
+  // },
   computed: {
     ...mapState("asignacionRequerimientos", {
       dialogConfirmOpenState: state => state.dialogConfirmOpen,
@@ -85,20 +85,11 @@ export default {
   },
   methods: {
     cancelOperation() {
-      // FIXME
-      // this.$store.dispatch("priorizarRequerimientos/clearOperations")
       this.dialogConfirmOpen = false
     },
     confirmOperation() {
-      this.$refs.modalActions.saveChanges()
-      //const comment = this.operationReject ? null : this.approveComment
-      //this.$store
-      //  .dispatch("priorizarRequerimientos/confirmOperation", comment)
-      //  .then(() => {
-      //    this.dialogConfirmOpen = false
-      //    this.comment = ""
-      //  })
-      // this.$emit("dialog-confirm-operation-confirm", comment)
+      // se llama al save del children (del componente AsignarRequerimientosActions)
+      this.$refs.actions.saveChanges()
     },
   },
 }

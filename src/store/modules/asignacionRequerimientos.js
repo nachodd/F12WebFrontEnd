@@ -54,15 +54,13 @@ const getters = {
   // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
   possibleChangesSetted: state => {
     return (
-      (state.possibleChanges.sourceChanges.changesSetted &&
-        state.possibleChanges.targetChanges.changesSetted &&
-        Boolean(state.possibleChanges.payload.id)) ||
-      (state.possibleChanges.sourceChanges.changesSetted &&
-        Boolean(state.possibleChanges.payload.id))
+      state.possibleChanges.sourceChanges.changesSetted &&
+      state.possibleChanges.targetChanges.changesSetted &&
+      Boolean(state.possibleChanges.payload.id)
     )
   },
   // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
-  operationApprove: state => {
+  operationAssign: state => {
     const { sourceChanges, targetChanges } = state.possibleChanges
     return (
       targetChanges.removedIndex === null &&
@@ -72,7 +70,7 @@ const getters = {
     )
   },
   // - arrastrar de aprobados a pendientes => confirmar y disparar update aprobados y pendientes
-  operationReject: state => {
+  operationPending: state => {
     const { sourceChanges, targetChanges } = state.possibleChanges
     return (
       targetChanges.removedIndex !== null &&
@@ -82,10 +80,10 @@ const getters = {
     )
   },
   operationType: (state, getters) => {
-    if (getters.operationApprove && !getters.operationReject) {
-      return "approve"
-    } else if (!getters.operationApprove && getters.operationReject) {
-      return "reject"
+    if (getters.operationAssign && !getters.operationPending) {
+      return "assign"
+    } else if (!getters.operationAssign && getters.operationPending) {
+      return "pending"
     } else {
       return ""
     }
@@ -251,9 +249,12 @@ const actions = {
     })
   },
 
-  processUpdateList({ commit, getters, dispatch }, updatedListData) {
+  processUpdateList(
+    { commit, getters, dispatch, state, rootGetters },
+    updatedListData,
+  ) {
     // console.log(getters.operationType)
-    return new Promise(async resolve => {
+    return new Promise(async (resolve, reject) => {
       // updatea los listados temporales
       commit("PROCESS_UPDATE_LISTS", updatedListData)
 
@@ -261,9 +262,23 @@ const actions = {
         return
       }
 
+      // Valido si el requerimiento fue enviado a procesos
+      const stateSentToProcess = rootGetters[
+        "requerimientos/getEstadoByCodigo"
+      ]("STPR")
+      const reqToChange = state.possibleChanges.payload
+      if (reqToChange.estado.id === stateSentToProcess.id) {
+        dispatch("clearOperations")
+        reject({
+          message:
+            "El requermiento no se puede asignar, el mismo se encuentra EN PROCESOS",
+        })
+        return
+      }
+
       switch (getters.operationType) {
-        case "approve":
-        case "reject":
+        case "assign":
+        case "pending":
           // se setea el requerimiento abierto en el store y luego se abre el modal de confirmacion
           await dispatch(
             "requerimientos/setDetalleRequerimiento",
@@ -275,12 +290,18 @@ const actions = {
           )
           dispatch("setDialogConfirmOperationOpen", true)
           break
+        default:
+          dispatch("clearOperations")
+          break
       }
       resolve()
     })
   },
-  setDialogConfirmOperationOpen({ commit }, value = true) {
+  setDialogConfirmOperationOpen({ commit, dispatch }, value = true) {
     commit("SET_DIALOG_CONFIRM_OPERATION_OPEN", value)
+    if (!value) {
+      dispatch("clearOperations")
+    }
   },
   clearOperations({ commit }) {
     return new Promise(resolve => {

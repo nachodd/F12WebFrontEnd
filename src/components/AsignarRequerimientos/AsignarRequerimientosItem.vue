@@ -92,7 +92,7 @@ import { mapGetters } from "vuex"
 import priorityColor from "@mixins/priorityColor"
 
 export default {
-  name: "PriorizarRequerimientosItem",
+  name: "AsignarRequerimientosItem",
   mixins: [priorityColor],
   props: {
     req: {

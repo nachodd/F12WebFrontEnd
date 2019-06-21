@@ -1,21 +1,21 @@
 <template>
   <list-requerimientos :loading-list="loadingList" :title="title">
-    <template v-if="listEmpty">
-      <div class="text-h6 text-center">
-        No hay requerimientos para mostrar!
-      </div>
-    </template>
-    <template v-else>
-      <template v-if="draggable">
-        <Container
-          v-if="!loadingList"
-          :group-name="groupName"
-          :get-child-payload="getPayload"
-          drag-class="card-ghost"
-          drop-class="card-ghost-drop"
-          :drop-placeholder="dropPlaceholderOptions"
-          @drop="e => onDrop(listName, e)"
-        >
+    <template v-if="draggable">
+      <Container
+        v-if="!loadingList"
+        :group-name="groupName"
+        :get-child-payload="getPayload"
+        drag-class="card-ghost"
+        drop-class="card-ghost-drop"
+        :drop-placeholder="dropPlaceholderOptions"
+        @drop="e => onDrop(listName, e)"
+      >
+        <template v-if="listEmpty">
+          <div class="text-h6 text-center">
+            No hay requerimientos para mostrar!
+          </div>
+        </template>
+        <template v-else>
           <Draggable
             v-for="(req, index) in requerimientosList"
             :key="`req_${req.id}`"
@@ -31,8 +31,8 @@
               "
             />
           </Draggable>
-        </Container>
-      </template>
+        </template>
+      </Container>
       <template v-else>
         <asignar-requerimientos-item
           v-for="(req, index) in requerimientosList"
@@ -57,8 +57,10 @@ import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag } from "@utils/helpers"
 import ListRequerimientos from "@comp/Common/ListRequerimientos"
 import AsignarRequerimientosItem from "@comp/AsignarRequerimientos/AsignarRequerimientosItem"
+import { warn } from "@utils/helpers"
 
 export default {
+  name: "AsignarRequerimientosList",
   components: {
     ListRequerimientos,
     AsignarRequerimientosItem,
@@ -120,10 +122,11 @@ export default {
       const updatedListData = { listName, listResult, dropResult }
 
       // console.log(updatedListData)
-      this.$store.dispatch(
-        "asignacionRequerimientos/processUpdateList",
-        updatedListData,
-      )
+      this.$store
+        .dispatch("asignacionRequerimientos/processUpdateList", updatedListData)
+        .catch(({ message }) => {
+          warn({ message })
+        })
 
       // this.setDetalleRequerimiento({
       //   reqId: dropResult.payload.id,
