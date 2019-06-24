@@ -16,7 +16,7 @@
       <q-item-label lines="2" class="q-mt-sm text-left text-center">
         <span class="text-weight-medium">{{ req.usuario.nombre }}</span>
       </q-item-label>
-      <q-item-label caption>{{ req.fecha_alta | formatiarFecha }}</q-item-label>
+      <q-item-label caption>{{ req.fecha_alta | formatearFecha }}</q-item-label>
     </q-item-section>
 
     <q-item-section class="col-2">
@@ -82,7 +82,7 @@ export default {
   name: "MisRequerimientosItem",
 
   filters: {
-    formatiarFecha: function(value) {
+    formatearFecha: function(value) {
       return date.formatDate(value, "DD/MM/YYYY HH:mm")
     },
   },

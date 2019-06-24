@@ -11,6 +11,21 @@ const state = {
   requerimientos: [],
   loadingRequerimientos: false,
   dialogConfirmOpen: false,
+  possibleChanges: {
+    sourceList: [],
+    sourceChanges: {
+      addedIndex: null,
+      removedIndex: null,
+      changesSetted: false,
+    },
+    targetList: [],
+    targetChanges: {
+      addedIndex: null,
+      removedIndex: null,
+      changesSetted: false,
+    },
+    payload: {},
+  },
 }
 const getters = {
   requerimientosSinAsignar: (state, getters, rootState, rootGetters) => {
@@ -35,6 +50,46 @@ const getters = {
     })
     return _.orderBy(reqsResult, "tipo.id", "asc")
   },
+  // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
+  // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
+  possibleChangesSetted: state => {
+    return (
+      state.possibleChanges.sourceChanges.changesSetted &&
+      state.possibleChanges.targetChanges.changesSetted &&
+      Boolean(state.possibleChanges.payload.id)
+    )
+  },
+  // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
+  operationAssign: state => {
+    const { sourceChanges, targetChanges } = state.possibleChanges
+    return (
+      targetChanges.removedIndex === null &&
+      targetChanges.addedIndex !== null &&
+      sourceChanges.removedIndex !== null &&
+      sourceChanges.addedIndex === null
+    )
+  },
+  // - arrastrar de aprobados a pendientes => confirmar y disparar update aprobados y pendientes
+  operationPending: state => {
+    const { sourceChanges, targetChanges } = state.possibleChanges
+    return (
+      targetChanges.removedIndex !== null &&
+      targetChanges.addedIndex === null &&
+      sourceChanges.removedIndex === null &&
+      sourceChanges.addedIndex !== null
+    )
+  },
+  operationType: (state, getters) => {
+    if (getters.operationAssign && !getters.operationPending) {
+      return "assign"
+    } else if (!getters.operationAssign && getters.operationPending) {
+      return "pending"
+    } else {
+      return ""
+    }
+  },
+  requerimientoIdToChange: state =>
+    _.get(state.possibleChanges.payload, "id", ""),
 }
 
 const mutations = {
@@ -53,6 +108,29 @@ const mutations = {
   },
   SET_DIALOG_CONFIRM_OPERATION_OPEN: (state, value) => {
     state.dialogConfirmOpen = value
+  },
+
+  PROCESS_UPDATE_LISTS: (state, { listName, dropResult }) => {
+    const { removedIndex, addedIndex, payload } = dropResult
+    // state.possibleChanges[`${listName}List`] = listResult
+    state.possibleChanges[`${listName}Changes`] = {
+      addedIndex,
+      removedIndex,
+      changesSetted: true, // seteo que hubo cambios en este listado
+    }
+    state.possibleChanges.payload = payload
+  },
+  CLEAR_OPERATIONS: state => {
+    for (const listName of ["source", "target"]) {
+      // state.possibleChanges[`${listName}List`] = []
+      state.possibleChanges[`${listName}Changes`] = {
+        addedIndex: null,
+        removedIndex: null,
+        changesSetted: false,
+      }
+    }
+    state.possibleChanges.payload = {}
+    state.dialogConfirmOpen = false
   },
 }
 
@@ -170,8 +248,66 @@ const actions = {
       }
     })
   },
-  setDialogConfirmOperationOpen({ commit }, value = true) {
+
+  processUpdateList(
+    { commit, getters, dispatch, state, rootGetters },
+    updatedListData,
+  ) {
+    // console.log(getters.operationType)
+    return new Promise(async (resolve, reject) => {
+      // updatea los listados temporales
+      commit("PROCESS_UPDATE_LISTS", updatedListData)
+
+      if (!getters.possibleChangesSetted) {
+        return
+      }
+
+      // Valido si el requerimiento fue enviado a procesos
+      const stateSentToProcess = rootGetters[
+        "requerimientos/getEstadoByCodigo"
+      ]("STPR")
+      const reqToChange = state.possibleChanges.payload
+      if (reqToChange.estado.id === stateSentToProcess.id) {
+        dispatch("clearOperations")
+        reject({
+          message:
+            "El requermiento no se puede asignar, el mismo se encuentra EN PROCESOS",
+        })
+        return
+      }
+
+      switch (getters.operationType) {
+        case "assign":
+        case "pending":
+          // se setea el requerimiento abierto en el store y luego se abre el modal de confirmacion
+          await dispatch(
+            "requerimientos/setDetalleRequerimiento",
+            {
+              reqId: getters.requerimientoIdToChange,
+              listName: "asignar-requerimientos",
+            },
+            { root: true },
+          )
+          dispatch("setDialogConfirmOperationOpen", true)
+          break
+        default:
+          dispatch("clearOperations")
+          break
+      }
+      resolve()
+    })
+  },
+  setDialogConfirmOperationOpen({ commit, dispatch }, value = true) {
     commit("SET_DIALOG_CONFIRM_OPERATION_OPEN", value)
+    if (!value) {
+      dispatch("clearOperations")
+    }
+  },
+  clearOperations({ commit }) {
+    return new Promise(resolve => {
+      commit("CLEAR_OPERATIONS")
+      resolve()
+    })
   },
 }
 

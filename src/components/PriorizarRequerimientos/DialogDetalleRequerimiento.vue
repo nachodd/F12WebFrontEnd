@@ -1,10 +1,10 @@
 <template>
   <q-dialog
     v-model="detalleRequerimientoOpen"
-    persistent
     full-height
     transition-show="scale"
     transition-hide="scale"
+    @before-show="tab = 'detalle'"
   >
     <q-layout
       v-if="requerimientoSetted"
@@ -58,19 +58,19 @@
               <!-- detalle -->
               <div class="row">
                 <div class="col-4">
-                  <div class="text-grey-6">Area</div>
+                  <div class="text-grey-7">Area</div>
                   <q-item-label lines="1">
                     {{ req.area.descripcion }}
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-6">Sistema</div>
+                  <div class="text-grey-7">Sistema</div>
                   <q-item-label lines="1">
                     {{ req.sistema.descripcion }}
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-6">Tipo</div>
+                  <div class="text-grey-7">Tipo</div>
                   <q-item-label lines="1">
                     {{ req.tipo.descripcion }}
                   </q-item-label>
@@ -78,14 +78,8 @@
               </div>
 
               <br />
-
-              <div class="row">
-                <div class="col">
-                  <div class="text-grey-6">Asunto</div>
-                  <q-item-label>{{ req.asunto }}</q-item-label>
-                </div>
-              </div>
-
+              <div class="text-grey-7">Asunto</div>
+              {{ req.asunto }}
               <br />
 
               <div class="row">
@@ -96,15 +90,30 @@
               </div>
 
               <br />
+              <div class="text-grey-7">Descripcion</div>
+              {{ req.descripcion }}
+              <br />
+              <br />
+              <q-banner
+                v-if="req.vence"
+                inline-actions
+                class="text-white bg-red-4"
+                style="margin-bottom:20px;"
+                rounded
+              >
+                <div>
+                  <span>Vencimiento:</span>
+                  <br />
+                  {{ req.fechaLimite }}
+                  <template v-if="vencimientoDiff !== null">
+                    <span v-if="vencimientoDiff > 0" class="text-white">
+                      (Faltan
+                      <strong>{{ vencimientoDiff }}</strong>
+                      días)
+                    </span>
 
-              <div class="row">
-                <div class="col">
-                  <div class="text-grey-6">Ultimo movimiento</div>
-                  <div class="text-grey-7">
-                    <strong>{{ ultimoMovimiento.usuario }}</strong>
-                    @
-                    <span class="text-italic text-grey-6">
-                      {{ ultimoMovimiento.fecha | formatiarFecha }}
+                    <span v-if="vencimientoDiff === 0" class="text-white">
+                      (HOY es el día de vencimiento)
                     </span>
                   </div>
                   <div class="text-black-7">
@@ -117,37 +126,15 @@
                 </div>
               </div>
 
-              <br />
-
-              <div v-if="req.vence" class="row q-mt-sm">
-                <div class="col">
-                  <note title="Vencimiento:" type="danger">
-                    <div>
-                      {{ req.fechaLimite }}
-                      <template v-if="vencimientoDiff !== null">
-                        <span v-if="vencimientoDiff > 0" class="text-black">
-                          (Faltan
-                          <strong>{{ vencimientoDiff }}</strong>
-                          días)
-                        </span>
-
-                        <span v-if="vencimientoDiff === 0" class="text-black">
-                          (HOY es el día de vencimiento)
-                        </span>
-
-                        <strong v-if="vencimientoDiff < 0">
-                          (Este req. se encuentra vencido )
-                        </strong>
-                      </template>
-                      <br />
-
-                      <span class>
-                        <strong>Motivo:</strong>
-                      </span>
-                      <br />
-                      {{ req.motivoLimite }}
-                    </div>
-                  </note>
+                    <strong v-if="vencimientoDiff < 0">
+                      (Este req. se encuentra vencido )
+                    </strong>
+                  </template>
+                  <br />
+                  <br />
+                  <span class>Motivo:</span>
+                  <br />
+                  {{ req.motivoLimite }}
                 </div>
               </div>
 
@@ -174,10 +161,12 @@
               <div v-if="req.movimientos" class="row">
                 <q-timeline color="purple">
                   <q-timeline-entry
-                    v-for="(movimiento, index) in movimientosOrdenados"
+                    v-for="(movimiento, index) in movimientosOrdenados(
+                      req.movimientos,
+                    )"
                     :key="`req_${index}`"
-                    :title="movimiento.estado | formatiarEstado(movimiento)"
-                    :subtitle="movimiento | subtitleMovimiento"
+                    :title="movimiento.estado | formatearEstado(movimiento)"
+                    :subtitle="movimiento | formatearFecha"
                     icon
                     color
                     text-color="grey"
@@ -220,18 +209,12 @@ import AdjuntoCard from "@comp/Common/AdjuntoCard"
 export default {
   name: "DialogDetalleRequerimiento",
   filters: {
-    subtitleMovimiento(value) {
+    formatearFecha(value) {
       const fechaFormatiada = date.formatDate(value.fecha, "DD/MM/YYYY HH:mm")
       return value.usuario + " | " + fechaFormatiada
     },
-    formatiarEstado(value, objMovimiento) {
-      if (objMovimiento.tipo == "Alta") {
-        value = "Alta"
-      }
-      return value
-    },
-    formatiarFecha(value) {
-      return date.formatDate(value, "DD/MM/YYYY HH:mm")
+    formatearEstado(value, objMovimiento) {
+      return objMovimiento.tipo === "Alta" ? "Alta" : value
     },
   },
   components: {
@@ -244,13 +227,11 @@ export default {
   mixins: [formValidation],
   data() {
     return {
-      operation: null,
       approvedPriority: 1,
       comment: null,
       fixed: false,
       tab: "detalle",
       asignacionUsuarios: [],
-      operationAsignar: null,
       usuarioAsignado: null,
     }
   },
@@ -335,6 +316,9 @@ export default {
   methods: {
     closeDialog() {
       this.detalleRequerimientoOpen = false
+    },
+    movimientosOrdenados(movimientos) {
+      return _.orderBy(movimientos, "fecha", "desc")
     },
   },
 }
