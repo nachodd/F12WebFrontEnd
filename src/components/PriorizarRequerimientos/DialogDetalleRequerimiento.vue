@@ -58,19 +58,19 @@
               <!-- detalle -->
               <div class="row">
                 <div class="col-4">
-                  <div class="text-grey-7">Area</div>
+                  <div class="text-grey-6">Area</div>
                   <q-item-label lines="1">
                     {{ req.area.descripcion }}
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-7">Sistema</div>
+                  <div class="text-grey-6">Sistema</div>
                   <q-item-label lines="1">
                     {{ req.sistema.descripcion }}
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-7">Tipo</div>
+                  <div class="text-grey-6">Tipo</div>
                   <q-item-label lines="1">
                     {{ req.tipo.descripcion }}
                   </q-item-label>
@@ -78,8 +78,14 @@
               </div>
 
               <br />
-              <div class="text-grey-7">Asunto</div>
-              {{ req.asunto }}
+
+              <div class="row">
+                <div class="col">
+                  <div class="text-grey-6">Asunto</div>
+                  <q-item-label>{{ req.asunto }}</q-item-label>
+                </div>
+              </div>
+
               <br />
 
               <div class="row">
@@ -90,51 +96,61 @@
               </div>
 
               <br />
-              <div class="text-grey-7">Descripcion</div>
-              {{ req.descripcion }}
-              <br />
-              <br />
-              <q-banner
-                v-if="req.vence"
-                inline-actions
-                class="text-white bg-red-4"
-                style="margin-bottom:20px;"
-                rounded
-              >
-                <div>
-                  <span>Vencimiento:</span>
-                  <br />
-                  {{ req.fechaLimite }}
-                  <template v-if="vencimientoDiff !== null">
-                    <span v-if="vencimientoDiff > 0" class="text-white">
-                      (Faltan
-                      <strong>{{ vencimientoDiff }}</strong>
-                      días)
-                    </span>
 
-                    <span v-if="vencimientoDiff === 0" class="text-white">
-                      (HOY es el día de vencimiento)
+              <div class="row">
+                <div class="col">
+                  <div class="text-grey-6">Ultimo movimiento</div>
+                  <div class="text-grey-7">
+                    <strong>{{ ultimoMovimiento.usuario }}</strong>
+                    @
+                    <span class="text-italic text-grey-6">
+                      {{ ultimoMovimiento.fecha | formatearFechaHora }}
                     </span>
                   </div>
                   <div class="text-black-7">
                     {{
                       ultimoMovimiento.estado
-                        | formatiarEstado(ultimoMovimiento)
-                    }}:
-                    {{ ultimoMovimiento.comentario }}
+                        | formatearEstado(ultimoMovimiento)
+                    }}
+                    <span v-if="ultimoMovimientoHasComentario">
+                      :&nbsp;
+                      {{ ultimoMovimiento.comentario }}
+                    </span>
                   </div>
                 </div>
               </div>
 
-                    <strong v-if="vencimientoDiff < 0">
-                      (Este req. se encuentra vencido )
-                    </strong>
-                  </template>
-                  <br />
-                  <br />
-                  <span class>Motivo:</span>
-                  <br />
-                  {{ req.motivoLimite }}
+              <br />
+
+              <div v-if="req.vence" class="row q-mt-sm">
+                <div class="col">
+                  <note title="Vencimiento:" type="danger">
+                    <div>
+                      {{ req.fechaLimite }}
+                      <template v-if="vencimientoDiff !== null">
+                        <span v-if="vencimientoDiff > 0" class="text-black">
+                          (Faltan
+                          <strong>{{ vencimientoDiff }}</strong>
+                          días)
+                        </span>
+
+                        <span v-if="vencimientoDiff === 0" class="text-black">
+                          (HOY es el día de vencimiento)
+                        </span>
+
+                        <strong v-if="vencimientoDiff < 0">
+                          (Este req. se encuentra vencido )
+                        </strong>
+                      </template>
+                      <br />
+
+                      <span class>
+                        <strong>Motivo:</strong>
+                      </span>
+                      <br />
+                      {{ req.motivoLimite }}
+                    </div>
+                  </note>
                 </div>
               </div>
 
@@ -161,12 +177,10 @@
               <div v-if="req.movimientos" class="row">
                 <q-timeline color="purple">
                   <q-timeline-entry
-                    v-for="(movimiento, index) in movimientosOrdenados(
-                      req.movimientos,
-                    )"
+                    v-for="(movimiento, index) in movimientosOrdenados"
                     :key="`req_${index}`"
                     :title="movimiento.estado | formatearEstado(movimiento)"
-                    :subtitle="movimiento | formatearFecha"
+                    :subtitle="movimiento | formatearUsuarioYFecha"
                     icon
                     color
                     text-color="grey"
@@ -209,9 +223,12 @@ import AdjuntoCard from "@comp/Common/AdjuntoCard"
 export default {
   name: "DialogDetalleRequerimiento",
   filters: {
-    formatearFecha(value) {
+    formatearFechaHora(value) {
+      return date.formatDate(value, "DD/MM/YYYY HH:mm")
+    },
+    formatearUsuarioYFecha(value) {
       const fechaFormatiada = date.formatDate(value.fecha, "DD/MM/YYYY HH:mm")
-      return value.usuario + " | " + fechaFormatiada
+      return value.usuario + " @ " + fechaFormatiada
     },
     formatearEstado(value, objMovimiento) {
       return objMovimiento.tipo === "Alta" ? "Alta" : value
@@ -294,12 +311,17 @@ export default {
       },
     },
     movimientosOrdenados() {
-      let movimientos = [...this.req.movimientos]
-      return _.orderBy(movimientos, ["fecha"], ["desc"])
-      // return movimientos
+      // let movimientos = [...this.req.movimientos]
+      return _.orderBy(this.req.movimientos, ["fecha"], ["desc"])
     },
     ultimoMovimiento() {
       return _.maxBy([...this.req.movimientos], "fecha")
+    },
+    ultimoMovimientoHasComentario() {
+      return (
+        this.ultimoMovimiento.comentario &&
+        this.ultimoMovimiento.comentario.length
+      )
     },
     tieneAdjuntos() {
       return this.req.adjuntosCargadosUrl.length > 0
@@ -316,9 +338,6 @@ export default {
   methods: {
     closeDialog() {
       this.detalleRequerimientoOpen = false
-    },
-    movimientosOrdenados(movimientos) {
-      return _.orderBy(movimientos, "fecha", "desc")
     },
   },
 }
