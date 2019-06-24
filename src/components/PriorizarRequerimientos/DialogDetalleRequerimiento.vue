@@ -73,6 +73,7 @@
                   <div class="text-grey-6">Tipo</div>
                   <q-item-label lines="1">
                     {{ req.tipo.descripcion }}
+                    <q-tooltip>{{ req.tipo.descripcion }}</q-tooltip>
                   </q-item-label>
                 </div>
               </div>
@@ -181,8 +182,6 @@
                     :key="`req_${index}`"
                     :title="movimiento.estado | formatearEstado(movimiento)"
                     :subtitle="movimiento | formatearUsuarioYFecha"
-                    icon
-                    color
                     text-color="grey"
                     class="title-custom"
                   >
@@ -353,6 +352,13 @@ export default {
 .title-custom .q-timeline__title {
   margin: 0px;
 }
+.title-custom.q-timeline--dense--right .q-timeline__entry {
+  padding-left: 25px;
+}
+.title-custom .q-timeline__title {
+  font-size: 1rem;
+}
+
 .modal-body-container {
   height: 60vh;
   width: 84vh;

@@ -36,6 +36,10 @@
           }"
         >
           PR: {{ req.prioridad }}
+          <q-tooltip>
+            Prioridad:
+            <strong>{{ req.prioridad }}</strong>
+          </q-tooltip>
         </q-badge>
       </div>
     </div>
