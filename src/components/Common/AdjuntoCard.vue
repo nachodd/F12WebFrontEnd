@@ -5,13 +5,11 @@
     </q-item-section>
 
     <q-item-section class="q-pa-sm">
-      <q-item-label lines="2" class="">
+      <q-item-label lines="2" class>
         <template v-if="hasDefaultSlot">
           <slot />
         </template>
-        <a v-else v-auth-href :href="adjunto">
-          {{ fileNameComp }}
-        </a>
+        <a v-else v-auth-href :href="adjunto">{{ fileNameComp }}</a>
       </q-item-label>
     </q-item-section>
     <q-item-section v-if="showRemove" top side>
@@ -44,7 +42,7 @@ export default {
     },
     showRemove: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     showIcon: {
       type: Boolean,

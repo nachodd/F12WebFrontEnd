@@ -1,69 +1,48 @@
 <template>
-  <!--:active="esImportante"  active-class="text-black bg-red-2" -->
   <q-item
-    class="q-ma-sm shadow-2 rounded-borders-10 bg-white cursor-pointer"
-    @click.native="openRequerimiento"
+    class="q-ma-sm shadow-2 rounded-borders-8 bg-white cursor-pointer card-row"
+    :class="{
+      'card--default': !esArregloRapido,
+      'card--qf': esArregloRapido,
+    }"
   >
-    <q-item-section class="col-xs-3 text-center">
-      <span class="text-accent text-weight-medium">#{{ req.id }}</span>
-      <div>
-        <q-chip dense class="no-margin">
-          <q-avatar
-            class="prioridad-text"
-            :style="{
-              color: getColorPrioridadText(req.prioridad),
-              backgroundColor: getColorPrioridad(req.prioridad),
-            }"
-          >
-            {{ req.prioridad }}
-          </q-avatar>
-          Prioridad
-        </q-chip>
+    <div class="row">
+      <div class="col-12">
+        <q-item-label lines="1">
+          <span class="text-weight-medium">{{ req.asunto }}</span>
+        </q-item-label>
+        <q-item-label caption lines="2" style="margin-bottom: auto;">
+          {{ req.descripcion }}
+        </q-item-label>
       </div>
-    </q-item-section>
+    </div>
 
-    <q-item-section top>
-      <q-item-label lines="1">
-        <span class="text-weight-medium">[{{ req.asunto }}]</span>
-      </q-item-label>
-      <q-item-label caption lines="2" style="margin-bottom: auto;">
-        {{ req.descripcion }}
-      </q-item-label>
-      <!-- <q-item-label
-        lines="1"
-        class="q-mt-xs text-body2 text-weight-bold text-primary text-uppercase"
-        style="margin-top: auto;"
+    <div class="row justify-around">
+      <div
+        class="text-left"
+        :class="{ 'col-6': !esArregloRapido, 'col-12': esArregloRapido }"
       >
-        <span class="cursor-pointer">VER DETALLE</span>
-      </q-item-label>-->
-    </q-item-section>
-
-    <q-item-section top class="col-2 q-my-xs">
-      <q-item-label class="q-mt-sm" lines="1">
-        <span class="text-weight-medium">Area:</span>
-        {{ req.area.descripcion }}
-      </q-item-label>
-      <q-item-label lines="1">
-        <span class="text-weight-medium">Sistema:</span>
-        {{ req.sistema.descripcion }}
-      </q-item-label>
-      <q-item-label lines="1">
-        <span class="text-weight-medium">Tipo:</span>
-        {{ req.tipo.descripcion }}
-      </q-item-label>
-    </q-item-section>
-
-    <q-item-section top side>
-      <!-- <div class="text-grey-8 q-gutter-xs">
-        <q-btn class="gt-xs" size="12px" flat dense round icon="delete" />
-      </div>-->
-
-      <div v-if="tieneComentario" class="text-grey-8 q-gutter-xs">
-        <q-btn class="gt-xs" size="12px" flat dense round icon="fas fa-comment">
-          <q-tooltip>{{ req.comentario }}</q-tooltip>
-        </q-btn>
+        <q-badge
+          :class="{
+            'nro-req--default': !esArregloRapido,
+            'nro-req--qf': esArregloRapido,
+          }"
+        >
+          #{{ req.id }}
+        </q-badge>
+        &nbsp;
       </div>
-    </q-item-section>
+      <div v-if="!esArregloRapido" class="col-6 text-right">
+        <q-badge
+          :style="{
+            color: getColorPrioridadText(req.prioridad),
+            backgroundColor: getColorPrioridad(req.prioridad),
+          }"
+        >
+          PR: {{ req.prioridad }}
+        </q-badge>
+      </div>
+    </div>
   </q-item>
 </template>
 <script>
@@ -71,7 +50,7 @@ import { mapGetters } from "vuex"
 import priorityColor from "@mixins/priorityColor"
 
 export default {
-  name: "RequerimientosAsignadosItem",
+  name: "PriorizarRequerimientosItem",
   mixins: [priorityColor],
   props: {
     req: {
@@ -85,27 +64,62 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
-    esImportante() {
-      return this.req.importante === "SI"
+    ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
+    esArregloRapido() {
+      return this.req.tipo.id === 1
     },
-    esAprobado() {
-      return this.req.estado.id === 2
-    },
-    indicePrioridad() {
-      return this.index + 1
+    usuarioAsignado() {
+      return _.get(this, "req.estado.asignacion.usuario_nombre", "")
     },
     tieneComentario() {
       return this.req.comentario && this.req.comentario.length > 0
     },
   },
-  methods: {
-    openRequerimiento() {},
-  },
 }
 </script>
-<style>
+<style lang="stylus" scoped>
 .prioridad-text {
   font-size: 14px;
   font-weight: 700;
+}
+
+.nro-req--default {
+  background-color: $light-blue-7;
+}
+
+.nro-req--qf {
+  background-color: $red-7;
+}
+
+.card--default {
+  border-left: 3px solid $light-blue-7;
+}
+
+.card--qf {
+  border-left: 3px solid $red-7;
+}
+
+.card--inprocess {
+  border-right: 3px solid $green-7;
+}
+
+.card-row {
+  flex-direction: column;
+}
+
+.card__process-row {
+  height: 3px;
+  position: absolute;
+  right: 7px;
+  top: -5px;
+  padding: 8px 0;
+}
+
+.card__process-ind {
+  display: inline-block;
+  width: 10px;
+  height: 3px;
+  background-color: $green-7;
+  margin: 0 3px;
 }
 </style>

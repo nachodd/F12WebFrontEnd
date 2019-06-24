@@ -433,7 +433,7 @@ const actions = {
           try {
             dispatch("app/loadingInc", null, { root: true })
             const reqId = requerimientoItem.id
-            await cancelaEjecucionRequerimiento(reqId, { comment })
+            await cancelaEjecucionRequerimiento(reqId, { comentario: comment })
 
             /****************************
             CAMBIOS EN EL Target
