@@ -1,7 +1,6 @@
 <template>
   <q-dialog
     v-model="detalleRequerimientoOpen"
-    persistent
     full-height
     transition-show="scale"
     transition-hide="scale"
@@ -140,10 +139,12 @@
               <div v-if="req.movimientos" class="row">
                 <q-timeline color="purple">
                   <q-timeline-entry
-                    v-for="(movimiento, index) in req.movimientos"
+                    v-for="(movimiento, index) in movimientosOrdenados(
+                      req.movimientos,
+                    )"
                     :key="`req_${index}`"
-                    :title="movimiento.estado | formatiarEstado(movimiento)"
-                    :subtitle="movimiento | formatiarFecha"
+                    :title="movimiento.estado | formatearEstado(movimiento)"
+                    :subtitle="movimiento | formatearFecha"
                     icon
                     color
                     text-color="grey"
@@ -184,15 +185,12 @@ import RequerimientosAsignadosActions from "@comp/RequerimientosAsignados/Requer
 export default {
   name: "DialogDetalleRequerimiento",
   filters: {
-    formatiarFecha(value) {
+    formatearFecha(value) {
       const fechaFormatiada = date.formatDate(value.fecha, "DD/MM/YYYY HH:mm")
       return value.usuario + " | " + fechaFormatiada
     },
-    formatiarEstado(value, objMovimiento) {
-      if (objMovimiento.tipo == "Alta") {
-        value = "Alta"
-      }
-      return value
+    formatearEstado(value, objMovimiento) {
+      return objMovimiento.tipo === "Alta" ? "Alta" : value
     },
   },
   components: {
@@ -284,6 +282,9 @@ export default {
   methods: {
     closeDialog() {
       this.detalleRequerimientoOpen = false
+    },
+    movimientosOrdenados(movimientos) {
+      return _.orderBy(movimientos, "fecha", "desc")
     },
   },
 }
