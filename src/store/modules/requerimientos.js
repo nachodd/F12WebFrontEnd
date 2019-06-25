@@ -75,7 +75,11 @@ const mutations = {
 
   SET_DETALLE_REQUERIMIENTO_ITEM: (state, requerimiento) => {
     if (requerimiento) {
-      state.detalleRequerimientoItem = new Requerimiento(requerimiento)
+      if (requerimiento instanceof Requerimiento) {
+        state.detalleRequerimientoItem = requerimiento
+      } else {
+        state.detalleRequerimientoItem = new Requerimiento(requerimiento)
+      }
       // state.detalleRequerimientoItem = Object.assign(
       //   {},
       //   state.detalleRequerimientoItem,

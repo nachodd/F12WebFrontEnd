@@ -91,7 +91,8 @@
           v-show="
             operation === 'desasignar' ||
               operation === 'descartar' ||
-              operation === 'aProcesos'
+              operation === 'aProcesos' ||
+              operation === 'aPriorizar'
           "
         >
           <div class="row q-mt-xs">
@@ -172,6 +173,9 @@ export default {
     //   setDialogConfirmOperationOpen:
     //     "asignacionRequerimientos/setDialogConfirmOperationOpen",
     // }),
+    esArregloRapido() {
+      return this.req.tipo.id === 1
+    },
     stateNotAssigned() {
       return this.detalleRequerimientoState === "NOAS"
     },
@@ -195,10 +199,17 @@ export default {
           label: "Asignar",
           value: "asignar",
         })
-        opt.push({
-          label: "Enviar a Procesos",
-          value: "aProcesos",
-        })
+        if (this.esArregloRapido) {
+          opt.push({
+            label: "No es un Arreglo Rapido (Enviar a Priorizar)",
+            value: "aPriorizar",
+          })
+        }
+        // TODO: la parte de enviar a procesos la vamos a ver mas adelante
+        // opt.push({
+        //   label: "Enviar a Procesos",
+        //   value: "aProcesos",
+        // })
       }
       if (this.stateAssigned) {
         opt.push({

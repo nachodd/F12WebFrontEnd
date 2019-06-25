@@ -9,6 +9,11 @@
         Desarrollo / Mejora &nbsp;&nbsp;
       </div>
     </div>
+    <div class="row q-py-md">
+      <div class="col">
+        <q-toggle v-model="test" val="one" label="One" />
+      </div>
+    </div>
 
     <div class="row q-pt-md q-col-gutter-sm">
       <div class="col-sm-4 col-xs-12">
@@ -23,7 +28,7 @@
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosAsignados"
+          :requerimientos-list="requerimientosAsignadosTest"
           :loading-list="loadingList"
           title="Requerimientos Asignados"
           :draggable="true"
@@ -64,6 +69,7 @@ export default {
   mixins: [pageLoading],
   data: () => ({
     // loadingList: false,
+    test: false,
   }),
   computed: {
     ...mapState("asignacionRequerimientos", {
@@ -75,6 +81,13 @@ export default {
       "requerimientosAsignados",
       "requerimientosPendientes",
     ]),
+    requerimientosAsignadosTest() {
+      if (this.test) {
+        return this.requerimientosAsignados
+      } else {
+        return this.requerimientosAsignados.filter(r => r.id != 67)
+      }
+    },
   },
   created() {
     this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")

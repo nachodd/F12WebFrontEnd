@@ -4,6 +4,7 @@ import {
   desasignarRequerimiento,
   refuseRequerimiento,
   pasarAProcesosRequerimiento,
+  enviarAPriorizarRequerimiento,
 } from "@api/requerimientos"
 import Requerimiento from "@models/Requerimiento"
 
@@ -34,7 +35,7 @@ const getters = {
     let reqsResult = _.filter(state.requerimientos, req => {
       return _.includes([estSinAsig.id, estEnProceso.id], req.estado.id)
     })
-    return _.orderBy(reqsResult, "tipo.id", "asc")
+    return _.orderBy(reqsResult, ["tipo.id", "prioridad"], "asc")
   },
   requerimientosAsignados: (state, getters, rootState, rootGetters) => {
     const estAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
@@ -79,11 +80,34 @@ const getters = {
       sourceChanges.addedIndex !== null
     )
   },
+  operationReoderAssignedList: state => {
+    const { sourceChanges, targetChanges } = state.possibleChanges
+    return (
+      targetChanges.removedIndex !== null &&
+      targetChanges.addedIndex !== null &&
+      sourceChanges.removedIndex === null &&
+      sourceChanges.addedIndex === null
+    )
+  },
   operationType: (state, getters) => {
-    if (getters.operationAssign && !getters.operationPending) {
+    if (
+      !getters.operationReoderAssignedList &&
+      getters.operationAssign &&
+      !getters.operationPending
+    ) {
       return "assign"
-    } else if (!getters.operationAssign && getters.operationPending) {
+    } else if (
+      !getters.operationReoderAssignedList &&
+      !getters.operationAssign &&
+      getters.operationPending
+    ) {
       return "pending"
+    } else if (
+      getters.operationReoderAssignedList &&
+      !getters.operationAssign &&
+      !getters.operationPending
+    ) {
+      return "reorder-assigned"
     } else {
       return ""
     }
@@ -110,9 +134,9 @@ const mutations = {
     state.dialogConfirmOpen = value
   },
 
-  PROCESS_UPDATE_LISTS: (state, { listName, dropResult }) => {
+  PROCESS_UPDATE_LISTS: (state, { listName, listResult, dropResult }) => {
     const { removedIndex, addedIndex, payload } = dropResult
-    // state.possibleChanges[`${listName}List`] = listResult
+    state.possibleChanges[`${listName}List`] = listResult
     state.possibleChanges[`${listName}Changes`] = {
       addedIndex,
       removedIndex,
@@ -122,7 +146,7 @@ const mutations = {
   },
   CLEAR_OPERATIONS: state => {
     for (const listName of ["source", "target"]) {
-      // state.possibleChanges[`${listName}List`] = []
+      state.possibleChanges[`${listName}List`] = []
       state.possibleChanges[`${listName}Changes`] = {
         addedIndex: null,
         removedIndex: null,
@@ -215,7 +239,8 @@ const actions = {
             break
           }
           case "aProcesos":
-          case "descartar": {
+          case "descartar":
+          case "aPriorizar": {
             let res
             if (operation === "descartar") {
               res = await refuseRequerimiento(requerimientoId, {
@@ -223,6 +248,10 @@ const actions = {
               })
             } else if (operation === "aProcesos") {
               res = await pasarAProcesosRequerimiento(requerimientoId, {
+                comentario,
+              })
+            } else if (operation === "aPriorizar") {
+              res = await enviarAPriorizarRequerimiento(requerimientoId, {
                 comentario,
               })
             }
@@ -290,6 +319,14 @@ const actions = {
           )
           dispatch("setDialogConfirmOperationOpen", true)
           break
+        case "reorder-assigned": {
+          console.log("targetList ", state.possibleChanges.targetList)
+          console.log("targetChanges ", state.possibleChanges.targetChanges)
+          console.log("payload ", state.possibleChanges.payload)
+
+          dispatch("clearOperations")
+          break
+        }
         default:
           dispatch("clearOperations")
           break
