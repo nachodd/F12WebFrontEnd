@@ -149,12 +149,14 @@ const actions = {
         if (!userRequerimientos && actualUserId) {
           userRequerimientos = actualUserId
         }
+
         const {
-          data: { data },
+          data: { data, meta },
         } = await listRequerimientos(userRequerimientos, filtros)
+
         commit("SET_MIS_REQUERIMIENTOS", data)
 
-        resolve()
+        resolve(meta)
       } catch (error) {
         reject(error)
       } finally {
