@@ -50,20 +50,39 @@ export default {
   data() {
     return {
       input: "",
+      widthInputDescripcion: 0,
     }
   },
   computed: {
-    widthInputDescripcion() {
-      console.log("refs", this.$refs)
-      // console.log("elemento", this.$refs.inputDescripcion.$el.clientWidth)
-      const val = _.get(this.$refs, "inputDescripcion.$el.clientWidth", 985)
-      console.log(val)
-      return val
-      // return 985
-    },
+    // widthInputDescripcion() {
+    //   console.log("refs", this.$refs)
+    //   // console.log("elemento", this.$refs.inputDescripcion.$el.clientWidth)
+    //   const val = _.get(this.$refs, "inputDescripcion.$el.clientWidth", 985)
+    //   console.log(val)
+    //   return val
+    //   // return 985
+    // },
   },
-  mounted() {
-    console.log("mounted", this.$refs.inputDescripcion.$el.clientWidth)
+  async mounted() {
+    await this.$nextTick()
+    // console.log("mounted", this.$refs.inputDescripcion.$el.clientWidth)
+    this.widthInputDescripcion = this.$refs.inputDescripcion.$el.clientWidth
+
+    this.$watch(
+      () => {
+        console.log("a1")
+        return this.$refs.inputDescripcion.$el.clientWidth
+      },
+      val => {
+        console.log("b1")
+        this.widthInputDescripcion = val
+      },
+    )
+  },
+  methods: {
+    setWidth(a) {
+      console.log(a)
+    },
   },
 }
 </script>
