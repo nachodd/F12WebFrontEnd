@@ -141,3 +141,16 @@ export function pasarAProcesosRequerimiento(requerimientoId, data) {
     data,
   })
 }
+
+export function enviarAPriorizarRequerimiento(requerimientoId, comentario) {
+  const data = {
+    requerimiento_tipo: 2,
+    requerimiento_estado: 1,
+    comentario,
+  }
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/cambioTipo`,
+    method: "put",
+    data,
+  })
+}
