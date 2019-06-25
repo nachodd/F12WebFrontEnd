@@ -34,6 +34,6 @@ export default {
 
 <style lang="scss" scoped>
 .list-container {
-  height: 290px;
+  min-height: 290px;
 }
 </style>

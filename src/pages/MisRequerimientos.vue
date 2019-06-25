@@ -1,10 +1,20 @@
 <template>
   <q-page padding>
     <page-header title="Mis Requerimientos" />
+
     <mis-requerimientos-listado
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
     />
+    <div class="q-pa-lg flex flex-center">
+      <q-pagination
+        v-model="current"
+        color="deep-purple-10"
+        :max="lastPage"
+        :max-pages="8"
+        :boundary-numbers="true"
+      ></q-pagination>
+    </div>
     <dialog-detalle-requerimiento />
   </q-page>
 </template>
@@ -21,36 +31,60 @@ export default {
     MisRequerimientosListado,
     DialogDetalleRequerimiento,
   },
+  data() {
+    return {
+      current: 1,
+      page: 1,
+      perPage: 10,
+      lastPage: 0,
+    }
+  },
   computed: {
     ...mapState("requerimientos", {
       loadingRequerimiento: state => state.loadingRequerimiento,
       misRequerimientos: state => state.misRequerimientos,
     }),
   },
-  async mounted() {
-    try {
-      const filtros = {
-        seccion_id: null,
-        sistema_id: null,
-        requerimiento_tipo: null,
-        requerimiento_estado: null,
-        fecha_desde: null,
-        fecha_hasta: null,
-        descripcion: null,
+  watch: {
+    current() {
+      this.getListRequerimientos()
+    },
+  },
+  mounted() {
+    this.getListRequerimientos()
+  },
+  methods: {
+    async getListRequerimientos() {
+      try {
+        const filtros = {
+          seccion_id: null,
+          sistema_id: null,
+          requerimiento_tipo: null,
+          requerimiento_estado: null,
+          fecha_desde: null,
+          fecha_hasta: null,
+          descripcion: null,
 
-        page: 1,
-        perPage: 10,
+          page: this.current,
+          perPage: 10,
+        }
+
+        const a = await this.$store.dispatch(
+          "requerimientos/listRequerimientos",
+          {
+            filtros,
+          },
+        )
+
+        this.lastPage = a.last_page
+        // this.current = a.current_page
+      } catch (e) {
+        const message =
+          e.message ||
+          "Hubo un problema al cargar el listado de sus Requerimientos. Intente nuevamente más tarde"
+        warn({ message })
       }
-
-      await this.$store.dispatch("requerimientos/listRequerimientos", {
-        filtros,
-      })
-    } catch (e) {
-      const message =
-        e.message ||
-        "Hubo un problema al cargar el listado de sus Requerimientos. Intente nuevamente más tarde"
-      warn({ message })
-    }
+    },
   },
 }
 </script>
