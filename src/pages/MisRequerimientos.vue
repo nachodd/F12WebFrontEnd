@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <page-header title="Mis Requerimientos" />
-    <MisRequerimientosMenuFiltros />
+    <MisRequerimientosMenuFiltros v-bind.sync="filtros" />
     <mis-requerimientos-listado
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
@@ -39,6 +39,9 @@ export default {
       page: 1,
       perPage: 10,
       lastPage: 0,
+      filtros: {
+        sistemaId: null,
+      },
     }
   },
   computed: {
@@ -52,8 +55,9 @@ export default {
       this.getListRequerimientos()
     },
   },
-  mounted() {
+  async mounted() {
     this.getListRequerimientos()
+    await this.$store.dispatch("requerimientos/createRequerimiento")
   },
   methods: {
     async getListRequerimientos() {
