@@ -34,6 +34,7 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QExpansionItem",
         "QToggle",
         "QBtnToggle",
         "QUploaderAddTrigger",

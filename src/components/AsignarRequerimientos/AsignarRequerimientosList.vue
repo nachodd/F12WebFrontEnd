@@ -1,5 +1,6 @@
 <template>
   <list-requerimientos :loading-list="loadingList" :title="title">
+    <slot name="filtro"></slot>
     <template v-if="draggable">
       <Container
         v-if="!loadingList"
@@ -33,6 +34,13 @@
           </Draggable>
         </template>
       </Container>
+    </template>
+    <template v-else>
+      <template v-if="listEmpty">
+        <div class="text-h6 text-center">
+          No hay requerimientos para mostrar!
+        </div>
+      </template>
       <template v-else>
         <asignar-requerimientos-item
           v-for="(req, index) in requerimientosList"

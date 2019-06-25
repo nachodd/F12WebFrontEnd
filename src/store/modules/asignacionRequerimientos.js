@@ -1,6 +1,6 @@
 import {
   getRequerimientosForPanelAsignacion,
-  asignarRequerimiento,
+  // asignarRequerimiento,
   desasignarRequerimiento,
   refuseRequerimiento,
   pasarAProcesosRequerimiento,
@@ -26,6 +26,7 @@ const state = {
       changesSetted: false,
     },
     payload: {},
+    newOrder: null,
   },
 }
 const getters = {
@@ -42,7 +43,7 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estAsignado.id },
     })
-    return _.orderBy(reqsResult, "tipo.id", "asc")
+    return _.orderBy(reqsResult, "prioridad", "asc")
   },
   requerimientosPendientes: (state, getters, rootState, rootGetters) => {
     const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
@@ -114,6 +115,25 @@ const getters = {
   },
   requerimientoIdToChange: state =>
     _.get(state.possibleChanges.payload, "id", ""),
+  newPosition: (state, getters) => {
+    // Si no hay requermientos mostrados, lo nueva posicion será la última
+    if (getters.requerimientosAsignados.length === 0) {
+      return state.requerimientos.length
+    }
+
+    const index = _.findIndex(state.possibleChanges.targetList, {
+      id: getters.requerimientoIdToChange,
+    })
+    debugger
+
+    const nextReq = getters.requerimientosAsignados[index + 1]
+    if (nextReq) {
+      return nextReq.prioridad
+    } else {
+      // lo puso al final de la lista
+      return null // getters.requerimientosAsignados.length
+    }
+  },
 }
 
 const mutations = {
@@ -154,6 +174,7 @@ const mutations = {
       }
     }
     state.possibleChanges.payload = {}
+    state.possibleChanges.newOrder = null
     state.dialogConfirmOpen = false
   },
 }
@@ -182,7 +203,7 @@ const actions = {
     })
   },
   updateRequerimientoState(
-    { commit, rootGetters, state },
+    { commit, rootGetters, getters, state },
     { operation, requerimientoId, comentario, ...data },
   ) {
     return new Promise(async (resolve, reject) => {
@@ -195,6 +216,10 @@ const actions = {
         switch (operation) {
           case "asignar": {
             // se arma el objeto para enviar a la api y se la llama
+            const position = getters.newPosition
+            console.log(position)
+            debugger
+
             const dataAsignar = {
               usuario: userId,
               usuario_asignado: data.usuarioAsignado.value,
@@ -202,8 +227,9 @@ const actions = {
               horas_estimadas: data.horasEstimadas,
               comentario,
             }
-            const res = await asignarRequerimiento(requerimientoId, dataAsignar)
-            message = _.get(res, "data.message", null)
+            console.log(dataAsignar)
+            // const res = await asignarRequerimiento(requerimientoId, dataAsignar)
+            // message = _.get(res, "data.message", null)
 
             // Se armar el objeto 'estado' para actualizar el objeto en el array local
             const estadoAsignado = rootGetters[

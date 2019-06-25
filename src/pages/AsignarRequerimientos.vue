@@ -34,7 +34,11 @@
           :draggable="true"
           group-name="asignarRequerimientos"
           list-name="target"
-        />
+        >
+          <template v-slot:filtro>
+            <asignar-requerimientos-filtros-asignados />
+          </template>
+        </asignar-requerimientos-list>
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
@@ -57,6 +61,7 @@ import PageHeader from "@comp/Common/PageHeader"
 import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequerimientosList"
 import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 import AsignarRequerimientosDialogConfirmOperation from "@comp/AsignarRequerimientos/AsignarRequerimientosDialogConfirmOperation"
+import AsignarRequerimientosFiltrosAsignados from "@comp/AsignarRequerimientos/AsignarRequerimientosFiltrosAsignados"
 
 export default {
   name: "AsignarRequerimientos",
@@ -65,6 +70,7 @@ export default {
     AsignarRequerimientosList,
     DialogDetalleRequerimiento,
     AsignarRequerimientosDialogConfirmOperation,
+    AsignarRequerimientosFiltrosAsignados,
   },
   mixins: [pageLoading],
   data: () => ({
@@ -85,7 +91,7 @@ export default {
       if (this.test) {
         return this.requerimientosAsignados
       } else {
-        return this.requerimientosAsignados.filter(r => r.id != 67)
+        return this.requerimientosAsignados.filter(r => r.id != 66)
       }
     },
   },
