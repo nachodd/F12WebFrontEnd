@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <page-header title="Mis Requerimientos" />
-
+    <MisRequerimientosMenuFiltros />
     <mis-requerimientos-listado
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
@@ -23,6 +23,7 @@ import { mapState } from "vuex"
 import { warn } from "@utils/helpers"
 import PageHeader from "@comp/Common/PageHeader"
 import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
+import MisRequerimientosMenuFiltros from "@comp/MisRequerimientos/MisRequerimientosMenuFiltros"
 import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 
 export default {
@@ -30,6 +31,7 @@ export default {
     PageHeader,
     MisRequerimientosListado,
     DialogDetalleRequerimiento,
+    MisRequerimientosMenuFiltros,
   },
   data() {
     return {
