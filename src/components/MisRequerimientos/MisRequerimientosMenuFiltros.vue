@@ -1,12 +1,18 @@
 <template>
   <div class="q-pa-md">
-    <q-input ref="inputDescripcion" v-model="input" filled placeholder="Buscar">
+    <q-input
+      ref="inputDescripcion"
+      v-model="__descripcion"
+      filled
+      placeholder="Buscar"
+      @keyup.enter="buscar"
+    >
       <template v-slot:prepend>
         <q-icon name="search" />
       </template>
       <template v-slot:append>
         <q-icon name="arrow_drop_down" class="cursor-pointer">
-          <q-popup-proxy :offset="[14, 14]">
+          <q-popup-proxy ref="popupproxy" :offset="[14, 14]">
             <div
               class="row no-wrap q-pa-md q-col-gutter-xs"
               :style="{ width: widthInputDescripcion + 'px' }"
@@ -40,7 +46,12 @@
               </div>
             </div>
             <div class="row q-pa-md justify-end">
-              <q-btn @click.native="buscar" color="deep-purple-10" size="md">
+              <q-btn
+                v-close-popup
+                size="md"
+                color="deep-purple-10"
+                @click.native="buscar"
+              >
                 Buscar
               </q-btn>
             </div>
@@ -68,6 +79,10 @@ export default {
     },
     requerimientoTipo: {
       type: Object,
+      default: null,
+    },
+    descripcion: {
+      type: String,
       default: null,
     },
   },
@@ -100,13 +115,24 @@ export default {
         this.$emit("update:requerimientoTipo", value)
       },
     },
+    __descripcion: {
+      get() {
+        return this.descripcion
+      },
+      set(value) {
+        this.$emit("update:descripcion", value)
+      },
+    },
+  },
+  mounted() {
+    // console.log(this.refs)
+    // this.refs.popupproxy.removeEventListener("scroll")
+    // let elm = svgObjectEl.removeEventListener('load', this.listener)
   },
   methods: {
     onResize(size) {
-      // console.log("resize!", size)
       this.widthInputDescripcion = size.width + 60 + 41
     },
-
     buscar() {
       this.$emit("buscar")
     },
