@@ -13,7 +13,9 @@
       >
         <template v-if="listEmpty">
           <div class="text-h6 text-center">
-            No hay requerimientos para mostrar!
+            No hay requerimientos
+            <br />
+            para mostrar!
           </div>
         </template>
         <template v-else>
@@ -38,7 +40,9 @@
     <template v-else>
       <template v-if="listEmpty">
         <div class="text-h6 text-center">
-          No hay requerimientos para mostrar!
+          No hay requerimientos
+          <br />
+          para mostrar!
         </div>
       </template>
       <template v-else>

@@ -75,12 +75,16 @@
         </q-badge>
         &nbsp;
         <q-badge
+          v-if="estadoNoAsignado"
           :style="{
             color: getColorPrioridadText(req.prioridad),
             backgroundColor: getColorPrioridad(req.prioridad),
           }"
         >
           PR: {{ req.prioridad }}
+        </q-badge>
+        <q-badge v-if="estadoAsignado" color="red-7" text-color="white">
+          PR: {{ req.asignacion.orden }}
         </q-badge>
         &nbsp;
       </div>
@@ -123,6 +127,14 @@ export default {
     estadoEnProcesos() {
       const estEnProcesos = this.getEstadoByCodigo("STPR")
       return this.req.estado.id === estEnProcesos.id
+    },
+    estadoNoAsignado() {
+      const estNoAsig = this.getEstadoByCodigo("NOAS")
+      return this.req.estado.id === estNoAsig.id
+    },
+    estadoAsignado() {
+      const estAsig = this.getEstadoByCodigo("ASSI")
+      return this.req.estado.id === estAsig.id
     },
     estadoProcesos() {
       const estNoAsig = this.getEstadoByCodigo("NOAS")

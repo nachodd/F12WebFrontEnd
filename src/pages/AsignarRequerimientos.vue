@@ -9,12 +9,11 @@
         Desarrollo / Mejora &nbsp;&nbsp;
       </div>
     </div>
-    <div class="row q-py-md">
+    <div class="row">
       <div class="col">
-        <q-toggle v-model="test" val="one" label="One" />
+        <asignar-requerimientos-filtros v-bind.sync="filtros" />
       </div>
     </div>
-
     <div class="row q-pt-md q-col-gutter-sm">
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
@@ -28,7 +27,7 @@
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosAsignadosTest"
+          :requerimientos-list="requerimientosAsignados"
           :loading-list="loadingList"
           title="Requerimientos Asignados"
           :draggable="true"
@@ -57,7 +56,7 @@ import PageHeader from "@comp/Common/PageHeader"
 import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequerimientosList"
 import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 import AsignarRequerimientosDialogConfirmOperation from "@comp/AsignarRequerimientos/AsignarRequerimientosDialogConfirmOperation"
-import AsignarRequerimientosFiltrosAsignados from "@comp/AsignarRequerimientos/AsignarRequerimientosFiltrosAsignados"
+import AsignarRequerimientosFiltros from "@comp/AsignarRequerimientos/AsignarRequerimientosFiltros"
 
 export default {
   name: "AsignarRequerimientos",
@@ -66,12 +65,15 @@ export default {
     AsignarRequerimientosList,
     DialogDetalleRequerimiento,
     AsignarRequerimientosDialogConfirmOperation,
-    AsignarRequerimientosFiltrosAsignados,
+    AsignarRequerimientosFiltros,
   },
   mixins: [pageLoading],
   data: () => ({
+    filtros: {
+      sistemaId: null,
+      requerimientoTipo: null,
+    },
     // loadingList: false,
-    test: false,
   }),
   computed: {
     ...mapState("asignacionRequerimientos", {
@@ -83,15 +85,9 @@ export default {
       "requerimientosAsignados",
       "requerimientosPendientes",
     ]),
-    requerimientosAsignadosTest() {
-      if (this.test) {
-        return this.requerimientosAsignados
-      } else {
-        return this.requerimientosAsignados.filter(r => r.id != 66)
-      }
-    },
   },
   created() {
+    this.$store.dispatch("requerimientos/createRequerimiento")
     this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
   },
 }

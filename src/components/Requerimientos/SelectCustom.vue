@@ -9,6 +9,7 @@
     :options="filteredOptions"
     :loading="loading"
     :disable="loading"
+    :dense="dense"
     :rules="rules"
     use-input
     @filter="filterFunction"
@@ -48,6 +49,10 @@ export default {
     loading: {
       type: Boolean,
       default: true,
+    },
+    dense: {
+      type: Boolean,
+      default: false,
     },
     idKey: {
       type: String,
