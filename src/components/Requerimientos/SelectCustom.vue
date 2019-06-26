@@ -2,6 +2,7 @@
   <q-select
     v-model="localValue"
     outlined
+    :dense="dense"
     :hide-bottom-space="true"
     :label="label"
     :option-value="idKey"

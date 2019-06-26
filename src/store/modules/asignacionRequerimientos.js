@@ -43,7 +43,7 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estAsignado.id },
     })
-    return _.orderBy(reqsResult, "prioridad", "asc")
+    return _.orderBy(reqsResult, "[asignacion.orden]", "asc")
   },
   requerimientosPendientes: (state, getters, rootState, rootGetters) => {
     const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
@@ -116,15 +116,9 @@ const getters = {
   requerimientoIdToChange: state =>
     _.get(state.possibleChanges.payload, "id", ""),
   newPosition: (state, getters) => {
-    // Si no hay requermientos mostrados, lo nueva posicion será la última
-    // if (getters.requerimientosAsignados.length === 0) {
-    //   return state.requerimientos.length
-    // }
-
     const index = _.findIndex(state.possibleChanges.targetList, {
       id: getters.requerimientoIdToChange,
     })
-    debugger
 
     const nextReq = getters.requerimientosAsignados[index + 1]
     if (nextReq) {
