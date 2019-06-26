@@ -1,69 +1,106 @@
 <template>
   <div class="q-pa-md">
-    <q-input ref="inputDescripcion" v-model="input" filled>
+    <q-input ref="inputDescripcion" v-model="input" filled placeholder="Buscar">
+      <template v-slot:prepend>
+        <q-icon name="search" />
+      </template>
       <template v-slot:append>
         <q-icon name="arrow_drop_down" class="cursor-pointer">
           <q-popup-proxy :offset="[14, 14]">
-            <!-- <q-banner class="bg-purple text-white">
-              <template v-slot:avatar>
-                <q-icon name="signal_wifi_off" />
-              </template>
-              You have lost connection to the internet. This app is offline.
-            </q-banner>-->
             <div
-              class="row no-wrap q-pa-md"
+              class="row no-wrap q-pa-md q-col-gutter-xs"
               :style="{ width: widthInputDescripcion + 'px' }"
             >
-              <div class="column">
-                <div class="text-h6 q-mb-md">Settings</div>
-                <!-- <q-toggle v-model="mobileData" label="Use Mobile Data" />
-                <q-toggle v-model="bluetooth" label="Bluetooth" />-->
+              <!-- <div class="column items-center">
+                <div class>John Doe</div>
+
+                  <q-btn
+                    v-close-popup
+                    color="primary"
+                    label="Logout"
+                    push
+                    size="sm"
+                />
+              </div>-->
+              <div class="col-6">
+                <select-custom
+                  v-model="__sistema"
+                  :options="sistemas"
+                  label="Sistema"
+                  :loading="sistemas.length === 0"
+                />
               </div>
-
-              <q-separator vertical inset class="q-mx-lg" />
-
-              <div class="column items-center">
-                <q-avatar size="72px">
-                  <img src="https://cdn.quasar.dev/img/avatar4.jpg" />
-                </q-avatar>
-
-                <div class="text-subtitle1 q-mt-md q-mb-xs">John Doe</div>
-
-                <q-btn
-                  v-close-popup
-                  color="primary"
-                  label="Logout"
-                  push
-                  size="sm"
+              <div class="col-6">
+                <select-custom
+                  v-model="__tipo"
+                  :options="requerimientosTipos"
+                  label="Tipo de Requerimiento"
+                  :loading="requerimientosTipos.length === 0"
                 />
               </div>
             </div>
           </q-popup-proxy>
         </q-icon>
       </template>
+      <q-resize-observer @resize="onResize" />
     </q-input>
   </div>
 </template>
 <script>
+import SelectCustom from "@comp/Requerimientos/SelectCustom"
+import { mapState } from "vuex"
 export default {
   name: "MisRequerimientosMenuFiltros",
+  components: { SelectCustom },
+  props: {
+    sistemaId: {
+      type: Object,
+      default: null,
+    },
+    seccionId: {
+      type: Object,
+      default: null,
+    },
+    requerimientoTipo: {
+      type: Object,
+      default: null,
+    },
+  },
   data() {
     return {
       input: "",
+      widthInputDescripcion: 0,
     }
   },
   computed: {
-    widthInputDescripcion() {
-      console.log("refs", this.$refs)
-      // console.log("elemento", this.$refs.inputDescripcion.$el.clientWidth)
-      const val = _.get(this.$refs, "inputDescripcion.$el.clientWidth", 985)
-      console.log(val)
-      return val
-      // return 985
+    ...mapState("requerimientos", {
+      areas: state => state.options.areas,
+      sistemas: state => state.options.sistemas,
+      requerimientosTipos: state => state.options.requerimientosTipos,
+    }),
+
+    __sistema: {
+      get() {
+        return this.sistemaId
+      },
+      set(value) {
+        this.$emit("update:sistemaId", value)
+      },
+    },
+    __tipo: {
+      get() {
+        return this.requerimientoTipo
+      },
+      set(value) {
+        this.$emit("update:requerimientoTipo", value)
+      },
     },
   },
-  mounted() {
-    console.log("mounted", this.$refs.inputDescripcion.$el.clientWidth)
+  methods: {
+    onResize(size) {
+      console.log("resize!", size)
+      this.widthInputDescripcion = size.width + 60
+    },
   },
 }
 </script>

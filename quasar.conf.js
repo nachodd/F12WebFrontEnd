@@ -86,6 +86,7 @@ module.exports = function(ctx) {
         "QTabPanels",
         "QBanner",
         "QPagination",
+        "QResizeObserver",
       ],
 
       directives: ["Ripple", "ClosePopup"],
