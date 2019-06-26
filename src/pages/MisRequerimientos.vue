@@ -1,7 +1,10 @@
 <template>
   <q-page padding>
     <page-header title="Mis Requerimientos" />
-    <MisRequerimientosMenuFiltros v-bind.sync="filtros" />
+    <MisRequerimientosMenuFiltros
+      v-bind.sync="filtros"
+      @buscar="getListRequerimientos"
+    />
     <mis-requerimientos-listado
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
@@ -66,13 +69,13 @@ export default {
       try {
         const filtros = {
           seccion_id: null,
-          sistema_id: null,
-          requerimiento_tipo: null,
+          sistema_id: _.get(this.filtros.sistemaId, "id") || null,
+          requerimiento_tipo:
+            _.get(this.filtros.requerimientoTipo, "id") || null,
           requerimiento_estado: null,
           fecha_desde: null,
           fecha_hasta: null,
           descripcion: null,
-
           page: this.current,
           perPage: 10,
         }
