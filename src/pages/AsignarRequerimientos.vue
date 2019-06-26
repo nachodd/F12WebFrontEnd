@@ -34,11 +34,7 @@
           :draggable="true"
           group-name="asignarRequerimientos"
           list-name="target"
-        >
-          <template v-slot:filtro>
-            <asignar-requerimientos-filtros-asignados />
-          </template>
-        </asignar-requerimientos-list>
+        />
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list

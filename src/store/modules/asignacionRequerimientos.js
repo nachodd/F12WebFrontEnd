@@ -117,9 +117,9 @@ const getters = {
     _.get(state.possibleChanges.payload, "id", ""),
   newPosition: (state, getters) => {
     // Si no hay requermientos mostrados, lo nueva posicion será la última
-    if (getters.requerimientosAsignados.length === 0) {
-      return state.requerimientos.length
-    }
+    // if (getters.requerimientosAsignados.length === 0) {
+    //   return state.requerimientos.length
+    // }
 
     const index = _.findIndex(state.possibleChanges.targetList, {
       id: getters.requerimientoIdToChange,
