@@ -9,7 +9,7 @@
     :options="filteredOptions"
     :loading="loading"
     :disable="loading"
-    :rules="[notEmpty]"
+    :rules="rules"
     use-input
     @filter="filterFunction"
   >
@@ -32,6 +32,10 @@ export default {
     value: {
       type: [Object, String],
       default: null,
+    },
+    applyValidation: {
+      type: Boolean,
+      default: false,
     },
     options: {
       type: Array,
@@ -68,6 +72,9 @@ export default {
       set(localValue) {
         this.$emit("input", localValue)
       },
+    },
+    rules() {
+      return this.applyValidation ? [this.notEmpty] : []
     },
   },
   watch: {

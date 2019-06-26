@@ -45,6 +45,7 @@ export default {
       filtros: {
         sistemaId: null,
         requerimientoTipo: null,
+        descripcion: null,
         // seccionId:null
       },
     }
@@ -75,7 +76,7 @@ export default {
           requerimiento_estado: null,
           fecha_desde: null,
           fecha_hasta: null,
-          descripcion: null,
+          descripcion: this.filtros.descripcion,
           page: this.current,
           perPage: 10,
         }
