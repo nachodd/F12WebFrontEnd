@@ -39,6 +39,11 @@
                 />
               </div>
             </div>
+            <div class="row q-pa-md justify-end">
+              <q-btn @click.native="buscar" color="deep-purple-10" size="md">
+                Buscar
+              </q-btn>
+            </div>
           </q-popup-proxy>
         </q-icon>
       </template>
@@ -98,8 +103,12 @@ export default {
   },
   methods: {
     onResize(size) {
-      console.log("resize!", size)
-      this.widthInputDescripcion = size.width + 60
+      // console.log("resize!", size)
+      this.widthInputDescripcion = size.width + 60 + 41
+    },
+
+    buscar() {
+      this.$emit("buscar")
     },
   },
 }
