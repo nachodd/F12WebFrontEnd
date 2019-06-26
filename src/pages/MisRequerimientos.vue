@@ -41,6 +41,8 @@ export default {
       lastPage: 0,
       filtros: {
         sistemaId: null,
+        requerimientoTipo: null,
+        // seccionId:null
       },
     }
   },

@@ -1,11 +1,14 @@
 <template>
   <div class="q-pa-md">
     <q-input ref="inputDescripcion" v-model="input" filled placeholder="Buscar">
+      <template v-slot:prepend>
+        <q-icon name="search" />
+      </template>
       <template v-slot:append>
         <q-icon name="arrow_drop_down" class="cursor-pointer">
           <q-popup-proxy :offset="[14, 14]">
             <div
-              class="row no-wrap q-pa-md"
+              class="row no-wrap q-pa-md q-col-gutter-xs"
               :style="{ width: widthInputDescripcion + 'px' }"
             >
               <!-- <div class="column items-center">
@@ -19,12 +22,20 @@
                     size="sm"
                 />
               </div>-->
-              <div class="col-3">
+              <div class="col-6">
                 <select-custom
                   v-model="__sistema"
                   :options="sistemas"
                   label="Sistema"
                   :loading="sistemas.length === 0"
+                />
+              </div>
+              <div class="col-6">
+                <select-custom
+                  v-model="__tipo"
+                  :options="requerimientosTipos"
+                  label="Tipo de Requerimiento"
+                  :loading="requerimientosTipos.length === 0"
                 />
               </div>
             </div>
@@ -43,6 +54,14 @@ export default {
   components: { SelectCustom },
   props: {
     sistemaId: {
+      type: Object,
+      default: null,
+    },
+    seccionId: {
+      type: Object,
+      default: null,
+    },
+    requerimientoTipo: {
       type: Object,
       default: null,
     },
@@ -66,6 +85,14 @@ export default {
       },
       set(value) {
         this.$emit("update:sistemaId", value)
+      },
+    },
+    __tipo: {
+      get() {
+        return this.requerimientoTipo
+      },
+      set(value) {
+        this.$emit("update:requerimientoTipo", value)
       },
     },
   },
