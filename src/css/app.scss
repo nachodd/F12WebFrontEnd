@@ -31,6 +31,9 @@
     color: rgba(0, 0, 0, 0.87);
   }
 }
+.q-field--standout.q-field--focused .q-select__input {
+  color: black;
+}
 
 .transition-wrapper {
   margin-top: 10px;

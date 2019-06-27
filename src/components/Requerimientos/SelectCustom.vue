@@ -1,7 +1,8 @@
 <template>
   <q-select
     v-model="localValue"
-    outlined
+    :outlined="outlined"
+    :standout="standout"
     :hide-bottom-space="true"
     :label="label"
     :option-value="idKey"
@@ -31,7 +32,7 @@ export default {
   mixins: [formValidation],
   props: {
     value: {
-      type: [Object, String],
+      type: [Object, String, Array],
       default: null,
     },
     applyValidation: {
@@ -62,6 +63,14 @@ export default {
       type: String,
       default: "descripcion",
     },
+    outlined: {
+      type: Boolean,
+      default: true,
+    },
+    standout: {
+      type: Boolean,
+      default: false,
+    },
     // rules: Array,
   },
   data() {
@@ -82,23 +91,7 @@ export default {
       return this.applyValidation ? [this.notEmpty] : []
     },
   },
-  watch: {
-    // value(val) {
-    //   console.log(val)
-    //   // Fix para limpiar el valor cuando colapsa
-    //   if (val === null) {
-    //     this.selectedValue = null
-    //   }
-    // },
-  },
   methods: {
-    // handleInput() {
-    //   this.$emit(
-    //     "input",
-    //     this.value,
-    //     // (this.selectedValue && this.selectedValue[this.idKey]) || "",
-    //   )
-    // },
     filterFunction(val, update) {
       if (val === "") {
         update(() => {

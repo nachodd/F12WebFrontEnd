@@ -54,11 +54,8 @@
       </div>
     </div>
 
-    <div class="row justify-around">
-      <div
-        class="text-left"
-        :class="{ 'col-3': !esArregloRapido, 'col-12': esArregloRapido }"
-      >
+    <div class="row justify-between">
+      <div class="text-left col-3">
         <q-badge
           :class="{
             'nro-req--default': !esArregloRapido,
@@ -69,7 +66,10 @@
         </q-badge>
         &nbsp;
       </div>
-      <div v-if="!esArregloRapido" class="col-9 text-right">
+      <div
+        v-if="!esArregloRapido && (estadoNoAsignado || estadoEnProcesos)"
+        class="col-9 text-right"
+      >
         <q-badge v-if="estadoEnProcesos" color="green-7" text-color="white">
           EN PROCESOS
         </q-badge>
@@ -83,8 +83,10 @@
         >
           PR: {{ req.prioridad }}
         </q-badge>
-        <q-badge v-if="estadoAsignado" color="red-7" text-color="white">
-          PR: {{ req.asignacion.orden }}
+      </div>
+      <div v-if="estadoAsignado" class="col-3 text-right">
+        <q-badge color="red-7" text-color="white">
+          ORDEN: {{ reqOrden }}
         </q-badge>
         &nbsp;
       </div>
@@ -113,6 +115,9 @@ export default {
     ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
     esArregloRapido() {
       return this.req.tipo.id === 1
+    },
+    reqOrden() {
+      return _.get(this, "req.estado.asignacion.orden", "")
     },
     estaAsignado() {
       const estaAsignado = _.get(this, "req.estado.asignacion", null)

@@ -11,13 +11,13 @@
     </div>
     <div class="row">
       <div class="col">
-        <asignar-requerimientos-filtros v-bind.sync="filtros" />
+        <asignar-requerimientos-filtros />
       </div>
     </div>
     <div class="row q-pt-md q-col-gutter-sm">
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosSinAsignarFiltered"
+          :requerimientos-list="requerimientosFiltered('NOAS')"
           :loading-list="loadingList"
           title="Requerimientos Por Asignar"
           :draggable="true"
@@ -37,7 +37,7 @@
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosPendientesFiltered"
+          :requerimientos-list="requerimientosFiltered('EXEC')"
           :loading-list="loadingList"
           title="Requerimientos en Ejecucion"
         />
@@ -57,11 +57,6 @@ import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequer
 import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 import AsignarRequerimientosDialogConfirmOperation from "@comp/AsignarRequerimientos/AsignarRequerimientosDialogConfirmOperation"
 import AsignarRequerimientosFiltros from "@comp/AsignarRequerimientos/AsignarRequerimientosFiltros"
-import {
-  filterByAsuntoAndDescripcion,
-  filterBySistema,
-  filterByTipoRequerimiento,
-} from "@utils/requerimientos"
 
 export default {
   name: "AsignarRequerimientos",
@@ -73,72 +68,16 @@ export default {
     AsignarRequerimientosFiltros,
   },
   mixins: [pageLoading],
-  data: () => ({
-    filtros: {
-      sistema: null,
-      requerimientoTipo: null,
-      descripcion: null,
-    },
-    // loadingList: false,
-  }),
+  // data: () => ({}),
   computed: {
     ...mapState("asignacionRequerimientos", {
       reqs: state => state.requerimientos,
       loadingList: state => state.loadingRequerimientos,
     }),
     ...mapGetters("asignacionRequerimientos", [
-      "requerimientosSinAsignar",
-      "requerimientosAsignados",
-      "requerimientosPendientes",
+      "requerimientosFiltered",
+      "requerimientosAsignadosFiltered",
     ]),
-    requerimientosSinAsignarFiltered() {
-      let reqs = [...this.requerimientosSinAsignar]
-      let descripcion = this.filtros.descripcion || null
-      let sistema = this.filtros.sistema || null
-      let requerimientoTipo = this.filtros.requerimientoTipo || null
-      if (descripcion !== null) {
-        reqs = filterByAsuntoAndDescripcion(reqs, descripcion)
-      }
-      if (sistema && sistema.id) {
-        reqs = filterBySistema(reqs, sistema.id)
-      }
-      if (requerimientoTipo && requerimientoTipo.id) {
-        reqs = filterByTipoRequerimiento(reqs, requerimientoTipo.id)
-      }
-      return reqs
-    },
-    requerimientosAsignadosFiltered() {
-      let reqs = [...this.requerimientosAsignados]
-      let descripcion = this.filtros.descripcion || null
-      let sistema = this.filtros.sistema || null
-      let requerimientoTipo = this.filtros.requerimientoTipo || null
-      if (descripcion !== null) {
-        reqs = filterByAsuntoAndDescripcion(reqs, descripcion)
-      }
-      if (sistema && sistema.id) {
-        reqs = filterBySistema(reqs, sistema.id)
-      }
-      if (requerimientoTipo && requerimientoTipo.id) {
-        reqs = filterByTipoRequerimiento(reqs, requerimientoTipo.id)
-      }
-      return reqs
-    },
-    requerimientosPendientesFiltered() {
-      let reqs = [...this.requerimientosPendientes]
-      let descripcion = this.filtros.descripcion || null
-      let sistema = this.filtros.sistema || null
-      let requerimientoTipo = this.filtros.requerimientoTipo || null
-      if (descripcion !== null) {
-        reqs = filterByAsuntoAndDescripcion(reqs, descripcion)
-      }
-      if (sistema && sistema.id) {
-        reqs = filterBySistema(reqs, sistema.id)
-      }
-      if (requerimientoTipo && requerimientoTipo.id) {
-        reqs = filterByTipoRequerimiento(reqs, requerimientoTipo.id)
-      }
-      return reqs
-    },
   },
   created() {
     this.$store.dispatch("requerimientos/createRequerimiento")

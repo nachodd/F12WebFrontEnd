@@ -20,55 +20,95 @@
             content-class="z-index-fix"
           >
             <div
-              class="row no-wrap q-pa-md q-col-gutter-xs"
+              class="q-pa-md"
               :style="{ width: widthInputDescripcion + 'px' }"
             >
-              <div class="col-xs-12 col-sm-6">
-                <select-custom
-                  v-model="__sistema"
-                  :options="sistemasUsuarioOptions"
-                  dense
-                  label="Sistema"
-                  :loading="sistemas.length === 0"
-                />
+              <div class="row q-pt-sm q-col-gutter-xs">
+                <div class="col-xs-12 col-sm-6">
+                  <select-custom
+                    v-model="__sistema"
+                    :options="sistemasUsuarioOptions"
+                    dense
+                    :outlined="false"
+                    standout
+                    label="Sistema"
+                    :loading="sistemas.length === 0"
+                  />
+                </div>
+                <div class="col-xs-12 col-sm-6">
+                  <select-custom
+                    v-model="__tipo"
+                    :options="requerimientosTipos"
+                    label="Tipo de Requerimiento"
+                    dense
+                    :outlined="false"
+                    standout
+                    :loading="requerimientosTipos.length === 0"
+                  />
+                </div>
               </div>
-              <div class="col-xs-12 col-sm-6">
-                <select-custom
-                  v-model="__tipo"
-                  :options="requerimientosTipos"
-                  label="Tipo de Requerimiento"
-                  dense
-                  :loading="requerimientosTipos.length === 0"
-                />
+              <div class="row q-pt-sm q-col-gutter-xs">
+                <div class="col-xs-12 col-sm-6">
+                  <span class="text-caption">
+                    Usuarios Asignados (Requerimientos Asignados y En Ejecución)
+                  </span>
+                  <q-select
+                    v-model="__usuariosAsignados"
+                    :options="usuariosAsignadosOptionsFiltered"
+                    clearable
+                    standout
+                    dense
+                    :hide-bottom-space="true"
+                    label="Usuarios Asignados"
+                    use-input
+                    use-chips
+                    multiple
+                    @filter="filterUsuariosAsignados"
+                  />
+                </div>
               </div>
-            </div>
-            <div class="row q-pa-md justify-end">
-              <q-btn color="deep-purple-10" size="md" @click="filtrar">
-                Filtrar
-              </q-btn>
+              <div class="row q-pt-sm justify-end">
+                <q-btn color="deep-purple-10" size="md" @click="filtrar">
+                  Filtrar
+                </q-btn>
+              </div>
             </div>
           </q-menu>
         </q-icon>
       </template>
       <q-resize-observer @resize="onResize" />
     </q-input>
-    <div class="row">
-      <div v-if="sistemaSetted" class="col">
+    <div class="q-mt-sm">
+      <span v-if="sistemaSetted || tipoRequerimientoSetted">
+        Filtros:
+      </span>
+      <span v-if="sistemaSetted" class="q-mx-xs">
         <q-chip removable @remove="removeFilter('sistema')">
           <q-avatar color="red" text-color="white" class="filter-label">
             Sist:
           </q-avatar>
           {{ sistemaDescripcion }}
+          <q-tooltip>Sistema</q-tooltip>
         </q-chip>
-      </div>
-      <div v-if="tipoRequerimientoSetted" class="col">
-        <q-chip removable @remove="removeFilter('tipo')">
+      </span>
+      <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
+        <q-chip removable @remove="removeFilter('requerimientoTipo')">
           <q-avatar color="blue" text-color="white" class="filter-label">
             Tipo:
           </q-avatar>
           {{ tipoRequerimientoDescripcion }}
+          <q-tooltip>Tipo de Requerimiento</q-tooltip>
         </q-chip>
-      </div>
+      </span>
+      <span v-if="usuariosAsignadosSetted" class="q-mx-xs">
+        <q-chip removable @remove="removeFilter('usuariosAsignados')">
+          <q-avatar color="green" text-color="white" class="filter-label">
+            U.A.:
+          </q-avatar>
+          {{ usuariosAsignadosDescripcion }}
+          <q-tooltip>Usuarios Asignados</q-tooltip>
+        </q-chip>
+      </span>
     </div>
   </div>
 </template>
@@ -78,29 +118,13 @@ import { mapState, mapGetters } from "vuex"
 export default {
   name: "MisRequerimientosMenuFiltros",
   components: { SelectCustom },
-  props: {
-    sistema: {
-      type: Object,
-      default: null,
-    },
-    seccionId: {
-      type: Object,
-      default: null,
-    },
-    requerimientoTipo: {
-      type: Object,
-      default: null,
-    },
-    descripcion: {
-      type: String,
-      default: null,
-    },
-  },
+  props: {},
   data() {
     return {
       input: "",
       widthInputDescripcion: 0,
       popupOpened: false,
+      usuariosAsignadosOptionsFiltered: null,
     }
   },
   computed: {
@@ -109,7 +133,8 @@ export default {
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
-    ...mapGetters("auth", ["userSistemas"]),
+    ...mapGetters("auth", ["userSistemas", "userReportantes"]),
+    // Filtro solo los sistemas que tiene el usuario logueado
     sistemasUsuarioOptions() {
       return _.filter(this.sistemas, s => {
         return _.findIndex(this.userSistemas, { id: s.id }) !== -1
@@ -117,58 +142,101 @@ export default {
     },
     __descripcion: {
       get() {
-        return this.descripcion
+        return this.$store.state.asignacionRequerimientos.filtros.descripcion
       },
       set(value) {
-        this.$emit("update:descripcion", value)
+        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+          filter: "descripcion",
+          value,
+        })
       },
     },
     __sistema: {
       get() {
-        return this.sistema
+        return this.$store.state.asignacionRequerimientos.filtros.sistema
       },
       set(value) {
-        this.$emit("update:sistema", value)
+        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+          filter: "sistema",
+          value,
+        })
       },
     },
     __tipo: {
       get() {
-        return this.requerimientoTipo
+        return this.$store.state.asignacionRequerimientos.filtros
+          .requerimientoTipo
       },
       set(value) {
-        this.$emit("update:requerimientoTipo", value)
+        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+          filter: "requerimientoTipo",
+          value,
+        })
+      },
+    },
+    __usuariosAsignados: {
+      get() {
+        return this.$store.state.asignacionRequerimientos.filtros
+          .usuariosAsignados
+      },
+      set(value) {
+        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+          filter: "usuariosAsignados",
+          value,
+        })
       },
     },
     iconOpenFilter() {
       return this.popupOpened ? "arrow_drop_up" : "arrow_drop_down"
     },
     sistemaDescripcion() {
-      return _.get(this, "sistema.descripcion", null)
+      return _.get(this, "__sistema.descripcion", null)
     },
     sistemaSetted() {
-      return this.sistema && Boolean(this.sistema.id)
+      return this.__sistema && Boolean(this.__sistema.id)
     },
     tipoRequerimientoDescripcion() {
-      return _.get(this, "tipo.descripcion", null)
+      return _.get(this, "__tipo.descripcion", null)
     },
     tipoRequerimientoSetted() {
-      return this.tipo && Boolean(this.tipo.id)
+      return this.__tipo && Boolean(this.__tipo.id)
+    },
+    usuariosAsignadosDescripcion() {
+      if (this.usuariosAsignadosSetted) {
+        return this.__usuariosAsignados.map(ua => ua.label).join(", ")
+      }
+      return ""
+    },
+    usuariosAsignadosSetted() {
+      return this.__usuariosAsignados && this.__usuariosAsignados.length > 0
     },
   },
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width + 60 + 32 //+ 41
+      this.widthInputDescripcion = size.width + 60 + 27 //+ 41
     },
-    removeFilter(filterToRemove) {
-      if (filterToRemove === "sistema") {
-        this.$emit("update:sistema", null)
-      } else if (filterToRemove === "tipo") {
-        this.$emit("update:requerimientoTipo", null)
-      }
+    removeFilter(filter) {
+      this.$store.dispatch("asignacionRequerimientos/setFilter", {
+        filter,
+        value: null,
+      })
     },
     filtrar() {
-      this.$emit("filtrar")
       this.popupOpened = false
+    },
+    filterUsuariosAsignados(val, update) {
+      if (val === "") {
+        update(() => {
+          this.usuariosAsignadosOptionsFiltered = this.userReportantes
+        })
+        return
+      }
+      update(() => {
+        const needle = val.toLowerCase()
+        this.usuariosAsignadosOptionsFiltered = this.userReportantes.filter(
+          v => v.label.toLowerCase().indexOf(needle) > -1,
+        )
+      })
     },
   },
 }
