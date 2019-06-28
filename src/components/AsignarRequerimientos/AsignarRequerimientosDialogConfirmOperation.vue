@@ -28,6 +28,7 @@
           :dark="true"
           hide-save-button
           color="white"
+          :show-order-asignacion="false"
           :operation-type="operationType"
         />
       </q-card-section>

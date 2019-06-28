@@ -317,6 +317,8 @@ const actions = {
 
         switch (operation) {
           case "asignar": {
+            // FIXME: ver aca que si es una asignacion por popupDetalle, deberia pasarle el orden y si es ultimo
+
             // se arma el objeto para enviar a la api y se la llama
             const { orden, ultimo } = getters.getNewOrder
             const dataAsignar = {
