@@ -11,6 +11,7 @@ import {
   filterByAsuntoAndDescripcion,
   filterBySistema,
   filterByTipoRequerimiento,
+  filterByUsuariosAsignados,
 } from "@utils/requerimientos"
 import { pipeWith } from "@utils/helpers"
 
@@ -98,8 +99,9 @@ const getters = {
     if (requerimientoTipo && requerimientoTipo.id) {
       filtersToApply.push(filterByTipoRequerimiento(requerimientoTipo.id))
     }
-    if (usuariosAsignados && usuariosAsignados.length) {
-      filtersToApply.push(filterByTipoRequerimiento(requerimientoTipo.id))
+    const isAssigOrInExec = reqEstado === "ASSI" || reqEstado === "EXEC"
+    if (isAssigOrInExec && usuariosAsignados && usuariosAsignados.length) {
+      filtersToApply.push(filterByUsuariosAsignados(usuariosAsignados))
     }
     // aplica a reqs el conjunto de filtros
     return pipeWith(reqs, ...filtersToApply)

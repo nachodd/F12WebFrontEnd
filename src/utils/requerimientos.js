@@ -1,37 +1,14 @@
-/* export function filterByAsuntoAndDescripcion(reqs, descripcion) {
-  const searchString = descripcion.toLowerCase()
-  return reqs.filter(req => {
-    return (
-      req.asunto.toLowerCase().includes(searchString) ||
-      req.descripcion.toLowerCase().includes(searchString)
-    )
-  })
-}
-export function filterBySistema(reqs, sistemaId) {
-  return reqs.filter(req => {
-    return req.sistema.id == sistemaId
-  })
-}
-
-export function filterByTipoRequerimiento(reqs, tipoRequerimientoId) {
-  return reqs.filter(req => {
-    return req.tipo.id == tipoRequerimientoId
-  })
-}
-
-export function filterByTipoRequerimiento(reqs, tipoRequerimientoId) {
-  return reqs.filter(req => {
-    return req.tipo.id == tipoRequerimientoId
-  })
-} */
-
 export function filterByAsuntoAndDescripcion(descripcion) {
   return reqs => {
     const searchString = descripcion.toLowerCase()
     return reqs.filter(req => {
+      const usuarioAsig = _.get(req, "estado.asignacion.usuario_nombre", "")
+      const usuarioCreador = _.get(req, "usuario.nombre", "")
       return (
         req.asunto.toLowerCase().includes(searchString) ||
-        req.descripcion.toLowerCase().includes(searchString)
+        req.descripcion.toLowerCase().includes(searchString) ||
+        usuarioAsig.toLowerCase().includes(searchString) ||
+        usuarioCreador.toLowerCase().includes(searchString)
       )
     })
   }
