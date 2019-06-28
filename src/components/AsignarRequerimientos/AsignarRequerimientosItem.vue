@@ -64,7 +64,6 @@
         >
           #{{ req.id }}
         </q-badge>
-        &nbsp;
       </div>
       <div
         v-if="!esArregloRapido && (estadoNoAsignado || estadoEnProcesos)"
@@ -73,7 +72,6 @@
         <q-badge v-if="estadoEnProcesos" color="green-7" text-color="white">
           EN PROCESOS
         </q-badge>
-        &nbsp;
         <q-badge
           v-if="estadoNoAsignado"
           :style="{
@@ -88,7 +86,6 @@
         <q-badge color="red-7" text-color="white">
           ORDEN: {{ reqOrden }}
         </q-badge>
-        &nbsp;
       </div>
     </div>
   </q-item>

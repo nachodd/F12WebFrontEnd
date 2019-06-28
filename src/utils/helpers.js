@@ -164,3 +164,11 @@ export const applyDrag = (arr, dragResult) => {
 
   return result
 }
+
+export function pipe(...fns) {
+  return arg => fns.reduce((prev, fn) => fn(prev), arg)
+}
+
+export function pipeWith(arg, ...fns) {
+  return pipe(...fns)(arg)
+}
