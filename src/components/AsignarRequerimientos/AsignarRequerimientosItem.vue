@@ -54,11 +54,8 @@
       </div>
     </div>
 
-    <div class="row justify-around">
-      <div
-        class="text-left"
-        :class="{ 'col-3': !esArregloRapido, 'col-12': esArregloRapido }"
-      >
+    <div class="row justify-between">
+      <div class="text-left col-3">
         <q-badge
           :class="{
             'nro-req--default': !esArregloRapido,
@@ -69,18 +66,27 @@
         </q-badge>
         &nbsp;
       </div>
-      <div v-if="!esArregloRapido" class="col-9 text-right">
+      <div
+        v-if="!esArregloRapido && (estadoNoAsignado || estadoEnProcesos)"
+        class="col-9 text-right"
+      >
         <q-badge v-if="estadoEnProcesos" color="green-7" text-color="white">
           EN PROCESOS
         </q-badge>
         &nbsp;
         <q-badge
+          v-if="estadoNoAsignado"
           :style="{
             color: getColorPrioridadText(req.prioridad),
             backgroundColor: getColorPrioridad(req.prioridad),
           }"
         >
           PR: {{ req.prioridad }}
+        </q-badge>
+      </div>
+      <div v-if="estadoAsignado" class="col-3 text-right">
+        <q-badge color="red-7" text-color="white">
+          ORDEN: {{ reqOrden }}
         </q-badge>
         &nbsp;
       </div>
@@ -110,6 +116,9 @@ export default {
     esArregloRapido() {
       return this.req.tipo.id === 1
     },
+    reqOrden() {
+      return _.get(this, "req.estado.asignacion.orden", "")
+    },
     estaAsignado() {
       const estaAsignado = _.get(this, "req.estado.asignacion", null)
       return estaAsignado !== null
@@ -123,6 +132,14 @@ export default {
     estadoEnProcesos() {
       const estEnProcesos = this.getEstadoByCodigo("STPR")
       return this.req.estado.id === estEnProcesos.id
+    },
+    estadoNoAsignado() {
+      const estNoAsig = this.getEstadoByCodigo("NOAS")
+      return this.req.estado.id === estNoAsig.id
+    },
+    estadoAsignado() {
+      const estAsig = this.getEstadoByCodigo("ASSI")
+      return this.req.estado.id === estAsig.id
     },
     estadoProcesos() {
       const estNoAsig = this.getEstadoByCodigo("NOAS")

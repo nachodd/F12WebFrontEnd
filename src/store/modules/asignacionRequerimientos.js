@@ -7,6 +7,11 @@ import {
   enviarAPriorizarRequerimiento,
 } from "@api/requerimientos"
 import Requerimiento from "@models/Requerimiento"
+import {
+  filterByAsuntoAndDescripcion,
+  filterBySistema,
+  filterByTipoRequerimiento,
+} from "@utils/requerimientos"
 
 const state = {
   requerimientos: [],
@@ -26,6 +31,13 @@ const state = {
       changesSetted: false,
     },
     payload: {},
+    newOrder: null,
+  },
+  filtros: {
+    sistema: null,
+    requerimientoTipo: null,
+    descripcion: null,
+    usuariosAsignados: [],
   },
 }
 const getters = {
@@ -42,14 +54,60 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estAsignado.id },
     })
-    return _.orderBy(reqsResult, "tipo.id", "asc")
+    return _.orderBy(reqsResult, "[estado.asignacion.orden]", "asc")
   },
-  requerimientosPendientes: (state, getters, rootState, rootGetters) => {
+  requerimientosEnEjecucion: (state, getters, rootState, rootGetters) => {
     const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estadoEnEjec.id },
     })
     return _.orderBy(reqsResult, "tipo.id", "asc")
+  },
+  // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
+  requerimientosFiltered: (state, getters) => reqEstado => {
+    let reqs
+    switch (reqEstado) {
+      case "NOAS":
+      case "STPR":
+        reqs = [...getters.requerimientosSinAsignar]
+        break
+      case "ASSI":
+        reqs = [...getters.requerimientosAsignados]
+        break
+      case "EXEC":
+        reqs = [...getters.requerimientosEnEjecucion]
+        break
+    }
+    let descripcion = state.filtros.descripcion || null
+    let sistema = state.filtros.sistema || null
+    let requerimientoTipo = state.filtros.requerimientoTipo || null
+    if (descripcion !== null) {
+      reqs = filterByAsuntoAndDescripcion(reqs, descripcion)
+    }
+    if (sistema && sistema.id) {
+      reqs = filterBySistema(reqs, sistema.id)
+    }
+    if (requerimientoTipo && requerimientoTipo.id) {
+      reqs = filterByTipoRequerimiento(reqs, requerimientoTipo.id)
+    }
+    return reqs
+  },
+  requerimientosAsignadosFiltered: (state, getters) => {
+    let reqs = [...getters.requerimientosAsignados]
+
+    let descripcion = state.filtros.descripcion || null
+    let sistema = state.filtros.sistema || null
+    let requerimientoTipo = state.filtros.requerimientoTipo || null
+    if (descripcion !== null) {
+      reqs = filterByAsuntoAndDescripcion(reqs, descripcion)
+    }
+    if (sistema && sistema.id) {
+      reqs = filterBySistema(reqs, sistema.id)
+    }
+    if (requerimientoTipo && requerimientoTipo.id) {
+      reqs = filterByTipoRequerimiento(reqs, requerimientoTipo.id)
+    }
+    return reqs
   },
   // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
   // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
@@ -114,6 +172,19 @@ const getters = {
   },
   requerimientoIdToChange: state =>
     _.get(state.possibleChanges.payload, "id", ""),
+  newPosition: (state, getters) => {
+    const index = _.findIndex(state.possibleChanges.targetList, {
+      id: getters.requerimientoIdToChange,
+    })
+
+    const nextReq = state.possibleChanges.targetList[index + 1]
+    if (nextReq) {
+      return nextReq.estado.asignacion.orden
+    } else {
+      // lo puso al final de la lista
+      return null // getters.requerimientosAsignados.length
+    }
+  },
 }
 
 const mutations = {
@@ -154,7 +225,34 @@ const mutations = {
       }
     }
     state.possibleChanges.payload = {}
+    state.possibleChanges.newOrder = null
     state.dialogConfirmOpen = false
+  },
+  SET_FILTROS: (state, { filter, value }) => {
+    state.filtros[filter] = value
+  },
+  UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO: (
+    state,
+    { estadoAsignadoId, orderStart, reqIdToAvoid, usuarioAsignado },
+  ) => {
+    state.requerimientos = state.requerimientos.map(ra => {
+      if (ra.estado.id === estadoAsignadoId) {
+        if (
+          ra.estado.asignacion.orden >= orderStart &&
+          ra.id !== reqIdToAvoid
+        ) {
+          ra.estado.asignacion.orden += 1
+        }
+        if (ra.id === reqIdToAvoid) {
+          ra.estado.asignacion = {
+            usuario_id: usuarioAsignado.id,
+            usuario_nombre: usuarioAsignado.nombre,
+            orden: orderStart,
+          }
+        }
+      }
+      return ra
+    })
   },
 }
 
@@ -182,7 +280,7 @@ const actions = {
     })
   },
   updateRequerimientoState(
-    { commit, rootGetters, state },
+    { commit, rootGetters, getters, state },
     { operation, requerimientoId, comentario, ...data },
   ) {
     return new Promise(async (resolve, reject) => {
@@ -195,15 +293,38 @@ const actions = {
         switch (operation) {
           case "asignar": {
             // se arma el objeto para enviar a la api y se la llama
+            let orden = getters.newPosition
+            // será ultimo si en la targetList está el solo u orden es null
+            const ultimo =
+              state.possibleChanges.targetList.length === 1 || orden === null
+
             const dataAsignar = {
               usuario: userId,
               usuario_asignado: data.usuarioAsignado.value,
               fecha_finalizacion_estimada: data.fechaFinalizacion,
               horas_estimadas: data.horasEstimadas,
               comentario,
+              orden,
+              ultimo,
             }
-            const res = await asignarRequerimiento(requerimientoId, dataAsignar)
-            message = _.get(res, "data.message", null)
+            console.log(dataAsignar)
+            console.log(asignarRequerimiento)
+            //const res = await asignarRequerimiento(requerimientoId, dataAsignar)
+            //message = _.get(res, "data.message", null)
+
+            // si el orden es null, antes de que se cambie de columna el recien asignado, determinar el orden
+            if (orden === null) {
+              if (getters.requerimientosAsignados.length === 0) {
+                debugger // testear este caso
+                orden = 1
+              } else {
+                const lastReq =
+                  getters.requerimientosAsignados[
+                    getters.requerimientosAsignados.length - 1
+                  ]
+                orden = lastReq.estado.asignacion.orden + 1
+              }
+            }
 
             // Se armar el objeto 'estado' para actualizar el objeto en el array local
             const estadoAsignado = rootGetters[
@@ -217,7 +338,26 @@ const actions = {
                 usuario_nombre: data.usuarioAsignado.label,
               },
             }
+            // Updateo el estado
             commit("SET_ESTADO_REQUERIMIENTO", { requerimientoId, newState })
+            const usuarioAsignado = {
+              id: data.usuarioAsignado.value,
+              nombre: data.usuarioAsignado.label,
+            }
+
+            // Updatea el Orden (o seatea) y el objeto "estado.asignacion"
+            commit("UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO", {
+              estadoAsignadoId: estadoAsignado.id,
+              orderStart: orden,
+              reqIdToAvoid: requerimientoId,
+              usuarioAsignado,
+            })
+
+            // TODO: pegarle al endpoint y que funcione
+            // TODO: hacer el reodenamiento de asignados
+            // TODO: ver si no hay que modificar desaignar (borrar el objeto asignacion y el orden)
+            // TODO: agregar al filtro, la posibilidad que filtre por nombre de asignado y/o el usuario que lo crea
+
             break
           }
           case "desasignar": {
@@ -343,6 +483,12 @@ const actions = {
   clearOperations({ commit }) {
     return new Promise(resolve => {
       commit("CLEAR_OPERATIONS")
+      resolve()
+    })
+  },
+  setFilter({ commit }, { filter, value }) {
+    return new Promise(resolve => {
+      commit("SET_FILTROS", { filter, value })
       resolve()
     })
   },

@@ -9,16 +9,15 @@
         Desarrollo / Mejora &nbsp;&nbsp;
       </div>
     </div>
-    <div class="row q-py-md">
+    <div class="row">
       <div class="col">
-        <q-toggle v-model="test" val="one" label="One" />
+        <asignar-requerimientos-filtros />
       </div>
     </div>
-
     <div class="row q-pt-md q-col-gutter-sm">
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosSinAsignar"
+          :requerimientos-list="requerimientosFiltered('NOAS')"
           :loading-list="loadingList"
           title="Requerimientos Por Asignar"
           :draggable="true"
@@ -28,7 +27,7 @@
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosAsignadosTest"
+          :requerimientos-list="requerimientosAsignadosFiltered"
           :loading-list="loadingList"
           title="Requerimientos Asignados"
           :draggable="true"
@@ -38,7 +37,7 @@
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosPendientes"
+          :requerimientos-list="requerimientosFiltered('EXEC')"
           :loading-list="loadingList"
           title="Requerimientos en Ejecucion"
         />
@@ -57,6 +56,7 @@ import PageHeader from "@comp/Common/PageHeader"
 import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequerimientosList"
 import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 import AsignarRequerimientosDialogConfirmOperation from "@comp/AsignarRequerimientos/AsignarRequerimientosDialogConfirmOperation"
+import AsignarRequerimientosFiltros from "@comp/AsignarRequerimientos/AsignarRequerimientosFiltros"
 
 export default {
   name: "AsignarRequerimientos",
@@ -65,33 +65,25 @@ export default {
     AsignarRequerimientosList,
     DialogDetalleRequerimiento,
     AsignarRequerimientosDialogConfirmOperation,
+    AsignarRequerimientosFiltros,
   },
   mixins: [pageLoading],
-  data: () => ({
-    // loadingList: false,
-    test: false,
-  }),
+  // data: () => ({}),
   computed: {
     ...mapState("asignacionRequerimientos", {
       reqs: state => state.requerimientos,
       loadingList: state => state.loadingRequerimientos,
     }),
     ...mapGetters("asignacionRequerimientos", [
-      "requerimientosSinAsignar",
-      "requerimientosAsignados",
-      "requerimientosPendientes",
+      "requerimientosFiltered",
+      "requerimientosAsignadosFiltered",
     ]),
-    requerimientosAsignadosTest() {
-      if (this.test) {
-        return this.requerimientosAsignados
-      } else {
-        return this.requerimientosAsignados.filter(r => r.id != 67)
-      }
-    },
   },
   created() {
+    this.$store.dispatch("requerimientos/createRequerimiento")
     this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
   },
+  methods: {},
 }
 </script>
 

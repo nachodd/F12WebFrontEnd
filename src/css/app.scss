@@ -26,9 +26,13 @@
 }
 .q-field--standout.q-field--focused {
   .q-field__prepend,
+  .q-field__append,
   .q-field__native {
     color: rgba(0, 0, 0, 0.87);
   }
+}
+.q-field--standout.q-field--focused .q-select__input {
+  color: black;
 }
 
 .transition-wrapper {
