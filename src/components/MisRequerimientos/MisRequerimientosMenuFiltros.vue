@@ -12,22 +12,11 @@
       </template>
       <template v-slot:append>
         <q-icon name="arrow_drop_down" class="cursor-pointer">
-          <q-popup-proxy ref="popupproxy" :offset="[14, 14]">
+          <q-menu ref="popupproxy" class="hola" :offset="[14, 14]" @show="test">
             <div
               class="row no-wrap q-pa-md q-col-gutter-xs"
               :style="{ width: widthInputDescripcion + 'px' }"
             >
-              <!-- <div class="column items-center">
-                <div class>John Doe</div>
-
-                  <q-btn
-                    v-close-popup
-                    color="primary"
-                    label="Logout"
-                    push
-                    size="sm"
-                />
-              </div>-->
               <div class="col-6">
                 <select-custom
                   v-model="__sistema"
@@ -55,7 +44,7 @@
                 Buscar
               </q-btn>
             </div>
-          </q-popup-proxy>
+          </q-menu>
         </q-icon>
       </template>
       <q-resize-observer @resize="onResize" />
@@ -124,17 +113,18 @@ export default {
       },
     },
   },
-  mounted() {
-    // console.log(this.refs)
-    // this.refs.popupproxy.removeEventListener("scroll")
-    // let elm = svgObjectEl.removeEventListener('load', this.listener)
-  },
+  mounted() {},
   methods: {
     onResize(size) {
       this.widthInputDescripcion = size.width + 60 + 41
     },
     buscar() {
       this.$emit("buscar")
+    },
+    test() {
+      // console.log(this.$refs.popupproxy)
+      // let elm = this.$refs.popupproxy
+      // elm.style.zIndex = "1"
     },
   },
 }
