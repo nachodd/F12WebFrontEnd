@@ -155,15 +155,17 @@
                 </div>
               </div>
 
-              <q-separator v-show="tieneAdjuntos" />
-              <br v-show="tieneAdjuntos" />
-              <div v-show="tieneAdjuntos" class="row q-col-gutter-sm">
-                <div
-                  v-for="(adjunto, i) in req.adjuntosCargadosUrl"
-                  :key="`req_${i}_${adjunto}`"
-                  class="col-6"
-                >
-                  <adjunto-card :adjunto="adjunto" :nro="i + 1" />
+              <div v-show="tieneAdjuntos">
+                <q-separator />
+                <br />
+                <div class="row q-col-gutter-sm">
+                  <div
+                    v-for="(adjunto, i) in req.adjuntosCargadosUrl"
+                    :key="`req_${i}_${adjunto}`"
+                    class="col-6"
+                  >
+                    <adjunto-card :adjunto="adjunto" :nro="i + 1" />
+                  </div>
                 </div>
               </div>
             </q-tab-panel>
@@ -234,9 +236,9 @@ export default {
     },
   },
   components: {
-    priorizarRequerimientosActions: PriorizarRequerimientosActions,
-    asignarRequerimientosActions: AsignarRequerimientosActions,
-    RequerimientosAsignadosActions: RequerimientosAsignadosActions,
+    PriorizarRequerimientosActions,
+    AsignarRequerimientosActions,
+    RequerimientosAsignadosActions,
     Note,
     AdjuntoCard,
   },
@@ -277,9 +279,9 @@ export default {
     actionsComponent() {
       switch (this.$route.name) {
         case "priorizar-requerimientos":
-          return "priorizarRequerimientosActions"
+          return "PriorizarRequerimientosActions"
         case "asignar-requerimientos":
-          return "asignarRequerimientosActions"
+          return "AsignarRequerimientosActions"
         case "requerimientos-asignados":
           return "RequerimientosAsignadosActions"
         default:

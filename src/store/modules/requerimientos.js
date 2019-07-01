@@ -75,7 +75,11 @@ const mutations = {
 
   SET_DETALLE_REQUERIMIENTO_ITEM: (state, requerimiento) => {
     if (requerimiento) {
-      state.detalleRequerimientoItem = new Requerimiento(requerimiento)
+      if (requerimiento instanceof Requerimiento) {
+        state.detalleRequerimientoItem = requerimiento
+      } else {
+        state.detalleRequerimientoItem = new Requerimiento(requerimiento)
+      }
       // state.detalleRequerimientoItem = Object.assign(
       //   {},
       //   state.detalleRequerimientoItem,
@@ -145,12 +149,14 @@ const actions = {
         if (!userRequerimientos && actualUserId) {
           userRequerimientos = actualUserId
         }
+
         const {
-          data: { data },
+          data: { data, meta },
         } = await listRequerimientos(userRequerimientos, filtros)
+
         commit("SET_MIS_REQUERIMIENTOS", data)
 
-        resolve()
+        resolve(meta)
       } catch (error) {
         reject(error)
       } finally {

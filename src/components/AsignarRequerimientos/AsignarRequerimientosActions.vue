@@ -13,6 +13,7 @@
       map-options
       :dark="dark"
       :disable="operationDisabled"
+      @input="operationChange"
     />
 
     <div class="q-mt-md">
@@ -48,7 +49,6 @@
                 v-model="fechaFinalizacion"
                 label="Fecha Finalización"
                 past-disabled
-                :apply-validation="true"
                 :dark="dark"
                 :outlined="false"
                 :filled="true"
@@ -68,6 +68,36 @@
                 :dark="dark"
                 :rules="[numberPositive, notEmpty]"
               />
+            </div>
+          </div>
+          <div v-show="!hideOrderAsignacion" class="row q-mt-xs">
+            <div v-if="requerimientosFilteredLength > 0" class="col-12">
+              <div class="row q-mt-xs">
+                <div class="col-12 text-grey-7">
+                  Orden
+                </div>
+              </div>
+              <q-slider
+                v-model="asignarcionOrden"
+                class="slider"
+                markers
+                :min="1"
+                :max="ordenMaxLength"
+                label
+                label-always
+                color="accent"
+                @input="updateOrdenTooltip"
+              />
+              <q-tooltip
+                content-class="bg-amber text-black text-body2 shadow-4"
+              >
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div v-html="ordenTooltip"></div>
+              </q-tooltip>
+            </div>
+            <div v-else class="col-12">
+              Orden:
+              <strong>Último</strong>
             </div>
           </div>
 
@@ -91,7 +121,8 @@
           v-show="
             operation === 'desasignar' ||
               operation === 'descartar' ||
-              operation === 'aProcesos'
+              operation === 'aProcesos' ||
+              operation === 'aPriorizar'
           "
         >
           <div class="row q-mt-xs">
@@ -106,6 +137,40 @@
                 :rules="shouldValidateComment"
                 label="Agregar un comentario:"
               />
+            </div>
+          </div>
+        </div>
+      </q-slide-transition>
+      <q-slide-transition>
+        <div v-show="operation === 'reordenar'">
+          <div class="row q-mt-xs">
+            <div v-if="requerimientosFilteredLength > 1" class="col-12">
+              <div class="row q-mt-xs">
+                <div class="col-12 text-grey-7">
+                  Orden
+                </div>
+              </div>
+              <q-slider
+                v-model="asignarcionOrden"
+                class="slider"
+                markers
+                :min="1"
+                :max="ordenMaxLength"
+                label
+                label-always
+                color="accent"
+                @input="updateOrdenTooltip"
+              />
+              <q-tooltip
+                content-class="bg-amber text-black text-body2 shadow-4"
+              >
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div v-html="ordenTooltip"></div>
+              </q-tooltip>
+            </div>
+            <div v-else class="col-12">
+              Orden:
+              <strong>Último</strong>
             </div>
           </div>
         </div>
@@ -143,6 +208,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    hideOrderAsignacion: {
+      type: Boolean,
+      default: false,
+    },
     color: {
       type: String,
       default: "purple-10", // accent
@@ -160,6 +229,9 @@ export default {
       horasEstimadas: null,
       comment: null,
       operationDisabled: false,
+      asignarcionOrden: 1,
+      ordenTooltip: "",
+      reqsPossibleNewOrder: [],
     }
   },
   computed: {
@@ -168,10 +240,18 @@ export default {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
+    ...mapGetters("asignacionRequerimientos", [
+      "requerimientosFiltered",
+      "requerimientosFilteredLength",
+      1,
+    ]),
     // ...mapActions({
     //   setDialogConfirmOperationOpen:
     //     "asignacionRequerimientos/setDialogConfirmOperationOpen",
     // }),
+    esArregloRapido() {
+      return this.req.tipo.id === 1
+    },
     stateNotAssigned() {
       return this.detalleRequerimientoState === "NOAS"
     },
@@ -195,15 +275,26 @@ export default {
           label: "Asignar",
           value: "asignar",
         })
-        opt.push({
-          label: "Enviar a Procesos",
-          value: "aProcesos",
-        })
+        if (this.esArregloRapido) {
+          opt.push({
+            label: "No es un Arreglo Rapido (Enviar a Priorizar)",
+            value: "aPriorizar",
+          })
+        }
+        // TODO: la parte de enviar a procesos la vamos a ver mas adelante
+        // opt.push({
+        //   label: "Enviar a Procesos",
+        //   value: "aProcesos",
+        // })
       }
       if (this.stateAssigned) {
         opt.push({
           label: "Volver a Pendiente de Asignación",
           value: "desasignar",
+        })
+        opt.push({
+          label: "Reordenar",
+          value: "reordenar",
         })
       }
       opt.push({
@@ -224,6 +315,11 @@ export default {
     shouldValidateComment() {
       return this.operation === "descartar" ? [this.notEmpty] : null
     },
+    ordenMaxLength() {
+      return this.operation === "asignar"
+        ? this.requerimientosFilteredLength + 1
+        : this.requerimientosFilteredLength
+    },
   },
   mounted() {
     // Si se le setea el operationType por prop, asigno el valor correspondiente al combo
@@ -237,6 +333,87 @@ export default {
     }
   },
   methods: {
+    operationChange() {
+      if (this.operation === "asignar" || this.operation === "reordenar") {
+        this.updateOrdenTooltip()
+      }
+    },
+    updateOrdenTooltip() {
+      this.reqsPossibleNewOrder = [...this.requerimientosFiltered("ASSI")]
+      let startIndex = 1
+      const realIndex = this.asignarcionOrden - 1
+      let currReq, pre3Req, pre2Req, pre1Req, pos1Req, pos2Req, pos3Req
+
+      // Dependiendo del tipo de operacion, inserto el nuevo
+      if (this.operation === "asignar") {
+        // ubico el req a insertar en la posicion this.asignarcionOrden
+        const reqToInsert = this.req
+        this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
+      } else if (this.operation === "reordenar") {
+        // primero lo saco del array resultado
+        const currentIndex = _.findIndex(this.reqsPossibleNewOrder, {
+          id: this.req.id,
+        })
+        const reqToInsert = this.reqsPossibleNewOrder.splice(currentIndex, 1)[0]
+        // luego lo ubico en la posicion this.asignarcionOrden
+        this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
+      }
+      pre3Req = this.reqsPossibleNewOrder[realIndex - 3]
+      pre2Req = this.reqsPossibleNewOrder[realIndex - 2]
+      pre1Req = this.reqsPossibleNewOrder[realIndex - 1]
+      currReq = this.reqsPossibleNewOrder[realIndex]
+      pos1Req = this.reqsPossibleNewOrder[realIndex + 1]
+      pos2Req = this.reqsPossibleNewOrder[realIndex + 2]
+      pos3Req = this.reqsPossibleNewOrder[realIndex + 3]
+
+      let pre3ReqFragment = "",
+        pre2ReqFragment = "",
+        pre1ReqFragment = "",
+        currReqFragment = "",
+        pos1ReqFragment = "",
+        pos2ReqFragment = "",
+        pos3ReqFragment = ""
+
+      if (pos3Req) {
+        startIndex = realIndex + 2
+        pos3ReqFragment = `<li>...</li>`
+      }
+      if (pos2Req) {
+        startIndex = realIndex + 1
+        pos2ReqFragment = `<li>${pos2Req.asunto}</li>`
+      }
+      if (pos1Req) {
+        startIndex = realIndex
+        pos1ReqFragment = `<li>${pos1Req.asunto}</li>`
+      }
+      if (currReq) {
+        startIndex = realIndex
+        currReqFragment = `<li><strong>${currReq.asunto}</strong></li>`
+      }
+      if (pre1Req) {
+        startIndex = realIndex - 1
+        pre1ReqFragment = `<li>${pre1Req.asunto}</li>`
+      }
+      if (pre2Req) {
+        startIndex = realIndex - 2
+        pre2ReqFragment = `<li>${pre2Req.asunto}</li>`
+      }
+      if (pre3Req) {
+        startIndex = realIndex - 3
+        pre3ReqFragment = `<li>...</li>`
+      }
+
+      this.ordenTooltip = `
+      <ol class="orden-tooltip" start="${startIndex + 1}">
+        ${pre3ReqFragment}
+        ${pre2ReqFragment}
+        ${pre1ReqFragment}
+        ${currReqFragment}
+        ${pos1ReqFragment}
+        ${pos2ReqFragment}
+        ${pos3ReqFragment}
+      </ol>`
+    },
     async saveChanges() {
       // Si es descartar, debo incluir un comentario
       if (
@@ -256,6 +433,17 @@ export default {
         if (_.some(validations)) {
           return
         }
+      }
+
+      // Si el slider esta mostrado, envio el listado de requerimientos "ordenado" asi actualiza el state.possibleChanges.target y de esta manera, calcula el nuevo orden y el ultimo
+      if (!this.hideOrderAsignacion) {
+        await this.$store.dispatch(
+          "asignacionRequerimientos/updateTargetList",
+          {
+            targetList: this.reqsPossibleNewOrder,
+            reqIdToUpdate: this.req.id,
+          },
+        )
       }
 
       this.$store
@@ -296,4 +484,8 @@ export default {
 
 .custom-error.q-field--dark.q-field--error .text-negative
   color $red-5 !important
+
+.orden-tooltip
+  margin 0
+  padding 5px 5px 5px 16px
 </style>

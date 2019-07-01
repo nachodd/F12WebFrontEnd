@@ -34,6 +34,8 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QExpansionItem",
+        "QToggle",
         "QBtnToggle",
         "QUploaderAddTrigger",
         "QChip",
@@ -83,6 +85,8 @@ module.exports = function(ctx) {
         "QTabPanel",
         "QTabPanels",
         "QBanner",
+        "QPagination",
+        "QResizeObserver",
       ],
 
       directives: ["Ripple", "ClosePopup"],

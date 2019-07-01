@@ -9,11 +9,15 @@
         Desarrollo / Mejora &nbsp;&nbsp;
       </div>
     </div>
-
+    <div class="row">
+      <div class="col">
+        <asignar-requerimientos-filtros />
+      </div>
+    </div>
     <div class="row q-pt-md q-col-gutter-sm">
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosSinAsignar"
+          :requerimientos-list="requerimientosFiltered('NOAS')"
           :loading-list="loadingList"
           title="Requerimientos Por Asignar"
           :draggable="true"
@@ -23,7 +27,7 @@
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosAsignados"
+          :requerimientos-list="requerimientosFiltered('ASSI')"
           :loading-list="loadingList"
           title="Requerimientos Asignados"
           :draggable="true"
@@ -33,7 +37,7 @@
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosPendientes"
+          :requerimientos-list="requerimientosFiltered('EXEC')"
           :loading-list="loadingList"
           title="Requerimientos en Ejecucion"
         />
@@ -52,6 +56,7 @@ import PageHeader from "@comp/Common/PageHeader"
 import AsignarRequerimientosList from "@comp/AsignarRequerimientos/AsignarRequerimientosList"
 import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
 import AsignarRequerimientosDialogConfirmOperation from "@comp/AsignarRequerimientos/AsignarRequerimientosDialogConfirmOperation"
+import AsignarRequerimientosFiltros from "@comp/AsignarRequerimientos/AsignarRequerimientosFiltros"
 
 export default {
   name: "AsignarRequerimientos",
@@ -60,25 +65,22 @@ export default {
     AsignarRequerimientosList,
     DialogDetalleRequerimiento,
     AsignarRequerimientosDialogConfirmOperation,
+    AsignarRequerimientosFiltros,
   },
   mixins: [pageLoading],
-  data: () => ({
-    // loadingList: false,
-  }),
+  // data: () => ({}),
   computed: {
     ...mapState("asignacionRequerimientos", {
       reqs: state => state.requerimientos,
       loadingList: state => state.loadingRequerimientos,
     }),
-    ...mapGetters("asignacionRequerimientos", [
-      "requerimientosSinAsignar",
-      "requerimientosAsignados",
-      "requerimientosPendientes",
-    ]),
+    ...mapGetters("asignacionRequerimientos", ["requerimientosFiltered"]),
   },
   created() {
+    this.$store.dispatch("requerimientos/createRequerimiento")
     this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
   },
+  methods: {},
 }
 </script>
 

@@ -41,13 +41,14 @@
               label="Area"
               :loading="areas.length === 0"
             />
-          </div> -->
+          </div>-->
           <div class="col col-sm-6 col-xs-12">
             <select-custom
               v-model="__sistema"
               :options="sistemas"
               label="Sistema"
               :loading="sistemas.length === 0"
+              :apply-validation="true"
             />
           </div>
           <div class="col col-sm-6 col-xs-12">
@@ -56,6 +57,7 @@
               :options="requerimientosTipos"
               label="Tipo de Requerimiento"
               :loading="requerimientosTipos.length === 0"
+              :apply-validation="true"
             />
           </div>
         </div>
@@ -89,7 +91,7 @@
                     :apply-validation="__llevaFechaLimite"
                     :value="fechaLimite"
                     @input="$emit('update:fechaLimite', $event)"
-                  /> -->
+                  />-->
                   <!-- o bien, usar un v-model con una computed property, que en el setter emita su valor arriba y el getter sea la prop  -->
                   <input-date-custom
                     ref="fechaLimite"

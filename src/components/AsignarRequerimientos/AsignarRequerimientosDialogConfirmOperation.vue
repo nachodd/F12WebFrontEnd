@@ -27,6 +27,7 @@
           ref="actions"
           :dark="true"
           hide-save-button
+          hide-order-asignacion
           color="white"
           :operation-type="operationType"
         />

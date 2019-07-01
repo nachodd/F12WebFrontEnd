@@ -4,8 +4,16 @@ import {
   desasignarRequerimiento,
   refuseRequerimiento,
   pasarAProcesosRequerimiento,
+  enviarAPriorizarRequerimiento,
 } from "@api/requerimientos"
 import Requerimiento from "@models/Requerimiento"
+import {
+  filterByAsuntoAndDescripcion,
+  filterBySistema,
+  filterByTipoRequerimiento,
+  filterByUsuariosAsignados,
+} from "@utils/requerimientos"
+import { pipeWith } from "@utils/helpers"
 
 const state = {
   requerimientos: [],
@@ -25,6 +33,13 @@ const state = {
       changesSetted: false,
     },
     payload: {},
+    newOrder: null,
+  },
+  filtros: {
+    sistema: null,
+    requerimientoTipo: null,
+    descripcion: null,
+    usuariosAsignados: [],
   },
 }
 const getters = {
@@ -34,21 +49,62 @@ const getters = {
     let reqsResult = _.filter(state.requerimientos, req => {
       return _.includes([estSinAsig.id, estEnProceso.id], req.estado.id)
     })
-    return _.orderBy(reqsResult, "tipo.id", "asc")
+    return _.orderBy(reqsResult, ["tipo.id", "prioridad"], "asc")
   },
   requerimientosAsignados: (state, getters, rootState, rootGetters) => {
     const estAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estAsignado.id },
     })
-    return _.orderBy(reqsResult, "tipo.id", "asc")
+    return _.orderBy(reqsResult, "[estado.asignacion.orden]", "asc")
   },
-  requerimientosPendientes: (state, getters, rootState, rootGetters) => {
+  requerimientosEnEjecucion: (state, getters, rootState, rootGetters) => {
     const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estadoEnEjec.id },
     })
     return _.orderBy(reqsResult, "tipo.id", "asc")
+  },
+  // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
+  requerimientosFiltered: (state, getters) => reqEstado => {
+    let reqs
+    switch (reqEstado) {
+      case "NOAS":
+      case "STPR":
+        reqs = [...getters.requerimientosSinAsignar]
+        break
+      case "ASSI":
+        reqs = [...getters.requerimientosAsignados]
+        break
+      case "EXEC":
+        reqs = [...getters.requerimientosEnEjecucion]
+        break
+    }
+
+    const {
+      descripcion = null,
+      sistema = null,
+      requerimientoTipo = null,
+      usuariosAsignados = null,
+    } = state.filtros
+
+    // Determino que filtros aplicar, dependiendo de que hayan seteado
+    let filtersToApply = []
+    if (descripcion !== null) {
+      filtersToApply.push(filterByAsuntoAndDescripcion(descripcion))
+    }
+    if (sistema && sistema.id) {
+      filtersToApply.push(filterBySistema(sistema.id))
+    }
+    if (requerimientoTipo && requerimientoTipo.id) {
+      filtersToApply.push(filterByTipoRequerimiento(requerimientoTipo.id))
+    }
+    const isAssigOrInExec = reqEstado === "ASSI" || reqEstado === "EXEC"
+    if (isAssigOrInExec && usuariosAsignados && usuariosAsignados.length) {
+      filtersToApply.push(filterByUsuariosAsignados(usuariosAsignados))
+    }
+    // aplica a reqs el conjunto de filtros
+    return pipeWith(reqs, ...filtersToApply)
   },
   // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
   // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
@@ -79,17 +135,78 @@ const getters = {
       sourceChanges.addedIndex !== null
     )
   },
+  operationReoderAssignedList: state => {
+    const { sourceChanges, targetChanges } = state.possibleChanges
+    return (
+      targetChanges.removedIndex !== null &&
+      targetChanges.addedIndex !== null &&
+      sourceChanges.removedIndex === null &&
+      sourceChanges.addedIndex === null
+    )
+  },
   operationType: (state, getters) => {
-    if (getters.operationAssign && !getters.operationPending) {
+    if (
+      !getters.operationReoderAssignedList &&
+      getters.operationAssign &&
+      !getters.operationPending
+    ) {
       return "assign"
-    } else if (!getters.operationAssign && getters.operationPending) {
+    } else if (
+      !getters.operationReoderAssignedList &&
+      !getters.operationAssign &&
+      getters.operationPending
+    ) {
       return "pending"
+    } else if (
+      getters.operationReoderAssignedList &&
+      !getters.operationAssign &&
+      !getters.operationPending
+    ) {
+      return "reorder-assigned"
     } else {
       return ""
     }
   },
   requerimientoIdToChange: state =>
     _.get(state.possibleChanges.payload, "id", ""),
+  getNewOrder: (state, getters) => {
+    // Busca el requerimiento a actualizar en el listado que está en pantalla en pantalla
+    const reqsAsignadosOnScreen = state.possibleChanges.targetList
+    const index = _.findIndex(reqsAsignadosOnScreen, {
+      id: getters.requerimientoIdToChange,
+    })
+    // De estos, busco el siguiente en pantalla
+    const nextReq = reqsAsignadosOnScreen[index + 1]
+    if (nextReq) {
+      // Si lo encuentra, devuelve su orden e indico que NO es el ultimo
+      return {
+        orden: nextReq.estado.asignacion.orden,
+        ultimo: false,
+      }
+    } else {
+      // Caso contario, determino el orden REAL
+      let orden
+      // Si no hay otros reqs asignados, orden = 1
+      if (getters.requerimientosAsignados.length === 0) {
+        orden = 1
+      } else {
+        // Busco el último reqs de los asignados, tomo su orden y le aumento 1
+        const lastReq =
+          getters.requerimientosAsignados[
+            getters.requerimientosAsignados.length - 1
+          ]
+        orden = lastReq.estado.asignacion.orden + 1
+      }
+      // Será el ultimo (ya sea porque se filtro el listado y no hay nadao porque efectivametne no habia otro asignado)
+      return {
+        orden,
+        ultimo: true,
+      }
+    }
+  },
+  requerimientosFilteredLength: (state, getters) => {
+    return getters.requerimientosFiltered("ASSI").length
+  },
 }
 
 const mutations = {
@@ -110,9 +227,9 @@ const mutations = {
     state.dialogConfirmOpen = value
   },
 
-  PROCESS_UPDATE_LISTS: (state, { listName, dropResult }) => {
+  PROCESS_UPDATE_LISTS: (state, { listName, listResult, dropResult }) => {
     const { removedIndex, addedIndex, payload } = dropResult
-    // state.possibleChanges[`${listName}List`] = listResult
+    state.possibleChanges[`${listName}List`] = listResult
     state.possibleChanges[`${listName}Changes`] = {
       addedIndex,
       removedIndex,
@@ -120,9 +237,13 @@ const mutations = {
     }
     state.possibleChanges.payload = payload
   },
+  SET_TARGET_LIST: (state, { targetList, reqIdToUpdate }) => {
+    state.possibleChanges.targetList = targetList
+    state.possibleChanges.payload = { id: reqIdToUpdate }
+  },
   CLEAR_OPERATIONS: state => {
     for (const listName of ["source", "target"]) {
-      // state.possibleChanges[`${listName}List`] = []
+      state.possibleChanges[`${listName}List`] = []
       state.possibleChanges[`${listName}Changes`] = {
         addedIndex: null,
         removedIndex: null,
@@ -130,7 +251,36 @@ const mutations = {
       }
     }
     state.possibleChanges.payload = {}
+    state.possibleChanges.newOrder = null
     state.dialogConfirmOpen = false
+  },
+  SET_FILTROS: (state, { filter, value }) => {
+    state.filtros[filter] = value
+  },
+  UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO: (
+    state,
+    {
+      estadoAsignadoId,
+      orderStart,
+      reqIdToAvoid,
+      updateOrderToCurrentRequerimiento = false,
+    },
+  ) => {
+    // Actualiza todos los requerimientos en estado ASIGNADO
+    state.requerimientos = state.requerimientos.map(ra => {
+      if (ra.estado.id === estadoAsignadoId) {
+        // Que tengan orden mayor o igual a orderStart y NO sea el reqerumiento asignado
+        const tieneOrdenMayorOIgual = ra.estado.asignacion.orden >= orderStart
+        if (tieneOrdenMayorOIgual && ra.id !== reqIdToAvoid) {
+          ra.estado.asignacion.orden += 1
+        }
+      }
+      // Actualizo el orden del requerimiento en cuestion solo si es declarado explicitamente con updateOrderToCurrentRequerimiento=true (caso reordenamiento)
+      if (updateOrderToCurrentRequerimiento && ra.id === reqIdToAvoid) {
+        ra.estado.asignacion.orden = orderStart
+      }
+      return ra
+    })
   },
 }
 
@@ -158,7 +308,7 @@ const actions = {
     })
   },
   updateRequerimientoState(
-    { commit, rootGetters, state },
+    { commit, dispatch, rootGetters, getters, state },
     { operation, requerimientoId, comentario, ...data },
   ) {
     return new Promise(async (resolve, reject) => {
@@ -171,12 +321,15 @@ const actions = {
         switch (operation) {
           case "asignar": {
             // se arma el objeto para enviar a la api y se la llama
+            const { orden, ultimo } = getters.getNewOrder
             const dataAsignar = {
               usuario: userId,
               usuario_asignado: data.usuarioAsignado.value,
               fecha_finalizacion_estimada: data.fechaFinalizacion,
               horas_estimadas: data.horasEstimadas,
               comentario,
+              orden,
+              ultimo,
             }
             const res = await asignarRequerimiento(requerimientoId, dataAsignar)
             message = _.get(res, "data.message", null)
@@ -191,9 +344,18 @@ const actions = {
               asignacion: {
                 usuario_id: data.usuarioAsignado.value,
                 usuario_nombre: data.usuarioAsignado.label,
+                orden,
               },
             }
+            // Updateo el estado
             commit("SET_ESTADO_REQUERIMIENTO", { requerimientoId, newState })
+
+            // Updatea el Orden de todo el arbol y el orden
+            commit("UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO", {
+              estadoAsignadoId: estadoAsignado.id,
+              orderStart: orden,
+              reqIdToAvoid: requerimientoId,
+            })
             break
           }
           case "desasignar": {
@@ -214,8 +376,14 @@ const actions = {
             commit("SET_ESTADO_REQUERIMIENTO", { requerimientoId, newState })
             break
           }
+          case "reordenar": {
+            const message = await dispatch("operationSaveReorderAssigned")
+            resolve(message)
+            break
+          }
           case "aProcesos":
-          case "descartar": {
+          case "descartar":
+          case "aPriorizar": {
             let res
             if (operation === "descartar") {
               res = await refuseRequerimiento(requerimientoId, {
@@ -223,6 +391,10 @@ const actions = {
               })
             } else if (operation === "aProcesos") {
               res = await pasarAProcesosRequerimiento(requerimientoId, {
+                comentario,
+              })
+            } else if (operation === "aPriorizar") {
+              res = await enviarAPriorizarRequerimiento(requerimientoId, {
                 comentario,
               })
             }
@@ -245,56 +417,106 @@ const actions = {
         reject(error)
       } finally {
         commit("app/LOADING_DEC", null, { root: true })
+        dispatch("clearOperations")
       }
     })
   },
-
-  processUpdateList(
-    { commit, getters, dispatch, state, rootGetters },
-    updatedListData,
-  ) {
+  updateTargetList({ commit }, data) {
+    return new Promise(async resolve => {
+      commit("SET_TARGET_LIST", data)
+      resolve()
+    })
+  },
+  processUpdateList({ commit, getters, dispatch }, updatedListData) {
     // console.log(getters.operationType)
     return new Promise(async (resolve, reject) => {
-      // updatea los listados temporales
-      commit("PROCESS_UPDATE_LISTS", updatedListData)
+      try {
+        // updatea los listados temporales
+        commit("PROCESS_UPDATE_LISTS", updatedListData)
 
-      if (!getters.possibleChangesSetted) {
-        return
+        if (!getters.possibleChangesSetted) {
+          return
+        }
+        commit("app/LOADING_INC", null, { root: true })
+
+        // ESTA VALIDACION NO VA POR AHORA
+        // Valido si el requerimiento fue enviado a procesos
+        // const stateSentToProcess = rootGetters[
+        //   "requerimientos/getEstadoByCodigo"
+        // ]("STPR")
+        // const reqToChange = state.possibleChanges.payload
+        // if (reqToChange.estado.id === stateSentToProcess.id) {
+        //   dispatch("clearOperations")
+        //   reject({
+        //     message:
+        //       "El requermiento no se puede asignar, el mismo se encuentra EN PROCESOS",
+        //   })
+        //   return
+        // }
+
+        switch (getters.operationType) {
+          case "assign":
+          case "pending":
+            // se setea el requerimiento abierto en el store y luego se abre el modal de confirmacion
+            await dispatch(
+              "requerimientos/setDetalleRequerimiento",
+              {
+                reqId: getters.requerimientoIdToChange,
+                listName: "asignar-requerimientos",
+              },
+              { root: true },
+            )
+            dispatch("setDialogConfirmOperationOpen", true)
+            resolve()
+            break
+          case "reorder-assigned": {
+            const message = await dispatch("operationSaveReorderAssigned")
+            dispatch("clearOperations")
+            resolve(message)
+            break
+          }
+          default:
+            dispatch("clearOperations")
+            resolve()
+            break
+        }
+      } catch (error) {
+        reject(error)
+      } finally {
+        commit("app/LOADING_DEC", null, { root: true })
       }
+    })
+  },
+  operationSaveReorderAssigned({ commit, getters, rootGetters }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // se arma el objeto para enviar a la api y se la llama
+        const { orden, ultimo } = getters.getNewOrder
+        const dataReordenar = {
+          orden,
+          ultimo,
+        }
+        const res = await asignarRequerimiento(
+          getters.requerimientoIdToChange,
+          dataReordenar,
+        )
+        const message = _.get(res, "data.message", null)
 
-      // Valido si el requerimiento fue enviado a procesos
-      const stateSentToProcess = rootGetters[
-        "requerimientos/getEstadoByCodigo"
-      ]("STPR")
-      const reqToChange = state.possibleChanges.payload
-      if (reqToChange.estado.id === stateSentToProcess.id) {
-        dispatch("clearOperations")
-        reject({
-          message:
-            "El requermiento no se puede asignar, el mismo se encuentra EN PROCESOS",
+        // Updatea el Orden de todo el arbol y el orden
+        const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"](
+          "ASSI",
+        )
+        commit("UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO", {
+          estadoAsignadoId: estadoAsignado.id,
+          orderStart: orden,
+          reqIdToAvoid: getters.requerimientoIdToChange,
+          updateOrderToCurrentRequerimiento: true,
         })
-        return
-      }
 
-      switch (getters.operationType) {
-        case "assign":
-        case "pending":
-          // se setea el requerimiento abierto en el store y luego se abre el modal de confirmacion
-          await dispatch(
-            "requerimientos/setDetalleRequerimiento",
-            {
-              reqId: getters.requerimientoIdToChange,
-              listName: "asignar-requerimientos",
-            },
-            { root: true },
-          )
-          dispatch("setDialogConfirmOperationOpen", true)
-          break
-        default:
-          dispatch("clearOperations")
-          break
+        resolve(message)
+      } catch (error) {
+        reject(error)
       }
-      resolve()
     })
   },
   setDialogConfirmOperationOpen({ commit, dispatch }, value = true) {
@@ -306,6 +528,12 @@ const actions = {
   clearOperations({ commit }) {
     return new Promise(resolve => {
       commit("CLEAR_OPERATIONS")
+      resolve()
+    })
+  },
+  setFilter({ commit }, { filter, value }) {
+    return new Promise(resolve => {
+      commit("SET_FILTROS", { filter, value })
       resolve()
     })
   },
