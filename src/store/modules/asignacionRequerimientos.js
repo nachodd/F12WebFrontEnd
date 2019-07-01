@@ -188,7 +188,6 @@ const getters = {
       let orden
       // Si no hay otros reqs asignados, orden = 1
       if (getters.requerimientosAsignados.length === 0) {
-        debugger // testear este caso
         orden = 1
       } else {
         // Busco el último reqs de los asignados, tomo su orden y le aumento 1
@@ -237,6 +236,10 @@ const mutations = {
       changesSetted: true, // seteo que hubo cambios en este listado
     }
     state.possibleChanges.payload = payload
+  },
+  SET_TARGET_LIST: (state, { targetList, reqIdToUpdate }) => {
+    state.possibleChanges.targetList = targetList
+    state.possibleChanges.payload = { id: reqIdToUpdate }
   },
   CLEAR_OPERATIONS: state => {
     for (const listName of ["source", "target"]) {
@@ -305,7 +308,7 @@ const actions = {
     })
   },
   updateRequerimientoState(
-    { commit, rootGetters, getters, state },
+    { commit, dispatch, rootGetters, getters, state },
     { operation, requerimientoId, comentario, ...data },
   ) {
     return new Promise(async (resolve, reject) => {
@@ -317,8 +320,6 @@ const actions = {
 
         switch (operation) {
           case "asignar": {
-            // FIXME: ver aca que si es una asignacion por popupDetalle, deberia pasarle el orden y si es ultimo
-
             // se arma el objeto para enviar a la api y se la llama
             const { orden, ultimo } = getters.getNewOrder
             const dataAsignar = {
@@ -375,6 +376,11 @@ const actions = {
             commit("SET_ESTADO_REQUERIMIENTO", { requerimientoId, newState })
             break
           }
+          case "reordenar": {
+            const message = await dispatch("operationSaveReorderAssigned")
+            resolve(message)
+            break
+          }
           case "aProcesos":
           case "descartar":
           case "aPriorizar": {
@@ -411,14 +417,17 @@ const actions = {
         reject(error)
       } finally {
         commit("app/LOADING_DEC", null, { root: true })
+        dispatch("clearOperations")
       }
     })
   },
-
-  processUpdateList(
-    { commit, getters, dispatch, state, rootGetters },
-    updatedListData,
-  ) {
+  updateTargetList({ commit }, data) {
+    return new Promise(async resolve => {
+      commit("SET_TARGET_LIST", data)
+      resolve()
+    })
+  },
+  processUpdateList({ commit, getters, dispatch }, updatedListData) {
     // console.log(getters.operationType)
     return new Promise(async (resolve, reject) => {
       try {
@@ -430,19 +439,20 @@ const actions = {
         }
         commit("app/LOADING_INC", null, { root: true })
 
+        // ESTA VALIDACION NO VA POR AHORA
         // Valido si el requerimiento fue enviado a procesos
-        const stateSentToProcess = rootGetters[
-          "requerimientos/getEstadoByCodigo"
-        ]("STPR")
-        const reqToChange = state.possibleChanges.payload
-        if (reqToChange.estado.id === stateSentToProcess.id) {
-          dispatch("clearOperations")
-          reject({
-            message:
-              "El requermiento no se puede asignar, el mismo se encuentra EN PROCESOS",
-          })
-          return
-        }
+        // const stateSentToProcess = rootGetters[
+        //   "requerimientos/getEstadoByCodigo"
+        // ]("STPR")
+        // const reqToChange = state.possibleChanges.payload
+        // if (reqToChange.estado.id === stateSentToProcess.id) {
+        //   dispatch("clearOperations")
+        //   reject({
+        //     message:
+        //       "El requermiento no se puede asignar, el mismo se encuentra EN PROCESOS",
+        //   })
+        //   return
+        // }
 
         switch (getters.operationType) {
           case "assign":
@@ -460,30 +470,7 @@ const actions = {
             resolve()
             break
           case "reorder-assigned": {
-            // se arma el objeto para enviar a la api y se la llama
-            const { orden, ultimo } = getters.getNewOrder
-            console.log(orden, ultimo)
-            const dataReordenar = {
-              orden,
-              ultimo,
-            }
-            const res = await asignarRequerimiento(
-              getters.requerimientoIdToChange,
-              dataReordenar,
-            )
-            const message = _.get(res, "data.message", null)
-
-            // Updatea el Orden de todo el arbol y el orden
-            const estadoAsignado = rootGetters[
-              "requerimientos/getEstadoByCodigo"
-            ]("ASSI")
-            commit("UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO", {
-              estadoAsignadoId: estadoAsignado.id,
-              orderStart: orden,
-              reqIdToAvoid: getters.requerimientoIdToChange,
-              updateOrderToCurrentRequerimiento: true,
-            })
-
+            const message = await dispatch("operationSaveReorderAssigned")
             dispatch("clearOperations")
             resolve(message)
             break
@@ -497,6 +484,38 @@ const actions = {
         reject(error)
       } finally {
         commit("app/LOADING_DEC", null, { root: true })
+      }
+    })
+  },
+  operationSaveReorderAssigned({ commit, getters, rootGetters }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // se arma el objeto para enviar a la api y se la llama
+        const { orden, ultimo } = getters.getNewOrder
+        const dataReordenar = {
+          orden,
+          ultimo,
+        }
+        const res = await asignarRequerimiento(
+          getters.requerimientoIdToChange,
+          dataReordenar,
+        )
+        const message = _.get(res, "data.message", null)
+
+        // Updatea el Orden de todo el arbol y el orden
+        const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"](
+          "ASSI",
+        )
+        commit("UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO", {
+          estadoAsignadoId: estadoAsignado.id,
+          orderStart: orden,
+          reqIdToAvoid: getters.requerimientoIdToChange,
+          updateOrderToCurrentRequerimiento: true,
+        })
+
+        resolve(message)
+      } catch (error) {
+        reject(error)
       }
     })
   },
