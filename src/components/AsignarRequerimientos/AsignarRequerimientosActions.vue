@@ -70,6 +70,20 @@
               />
             </div>
           </div>
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <!-- <q-slider
+                v-model="1"
+                class="slider"
+                markers
+                :min="1"
+                :max="maximoSliderPrioridad"
+                label
+                label-always
+                color="accent"
+              /> -->
+            </div>
+          </div>
 
           <div class="row q-mt-xs">
             <div class="col-12">
@@ -151,6 +165,10 @@ export default {
     operationType: {
       type: String,
       default: "",
+    },
+    showOrderAsignacion: {
+      type: Boolean,
+      default: true,
     },
   },
   data() {

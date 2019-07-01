@@ -236,9 +236,9 @@ export default {
     },
   },
   components: {
-    priorizarRequerimientosActions: PriorizarRequerimientosActions,
-    asignarRequerimientosActions: AsignarRequerimientosActions,
-    RequerimientosAsignadosActions: RequerimientosAsignadosActions,
+    PriorizarRequerimientosActions,
+    AsignarRequerimientosActions,
+    RequerimientosAsignadosActions,
     Note,
     AdjuntoCard,
   },
@@ -279,9 +279,9 @@ export default {
     actionsComponent() {
       switch (this.$route.name) {
         case "priorizar-requerimientos":
-          return "priorizarRequerimientosActions"
+          return "PriorizarRequerimientosActions"
         case "asignar-requerimientos":
-          return "asignarRequerimientosActions"
+          return "AsignarRequerimientosActions"
         case "requerimientos-asignados":
           return "RequerimientosAsignadosActions"
         default:

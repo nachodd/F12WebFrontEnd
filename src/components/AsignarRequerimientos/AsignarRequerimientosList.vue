@@ -68,7 +68,7 @@ import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag } from "@utils/helpers"
 import ListRequerimientos from "@comp/Common/ListRequerimientos"
 import AsignarRequerimientosItem from "@comp/AsignarRequerimientos/AsignarRequerimientosItem"
-import { warn } from "@utils/helpers"
+import { success, warn } from "@utils/helpers"
 
 export default {
   name: "AsignarRequerimientosList",
@@ -132,22 +132,14 @@ export default {
 
       const updatedListData = { listName, listResult, dropResult }
 
-      // console.log(updatedListData)
       this.$store
         .dispatch("asignacionRequerimientos/processUpdateList", updatedListData)
+        .then(message => {
+          if (message) success({ message })
+        })
         .catch(({ message }) => {
           warn({ message })
         })
-
-      // this.setDetalleRequerimiento({
-      //   reqId: dropResult.payload.id,
-      //   listName: "asignar-requerimientos",
-      // }).then(() => {
-      //   this.$store.dispatch(
-      //     "asignacionRequerimientos/setDialogConfirmOperationOpen",
-      //     true,
-      //   )
-      // })
     },
   },
 }

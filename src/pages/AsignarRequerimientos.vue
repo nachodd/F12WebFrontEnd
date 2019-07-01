@@ -27,7 +27,7 @@
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosAsignadosFiltered"
+          :requerimientos-list="requerimientosFiltered('ASSI')"
           :loading-list="loadingList"
           title="Requerimientos Asignados"
           :draggable="true"
@@ -74,10 +74,7 @@ export default {
       reqs: state => state.requerimientos,
       loadingList: state => state.loadingRequerimientos,
     }),
-    ...mapGetters("asignacionRequerimientos", [
-      "requerimientosFiltered",
-      "requerimientosAsignadosFiltered",
-    ]),
+    ...mapGetters("asignacionRequerimientos", ["requerimientosFiltered"]),
   },
   created() {
     this.$store.dispatch("requerimientos/createRequerimiento")
