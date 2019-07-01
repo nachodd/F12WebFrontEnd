@@ -1,6 +1,5 @@
 <template>
   <list-requerimientos :loading-list="loadingList" :title="title">
-    <slot name="filtro"></slot>
     <template v-if="draggable">
       <Container
         v-if="!loadingList"

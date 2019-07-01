@@ -12,7 +12,7 @@
       </template>
       <template v-slot:append>
         <q-icon name="arrow_drop_down" class="cursor-pointer">
-          <q-menu ref="popupproxy" class="hola" :offset="[14, 14]" @show="test">
+          <q-menu ref="popupproxy" class="hola" :offset="[14, 14]">
             <div
               class="row no-wrap q-pa-md q-col-gutter-xs"
               :style="{ width: widthInputDescripcion + 'px' }"
@@ -120,11 +120,6 @@ export default {
     },
     buscar() {
       this.$emit("buscar")
-    },
-    test() {
-      // console.log(this.$refs.popupproxy)
-      // let elm = this.$refs.popupproxy
-      // elm.style.zIndex = "1"
     },
   },
 }
