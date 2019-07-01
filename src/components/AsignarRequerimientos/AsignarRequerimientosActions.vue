@@ -72,7 +72,7 @@
           </div>
           <div class="row q-mt-xs">
             <div class="col-12">
-              <q-slider
+              <!-- <q-slider
                 v-model="1"
                 class="slider"
                 markers
@@ -81,7 +81,7 @@
                 label
                 label-always
                 color="accent"
-              />
+              /> -->
             </div>
           </div>
 
