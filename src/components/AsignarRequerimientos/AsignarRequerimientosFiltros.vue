@@ -89,9 +89,7 @@
       </div>
     </q-menu>
     <div class="q-mt-sm">
-      <span v-if="sistemaSetted || tipoRequerimientoSetted">
-        Filtros:
-      </span>
+      <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
       <span v-if="sistemaSetted" class="q-mx-xs">
         <q-chip removable @remove="removeFilter('sistema')">
           <q-avatar color="red" text-color="white" class="filter-label">
@@ -223,7 +221,7 @@ export default {
   },
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width + 60 + 27 //+ 41
+      this.widthInputDescripcion = size.width + 60 + 24 //+ 41
     },
     removeFilter(filter) {
       this.$store.dispatch("asignacionRequerimientos/setFilter", {
