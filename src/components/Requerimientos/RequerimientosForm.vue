@@ -47,6 +47,7 @@
               v-model="__sistema"
               :options="sistemas"
               label="Sistema"
+              outlined
               :loading="sistemas.length === 0"
               :apply-validation="true"
             />
@@ -56,6 +57,7 @@
               v-model="__tipo"
               :options="requerimientosTipos"
               label="Tipo de Requerimiento"
+              outlined
               :loading="requerimientosTipos.length === 0"
               :apply-validation="true"
             />

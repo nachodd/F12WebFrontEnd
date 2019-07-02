@@ -14,7 +14,7 @@
         <asignar-requerimientos-filtros />
       </div>
     </div>
-    <div class="row q-pt-md q-col-gutter-sm">
+    <div class="row q-pt-md q-px-xs q-col-gutter-sm">
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
           :requerimientos-list="requerimientosFiltered('NOAS')"

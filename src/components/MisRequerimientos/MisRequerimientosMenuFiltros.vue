@@ -1,65 +1,66 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-py-md">
     <q-input
       ref="inputDescripcion"
-      v-model="__descripcion"
-      filled
+      v-model.trim="__descripcion"
+      class="standout-custom"
+      :class="{ popupOpened: popupOpened }"
+      dense
+      standout="bg-white text-black"
       placeholder="Buscar"
-      @keyup.enter="buscar"
+      @keyup.enter="filtrar"
     >
       <template v-slot:prepend>
         <q-icon name="search" />
       </template>
       <template v-slot:append>
-        <q-icon name="arrow_drop_down" class="cursor-pointer">
-          <q-popup-proxy ref="popupproxy" :offset="[14, 14]">
-            <div
-              class="row no-wrap q-pa-md q-col-gutter-xs"
-              :style="{ width: widthInputDescripcion + 'px' }"
-            >
-              <!-- <div class="column items-center">
-                <div class>John Doe</div>
-
-                  <q-btn
-                    v-close-popup
-                    color="primary"
-                    label="Logout"
-                    push
-                    size="sm"
-                />
-              </div>-->
-              <div class="col-6">
-                <select-custom
-                  v-model="__sistema"
-                  :options="sistemas"
-                  label="Sistema"
-                  :loading="sistemas.length === 0"
-                />
-              </div>
-              <div class="col-6">
-                <select-custom
-                  v-model="__tipo"
-                  :options="requerimientosTipos"
-                  label="Tipo de Requerimiento"
-                  :loading="requerimientosTipos.length === 0"
-                />
-              </div>
-            </div>
-            <div class="row q-pa-md justify-end">
-              <q-btn
-                v-close-popup
-                size="md"
-                color="deep-purple-10"
-                @click.native="buscar"
-              >
-                Buscar
-              </q-btn>
-            </div>
-          </q-popup-proxy>
-        </q-icon>
+        <q-icon
+          :name="iconOpenFilter"
+          class="cursor-pointer"
+          @click="popupOpened = !popupOpened"
+        ></q-icon>
       </template>
       <q-resize-observer @resize="onResize" />
     </q-input>
+    <q-menu
+      v-model="popupOpened"
+      :offset="[0, -26]"
+      content-class="q-menu-fix"
+      no-parent-event
+    >
+      <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
+        <div class="row q-pt-sm q-col-gutter-xs">
+          <div class="col-xs-12 col-sm-6">
+            <select-custom
+              v-model="__sistema"
+              :options="sistemas"
+              dense
+              :outlined="false"
+              label="Sistema"
+              standout
+              :loading="sistemas.length === 0"
+            />
+          </div>
+          <div class="col-xs-12 col-sm-6">
+            <select-custom
+              v-model="__tipo"
+              :options="requerimientosTipos"
+              dense
+              :outlined="false"
+              label="Tipo de Requerimiento"
+              standout
+              :loading="requerimientosTipos.length === 0"
+            />
+          </div>
+        </div>
+
+        <div class="row q-pt-sm justify-end">
+          <q-btn size="md" color="deep-purple-10" @click.native="filtrar">
+            Filtrar
+          </q-btn>
+        </div>
+      </div>
+    </q-menu>
   </div>
 </template>
 <script>
@@ -90,6 +91,7 @@ export default {
     return {
       input: "",
       widthInputDescripcion: 0,
+      popupOpened: false,
     }
   },
   computed: {
@@ -123,19 +125,52 @@ export default {
         this.$emit("update:descripcion", value)
       },
     },
+    iconOpenFilter() {
+      return this.popupOpened ? "arrow_drop_up" : "arrow_drop_down"
+    },
   },
-  mounted() {
-    // console.log(this.refs)
-    // this.refs.popupproxy.removeEventListener("scroll")
-    // let elm = svgObjectEl.removeEventListener('load', this.listener)
-  },
+  mounted() {},
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width + 60 + 41
+      this.widthInputDescripcion = size.width + 60 + 24
     },
-    buscar() {
+    filtrar() {
+      this.popupOpened = false
       this.$emit("buscar")
     },
   },
 }
 </script>
+<style lang="scss">
+.q-menu-fix {
+  z-index: 1 !important;
+  border-radius: 0px 0px 4px 4px !important;
+  box-shadow: 0px 4px 6px -3px grey !important;
+}
+
+.filter-label .q-avatar__content {
+  font-size: 0.4em;
+}
+
+.q-field--standout .q-field__control:before {
+  // background: transparent !important;
+  opacity: 1;
+  transition: none !important;
+}
+.q-field--standout .q-field__control:hover {
+  opacity: 1;
+  // transition: none !important;
+}
+
+.popupOpened .q-field__control:before {
+  background: white !important;
+  opacity: 1;
+  transition: none !important;
+  box-shadow: 0px 1px 5px 0px grey !important;
+}
+
+.popupOpened .q-field__control:hover {
+  opacity: 1;
+  transition: none !important;
+}
+</style>
