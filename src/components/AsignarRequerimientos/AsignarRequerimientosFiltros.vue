@@ -13,71 +13,71 @@
         <q-icon name="search" />
       </template>
       <template v-slot:append>
-        <q-icon :name="iconOpenFilter" class="cursor-pointer">
-          <q-menu
-            v-model="popupOpened"
-            :offset="[14, 8]"
-            content-class="z-index-fix"
-          >
-            <div
-              class="q-pa-md"
-              :style="{ width: widthInputDescripcion + 'px' }"
-            >
-              <div class="row q-pt-sm q-col-gutter-xs">
-                <div class="col-xs-12 col-sm-6">
-                  <select-custom
-                    v-model="__sistema"
-                    :options="sistemasUsuarioOptions"
-                    dense
-                    :outlined="false"
-                    standout
-                    label="Sistema"
-                    :loading="sistemas.length === 0"
-                  />
-                </div>
-                <div class="col-xs-12 col-sm-6">
-                  <select-custom
-                    v-model="__tipo"
-                    :options="requerimientosTipos"
-                    label="Tipo de Requerimiento"
-                    dense
-                    :outlined="false"
-                    standout
-                    :loading="requerimientosTipos.length === 0"
-                  />
-                </div>
-              </div>
-              <div class="row q-pt-sm q-col-gutter-xs">
-                <div class="col-xs-12 col-sm-6">
-                  <span class="text-caption">
-                    Usuarios Asignados (Requerimientos Asignados y En Ejecución)
-                  </span>
-                  <q-select
-                    v-model="__usuariosAsignados"
-                    :options="usuariosAsignadosOptionsFiltered"
-                    clearable
-                    standout
-                    dense
-                    :hide-bottom-space="true"
-                    label="Usuarios Asignados"
-                    use-input
-                    use-chips
-                    multiple
-                    @filter="filterUsuariosAsignados"
-                  />
-                </div>
-              </div>
-              <div class="row q-pt-sm justify-end">
-                <q-btn color="deep-purple-10" size="md" @click="filtrar">
-                  Filtrar
-                </q-btn>
-              </div>
-            </div>
-          </q-menu>
-        </q-icon>
+        <q-icon
+          :name="iconOpenFilter"
+          class="cursor-pointer"
+          @keyup="popupOpened = !popupOpened"
+        ></q-icon>
       </template>
       <q-resize-observer @resize="onResize" />
     </q-input>
+    <q-menu
+      v-model="popupOpened"
+      :offset="[0, -24]"
+      content-class="z-index-fix"
+    >
+      <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
+        <div class="row q-pt-sm q-col-gutter-xs">
+          <div class="col-xs-12 col-sm-6">
+            <select-custom
+              v-model="__sistema"
+              :options="sistemasUsuarioOptions"
+              dense
+              :outlined="false"
+              standout
+              label="Sistema"
+              :loading="sistemas.length === 0"
+            />
+          </div>
+          <div class="col-xs-12 col-sm-6">
+            <select-custom
+              v-model="__tipo"
+              :options="requerimientosTipos"
+              label="Tipo de Requerimiento"
+              dense
+              :outlined="false"
+              standout
+              :loading="requerimientosTipos.length === 0"
+            />
+          </div>
+        </div>
+        <div class="row q-pt-sm q-col-gutter-xs">
+          <div class="col-xs-12 col-sm-6">
+            <span class="text-caption">
+              Usuarios Asignados (Requerimientos Asignados y En Ejecución)
+            </span>
+            <q-select
+              v-model="__usuariosAsignados"
+              :options="usuariosAsignadosOptionsFiltered"
+              clearable
+              standout
+              dense
+              :hide-bottom-space="true"
+              label="Usuarios Asignados"
+              use-input
+              use-chips
+              multiple
+              @filter="filterUsuariosAsignados"
+            />
+          </div>
+        </div>
+        <div class="row q-pt-sm justify-end">
+          <q-btn color="deep-purple-10" size="md" @click="filtrar">
+            Filtrar
+          </q-btn>
+        </div>
+      </div>
+    </q-menu>
     <div class="q-mt-sm">
       <span v-if="sistemaSetted || tipoRequerimientoSetted">
         Filtros:
