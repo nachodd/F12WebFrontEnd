@@ -4,6 +4,7 @@
       ref="inputDescripcion"
       v-model.trim="__descripcion"
       class="filter"
+      :class="{ popupOpened: popupOpened }"
       dense
       standout="bg-white text-black"
       placeholder="Buscar por Asunto, Descripcion..."
@@ -24,7 +25,8 @@
     <q-menu
       v-model="popupOpened"
       no-parent-event
-      content-class="z-index-fix"
+      content-class="q-menu-fix"
+      :content-style="{ maxWidth: widthInputDescripcion + 'px !important' }"
       :offset="[0, -24]"
     >
       <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
@@ -221,7 +223,7 @@ export default {
   },
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width + 60 + 24 //+ 41
+      this.widthInputDescripcion = size.width + 60 + 40
     },
     removeFilter(filter) {
       this.$store.dispatch("asignacionRequerimientos/setFilter", {
@@ -250,8 +252,34 @@ export default {
 }
 </script>
 <style lang="stylus">
-.z-index-fix
+.q-menu-fix
   z-index: 1 !important;
+  border-radius: 0px 0px 4px 4px !important;
+  //box-shadow: 0px 4px 6px -3px grey !important;
+  box-shadow:  0px 4px 5px 0px grey !important;
+  overflow-x: hidden;
+
+
+.q-field--standout .q-field__control:before
+  opacity: 1;
+  transition: none !important;
+
+.q-field--standout .q-field__control:hover
+  opacity: 1;
+
+.popupOpened .q-field__control
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+
+.popupOpened .q-field__control:before
+  background: white !important;
+  opacity: 1;
+  transition: none !important;
+  box-shadow: 0px 1px 5px 0px grey !important;
+
+.popupOpened .q-field__control:hover
+  opacity: 1;
+  transition: none !important;
 
 .filter-label .q-avatar__content
   font-size: 0.4em;
@@ -263,5 +291,5 @@ export default {
   transition: background-color 200ms linear;
 
 .filter__icon:hover
-  background-color: $grey-5;
+  background-color: $grey-4;
 </style>
