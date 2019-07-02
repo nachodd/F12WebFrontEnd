@@ -1,95 +1,99 @@
 <template>
   <div class="q-py-md">
-    <q-input
-      ref="inputDescripcion"
-      v-model.trim="__descripcion"
-      class="filter"
-      :class="{ popupOpened: popupOpened }"
-      dense
-      standout="bg-white text-black"
-      placeholder="Buscar por Asunto, Descripcion..."
-      @keyup.enter="filtrar"
-    >
-      <template v-slot:prepend>
-        <q-icon name="search" />
-      </template>
-      <template v-slot:append>
-        <q-icon
-          :name="iconOpenFilter"
-          class="filter__icon cursor-pointer"
-          @click="popupOpened = !popupOpened"
-        ></q-icon>
-      </template>
-      <q-resize-observer @resize="onResize" />
-    </q-input>
-    <q-menu
-      v-model="popupOpened"
-      no-parent-event
-      content-class="q-menu-fix"
-      :content-style="{ maxWidth: widthInputDescripcion + 'px !important' }"
-      :offset="[0, -24]"
-    >
-      <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
-        <div class="row q-pt-sm q-col-gutter-xs">
-          <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
-            Sistema
-          </div>
-          <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-            <select-custom
-              v-model="__sistema"
-              :options="sistemasUsuarioOptions"
-              dense
-              label="Sistema"
-              color="accent"
-              :loading="sistemas.length === 0"
-            />
-          </div>
+    <div class="q-mb-sm">
+      <q-input
+        ref="inputDescripcion"
+        v-model.trim="__descripcion"
+        class="filter"
+        :class="{ popupOpened: popupOpened }"
+        dense
+        standout="bg-white text-black"
+        placeholder="Buscar por Asunto, Descripcion..."
+        @keyup.enter="filtrar"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+        <template v-slot:append>
+          <q-icon
+            :name="iconOpenFilter"
+            class="filter__icon cursor-pointer"
+            @click="popupOpened = !popupOpened"
+          ></q-icon>
+        </template>
+        <q-resize-observer @resize="onResize" />
+      </q-input>
 
-          <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
-            Tipo de Requerimiento
+      <q-menu
+        v-model="popupOpened"
+        no-parent-event
+        content-class="q-menu-fix"
+        :content-style="{ maxWidth: widthInputDescripcion + 'px !important' }"
+        :offset="[0, -4]"
+      >
+        <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
+          <div class="row q-pt-sm q-col-gutter-xs">
+            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
+              Sistema
+            </div>
+            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
+              <select-custom
+                v-model="__sistema"
+                :options="sistemasUsuarioOptions"
+                dense
+                label="Sistema"
+                color="accent"
+                :loading="sistemas.length === 0"
+              />
+            </div>
+
+            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
+              Tipo de Requerimiento
+            </div>
+            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
+              <select-custom
+                v-model="__tipo"
+                :options="requerimientosTipos"
+                dense
+                label="Tipo de Requerimiento"
+                color="accent"
+                :loading="requerimientosTipos.length === 0"
+              />
+            </div>
           </div>
-          <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-            <select-custom
-              v-model="__tipo"
-              :options="requerimientosTipos"
-              dense
-              label="Tipo de Requerimiento"
-              color="accent"
-              :loading="requerimientosTipos.length === 0"
-            />
+          <div class="row q-pt-sm q-col-gutter-xs">
+            <div class="col-12 text-caption q-pt-md text-caption">
+              Para las columans de "Requerimientos Asignados" y "Requerimientos
+              en Ejecución"
+            </div>
+            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
+              Usuarios Asignados
+            </div>
+            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
+              <q-select
+                v-model="__usuariosAsignados"
+                :options="usuariosAsignadosOptionsFiltered"
+                clearable
+                dense
+                :hide-bottom-space="true"
+                label="Usuarios Asignados"
+                use-input
+                use-chips
+                multiple
+                color="accent"
+                @filter="filterUsuariosAsignados"
+              />
+            </div>
+          </div>
+          <div class="row q-pt-md justify-end">
+            <q-btn color="deep-purple-10" size="md" @click="filtrar">
+              Filtrar
+            </q-btn>
           </div>
         </div>
-        <div class="row q-pt-sm q-col-gutter-xs">
-          <div class="col-12 text-caption q-pt-md text-caption">
-            Para las columans de "Requerimientos Asignados" y "Requerimientos en
-            Ejecución"
-          </div>
-          <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
-            Usuarios Asignados
-          </div>
-          <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-            <q-select
-              v-model="__usuariosAsignados"
-              :options="usuariosAsignadosOptionsFiltered"
-              clearable
-              dense
-              :hide-bottom-space="true"
-              label="Usuarios Asignados"
-              use-input
-              use-chips
-              multiple
-              color="accent"
-              @filter="filterUsuariosAsignados"
-            />
-          </div>
-        </div>
-        <div class="row q-pt-md justify-end">
-          <q-btn color="deep-purple-10" size="md" @click="filtrar">
-            Filtrar
-          </q-btn>
-        </div>
-      </div>
-    </q-menu>
+      </q-menu>
+    </div>
+
     <div class="q-mt-sm">
       <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
       <span v-if="sistemaSetted" class="q-mx-xs">
@@ -223,7 +227,7 @@ export default {
   },
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width + 60 + 40
+      this.widthInputDescripcion = size.width + 60 + 30
     },
     removeFilter(filter) {
       this.$store.dispatch("asignacionRequerimientos/setFilter", {
@@ -286,8 +290,8 @@ export default {
 
 .filter__icon
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   transition: background-color 200ms linear;
 
 .filter__icon:hover
