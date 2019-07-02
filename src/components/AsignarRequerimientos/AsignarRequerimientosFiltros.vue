@@ -16,8 +16,8 @@
         <q-icon :name="iconOpenFilter" class="cursor-pointer">
           <q-menu
             v-model="popupOpened"
-            :offset="[14, 8]"
-            content-class="z-index-fix"
+            :offset="[12, 3]"
+            content-class="q-menu-fix"
           >
             <div
               class="q-pa-md"
@@ -79,9 +79,7 @@
       <q-resize-observer @resize="onResize" />
     </q-input>
     <div class="q-mt-sm">
-      <span v-if="sistemaSetted || tipoRequerimientoSetted">
-        Filtros:
-      </span>
+      <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
       <span v-if="sistemaSetted" class="q-mx-xs">
         <q-chip removable @remove="removeFilter('sistema')">
           <q-avatar color="red" text-color="white" class="filter-label">
@@ -213,7 +211,7 @@ export default {
   },
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width + 60 + 27 //+ 41
+      this.widthInputDescripcion = size.width + 60 + 24 //+ 41
     },
     removeFilter(filter) {
       this.$store.dispatch("asignacionRequerimientos/setFilter", {
@@ -242,10 +240,23 @@ export default {
 }
 </script>
 <style lang="scss">
-.z-index-fix {
+.q-menu-fix {
   z-index: 1 !important;
+  border-radius: 0px 0px 4px 4px !important;
+  box-shadow: 0px 4px 6px -3px grey !important;
 }
+
 .filter-label .q-avatar__content {
   font-size: 0.4em;
+}
+
+.q-field--standout .q-field__control:before {
+  background: transparent !important;
+  opacity: 1;
+  transition: none !important;
+}
+.q-field--standout .q-field__control:hover {
+  opacity: 1;
+  transition: none !important;
 }
 </style>
