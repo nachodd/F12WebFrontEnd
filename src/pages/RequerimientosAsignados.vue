@@ -44,7 +44,7 @@ import PageHeader from "@comp/Common/PageHeader"
 import pageLoading from "@mixins/pageLoading"
 import DraggableList from "@comp/RequerimientosAsignados/DraggableList"
 import DialogConfirmOperation from "@comp/RequerimientosAsignados/DialogConfirmOperation"
-import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
+import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
 
 export default {
   name: "RequerimientosAsigandos",

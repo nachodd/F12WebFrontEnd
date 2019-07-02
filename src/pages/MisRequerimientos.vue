@@ -27,7 +27,7 @@ import { warn } from "@utils/helpers"
 import PageHeader from "@comp/Common/PageHeader"
 import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
 import MisRequerimientosMenuFiltros from "@comp/MisRequerimientos/MisRequerimientosMenuFiltros"
-import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
+import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
 
 export default {
   components: {
