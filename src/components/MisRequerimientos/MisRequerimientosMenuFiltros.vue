@@ -4,7 +4,6 @@
       ref="inputDescripcion"
       v-model.trim="__descripcion"
       class="standout-custom"
-      :input-class="{ 'fix-q-input-border-radius': popupOpened }"
       dense
       standout="bg-white text-black"
       placeholder="Buscar"
@@ -18,7 +17,7 @@
           <q-menu
             v-model="popupOpened"
             :offset="[12, 3]"
-            content-class="z-index-fix border-radius-fix box-shadow-fix"
+            content-class="q-menu-fix"
           >
             <div
               class="q-pa-md"
@@ -141,49 +140,23 @@ export default {
 }
 </script>
 <style lang="scss">
-.z-index-fix {
+.q-menu-fix {
   z-index: 1 !important;
+  border-radius: 0px 0px 4px 4px !important;
+  box-shadow: 0px 4px 6px -3px grey !important;
 }
+
 .filter-label .q-avatar__content {
   font-size: 0.4em;
 }
 
-.border-radius-fix {
-  border-radius: 0px 0px 4px 4px !important;
-}
-
-.box-shadow-fix {
-  box-shadow: 0px 4px 6px -3px grey !important;
-  // z-index: 14;
-}
-
-.standout-custom {
-  border-radius: 0px !important;
-}
-
-.standout-custom.q-field--focused {
-  background: none !important;
-}
-
-.fix-q-input-border-radius .q-field__inner .q-field__control {
-  border-radius: 4px 4px 0px 0px !important;
-}
-
-.fix-q-input-border-radius .q-field__inner .q-field__control:before {
-  background: transparent !important;
-  opacity: 0;
-  transition: none !important;
-}
 .q-field--standout .q-field__control:before {
   background: transparent !important;
   opacity: 1;
   transition: none !important;
 }
 .q-field--standout .q-field__control:hover {
-  // background: transparent !important;
   opacity: 1;
   transition: none !important;
-
-  // box-shadow: 0px -1px 7px -2px grey !important;
 }
 </style>
