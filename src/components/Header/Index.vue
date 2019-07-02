@@ -77,6 +77,12 @@ import { mapActions, mapGetters } from "vuex"
 
 export default {
   name: "MyLayout",
+  props: {
+    mini: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       notificaction_count: 0,
@@ -85,7 +91,7 @@ export default {
   computed: {
     ...mapGetters("auth", ["user"]),
     hasSpace() {
-      return this.$q.screen.gt.xs
+      return this.$q.screen.gt.xs && !this.mini
     },
     razonSocial() {
       if (this.user && this.user.razonSocial) {
@@ -121,6 +127,11 @@ export default {
 </script>
 
 <style scoped>
+.q-toolbar {
+  transition: padding 200ms linear;
+  padding-left: 0;
+  padding-right: 0;
+}
 .q-toolbar.wide {
   padding: 20px 0;
 }

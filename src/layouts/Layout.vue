@@ -1,6 +1,6 @@
 <template>
-  <q-layout view="hHh Lpr lFf">
-    <f12-header />
+  <q-layout view="hHh Lpr lFf" @scroll="handleScroll">
+    <f12-header :mini="mini" />
 
     <f12-sidebar />
 
@@ -20,6 +20,16 @@ export default {
   components: {
     F12Header,
     F12Sidebar,
+  },
+  data() {
+    return {
+      mini: false,
+    }
+  },
+  methods: {
+    handleScroll(info) {
+      this.mini = info.position > 100
+    },
   },
 }
 </script>
