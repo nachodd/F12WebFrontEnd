@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
-    <page-header title="Mis Requerimientos" />
-    <MisRequerimientosMenuFiltros
+    <page-header title="Mis Requerimientos" no-margin />
+    <mis-requerimientos-menu-filtros
       v-bind.sync="filtros"
       @buscar="getListRequerimientos"
     />
@@ -19,6 +19,24 @@
       ></q-pagination>
     </div>
     <dialog-detalle-requerimiento />
+
+    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+      <q-btn
+        fab
+        icon="add"
+        color="accent"
+        :to="{ name: 'nuevo-requerimiento' }"
+      >
+        <q-tooltip
+          anchor="center left"
+          self="center right"
+          content-class="bg-accent"
+          content-style="font-size: 14px"
+        >
+          Nuevo Requerimiento
+        </q-tooltip>
+      </q-btn>
+    </q-page-sticky>
   </q-page>
 </template>
 <script>
@@ -70,9 +88,8 @@ export default {
       try {
         const filtros = {
           seccion_id: null,
-          sistema_id: _.get(this.filtros.sistemaId, "id") || null,
-          requerimiento_tipo:
-            _.get(this.filtros.requerimientoTipo, "id") || null,
+          sistema_id: _.get(this, "filtros.sistemaId.id", null),
+          requerimiento_tipo: _.get(this, "filtros.requerimientoTipo.id", null),
           requerimiento_estado: null,
           fecha_desde: null,
           fecha_hasta: null,
@@ -81,14 +98,12 @@ export default {
           perPage: 10,
         }
 
-        const a = await this.$store.dispatch(
+        const res = await this.$store.dispatch(
           "requerimientos/listRequerimientos",
-          {
-            filtros,
-          },
+          filtros,
         )
 
-        this.lastPage = a.last_page
+        this.lastPage = res.last_page
         // this.current = a.current_page
       } catch (e) {
         const message =

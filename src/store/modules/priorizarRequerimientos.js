@@ -18,6 +18,7 @@ const state = {
   loadingReqsAprobadosPriorizados: false,
 
   dialogConfirmOpen: false,
+  usuarioImpersonateId: null,
   possibleChanges: {
     sourceList: [],
     sourceChanges: {
@@ -259,17 +260,23 @@ const mutations = {
       id: reqId,
     }).comentario = comment
   },
+  SET_USUARIO_IMPERSONATE: (state, usuarioImpersonateId) => {
+    state.usuarioImpersonateId = usuarioImpersonateId
+  },
 }
 
 const actions = {
   inicializarPriorizarRequerimientos(
-    { dispatch, rootGetters },
+    { commit, dispatch, rootGetters },
     { userId = null },
   ) {
     const esElUltimoDeLaCadenaDeMando =
       rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
     const userIdToQuery = userId !== null ? userId : rootGetters["auth/userId"]
+
+    // Si no impersonamos a nadie, el userId viene en null
+    commit("SET_USUARIO_IMPERSONATE", userId)
 
     dispatch("getRequerimientosByUserAndEstado", {
       userId: userIdToQuery,
@@ -461,11 +468,14 @@ const actions = {
   setDialogConfirmOperationOpen({ commit }, value = true) {
     commit("SET_DIALOG_CONFIRM_OPERATION_OPEN", value)
   },
-  async persistChanges({ dispatch, getters, rootGetters }, list) {
+  async persistChanges({ dispatch, getters, rootGetters, state }, list) {
     try {
       const userId = rootGetters["auth/userId"]
       dispatch("app/loadingInc", null, { root: true })
-      await updateRequerimientosEstados(userId, list)
+      await updateRequerimientosEstados(userId, {
+        requerimientos: list,
+        usuarioImpersonate: state.usuarioImpersonateId,
+      })
 
       let message = ""
       switch (getters.operationType) {

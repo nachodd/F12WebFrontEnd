@@ -58,13 +58,22 @@
       </q-item-label>
     </q-item-section>
 
-    <!-- <q-item-section top side>
+    <q-item-section top side class="padding-none">
       <div class="text-grey-8 q-gutter-xs">
-        <q-btn class="gt-xs" size="12px" flat dense round icon="delete" />
-
-        <q-btn size="12px" flat dense round icon="more_vert" />
+        <q-btn
+          size="12px"
+          flat
+          dense
+          round
+          icon="more_vert"
+          :to="{ name: 'editar-requerimiento', params: { id: req.id } }"
+        >
+          <q-tooltip>
+            Editar Requerimiento
+          </q-tooltip>
+        </q-btn>
       </div>
-    </q-item-section>-->
+    </q-item-section>
   </q-item>
 </template>
 <style scope>
@@ -72,6 +81,9 @@
   font-size: 80px !important;
   height: auto !important;
   width: auto !important;
+}
+.padding-none {
+  padding: 0 !important;
 }
 </style>
 

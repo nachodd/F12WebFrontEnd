@@ -62,11 +62,11 @@ export function getRequerimientosByUserAndEstado(userId, estadoId) {
   })
 }
 
-export function updateRequerimientosEstados(userId, requerimientosList) {
+export function updateRequerimientosEstados(userId, data) {
   return request({
     url: `/v1/f12/${userId}/requerimientos/proceso`,
     method: "put",
-    data: requerimientosList,
+    data,
   })
 }
 
