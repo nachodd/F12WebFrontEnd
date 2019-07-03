@@ -1,12 +1,19 @@
 <template functional>
   <div
+    class="row justify-around"
     :class="{
-      'pageheader-h2': true,
       underlined: props.showUnderline,
       'pageheader-mb': !props.noMargin,
     }"
   >
-    {{ props.title }}
+    <div class="col">
+      <div class="pageheader-h2">
+        {{ props.title }}
+      </div>
+    </div>
+    <div class="col-3">
+      <slot />
+    </div>
   </div>
 </template>
 <script>
@@ -28,18 +35,17 @@ export default {
 }
 </script>
 
-<style scoped>
-.pageheader-h2 {
+<style lang="stylus">
+.pageheader-h2
   font-size: 1.5rem;
   line-height: 1.5rem;
   padding: 0.5rem 0;
   font-weight: 500;
-  color: var(--q-color-accent);
-}
-.underlined {
+  color: $accent
+
+.underlined
   border-bottom: 1px solid #ccc;
-}
-.pageheader-mb {
+
+.pageheader-mb
   margin: 0 0 2rem;
-}
 </style>
