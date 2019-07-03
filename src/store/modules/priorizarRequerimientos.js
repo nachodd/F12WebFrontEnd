@@ -262,19 +262,23 @@ const mutations = {
 }
 
 const actions = {
-  inicializarPriorizarRequerimientos({ dispatch, rootGetters }) {
+  inicializarPriorizarRequerimientos(
+    { dispatch, rootGetters },
+    { userId = null },
+  ) {
     const esElUltimoDeLaCadenaDeMando =
       rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
-    const currentUserId = rootGetters["auth/userId"]
+
+    const userIdToQuery = userId !== null ? userId : rootGetters["auth/userId"]
 
     dispatch("getRequerimientosByUserAndEstado", {
-      userId: currentUserId,
+      userId: userIdToQuery,
       reqState: "PEND",
     })
 
     if (!esElUltimoDeLaCadenaDeMando) {
       dispatch("getRequerimientosByUserAndEstado", {
-        userId: currentUserId,
+        userId: userIdToQuery,
         reqState: "APRV",
       })
     }

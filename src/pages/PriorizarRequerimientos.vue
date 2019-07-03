@@ -1,6 +1,20 @@
 <template>
   <q-page padding>
-    <page-header title="Priorizar Requerimientos" />
+    <page-header title="Priorizar Requerimientos">
+      <template v-if="hasReportantes">
+        <q-select
+          v-model="usuarioVerComo"
+          color="accent"
+          dense
+          filled
+          :options="optionsUsersReportantes"
+          emit-value
+          map-options
+          :value="null"
+          @input="changeUsuarioVerComo"
+        />
+      </template>
+    </page-header>
     <div class="row q-col-gutter-md justify-center">
       <div class="col-sm-6 col-xs-12">
         <draggable-list
@@ -34,7 +48,7 @@ import PageHeader from "@comp/Common/PageHeader"
 import pageLoading from "@mixins/pageLoading"
 import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
 import DialogConfirmOperation from "@comp/PriorizarRequerimientos/DialogConfirmOperation"
-import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
+import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
 
 export default {
   name: "PriorizarRequerimientos",
@@ -45,24 +59,15 @@ export default {
     DialogDetalleRequerimiento,
   },
   mixins: [pageLoading],
-  // data() {
-  //   return {
-  //     detalleRequerimientoOpen: true,
-  //   }
-  // },
+  data: () => ({
+    usuarioVerComo: null,
+  }),
   computed: {
     ...mapGetters("auth", [
-      // "userId",
-      // "hasJefes",
-      // "hasReportantes",
-      // "userJefes",
-      // "userReportantes",
+      "hasReportantes",
+      "userReportantes",
       "esElUltimoDeLaCadenaDeMando",
     ]),
-    // ...mapGetters("priorizarRequerimientos", [
-    //   "possibleChangesSetted",
-    //   "operationType",
-    // ]),
     ...mapState("priorizarRequerimientos", {
       reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
       reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,
@@ -71,12 +76,26 @@ export default {
       loadingReqsAprobadosPriorizados: state =>
         state.loadingReqsAprobadosPriorizados,
     }),
+    optionsUsersReportantes() {
+      return [
+        {
+          label: "Ver listado como...",
+          value: null,
+        },
+        ..._.orderBy(this.userReportantes, "label"),
+      ]
+    },
   },
   async created() {
-    this.$store.dispatch(
-      "priorizarRequerimientos/inicializarPriorizarRequerimientos",
-    )
+    this.changeUsuarioVerComo(null)
   },
-  methods: {},
+  methods: {
+    changeUsuarioVerComo(userId) {
+      this.$store.dispatch(
+        "priorizarRequerimientos/inicializarPriorizarRequerimientos",
+        { userId },
+      )
+    },
+  },
 }
 </script>

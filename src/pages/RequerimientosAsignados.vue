@@ -44,7 +44,7 @@ import PageHeader from "@comp/Common/PageHeader"
 import pageLoading from "@mixins/pageLoading"
 import DraggableList from "@comp/RequerimientosAsignados/DraggableList"
 import DialogConfirmOperation from "@comp/RequerimientosAsignados/DialogConfirmOperation"
-import DialogDetalleRequerimiento from "@comp/PriorizarRequerimientos/DialogDetalleRequerimiento"
+import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
 
 export default {
   name: "RequerimientosAsigandos",
@@ -55,14 +55,8 @@ export default {
     DialogDetalleRequerimiento,
   },
   mixins: [pageLoading],
-  // data() {
-  //   return {
-  //     detalleRequerimientoOpen: true,
-  //   }
-  // },
   computed: {
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
-
     ...mapState("priorizarRequerimientos", {
       reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
       reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,
@@ -71,7 +65,6 @@ export default {
       loadingReqsAprobadosPriorizados: state =>
         state.loadingReqsAprobadosPriorizados,
     }),
-
     ...mapState("requerimientosAsignados", {
       reqsAsignadosPendientes: state => state.reqsAsignadosPendientes,
       reqsAsignadosEnEjecucion: state => state.reqsAsignadosEnEjecucion,
