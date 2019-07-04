@@ -1,4 +1,5 @@
 import Cookies from "js-cookie"
+import { getDashboardData } from "@api/user"
 
 const state = {
   sidebarOpen: Cookies.get("sidebarStatus")
@@ -7,6 +8,8 @@ const state = {
   device: "desktop",
   size: Cookies.get("size") || "medium",
   loadingLevel: 0,
+  dashboard: {},
+  loadingDashboard: false,
 }
 
 // getters
@@ -56,6 +59,12 @@ const mutations = {
   LOADING_RESET: state => {
     state.loadingLevel = 0
   },
+  SET_DASHBOARD_DATA: (state, dashboard) => {
+    state.dashboard = dashboard
+  },
+  SET_LOADING_DASHBOARD: (state, value) => {
+    state.loadingDashboard = value
+  },
 }
 
 const actions = {
@@ -91,6 +100,20 @@ const actions = {
   },
   loadingReset({ commit }) {
     commit("LOADING_RESET")
+  },
+  getDashboardData({ commit }, userId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        commit("SET_LOADING_DASHBOARD", true)
+        const res = await getDashboardData(userId)
+        commit("SET_DASHBOARD_DATA", res)
+        resolve()
+      } catch (error) {
+        reject(error)
+      } finally {
+        commit("SET_LOADING_DASHBOARD", false)
+      }
+    })
   },
 }
 

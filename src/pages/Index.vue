@@ -7,12 +7,12 @@
         <router-link :to="{ name: 'priorizar-requerimientos' }" class="no-dec">
           <widget-simple
             icon="fas fa-sort-amount-down"
-            :value="reqsAPriorizar"
+            :value="dashboard.pendientes_priorizacion"
             description="Reqs. a PRIORIZAR"
             icon-background-color="#3949ab"
             icon-background-gradient
             info-text-class="text-indigo-7"
-            :loading="loading"
+            :loading="loadingDashboard"
           />
         </router-link>
       </div>
@@ -21,12 +21,12 @@
         <router-link :to="{ name: 'asignar-requerimientos' }" class="no-dec">
           <widget-simple
             icon="far fa-hand-pointer "
-            :value="reqsPendAsignacion"
+            :value="dashboard.pendientes_asignacion"
             description="Reqs. PEND. de ASIG."
             icon-background-color="#c62828"
             icon-background-gradient
             info-text-class="text-red-9"
-            :loading="loading"
+            :loading="loadingDashboard"
           />
         </router-link>
       </div>
@@ -38,12 +38,12 @@
         <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
           <widget-simple
             icon="fas fa-bell"
-            :value="reqsAsignados"
+            :value="dashboard.asignados_ejecucion"
             description="Reqs. ASIGNADOS"
             icon-background-color="#2e7d32"
             icon-background-gradient
             info-text-class="text-green-9"
-            :loading="loading"
+            :loading="loadingDashboard"
           />
         </router-link>
       </div>
@@ -54,14 +54,13 @@
 <script>
 import PageHeader from "@comp/Common/PageHeader"
 import WidgetSimple from "@comp/Inicio/WidgetSimple"
-import { mapGetters } from "vuex"
+import { mapGetters, mapState } from "vuex"
 
 export default {
   name: "Index",
   components: { PageHeader, WidgetSimple },
   data() {
     return {
-      loading: true,
       reqsAPriorizar: 0,
       reqsPendAsignacion: 0,
       reqsAsignados: 0,
@@ -71,12 +70,15 @@ export default {
     ...mapGetters("auth", [
       "userEsResponsable",
       "puedeVerRequerimientosAsignados",
+      "userId",
     ]),
+    ...mapState("app", {
+      dashboard: state => state.dashboard,
+      loadingDashboard: state => state.loadingDashboard,
+    }),
   },
   mounted() {
-    setTimeout(() => {
-      this.loading = false
-    }, 1000)
+    this.$store.dispatch("app/getDashboardData", this.userId)
   },
 }
 </script>

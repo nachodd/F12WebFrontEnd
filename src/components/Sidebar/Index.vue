@@ -21,8 +21,8 @@
         <q-item
           v-ripple
           clickable
-          :to="{ name: 'nuevo-requerimiento' }"
-          active-class="menu-items--active"
+          :to="{ query: { ver: 'crearRequerimiento' } }"
+          active-class=""
         >
           <q-item-section avatar>
             <q-icon name="note_add" />

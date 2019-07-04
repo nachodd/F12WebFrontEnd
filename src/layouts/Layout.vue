@@ -9,18 +9,22 @@
       <!-- <router-view :key="$route.path" /> -->
       <router-view />
     </q-page-container>
+
+    <fab-crud-modal />
   </q-layout>
 </template>
 
 <script>
 import F12Header from "@comp/Header"
 import F12Sidebar from "@comp/Sidebar"
+import FabCrudModal from "@comp/Requerimientos/FabCrudModal"
 
 export default {
   name: "F12Layout",
   components: {
     F12Header,
     F12Sidebar,
+    FabCrudModal,
   },
   data() {
     return {

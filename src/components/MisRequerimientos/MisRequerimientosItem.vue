@@ -66,7 +66,7 @@
           dense
           round
           icon="more_vert"
-          :to="{ name: 'editar-requerimiento', params: { id: req.id } }"
+          :to="{ query: { ver: 'editarRequerimiento', id: req.id } }"
         >
           <q-tooltip>
             Editar Requerimiento

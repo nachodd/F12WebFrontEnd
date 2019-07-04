@@ -19,27 +19,6 @@
       ></q-pagination>
     </div>
     <dialog-detalle-requerimiento />
-
-    <q-page-sticky position="bottom-right" :offset="[18, 18]">
-      <q-btn
-        fab
-        icon="add"
-        text-color="white"
-        class="bg-gradient"
-        :to="{ name: 'nuevo-requerimiento' }"
-      >
-        <q-tooltip
-          anchor="center left"
-          self="center right"
-          content-class="bg-accent"
-          content-style="font-size: 14px"
-        >
-          Nuevo Requerimiento
-        </q-tooltip>
-      </q-btn>
-    </q-page-sticky>
-
-    <router-view :key="$route.path" />
   </q-page>
 </template>
 <script>
@@ -49,7 +28,6 @@ import PageHeader from "@comp/Common/PageHeader"
 import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
 import MisRequerimientosMenuFiltros from "@comp/MisRequerimientos/MisRequerimientosMenuFiltros"
 import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
-//import MisRequerimientosCrudModal from "@comp/MisRequerimientos/MisRequerimientosCrudModal"
 
 export default {
   components: {
@@ -57,7 +35,6 @@ export default {
     MisRequerimientosListado,
     DialogDetalleRequerimiento,
     MisRequerimientosMenuFiltros,
-    // MisRequerimientosCrudModal,
   },
   data() {
     return {
@@ -91,6 +68,10 @@ export default {
   async mounted() {
     this.getListRequerimientos()
     await this.$store.dispatch("requerimientos/createRequerimiento")
+    this.$root.$on("load-list-requerimientos", this.getListRequerimientos)
+  },
+  unmounted() {
+    this.$root.$off("load-list-requerimientos", this.getListRequerimientos)
   },
   methods: {
     async getListRequerimientos() {
