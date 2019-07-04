@@ -2,17 +2,20 @@
   <q-page padding>
     <page-header title="Priorizar Requerimientos">
       <template v-if="hasReportantes">
-        <q-select
-          v-model="usuarioVerComo"
-          color="accent"
-          dense
-          filled
-          :options="optionsUsersReportantes"
-          emit-value
-          map-options
-          :value="null"
-          @input="changeUsuarioVerComo"
-        />
+        <div class="row">
+          <div class="col">
+            <q-select
+              v-model="usuarioVerComo"
+              color="accent"
+              dense
+              standout
+              :options="optionsUsersReportantes"
+              emit-value
+              map-options
+              @input="changeUsuarioVerComo"
+            />
+          </div>
+        </div>
       </template>
     </page-header>
     <div class="row q-col-gutter-md justify-center">
@@ -77,9 +80,13 @@ export default {
         state.loadingReqsAprobadosPriorizados,
     }),
     optionsUsersReportantes() {
+      const label =
+        this.usuarioVerComo === null
+          ? "Ver listado como..."
+          : `<strong>VOLVER A MI LISTADO</strong>`
       return [
         {
-          label: "Ver listado como...",
+          label,
           value: null,
         },
         ..._.orderBy(this.userReportantes, "label"),

@@ -14,6 +14,25 @@
       :value="asunto"
       @input="$emit('update:asunto', $event)"
     />
+
+    <select-custom
+      v-model="__sistema"
+      :options="sistemas"
+      label="Sistema"
+      outlined
+      :loading="sistemas.length === 0"
+      :apply-validation="true"
+    />
+
+    <select-custom
+      v-model="__tipo"
+      :options="requerimientosTipos"
+      label="Tipo de Requerimiento"
+      outlined
+      :loading="requerimientosTipos.length === 0"
+      :apply-validation="true"
+    />
+
     <q-input
       outlined
       type="textarea"
@@ -29,42 +48,6 @@
       @filesAdded="handleFilesAdded"
       @filesRemoved="handleFilesRemoved"
     />
-
-    <!-- Wrapper de row - col por el tema del gutter izquierdo -->
-    <div class="row">
-      <div class="col">
-        <div class="row q-col-gutter-sm">
-          <!-- <div class="col col-sm-4 col-xs-12">
-            <select-custom
-              v-model="__area"
-              :options="areas"
-              label="Area"
-              :loading="areas.length === 0"
-            />
-          </div>-->
-          <div class="col col-sm-6 col-xs-12">
-            <select-custom
-              v-model="__sistema"
-              :options="sistemas"
-              label="Sistema"
-              outlined
-              :loading="sistemas.length === 0"
-              :apply-validation="true"
-            />
-          </div>
-          <div class="col col-sm-6 col-xs-12">
-            <select-custom
-              v-model="__tipo"
-              :options="requerimientosTipos"
-              label="Tipo de Requerimiento"
-              outlined
-              :loading="requerimientosTipos.length === 0"
-              :apply-validation="true"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div>
       <q-list link>

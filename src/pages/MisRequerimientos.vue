@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
-    <page-header title="Mis Requerimientos" />
-    <MisRequerimientosMenuFiltros
+    <page-header title="Mis Requerimientos" no-margin />
+    <mis-requerimientos-menu-filtros
       v-bind.sync="filtros"
       @buscar="getListRequerimientos"
     />
@@ -48,6 +48,7 @@ export default {
         descripcion: null,
         // seccionId:null
       },
+      crudModalOpen: false,
     }
   },
   computed: {
@@ -60,19 +61,25 @@ export default {
     current() {
       this.getListRequerimientos()
     },
+    "$route.meta"({ showCrudModal = false }) {
+      this.crudModalOpen = showCrudModal
+    },
   },
   async mounted() {
     this.getListRequerimientos()
     await this.$store.dispatch("requerimientos/createRequerimiento")
+    this.$root.$on("load-list-requerimientos", this.getListRequerimientos)
+  },
+  unmounted() {
+    this.$root.$off("load-list-requerimientos", this.getListRequerimientos)
   },
   methods: {
     async getListRequerimientos() {
       try {
         const filtros = {
           seccion_id: null,
-          sistema_id: _.get(this.filtros.sistemaId, "id") || null,
-          requerimiento_tipo:
-            _.get(this.filtros.requerimientoTipo, "id") || null,
+          sistema_id: _.get(this, "filtros.sistemaId.id", null),
+          requerimiento_tipo: _.get(this, "filtros.requerimientoTipo.id", null),
           requerimiento_estado: null,
           fecha_desde: null,
           fecha_hasta: null,
@@ -81,14 +88,12 @@ export default {
           perPage: 10,
         }
 
-        const a = await this.$store.dispatch(
+        const res = await this.$store.dispatch(
           "requerimientos/listRequerimientos",
-          {
-            filtros,
-          },
+          filtros,
         )
 
-        this.lastPage = a.last_page
+        this.lastPage = res.last_page
         // this.current = a.current_page
       } catch (e) {
         const message =

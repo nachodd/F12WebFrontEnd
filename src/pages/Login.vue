@@ -3,7 +3,7 @@
     <q-page-container class>
       <q-card class="card shadow-5 rounded-borders-8">
         <q-card-section
-          class="bg-deep-purple-10 card-header-offset rounded-borders-8"
+          class="card__header card-header-offset rounded-borders-8"
         >
           <div class="text-h3 text-center">
             <span class="text-h2 f twelve">F</span>
@@ -109,17 +109,19 @@ export default {
   },
 }
 </script>
-<style lang="scss" scoped>
-.card {
+<style lang="stylus" scoped>
+.card
   width: 400px;
   padding: 20px;
   background-color: #fff;
-}
-.f.twelve {
+
+.f.twelve
   font-size: 4.7rem;
-}
-.twelve {
+
+.twelve
   letter-spacing: -10px;
   font-weight: bold;
-}
+
+.card__header
+  background linear-gradient(to top right, $deep-purple-7, $blue-9 )
 </style>

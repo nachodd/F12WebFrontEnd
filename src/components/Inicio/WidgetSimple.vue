@@ -8,6 +8,7 @@
     <div
       class="col-sm-5 col-xs-5 row items-center rounded-borders q-pa-sm"
       :class="[iconBackgroundClass]"
+      :style="backGradientColor"
     >
       <div class="text-center col" :class="[iconTextClass]">
         <q-icon
@@ -34,6 +35,7 @@
   </div>
 </template>
 <script>
+import { pSBC } from "@utils/colorHelper"
 export default {
   props: {
     loading: {
@@ -45,7 +47,7 @@ export default {
       required: true,
     },
     value: {
-      type: String,
+      type: [String, Number],
       required: true,
     },
     description: {
@@ -54,7 +56,7 @@ export default {
     },
     iconBackgroundClass: {
       type: String,
-      default: "bg-red-9",
+      default: "",
     },
     iconTextClass: {
       type: String,
@@ -68,11 +70,39 @@ export default {
       type: String,
       default: "text-red",
     },
+
+    iconBackgroundColor: {
+      type: String,
+      default: null,
+    },
+    iconBackgroundGradient: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
       hover: false,
     }
+  },
+  computed: {
+    backGradientColor() {
+      if (this.iconBackgroundColor === null) {
+        return {}
+      }
+      if (this.iconBackgroundGradient) {
+        const toColor = pSBC(0.5, this.iconBackgroundColor)
+        return {
+          background: `linear-gradient(45deg, ${this.iconBackgroundColor}, ${
+            this.iconBackgroundColor
+          } 25% , ${toColor} 100%)`,
+        }
+      } else {
+        return {
+          background: this.iconBackgroundColor,
+        }
+      }
+    },
   },
 }
 </script>

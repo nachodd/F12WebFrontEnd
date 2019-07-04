@@ -8,7 +8,7 @@
         :class="{ popupOpened: popupOpened }"
         dense
         standout="bg-white text-black"
-        placeholder="Buscar por Asunto, Descripcion..."
+        placeholder="Buscar por Asunto, Descripcion, Usuario Asignado..."
         @keyup.enter="filtrar"
       >
         <template v-slot:prepend>

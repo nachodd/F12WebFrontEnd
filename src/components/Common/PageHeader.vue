@@ -11,7 +11,7 @@
         {{ props.title }}
       </div>
     </div>
-    <div class="col-3">
+    <div v-if="!!$slots.default" class="col-auto pageheader-slot">
       <slot />
     </div>
   </div>
@@ -48,4 +48,8 @@ export default {
 
 .pageheader-mb
   margin: 0 0 2rem;
+
+.pageheader-slot
+  padding: 0.5rem 0px;
+  text-align: right;
 </style>

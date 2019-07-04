@@ -1,14 +1,13 @@
 <template>
   <q-page padding>
-    <page-header title="Asignar Requerimientos" no-margin />
-    <div class="row q-py-md">
-      <div class="col">
+    <page-header title="Asignar Requerimientos" no-margin>
+      <div>
         <div class="square d-ib bg-red-7">&nbsp;</div>
         Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
         <div class="square d-ib bg-light-blue-7">&nbsp;</div>
         Desarrollo / Mejora &nbsp;&nbsp;
       </div>
-    </div>
+    </page-header>
     <div class="row">
       <div class="col">
         <asignar-requerimientos-filtros />
