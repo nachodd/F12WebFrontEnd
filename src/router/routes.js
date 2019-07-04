@@ -1,3 +1,5 @@
+import MisRequerimientosCrudModal from "@comp/MisRequerimientos/MisRequerimientosCrudModal"
+
 const routes = [
   {
     path: "/login",
@@ -21,22 +23,22 @@ const routes = [
           // roles: ["menu_sistemas"],
         },
       },
-      {
+      /* {
         path: "/nuevo-requerimiento",
         name: "nuevo-requerimiento",
         component: () => import("pages/CrearEditarRequerimiento.vue"),
         meta: {
           title: "Nuevo Requerimiento - F12",
         },
-      },
-      {
+      }, */
+      /* {
         path: "/editar-requerimiento/:id",
         name: "editar-requerimiento",
         component: () => import("pages/CrearEditarRequerimiento.vue"),
         meta: {
           title: "Editar Requerimiento - F12",
         },
-      },
+      }, */
       {
         path: "/mis-requerimientos",
         name: "mis-requerimientos",
@@ -44,6 +46,24 @@ const routes = [
         meta: {
           title: "Mis Requerimientos - F12",
         },
+        children: [
+          {
+            path: "nuevo",
+            name: "nuevo-requerimiento",
+            component: MisRequerimientosCrudModal,
+            meta: {
+              title: "Nuevo Requerimiento - F12",
+            },
+          },
+          {
+            path: "editar/:id",
+            name: "editar-requerimiento",
+            component: MisRequerimientosCrudModal,
+            meta: {
+              title: "Editar Requerimiento - F12",
+            },
+          },
+        ],
       },
       {
         path: "/priorizar-requerimientos",

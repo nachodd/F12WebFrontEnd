@@ -24,7 +24,8 @@
       <q-btn
         fab
         icon="add"
-        color="accent"
+        text-color="white"
+        class="bg-gradient"
         :to="{ name: 'nuevo-requerimiento' }"
       >
         <q-tooltip
@@ -37,6 +38,8 @@
         </q-tooltip>
       </q-btn>
     </q-page-sticky>
+
+    <router-view :key="$route.path" />
   </q-page>
 </template>
 <script>
@@ -46,6 +49,7 @@ import PageHeader from "@comp/Common/PageHeader"
 import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
 import MisRequerimientosMenuFiltros from "@comp/MisRequerimientos/MisRequerimientosMenuFiltros"
 import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
+//import MisRequerimientosCrudModal from "@comp/MisRequerimientos/MisRequerimientosCrudModal"
 
 export default {
   components: {
@@ -53,6 +57,7 @@ export default {
     MisRequerimientosListado,
     DialogDetalleRequerimiento,
     MisRequerimientosMenuFiltros,
+    // MisRequerimientosCrudModal,
   },
   data() {
     return {
@@ -66,6 +71,7 @@ export default {
         descripcion: null,
         // seccionId:null
       },
+      crudModalOpen: false,
     }
   },
   computed: {
@@ -77,6 +83,9 @@ export default {
   watch: {
     current() {
       this.getListRequerimientos()
+    },
+    "$route.meta"({ showCrudModal = false }) {
+      this.crudModalOpen = showCrudModal
     },
   },
   async mounted() {

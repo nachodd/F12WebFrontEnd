@@ -6,7 +6,8 @@
 
     <q-page-container>
       <!-- FIX: https://stackoverflow.com/questions/42603583/vue-js-same-component-with-different-routes -->
-      <router-view :key="$route.path" />
+      <!-- <router-view :key="$route.path" /> -->
+      <router-view />
     </q-page-container>
   </q-layout>
 </template>
