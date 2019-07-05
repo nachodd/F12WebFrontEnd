@@ -102,17 +102,16 @@ export const pSBC = (p, c0, c1, l) => {
     )
 }
 
-// Log Blending
+// Log Blending Shade
 // pSBC ( 0.42, color1 ); // rgb(20,60,200) + [42% Lighter] => rgb(166,171,225)
 // pSBC ( -0.4, color5 ); // #F3A + [40% Darker] => #c62884
 
-// Linear Blending
+// Linear Blending Shade
 // pSBC ( 0.42, color1, false, true ); // rgb(20,60,200) + [42% Lighter] => rgb(119,142,223)
 // pSBC ( -0.4, color5, false, true ); // #F3A + [40% Darker] => #991f66
 
 // Changes the RGB/HEX temporarily to a HSL-Value, modifies that value
 // and changes it back to RGB/HEX.
-
 export function changeHue(rgb, degree) {
   var hsl = rgbToHSL(rgb)
   hsl.h += degree

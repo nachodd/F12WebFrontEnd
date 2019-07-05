@@ -50,7 +50,7 @@
             width: '5px',
             opacity: 0.75,
           }"
-          class="modal-body"
+          class="body-detalle-requerimiento"
         >
           <q-tab-panels v-model="tab" animated>
             <!-- Tab Detalle -->
@@ -128,19 +128,20 @@
                   <note title="Vencimiento:" type="danger">
                     <div>
                       {{ req.fechaLimite }}
-                      <template v-if="vencimientoDiff !== null">
-                        <span v-if="vencimientoDiff > 0" class="text-black">
+                      <template v-if="diasVencimiento !== null">
+                        <span v-if="diasVencimiento > 0" class="text-black">
                           (Faltan
-                          <strong>{{ vencimientoDiff }}</strong>
+                          <strong>{{ diasVencimiento }}</strong>
                           días)
                         </span>
 
-                        <span v-if="vencimientoDiff === 0" class="text-black">
+                        <span v-if="diasVencimiento === 0" class="text-black">
                           (HOY es el día de vencimiento)
                         </span>
 
-                        <strong v-if="vencimientoDiff < 0">
-                          (Este req. se encuentra vencido )
+                        <strong v-if="diasVencimiento < 0">
+                          (Este req. lleva {{ diasVencimiento * -1 }} días
+                          vencido)
                         </strong>
                       </template>
                       <br />
@@ -171,7 +172,11 @@
             </q-tab-panel>
 
             <!-- Tab Acciones (dinamico) -->
-            <q-tab-panel v-if="showAcciones" name="acciones" class="modal-body">
+            <q-tab-panel
+              v-if="showAcciones"
+              name="acciones"
+              class="body-detalle-requerimiento"
+            >
               <component :is="actionsComponent" @closeDialog="closeDialog" />
             </q-tab-panel>
 
@@ -185,7 +190,7 @@
                     :title="movimiento.estado | formatearEstado(movimiento)"
                     :subtitle="movimiento | formatearUsuarioYFecha"
                     text-color="grey"
-                    class="title-custom"
+                    class="timeline-entry-custom"
                   >
                     <div>{{ movimiento.comentario }}</div>
                   </q-timeline-entry>
@@ -265,17 +270,6 @@ export default {
     requerimientoSetted() {
       return !_.isEmpty(this.req)
     },
-    vencimientoDiff() {
-      if (this.req && this.req.vence) {
-        const diff = date.getDateDiff(
-          new Date(this.req._fechaLimite),
-          new Date(),
-          "days",
-        )
-        return diff
-      }
-      return null
-    },
     actionsComponent() {
       switch (this.$route.name) {
         case "priorizar-requerimientos":
@@ -327,6 +321,9 @@ export default {
     tieneAdjuntos() {
       return this.req.adjuntosCargadosUrl.length > 0
     },
+    diasVencimiento() {
+      return this.req.diasToVencimiento
+    },
   },
   created() {
     this.asignacionUsuarios = _.map(this.userReportantes, ur => {
@@ -344,33 +341,14 @@ export default {
 }
 </script>
 
-<style lang="scss" scope>
+<style lang="scss">
 .avatar--lg {
   font-size: 80px !important;
   height: auto !important;
   width: auto !important;
 }
-
-.title-custom .q-timeline__title {
-  margin: 0px;
-}
-.title-custom.q-timeline--dense--right .q-timeline__entry {
-  padding-left: 25px;
-}
-.title-custom .q-timeline__title {
-  font-size: 1rem;
-}
-
-.modal-body-container {
-  height: 60vh;
-  width: 84vh;
-  padding: 0px !important;
-}
-.modal-body {
+.body-detalle-requerimiento {
   min-height: 100px;
   height: calc(100vh - 121px - 100px);
-}
-.text-subtitle3 {
-  font-size: 14px;
 }
 </style>

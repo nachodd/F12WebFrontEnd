@@ -257,6 +257,13 @@ const mutations = {
   SET_FILTROS: (state, { filter, value }) => {
     state.filtros[filter] = value
   },
+  CLEAR_FILTROS: state => {
+    state.filtros.sistema = null
+    state.filtros.requerimientoTipo = null
+    state.filtros.descripcion = null
+    state.filtros.usuariosAsignados = []
+  },
+
   UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO: (
     state,
     {
@@ -534,6 +541,12 @@ const actions = {
   setFilter({ commit }, { filter, value }) {
     return new Promise(resolve => {
       commit("SET_FILTROS", { filter, value })
+      resolve()
+    })
+  },
+  clearFilters({ commit }) {
+    return new Promise(resolve => {
+      commit("CLEAR_FILTROS")
       resolve()
     })
   },

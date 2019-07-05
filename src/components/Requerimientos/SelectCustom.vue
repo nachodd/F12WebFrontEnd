@@ -12,6 +12,7 @@
     :disable="loading"
     :dense="dense"
     :rules="rules"
+    :color="color"
     use-input
     @filter="filterFunction"
   >
@@ -70,6 +71,10 @@ export default {
     standout: {
       type: Boolean,
       default: false,
+    },
+    color: {
+      type: String,
+      default: null,
     },
     // rules: Array,
   },
