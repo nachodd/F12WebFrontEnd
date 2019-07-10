@@ -14,6 +14,7 @@ import pageLoading from "@mixins/pageLoading"
 import RequerimientoForm from "@comp/Requerimientos/RequerimientosForm"
 import Requerimiento from "@models/Requerimiento"
 import { warn, success, warnDialog } from "@utils/helpers"
+import Bus from "@utils/bus"
 import { getRequerimiento } from "@api/requerimientos"
 import router from "@router"
 
@@ -39,6 +40,11 @@ export default {
           ? `Editar Requerimiento #${this.form.id}`
           : "Nuevo Requerimiento"
       }
+    },
+  },
+  watch: {
+    "form.procesandoArchivosCargados"(val) {
+      this.$store.dispatch("requerimientos/setProcesandoArchivosCargados", val)
     },
   },
   async mounted() {
@@ -98,7 +104,7 @@ export default {
           message: "La solicitud fue procesada correctamente!",
         })
 
-        this.$root.$emit("load-list-requerimientos")
+        Bus.$emit("load-list-requerimientos")
         this.$emit("form-submitted")
       } catch ({ message }) {
         // Si es un error simple (no es de validacion de form con array de errores), muestro el msj nomas

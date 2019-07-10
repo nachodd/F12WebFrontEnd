@@ -43,17 +43,77 @@
         <q-item-label lines="1">
           <span class="text-weight-medium">{{ req.asunto }}</span>
         </q-item-label>
-        <q-item-label caption lines="2" style="margin-bottom: auto;">
+        <q-item-label>
+          <span class="text-weight-regular card__text-body">
+            <span class="avatar-letter">A</span>
+            {{ req.area.descripcion }}
+            <q-tooltip>
+              Area:
+              <strong>{{ req.area.descripcion }}</strong>
+            </q-tooltip>
+          </span>
+        </q-item-label>
+        <!-- <q-item-label caption lines="2" style="margin-bottom: auto;">
           {{ req.descripcion }}
+        </q-item-label> -->
+        <q-item-label v-if="req.vence">
+          <span class="card__text-body">
+            <q-icon
+              name="far fa-calendar-alt"
+              class="vertical-top q-mr-xs q-pl-xs"
+            />
+            {{ req.fechaLimite }}
+            <q-icon
+              v-if="diasVencimiento < 7"
+              name="fas fa-exclamation-triangle"
+              class="vertical-top q-mr-xs q-pl-xs"
+            />
+            <q-tooltip>
+              Vencimiento:
+              <strong>{{ req.fechaLimite }}</strong>
+              <template v-if="diasVencimiento !== null">
+                <span v-if="diasVencimiento > 0" class="text-black">
+                  (Faltan
+                  <strong>{{ diasVencimiento }}</strong>
+                  días)
+                </span>
+                <span v-if="diasVencimiento === 0" class="text-black">
+                  (HOY es el día de vencimiento)
+                </span>
+                <strong v-if="diasVencimiento < 0">
+                  (Este req. lleva {{ diasVencimiento * -1 }} días vencido)
+                </strong>
+              </template>
+            </q-tooltip>
+          </span>
+        </q-item-label>
+
+        <q-item-label v-if="estaAsignado">
+          <span class="card__text-user">
+            <q-icon
+              name="fas fa-user-check"
+              class="vertical-top q-mr-xs q-pl-xs"
+            />
+            {{ usuarioAsignado }}
+            <q-tooltip>
+              Usuario Asignado:
+              <strong>{{ usuarioAsignado }}</strong>
+            </q-tooltip>
+          </span>
         </q-item-label>
       </div>
     </div>
 
-    <div v-if="estaAsignado" class="row q-mt-xs">
+    <!-- <div v-if="estaAsignado" class="row q-mt-xs">
       <div class="col-12 text-caption text-bold">
-        Asig: {{ usuarioAsignado }}
+        <q-icon name="fas fa-user" class="vertical-middle q-mr-xs" />
+        {{ usuarioAsignado }}
+        <q-tooltip>
+          Usuario Asignado:
+          <strong>{{ usuarioAsignado }}</strong>
+        </q-tooltip>
       </div>
-    </div>
+    </div> -->
 
     <div class="row justify-between">
       <div class="text-left col-3">
@@ -83,7 +143,8 @@
           PR: {{ req.prioridad }}
         </q-badge>
       </div>
-      <div v-if="estadoAsignado" class="col-3 text-right">
+
+      <div v-if="isDevelopment && estadoAsignado" class="col-3 text-right">
         <q-badge color="red-7" text-color="white">
           ORDEN: {{ reqOrden }}
         </q-badge>
@@ -161,25 +222,25 @@ export default {
     bgCardColor() {
       const rojoMax = "#ef5350"
       const blanco = "#FFFFFF"
-
       if (!this.req.vence) {
         return blanco
       }
-      let diasVenc = this.req.diasToVencimiento
-
+      const diasVenc = this.req.diasToVencimiento
       if (diasVenc > 7) {
         return blanco
       } else if (diasVenc > -15 && diasVenc <= 7) {
-        // FIXME: este calculo esta mal
-        diasVenc = 7
-        const factorDias = diasVenc + 15
-        const factorAclarado = 1 - factorDias / 15
-        console.log(factorAclarado)
-        return pSBC(factorAclarado, rojoMax)
+        const factorDias = (diasVenc + 15) * 100
+        const factorAclarado = factorDias / 22 / 100
+        return pSBC(factorAclarado, rojoMax, false, true)
       } else {
-        // if (diasVenc < -30 ) {
         return rojoMax
       }
+    },
+    diasVencimiento() {
+      return this.req.diasToVencimiento
+    },
+    isDevelopment() {
+      return process.env.DEV && false
     },
   },
 }
@@ -200,6 +261,13 @@ export default {
   border-left: 3px solid $red-7
 /* .card--inprocess
   border-right: 3px solid $green-7 */
+.card__text-body
+  font-size: 0.75rem
+  color: rgba(0,0,0,0.54)
+.card__text-user
+  font-size 0.75rem
+  font-weight bold
+  color #000
 
 .card-row
   flex-direction: column

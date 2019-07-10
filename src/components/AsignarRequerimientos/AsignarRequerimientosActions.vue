@@ -13,6 +13,7 @@
       map-options
       :dark="dark"
       :disable="operationDisabled"
+      :class="{ 'cursor-not-allowed': operationDisabled }"
       @input="operationChange"
     />
 

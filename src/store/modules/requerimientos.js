@@ -32,6 +32,7 @@ const state = {
   misRequerimientos: [],
   detalleRequerimientoOpen: false,
   detalleRequerimientoItem: {},
+  procesandoArchivosCargados: false,
 }
 
 // getters
@@ -91,6 +92,9 @@ const mutations = {
   },
   SET_DETALLE_REQUERIMIENTO_OPEN: (state, value) => {
     state.detalleRequerimientoOpen = value
+  },
+  SET_PROCESANDO_ARCHIVOS_CARGADOS: (state, value) => {
+    state.procesandoArchivosCargados = value
   },
 }
 
@@ -256,6 +260,12 @@ const actions = {
       if (!value) {
         commit("SET_DETALLE_REQUERIMIENTO_ITEM", null)
       }
+      resolve()
+    })
+  },
+  setProcesandoArchivosCargados({ commit }, value) {
+    return new Promise(resolve => {
+      commit("SET_PROCESANDO_ARCHIVOS_CARGADOS", value)
       resolve()
     })
   },

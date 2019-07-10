@@ -105,7 +105,7 @@
       </q-list>
     </div>
 
-    <br />
+    <!-- <br />
     <div class="row">
       <div class="col">
         <q-btn
@@ -119,7 +119,7 @@
           {{ submitText }}
         </q-btn>
       </div>
-    </div>
+    </div> -->
   </q-form>
 </template>
 
