@@ -9,7 +9,7 @@
         dense
         standout="bg-white text-black"
         placeholder="Buscar por Asunto, Descripcion, Usuario Asignado..."
-        @keyup.enter="filtrar"
+        @keyup.enter="closeFilters"
       >
         <template v-slot:prepend>
           <q-icon name="search" />
@@ -42,7 +42,7 @@
                 :options="sistemasUsuarioOptions"
                 dense
                 label="Sistema"
-                color="accent"
+                color="deep-purple-10"
                 :loading="sistemas.length === 0"
               />
             </div>
@@ -56,7 +56,7 @@
                 :options="requerimientosTipos"
                 dense
                 label="Tipo de Requerimiento"
-                color="accent"
+                color="deep-purple-10"
                 :loading="requerimientosTipos.length === 0"
               />
             </div>
@@ -80,15 +80,27 @@
                 use-input
                 use-chips
                 multiple
-                color="accent"
+                color="deep-purple-10"
                 @filter="filterUsuariosAsignados"
               />
             </div>
           </div>
-          <div class="row q-pt-md justify-end">
-            <q-btn color="deep-purple-10" size="md" @click="filtrar">
-              Filtrar
-            </q-btn>
+          <div class="row q-pt-md justify-end q-col-gutter-x-md">
+            <div class="col-auto">
+              <q-btn
+                color="deep-purple-10"
+                flat
+                size="md"
+                @click="clearFilters"
+              >
+                Limpiar Filtros
+              </q-btn>
+            </div>
+            <div class="col-auto">
+              <q-btn color="deep-purple-10" size="md" @click="closeFilters">
+                CERRAR
+              </q-btn>
+            </div>
           </div>
         </div>
       </q-menu>
@@ -235,7 +247,10 @@ export default {
         value: null,
       })
     },
-    filtrar() {
+    clearFilters() {
+      this.$store.dispatch("asignacionRequerimientos/clearFilters")
+    },
+    closeFilters() {
       this.popupOpened = false
     },
     filterUsuariosAsignados(val, update) {

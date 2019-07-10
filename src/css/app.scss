@@ -117,3 +117,17 @@
 .no-dec, .no-dec > * {
   text-decoration: none !important;
 }
+
+.timeline-entry-custom .q-timeline__title {
+  margin: 0px;
+}
+.timeline-entry-custom.q-timeline--dense--right .q-timeline__entry {
+  padding-left: 25px;
+}
+.timeline-entry-custom .q-timeline__title {
+  font-size: 1rem;
+}
+
+.text-subtitle3 {
+  font-size: 14px;
+}

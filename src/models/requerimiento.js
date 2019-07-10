@@ -46,6 +46,18 @@ export default class Requerimiento {
     return this.fechaLimite !== null
   }
 
+  get diasToVencimiento() {
+    if (this.vence) {
+      const diff = date.getDateDiff(
+        new Date(this._fechaLimite),
+        new Date(),
+        "days",
+      )
+      return diff
+    }
+    return null
+  }
+
   async toCreatePayload() {
     const fechaLimite = this.parseFechaLimite()
 

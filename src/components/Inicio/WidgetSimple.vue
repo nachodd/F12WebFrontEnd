@@ -35,7 +35,7 @@
   </div>
 </template>
 <script>
-import { pSBC } from "@utils/colorHelper"
+import { pSBC, changeHue } from "@utils/colorHelper"
 export default {
   props: {
     loading: {
@@ -91,7 +91,8 @@ export default {
         return {}
       }
       if (this.iconBackgroundGradient) {
-        const toColor = pSBC(0.5, this.iconBackgroundColor)
+        let toColor = changeHue(this.iconBackgroundColor, 40)
+        toColor = pSBC(0.75, this.iconBackgroundColor, toColor, true)
         return {
           background: `linear-gradient(45deg, ${this.iconBackgroundColor}, ${
             this.iconBackgroundColor

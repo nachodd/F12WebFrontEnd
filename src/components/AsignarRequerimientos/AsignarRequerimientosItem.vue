@@ -1,10 +1,11 @@
 <template>
   <q-item
-    class="q-ma-sm shadow-2 rounded-borders-8 bg-white cursor-pointer card-row"
+    class="q-ma-sm shadow-2 rounded-borders-8 cursor-pointer card-row"
     :class="{
       'card--default': !esArregloRapido,
       'card--qf': esArregloRapido,
     }"
+    :style="{ backgroundColor: bgCardColor }"
   >
     <div v-if="estadoEnProcesos" class="row card__process-row">
       <div class="col-12 text-right">
@@ -93,6 +94,7 @@
 <script>
 import { mapGetters } from "vuex"
 import priorityColor from "@mixins/priorityColor"
+import { pSBC } from "@utils/colorHelper"
 
 export default {
   name: "AsignarRequerimientosItem",
@@ -155,6 +157,29 @@ export default {
         if (estadoProcesosId === estResCerrado.id) return estResCerrado
       }
       return {}
+    },
+    bgCardColor() {
+      const rojoMax = "#ef5350"
+      const blanco = "#FFFFFF"
+
+      if (!this.req.vence) {
+        return blanco
+      }
+      let diasVenc = this.req.diasToVencimiento
+
+      if (diasVenc > 7) {
+        return blanco
+      } else if (diasVenc > -15 && diasVenc <= 7) {
+        // FIXME: este calculo esta mal
+        diasVenc = 7
+        const factorDias = diasVenc + 15
+        const factorAclarado = 1 - factorDias / 15
+        console.log(factorAclarado)
+        return pSBC(factorAclarado, rojoMax)
+      } else {
+        // if (diasVenc < -30 ) {
+        return rojoMax
+      }
     },
   },
 }
