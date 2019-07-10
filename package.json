@@ -18,12 +18,12 @@
     "js-cookie": "^2.2.0",
     "jwt-decode": "https://github.com/auth0/jwt-decode.git",
     "lodash": "^4.17.11",
-    "quasar": "^1.0.3",
+    "quasar": "^1.0.4",
     "vue-smooth-dnd": "^0.8.0",
     "vuelidate": "^0.7.4"
   },
   "devDependencies": {
-    "@quasar/app": "^1.0.1",
+    "@quasar/app": "^1.0.3",
     "@quasar/quasar-app-extension-dotenv": "^1.0.0-beta.10",
     "@vue/eslint-config-prettier": "^4.0.0",
     "babel-eslint": "^10.0.1",
