@@ -68,7 +68,7 @@
         </div>
       </q-menu>
     </div>
-    <!-- <div class="q-mt-sm">
+    <div class="q-mt-sm">
       <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
       <span v-if="sistemaSetted" class="q-mx-xs">
         <q-chip removable @remove="removeFilter('sistema')">
@@ -88,7 +88,7 @@
           <q-tooltip>Tipo de Requerimiento</q-tooltip>
         </q-chip>
       </span>
-    </div>-->
+    </div>
   </div>
 </template>
 <script>
@@ -159,6 +159,12 @@ export default {
         this.$emit("update:descripcion", value)
       },
     },
+    sistemaDescripcion() {
+      return _.get(this, "__sistema.descripcion", null)
+    },
+    tipoRequerimientoDescripcion() {
+      return _.get(this, "__tipo.descripcion", null)
+    },
     iconOpenFilter() {
       return this.popupOpened ? "arrow_drop_up" : "arrow_drop_down"
     },
@@ -171,6 +177,22 @@ export default {
     filtrar() {
       this.popupOpened = false
       this.$emit("buscar")
+    },
+    removeFilter(filter) {
+      // this.$store.dispatch("asignacionRequerimientos/setFilter", {
+      //   filter,
+      //   value: null,
+      // })
+
+      if (filter == "requerimientoTipo") {
+        this.__tipo = null
+      }
+
+      if (filter == "sistema") {
+        this.__sistema = null
+      }
+
+      this.filtrar()
     },
   },
 }
