@@ -87,10 +87,9 @@ export default {
           page: this.current,
           perPage: 10,
         }
-
         const res = await this.$store.dispatch(
           "requerimientos/listRequerimientos",
-          filtros,
+          { filtros },
         )
 
         this.lastPage = res.last_page
