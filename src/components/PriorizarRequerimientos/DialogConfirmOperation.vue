@@ -44,11 +44,10 @@
         />
       </q-card-section>
       <q-card-actions align="right">
-        <q-btn label="CANCELAR" color="negative" @click="cancelOperation" />
+        <q-btn label="CANCELAR" flat color="red-7" @click="cancelOperation" />
         <q-btn
           label="CONFIRMAR"
-          outline
-          color="white"
+          color="deep-purple-10"
           @click="confirmOperation"
         />
       </q-card-actions>

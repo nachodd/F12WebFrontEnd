@@ -87,18 +87,13 @@
           </div>
           <div class="row q-pt-md justify-end q-col-gutter-x-md">
             <div class="col-auto">
-              <q-btn
-                color="deep-purple-10"
-                flat
-                size="md"
-                @click="clearFilters"
-              >
+              <q-btn color="negative" flat size="md" @click="clearFilters">
                 Limpiar Filtros
               </q-btn>
             </div>
             <div class="col-auto">
               <q-btn color="deep-purple-10" size="md" @click="closeFilters">
-                CERRAR
+                FILTRAR
               </q-btn>
             </div>
           </div>
