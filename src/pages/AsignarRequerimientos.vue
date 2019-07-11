@@ -2,10 +2,20 @@
   <q-page padding>
     <page-header title="Asignar Requerimientos" no-margin>
       <div>
-        <div class="square d-ib bg-red-7">&nbsp;</div>
-        Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
-        <div class="square d-ib bg-light-blue-7">&nbsp;</div>
-        Desarrollo / Mejora &nbsp;&nbsp;
+        <div
+          class="d-ib cursor-pointer"
+          @click="aplicarFiltroRapidoTipoReq('Arreglo')"
+        >
+          <div class="square d-ib bg-red-7">&nbsp;</div>
+          Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
+        </div>
+        <div
+          class="d-ib cursor-pointer"
+          @click="aplicarFiltroRapidoTipoReq('Desarrollo')"
+        >
+          <div class="square d-ib bg-light-blue-7">&nbsp;</div>
+          Desarrollo / Mejora &nbsp;&nbsp;
+        </div>
       </div>
     </page-header>
     <div class="row">
@@ -79,7 +89,26 @@ export default {
     this.$store.dispatch("requerimientos/createRequerimiento")
     this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
   },
-  methods: {},
+  methods: {
+    aplicarFiltroRapidoTipoReq(filtroRapido) {
+      let value = null
+      if (filtroRapido === "Arreglo") {
+        value = {
+          descripcion: "Arreglo rápido",
+          id: 1,
+        }
+      } else if (filtroRapido === "Desarrollo") {
+        value = {
+          descripcion: "Desarrollos / Modificaciones / Implementaciones",
+          id: 2,
+        }
+      }
+      this.$store.dispatch("asignacionRequerimientos/setFilter", {
+        filter: "requerimientoTipo",
+        value,
+      })
+    },
+  },
 }
 </script>
 
