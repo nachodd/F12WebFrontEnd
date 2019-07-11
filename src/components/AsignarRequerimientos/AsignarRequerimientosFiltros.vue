@@ -43,6 +43,7 @@
                 dense
                 label="Sistema"
                 color="deep-purple-10"
+                :use-filter="false"
                 :loading="sistemas.length === 0"
               />
             </div>
@@ -57,6 +58,7 @@
                 dense
                 label="Tipo de Requerimiento"
                 color="deep-purple-10"
+                :use-filter="false"
                 :loading="requerimientosTipos.length === 0"
               />
             </div>

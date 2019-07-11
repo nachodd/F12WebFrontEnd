@@ -120,3 +120,39 @@ export function getDashboardData(userId) {
     }
   })
 }
+
+export function getNotificaciones(userId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `/v1/f12/${userId}/notificaciones`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener las notificaciones")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
+export function readNotificaciones(userId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `/v1/f12/${userId}/notificaciones/read`,
+        method: "put",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener las notificaciones")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
