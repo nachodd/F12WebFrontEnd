@@ -13,7 +13,8 @@
     :dense="dense"
     :rules="rules"
     :color="color"
-    use-input
+    :options-cover="optionsCover"
+    :use-input="useFilter ? true : null"
     @filter="filterFunction"
   >
     <!-- @input="handleInput" -->
@@ -76,6 +77,14 @@ export default {
       type: String,
       default: null,
     },
+    useFilter: {
+      type: Boolean,
+      default: true,
+    },
+    optionsCover: {
+      type: Boolean,
+      default: false,
+    },
     // rules: Array,
   },
   data() {
@@ -95,6 +104,18 @@ export default {
     rules() {
       return this.applyValidation ? [this.notEmpty] : []
     },
+    // isMobile() {
+    //   const res = this.$q.platform.is.mobile && this.$q.screen.lt.sm
+    //   console.log("this.$q.platform.is.mobile", this.$q.platform.is.mobile)
+    //   console.log("this.$q.screen.lt.sm", this.$q.screen.lt.sm)
+    //   console.log("res", res)
+    //   return res
+    // },
+    // shouldCover() {
+    //   const res = this.optionsCover || this.isMobile
+    //   console.log(this.optionsCover)
+    //   return res
+    // },
   },
   methods: {
     filterFunction(val, update) {
