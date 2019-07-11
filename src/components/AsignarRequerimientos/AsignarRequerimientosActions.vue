@@ -71,9 +71,23 @@
               />
             </div>
           </div>
-          <div v-show="!hideOrderAsignacion" class="row q-mt-xs">
-            <div v-if="requerimientosFilteredLength > 0" class="col-12">
-              <div class="row q-mt-xs">
+          <div v-if="!hideOrderAsignacion" class="row q-mt-xs">
+            <div
+              v-if="requerimientosFilteredLength > 0"
+              id="ordenContainer"
+              class="col-12"
+            >
+              <q-tooltip
+                v-model="tooltipShowed"
+                anchor="top middle"
+                self="center middle"
+                :offset="[0, 100]"
+                content-class="bg-amber text-black text-body2 shadow-4 tooltip-fix"
+              >
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <div v-html="ordenTooltip"></div>
+              </q-tooltip>
+              <div class="row q-mt-xs q-mb-md">
                 <div class="col-12 text-grey-7">
                   Orden
                 </div>
@@ -88,20 +102,14 @@
                 label-always
                 color="accent"
                 @input="updateOrdenTooltip"
+                @change="sliderChange"
               />
-              <q-tooltip
-                content-class="bg-amber text-black text-body2 shadow-4"
-              >
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-html="ordenTooltip"></div>
-              </q-tooltip>
             </div>
-            <div v-else class="col-12">
+            <div v-else class="col-12" @touchstart="test">
               Orden:
               <strong>Último</strong>
             </div>
           </div>
-
           <div class="row q-mt-xs">
             <div class="col-12">
               <q-input
@@ -143,10 +151,14 @@
         </div>
       </q-slide-transition>
       <q-slide-transition>
-        <div v-show="operation === 'reordenar'">
+        <div v-if="operation === 'reordenar'">
           <div class="row q-mt-xs">
-            <div v-if="requerimientosFilteredLength > 1" class="col-12">
-              <div class="row q-mt-xs">
+            <div
+              v-if="requerimientosFilteredLength > 1"
+              id="ordenContainer"
+              class="col-12"
+            >
+              <div class="row q-mt-xs q-mb-md">
                 <div class="col-12 text-grey-7">
                   Orden
                 </div>
@@ -162,18 +174,23 @@
                 color="accent"
                 @input="updateOrdenTooltip"
               />
-              <q-tooltip
-                content-class="bg-amber text-black text-body2 shadow-4"
-              >
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <div v-html="ordenTooltip"></div>
-              </q-tooltip>
             </div>
             <div v-else class="col-12">
               Orden:
               <strong>Último</strong>
             </div>
           </div>
+          <q-tooltip
+            v-model="tooltipShowed"
+            anchor="top middle"
+            self="center middle"
+            :offset="[0, 100]"
+            :target="tooltipTarget"
+            content-class="bg-amber text-black text-body2 shadow-4 tooltip-fix"
+          >
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <div v-html="ordenTooltip"></div>
+          </q-tooltip>
         </div>
       </q-slide-transition>
     </div>
@@ -233,6 +250,8 @@ export default {
       asignarcionOrden: 1,
       ordenTooltip: "",
       reqsPossibleNewOrder: [],
+      tooltipShowed: false,
+      tooltipTarget: false,
     }
   },
   computed: {
@@ -405,15 +424,24 @@ export default {
       }
 
       this.ordenTooltip = `
-      <ol class="orden-tooltip" start="${startIndex + 1}">
-        ${pre3ReqFragment}
-        ${pre2ReqFragment}
-        ${pre1ReqFragment}
-        ${currReqFragment}
-        ${pos1ReqFragment}
-        ${pos2ReqFragment}
-        ${pos3ReqFragment}
-      </ol>`
+      <div class="row items-center tooltip-height-fix">
+        <div class="col">
+          <ol class="orden-tooltip" start="${startIndex + 1}">
+            ${pre3ReqFragment}
+            ${pre2ReqFragment}
+            ${pre1ReqFragment}
+            ${currReqFragment}
+            ${pos1ReqFragment}
+            ${pos2ReqFragment}
+            ${pos3ReqFragment}
+          </ol>
+        </div>
+      </div>`
+      // this.tooltipTarget = "#ordenContainer"
+      // this.tooltipShowed = true
+    },
+    sliderChange() {
+      this.tooltipShowed = false
     },
     async saveChanges() {
       // Si es descartar, debo incluir un comentario
@@ -487,6 +515,15 @@ export default {
   color $red-5 !important
 
 .orden-tooltip
-  margin 0
   padding 5px 5px 5px 16px
+
+.tooltip-fix
+  height 185px !important
+  min-height 184px !important
+  min-width 270px
+  overflow hidden
+.tooltip-fix > div
+  height 163px
+.tooltip-height-fix
+  height 163px
 </style>

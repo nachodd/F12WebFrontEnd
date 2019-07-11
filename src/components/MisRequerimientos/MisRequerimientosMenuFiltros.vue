@@ -42,6 +42,7 @@
                 dense
                 label="Sistema"
                 color="accent"
+                :use-filter="false"
                 :loading="sistemas.length === 0"
               />
             </div>
@@ -55,6 +56,8 @@
                 :options="requerimientosTipos"
                 dense
                 label="Tipo de Requerimiento"
+                color="accent"
+                :use-filter="false"
                 :loading="requerimientosTipos.length === 0"
               />
             </div>
