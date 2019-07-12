@@ -40,3 +40,14 @@ export function filterByUsuariosAsignados(usuariosAsignados) {
     })
   }
 }
+
+export function UpdatePendingPayloadPriorizarReq(requerimientos) {
+  return requerimientos.map(req => {
+    const result = {
+      id: req.id,
+      aprobado: req.estado.id == 2,
+      prioridad: req.prioridad,
+    }
+    return result
+  })
+}
