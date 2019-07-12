@@ -564,7 +564,7 @@ const actions = {
       })
 
       // Se arma el objeto para enviar a la api y se la llama.
-      const { orden, ultimo } = getters.getNewOrder
+      const { orden } = getters.getNewOrder
 
       const estadoAprobado = rootGetters["requerimientos/getEstadoByCodigo"](
         "APRV",
