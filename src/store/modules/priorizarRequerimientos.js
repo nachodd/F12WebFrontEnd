@@ -8,9 +8,16 @@ import {
   deleteRequerimiento,
   // getRequerimiento,
 } from "@api/requerimientos"
-import { warn, success } from "@utils/helpers"
+import {
+  filterByAsuntoAndDescripcion,
+  filterBySistema,
+  filterByTipoRequerimiento,
+  // filterByUsuariosAsignados,
+} from "@utils/requerimientos"
+import { warn, success, pipeWith } from "@utils/helpers"
 
 const state = {
+  requerimientos: [],
   reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
   reqsAprobadosPriorizados: new RequerimientosPriorizarList([], true),
 
@@ -33,6 +40,12 @@ const state = {
       changesSetted: false,
     },
     payload: {},
+  },
+  filtros: {
+    sistema: null,
+    requerimientoTipo: null,
+    descripcion: null,
+    // usuariosAsignados: [],
   },
 }
 
@@ -164,6 +177,84 @@ const getters = {
     )
     return userId === reqUserId
   },
+
+  //reqsPendientesAprobacion , reqsAprobadosPriorizados
+
+  // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
+  requerimientosFiltered: state => reqEstado => {
+    let reqs
+
+    switch (reqEstado) {
+      case "PEND":
+        reqs = [...state.reqsPendientesAprobacion.list]
+        break
+      case "APRV":
+        reqs = [...state.reqsAprobadosPriorizados.list]
+        break
+    }
+    const {
+      descripcion = null,
+      sistema = null,
+      requerimientoTipo = null,
+      // usuariosAsignados = null,
+    } = state.filtros
+
+    // Determino que filtros aplicar, dependiendo de que hayan seteado
+    let filtersToApply = []
+    if (descripcion !== null) {
+      filtersToApply.push(filterByAsuntoAndDescripcion(descripcion))
+    }
+    if (sistema && sistema.id) {
+      filtersToApply.push(filterBySistema(sistema.id))
+    }
+    if (requerimientoTipo && requerimientoTipo.id) {
+      filtersToApply.push(filterByTipoRequerimiento(requerimientoTipo.id))
+    }
+    // const isAssigOrInExec = reqEstado === "ASSI" || reqEstado === "EXEC"
+    // if (isAssigOrInExec && usuariosAsignados && usuariosAsignados.length) {
+    //   filtersToApply.push(filterByUsuariosAsignados(usuariosAsignados))
+    // }
+    // aplica a reqs el conjunto de filtros
+    return pipeWith(reqs, ...filtersToApply)
+  },
+  getNewOrder: (state, getters) => {
+    // Busca el requerimiento a actualizar en el listado que está en pantalla en pantalla
+    const reqsAsignadosOnScreen = state.possibleChanges.targetList
+    const index = _.findIndex(reqsAsignadosOnScreen, {
+      id: getters.requerimientoIdToChange,
+    })
+    // De estos, busco el siguiente en pantalla
+    const nextReq = reqsAsignadosOnScreen[index + 1]
+
+    if (nextReq) {
+      // Si lo encuentra, devuelve su orden e indico que NO es el ultimo
+      return {
+        orden: nextReq.prioridad,
+        ultimo: false,
+      }
+    } else {
+      // Caso contario, determino el orden REAL
+      let orden
+      // Si no hay otros reqs asignados, orden = 1
+      if (state.reqsAprobadosPriorizados.listLength === 0) {
+        orden = 1
+      } else {
+        // Busco el último reqs de los asignados, tomo su orden y le aumento 1
+
+        const lastReq =
+          state.reqsAprobadosPriorizados.list[
+            state.reqsAprobadosPriorizados.listLength - 1
+          ]
+
+        orden = lastReq.prioridad + 1
+      }
+      // Será el ultimo (ya sea porque se filtro el listado y no hay nadao porque efectivametne no habia otro asignado)
+      return {
+        orden,
+        ultimo: true,
+      }
+    }
+  },
 }
 
 const mutations = {
@@ -262,6 +353,43 @@ const mutations = {
   },
   SET_USUARIO_IMPERSONATE: (state, usuarioImpersonateId) => {
     state.usuarioImpersonateId = usuarioImpersonateId
+  },
+  SET_FILTROS: (state, { filter, value }) => {
+    state.filtros[filter] = value
+  },
+  CLEAR_FILTROS: state => {
+    state.filtros.sistema = null
+    state.filtros.requerimientoTipo = null
+    state.filtros.descripcion = null
+    // state.filtros.usuariosAsignados = []
+  },
+
+  UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS: (
+    state,
+    {
+      estadoAsignadoId,
+      orderStart,
+      reqIdToAvoid,
+      updateOrderToCurrentRequerimiento = false,
+    },
+  ) => {
+    // Actualiza todos los requerimientos aprobados priorizados
+    state.reqsAprobadosPriorizados.list = state.reqsAprobadosPriorizados.list.map(
+      ra => {
+        if (ra.estado.id === estadoAsignadoId) {
+          // Que tengan prioridad mayor o igual a orderStart y NO sea el reqerumiento priorizado
+          const tieneOrdenMayorOIgual = ra.prioridad >= orderStart
+          if (tieneOrdenMayorOIgual && ra.id !== reqIdToAvoid) {
+            ra.prioridad += 1
+          }
+        }
+        // Actualizo la prioridad del requerimiento en cuestion solo si es declarado explicitamente con updateOrderToCurrentRequerimiento=true (caso reordenamiento)
+        if (updateOrderToCurrentRequerimiento && ra.id === reqIdToAvoid) {
+          ra.prioridad = orderStart
+        }
+        return ra
+      },
+    )
   },
 }
 
@@ -383,6 +511,7 @@ const actions = {
     })
   },
   saveReorderApproved({ commit, state, getters, dispatch }) {
+    alert("1")
     return new Promise(async resolve => {
       const listType = "approved"
       // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
@@ -412,9 +541,13 @@ const actions = {
       resolve()
     })
   },
-  async confirmOperation({ commit, getters, state, dispatch }, comment) {
+  async confirmOperation(
+    { commit, getters, state, dispatch, rootGetters },
+    comment,
+  ) {
     return new Promise(async resolve => {
       const reqId = getters.requerimientoIdToChange
+
       // copio los listados (de manera de tener un backup)
       const sourceBackup = [...state.reqsPendientesAprobacion.list]
       const targetBackup = [...state.reqsAprobadosPriorizados.list]
@@ -423,11 +556,19 @@ const actions = {
       let listToUpdateComment = getters.operationReject
         ? "sourceList"
         : "targetList"
+
       commit("UPDATE_COMMENT_IN_REQ", {
         listName: listToUpdateComment,
         reqId,
         comment,
       })
+
+      // Se arma el objeto para enviar a la api y se la llama.
+      const { orden, ultimo } = getters.getNewOrder
+
+      const estadoAprobado = rootGetters["requerimientos/getEstadoByCodigo"](
+        "APRV",
+      )
 
       // Actualizo localmente los listados
       commit("SET_REQS_LIST", {
@@ -435,6 +576,7 @@ const actions = {
         listData: state.possibleChanges.sourceList,
       })
       commit("UPDATE_LIST_ESTADO", "pending")
+
       commit("SET_REQS_LIST", {
         listType: "approved",
         listData: state.possibleChanges.targetList,
@@ -443,12 +585,26 @@ const actions = {
       commit("UPDATE_LIST_PRIORITY", "approved")
       commit("SORT_LIST_BY_PRIORITY", "approved")
 
+      // Calcula el orden
+      commit("UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS", {
+        estadoAsignadoId: estadoAprobado.id,
+        orderStart: orden,
+        reqIdToAvoid: getters.requerimientoIdToChange,
+        updateOrderToCurrentRequerimiento: true,
+      })
+
+      commit("UPDATE_LIST_ESTADO", "approved")
+      commit("UPDATE_LIST_PRIORITY", "approved")
+      commit("SORT_LIST_BY_PRIORITY", "approved")
+
       const tempReqsConcated = [
         ...state.reqsPendientesAprobacion.toUpdatePayload(),
         ...state.reqsAprobadosPriorizados.toUpdatePayload(),
       ]
+
       // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
       const res = await dispatch("persistChanges", tempReqsConcated)
+
       if (!res) {
         commit("SET_REQS_LIST", {
           listType: "pending",
@@ -729,6 +885,18 @@ const actions = {
           break
         }
       }
+    })
+  },
+  setFilter({ commit }, { filter, value }) {
+    return new Promise(resolve => {
+      commit("SET_FILTROS", { filter, value })
+      resolve()
+    })
+  },
+  clearFilters({ commit }) {
+    return new Promise(resolve => {
+      commit("CLEAR_FILTROS")
+      resolve()
     })
   },
 }
