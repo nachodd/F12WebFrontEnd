@@ -23,10 +23,6 @@ export default {
       type: Object,
       required: true,
     },
-    unread: {
-      type: Boolean,
-      default: false,
-    },
   },
   computed: {
     icon() {
@@ -55,9 +51,6 @@ export default {
         default:
           return "fas fa-dot-circle"
       }
-    },
-    iconColor() {
-      return !this.unread ? "red-3" : "red-5"
     },
     to() {
       switch (this.notif.type) {

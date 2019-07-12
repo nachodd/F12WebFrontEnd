@@ -3,7 +3,6 @@
   <q-drawer v-model="sidebarOpened" bordered content-class="bg-grey-2">
     <q-scroll-area class="fit">
       <q-list padding class="menu-list">
-        <q-item-label header>Menu Principal</q-item-label>
         <q-item
           v-ripple
           clickable

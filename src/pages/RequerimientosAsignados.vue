@@ -1,18 +1,30 @@
 <template>
   <q-page padding>
-    <page-header title="Requerimientos Asignados" no-margin />
-    <div class="row q-py-md">
+    <page-header title="Requerimientos Asignados" no-margin>
+      <div>
+        <div
+          class="d-ib cursor-pointer"
+          @click="aplicarFiltroRapidoTipoReq('Arreglo')"
+        >
+          <div class="square d-ib bg-red-7">&nbsp;</div>
+          Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
+        </div>
+        <div
+          class="d-ib cursor-pointer"
+          @click="aplicarFiltroRapidoTipoReq('Desarrollo')"
+        >
+          <div class="square d-ib bg-light-blue-7">&nbsp;</div>
+          Desarrollo / Mejora &nbsp;&nbsp;
+        </div>
+      </div>
+    </page-header>
+    <div class="row">
       <div class="col">
-        <div class="square d-ib bg-red-7">&nbsp;</div>
-        Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
-        <div class="square d-ib bg-light-blue-7">&nbsp;</div>
-        Desarrollo / Mejora &nbsp;&nbsp;
-        <!-- - &nbsp;&nbsp; En Procesos
-        <div class="square d-ib bg-green-7"></div>-->
+        <requerimientos-asignados-filtros />
       </div>
     </div>
-    <div class="row q-pt-md q-col-gutter-sm">
-      <div class="col-sm-6 col-xs-12">
+    <div class="row q-pt-md q-px-xs q-col-gutter-sm">
+      <div class="col-sm-4 col-xs-12">
         <draggable-list
           title="Pendientes"
           group-name="requerimientos"
@@ -22,9 +34,19 @@
         />
       </div>
 
-      <div class="col-sm-6 col-xs-12">
+      <div class="col-sm-4 col-xs-12">
         <draggable-list
           title="En Ejecución"
+          group-name="requerimientos"
+          list-name="target"
+          :requerimientos-list.sync="reqsAsignadosEnEjecucion"
+          :loading-list="loadingReqsAprobadosPriorizados"
+        />
+      </div>
+
+      <div class="col-sm-4 col-xs-12">
+        <draggable-list
+          title="Testing"
           group-name="requerimientos"
           list-name="target"
           :requerimientos-list.sync="reqsAsignadosEnEjecucion"
@@ -45,6 +67,7 @@ import pageLoading from "@mixins/pageLoading"
 import DraggableList from "@comp/RequerimientosAsignados/DraggableList"
 import DialogConfirmOperation from "@comp/RequerimientosAsignados/DialogConfirmOperation"
 import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
+import RequerimientosAsignadosFiltros from "@comp/RequerimientosAsignados/RequerimientosAsignadosFiltros"
 
 export default {
   name: "RequerimientosAsigandos",
@@ -53,6 +76,7 @@ export default {
     DraggableList,
     DialogConfirmOperation,
     DialogDetalleRequerimiento,
+    RequerimientosAsignadosFiltros,
   },
   mixins: [pageLoading],
   computed: {
