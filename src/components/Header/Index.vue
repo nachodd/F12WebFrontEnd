@@ -11,22 +11,22 @@
         stretch
         flat
         icon="fas fa-bell"
-        :color="notificactionCount > 0 ? 'red' : undefined"
+        :color="notificacionesUnreadCount > 0 ? 'red' : void 0"
       >
         <q-badge
-          v-if="notificactionCount > 0"
+          v-if="notificacionesUnreadCount > 0"
           color="red"
           floating
           :class="{ strech: !hasSpace }"
         >
-          {{ notificactionCount }}
+          {{ notificacionesUnreadCount }}
         </q-badge>
         <q-menu
           anchor="bottom right"
           self="top right"
-          @before-show="checkNotificaciones"
+          @hide="onHideNotificacionesMenu"
         >
-          <q-list>
+          <q-list v-if="noNewNotifications">
             <q-item v-close-popup clickable tabindex="0">
               <q-item-section side>
                 <q-icon name="fas fa-exclamation-triangle" />
@@ -35,6 +35,55 @@
                 <q-item-label>No hay notificaciones nuevas</q-item-label>
               </q-item-section>
             </q-item>
+          </q-list>
+          <q-list
+            v-else
+            bordered
+            class="rounded-borders"
+            style="max-width: 350px"
+          >
+            <template v-if="notificacionesUnread.length">
+              <q-item-label caption class="q-pa-sm">NUEVAS</q-item-label>
+              <div v-for="(notif, i) in notificacionesUnread" :key="notif.id">
+                <notificacion-item :notif="notif" unread />
+                <q-separator
+                  v-if="notificacionesUnread.length - 1 !== i"
+                  inset="item"
+                />
+              </div>
+              <q-item-label
+                v-if="notificacionesUnreadVerMasShowed"
+                caption
+                class="notif__vermas"
+                @click="showMoreNotificaciones('unread')"
+              >
+                Ver Más...
+              </q-item-label>
+            </template>
+
+            <template v-if="notificationsReadAndUnread">
+              <!-- <q-separator inset="item" /> -->
+              <q-separator spaced />
+            </template>
+
+            <template v-if="notificacionesRead.length">
+              <q-item-label header>ANTERIORES</q-item-label>
+              <div v-for="(notif, i) in notificacionesRead" :key="notif.id">
+                <notificacion-item :notif="notif" unread />
+                <q-separator
+                  v-if="notificacionesRead.length - 1 !== i"
+                  inset="item"
+                />
+              </div>
+              <q-item-label
+                v-if="notificacionesReadVerMasShowed"
+                caption
+                class="notif__vermas"
+                @click="showMoreNotificaciones('read')"
+              >
+                Ver Más...
+              </q-item-label>
+            </template>
           </q-list>
         </q-menu>
       </q-btn>
@@ -78,9 +127,13 @@
 </template>
 <script>
 import { mapActions, mapGetters, mapState } from "vuex"
+import NotificacionItem from "@comp/Header/NotificacionItem"
 
 export default {
-  name: "MyLayout",
+  name: "Header",
+  components: {
+    NotificacionItem,
+  },
   props: {
     mini: {
       type: Boolean,
@@ -89,16 +142,23 @@ export default {
   },
   data() {
     return {
-      notificactionCount: 0,
-      shouldWaitToCheckNotifications: false,
+      notificacionesInterval: null,
     }
   },
   computed: {
     ...mapState("app", {
-      notificaciones: state => state.notificaciones,
-      loadingNotificaciones: state => state.loadingNotificaciones,
+      limitUnread: state => state.limitUnread,
+      limitRead: state => state.limitRead,
     }),
     ...mapGetters("auth", ["user"]),
+    ...mapGetters("app", [
+      "notificacionesRead",
+      "notificacionesReadCount",
+      "notificacionesReadVerMasShowed",
+      "notificacionesUnread",
+      "notificacionesUnreadCount",
+      "notificacionesUnreadVerMasShowed",
+    ]),
     hasSpace() {
       return this.$q.screen.gt.xs && !this.mini
     },
@@ -117,44 +177,75 @@ export default {
     iconUser() {
       return this.$q.screen.lt.sm ? "account_circle" : undefined
     },
+    noNewNotifications() {
+      return (
+        this.notificacionesRead.length === 0 &&
+        this.notificacionesUnread.length === 0
+      )
+    },
+    notificationsReadAndUnread() {
+      return (
+        this.notificacionesReadCount > 0 && this.notificacionesUnreadCount > 0
+      )
+    },
   },
   mounted() {
     this.toggleDevice(this.$q.platform.is)
+  },
+  created() {
+    this.checkNotificaciones()
+    this.notificacionesInterval = setInterval(
+      this.checkNotificaciones,
+      30 * 1000,
+    )
+  },
+  beforeDestroy() {
+    clearInterval(this.notificacionesInterval)
   },
   methods: {
     ...mapActions({
       logout: "auth/logout",
       toggleSidebar: "app/toggleSidebar",
       toggleDevice: "app/toggleDevice",
-      // checkNotificaciones: "app/getNotificaciones"
+      checkNotificaciones: "app/checkNotificaciones",
+      showMoreNotificaciones: "app/showMoreNotificaciones",
+      resetMoreNotificaciones: "app/resetMoreNotificaciones",
     }),
     async onLogOut() {
       await this.logout()
       this.$router.replace({ name: "login" })
     },
-    async checkNotificaciones() {
-      // FIXME: esto debe chequearlo cada tanto tiempo
-      await this.$store.dispatch("app/getNotificaciones")
-      console.log(this.notificaciones)
+    onHideNotificacionesMenu() {
+      this.resetMoreNotificaciones()
+      if (this.notificacionesUnreadCount > 0) {
+        this.$store.dispatch("app/readNotificaciones")
+      }
     },
   },
 }
 </script>
 
-<style scoped>
-.q-toolbar {
+<style lang="stylus" scoped>
+.q-toolbar
   transition: padding 200ms linear;
   padding-left: 0;
   padding-right: 0;
-}
-.q-toolbar.wide {
+
+.q-toolbar.wide
   padding: 20px 0;
-}
-.text-small {
+
+.text-small
   font-size: 1rem;
-}
-.q-badge--floating.strech {
+
+.q-badge--floating.strech
   top: 3px;
   right: 1px;
-}
+
+.notif__vermas
+  cursor pointer
+  padding 8px
+  text-align center
+  transition: font-weight 0.3s
+.notif__vermas:hover
+  font-weight 900
 </style>
