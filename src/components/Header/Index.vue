@@ -133,6 +133,7 @@ export default {
       this.$router.replace({ name: "login" })
     },
     async checkNotificaciones() {
+      // FIXME: esto debe chequearlo cada tanto tiempo
       await this.$store.dispatch("app/getNotificaciones")
       console.log(this.notificaciones)
     },
