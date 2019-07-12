@@ -68,7 +68,11 @@
 
             <template v-if="notificacionesRead.length">
               <q-item-label header>ANTERIORES</q-item-label>
-              <div v-for="(notif, i) in notificacionesRead" :key="notif.id">
+              <div
+                v-for="(notif, i) in notificacionesRead"
+                :key="notif.id"
+                class="bg-grey-2"
+              >
                 <notificacion-item :notif="notif" unread />
                 <q-separator
                   v-if="notificacionesRead.length - 1 !== i"
@@ -78,7 +82,7 @@
               <q-item-label
                 v-if="notificacionesReadVerMasShowed"
                 caption
-                class="notif__vermas"
+                class="notif__vermas bg-grey-2"
                 @click="showMoreNotificaciones('read')"
               >
                 Ver Más...

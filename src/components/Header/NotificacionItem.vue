@@ -1,12 +1,5 @@
 <template>
-  <q-item
-    :key="notif.id"
-    v-ripple
-    v-close-popup
-    clickable
-    :class="{ 'bg-blue-3': !unread }"
-    :to="to"
-  >
+  <q-item :key="notif.id" v-ripple v-close-popup clickable :to="to">
     <q-item-section avatar>
       <q-avatar :icon="icon" text-color="black" class="icon" />
     </q-item-section>
