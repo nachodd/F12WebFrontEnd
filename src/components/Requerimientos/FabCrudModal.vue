@@ -47,7 +47,10 @@
             }"
             class="modal-fabcrud-body"
           >
-            <crear-editar-requerimiento @form-submitted="removeQueryParams" />
+            <crear-editar-requerimiento
+              ref="crud"
+              @form-submitted="removeQueryParams"
+            />
           </q-scroll-area>
         </q-page-container>
 
@@ -56,8 +59,15 @@
             <q-btn
               flat
               label="Cerrar"
-              color="deep-purple-10"
+              color="negative"
               @click="crudModalOpen = false"
+            />
+            <q-btn
+              :label="submitText"
+              color="deep-purple-10"
+              :outline="submitLoading"
+              :loading="submitLoading"
+              @click="handleSubmit"
             />
           </q-card-actions>
         </q-footer>
@@ -69,6 +79,7 @@
 <script>
 // import { warn, success } from "@utils/helpers
 import CrearEditarRequerimiento from "@comp/Requerimientos/CrearEditarRequerimiento"
+import { mapState } from "vuex"
 
 export default {
   name: "FabCrudModal",
@@ -80,9 +91,21 @@ export default {
       crudModalOpen: false,
       fabShowed: false,
       title: "",
+      isEdit: false,
     }
   },
-  computed: {},
+  computed: {
+    ...mapState("requerimientos", {
+      loadingRequerimiento: state => state.loadingRequerimiento,
+      procesandoArchivosCargados: state => state.procesandoArchivosCargados,
+    }),
+    submitText() {
+      return this.isEdit ? "Editar Requerimiento" : "Cargar Requerimiento"
+    },
+    submitLoading() {
+      return this.procesandoArchivosCargados || this.loadingRequerimiento
+    },
+  },
   watch: {
     "$route.name": {
       immediate: true,
@@ -101,8 +124,10 @@ export default {
       handler: function({ ver, id = null }) {
         if (ver === "editarRequerimiento") {
           this.title = `Editar Requerimiento #${id}`
+          this.isEdit = true
         } else if (ver === "crearRequerimiento") {
           this.title = "Nuevo Requerimiento"
+          this.isEdit = false
         }
 
         switch (ver) {
@@ -120,10 +145,12 @@ export default {
       immediate: true,
     },
   },
-  created() {},
   methods: {
     removeQueryParams() {
       this.$router.replace({ query: null })
+    },
+    handleSubmit() {
+      this.$refs.crud.handleSubmit()
     },
   },
 }

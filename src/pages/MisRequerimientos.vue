@@ -28,6 +28,7 @@ import PageHeader from "@comp/Common/PageHeader"
 import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
 import MisRequerimientosMenuFiltros from "@comp/MisRequerimientos/MisRequerimientosMenuFiltros"
 import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
+import Bus from "@utils/bus"
 
 export default {
   components: {
@@ -68,10 +69,10 @@ export default {
   async mounted() {
     this.getListRequerimientos()
     await this.$store.dispatch("requerimientos/createRequerimiento")
-    this.$root.$on("load-list-requerimientos", this.getListRequerimientos)
+    Bus.$on("load-list-requerimientos", this.getListRequerimientos)
   },
   unmounted() {
-    this.$root.$off("load-list-requerimientos", this.getListRequerimientos)
+    Bus.$off("load-list-requerimientos", this.getListRequerimientos)
   },
   methods: {
     async getListRequerimientos() {

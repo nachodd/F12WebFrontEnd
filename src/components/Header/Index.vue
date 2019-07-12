@@ -11,17 +11,21 @@
         stretch
         flat
         icon="fas fa-bell"
-        :color="notificaction_count > 0 ? 'red' : undefined"
+        :color="notificactionCount > 0 ? 'red' : undefined"
       >
         <q-badge
-          v-if="notificaction_count > 0"
+          v-if="notificactionCount > 0"
           color="red"
           floating
           :class="{ strech: !hasSpace }"
         >
-          {{ notificaction_count }}
+          {{ notificactionCount }}
         </q-badge>
-        <q-menu anchor="bottom right" self="top right">
+        <q-menu
+          anchor="bottom right"
+          self="top right"
+          @before-show="checkNotificaciones"
+        >
           <q-list>
             <q-item v-close-popup clickable tabindex="0">
               <q-item-section side>
@@ -73,7 +77,7 @@
   </q-header>
 </template>
 <script>
-import { mapActions, mapGetters } from "vuex"
+import { mapActions, mapGetters, mapState } from "vuex"
 
 export default {
   name: "MyLayout",
@@ -85,10 +89,15 @@ export default {
   },
   data() {
     return {
-      notificaction_count: 0,
+      notificactionCount: 0,
+      shouldWaitToCheckNotifications: false,
     }
   },
   computed: {
+    ...mapState("app", {
+      notificaciones: state => state.notificaciones,
+      loadingNotificaciones: state => state.loadingNotificaciones,
+    }),
     ...mapGetters("auth", ["user"]),
     hasSpace() {
       return this.$q.screen.gt.xs && !this.mini
@@ -117,10 +126,16 @@ export default {
       logout: "auth/logout",
       toggleSidebar: "app/toggleSidebar",
       toggleDevice: "app/toggleDevice",
+      // checkNotificaciones: "app/getNotificaciones"
     }),
     async onLogOut() {
       await this.logout()
       this.$router.replace({ name: "login" })
+    },
+    async checkNotificaciones() {
+      // FIXME: esto debe chequearlo cada tanto tiempo
+      await this.$store.dispatch("app/getNotificaciones")
+      console.log(this.notificaciones)
     },
   },
 }
