@@ -46,8 +46,11 @@ export function UpdatePendingPayloadPriorizarReq(requerimientos) {
     const result = {
       id: req.id,
       aprobado: req.estado.id == 2,
-      prioridad: req.prioridad,
+      comentario: req.comentario || null,
     }
+
+    result.prioridad = req.prioridad
+
     return result
   })
 }

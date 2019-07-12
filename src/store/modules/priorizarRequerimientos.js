@@ -374,7 +374,7 @@ const mutations = {
     }
     state.possibleChanges.payload = payload
   },
-  UPDATE_COMMENT_IN_REQ: (state, { listName, reqId, comment }) => {
+  UPDATE_COMMENT_IN_REQ: (state, { reqId, comment }) => {
     _.find(state.changesRequerimientos, {
       id: reqId,
     }).comentario = comment
@@ -415,6 +415,13 @@ const mutations = {
       if (updateOrderToCurrentRequerimiento && ra.id === reqIdToAvoid) {
         ra.prioridad = orderStart
       }
+      return ra
+    })
+
+    // re indexa la prioridades
+    state.changesRequerimientos = state.changesRequerimientos.map((ra, i) => {
+      ra.prioridad = i + 1
+
       return ra
     })
   },
@@ -585,10 +592,6 @@ const actions = {
     comment,
   ) {
     return new Promise(async resolve => {
-      // let listToUpdateComment = getters.operationReject
-      //   ? "sourceList"
-      //   : "targetList"
-
       const reqId = getters.requerimientoIdToChange
       const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"](
         "APRV",
@@ -597,7 +600,6 @@ const actions = {
 
       // Actualiza el comentario
       commit("UPDATE_COMMENT_IN_REQ", {
-        listName: "test",
         reqId,
         comment,
       })
@@ -619,13 +621,10 @@ const actions = {
         ...state.changesRequerimientos,
       ])
 
-      console.log(state.changesRequerimientos, tempReqs)
-
       // // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
       const res = await dispatch("persistChanges", tempReqs)
 
       if (!res) {
-        console.log("entra aca")
         // commit("SET_REQS_LIST", {
         //   listType: "pending",
         //   listData: sourceBackup,
@@ -636,50 +635,12 @@ const actions = {
         //   listData: targetBackup,
         // })
         // commit("UPDATE_LIST_ESTADO", "approved")
+      } else {
+        commit("SET_REQS_LIST", {
+          listType: "pending",
+          listData: [...state.changesRequerimientos],
+        })
       }
-
-      // return false
-
-      // commit("SET_REQS_LIST", {
-      //   listType: "approved",
-      //   listData: state.possibleChanges.targetList,
-      // })
-      // commit("UPDATE_LIST_ESTADO", "approved")
-      // commit("UPDATE_LIST_PRIORITY", "approved")
-      // commit("SORT_LIST_BY_PRIORITY", "approved")
-
-      // // Calcula el orden
-      // commit("UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS", {
-      //   estadoAsignadoId: estadoAprobado.id,
-      //   orderStart: orden,
-      //   reqIdToAvoid: getters.requerimientoIdToChange,
-      //   updateOrderToCurrentRequerimiento: true,
-      // })
-
-      // commit("UPDATE_LIST_ESTADO", "approved")
-      // commit("UPDATE_LIST_PRIORITY", "approved")
-      // commit("SORT_LIST_BY_PRIORITY", "approved")
-
-      // const tempReqsConcated = [
-      //   ...state.reqsPendientesAprobacion.toUpdatePayload(),
-      //   ...state.reqsAprobadosPriorizados.toUpdatePayload(),
-      // ]
-
-      // // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
-      // const res = await dispatch("persistChanges", tempReqsConcated)
-
-      // if (!res) {
-      //   commit("SET_REQS_LIST", {
-      //     listType: "pending",
-      //     listData: sourceBackup,
-      //   })
-      //   commit("UPDATE_LIST_ESTADO", "pending")
-      //   commit("SET_REQS_LIST", {
-      //     listType: "approved",
-      //     listData: targetBackup,
-      //   })
-      //   commit("UPDATE_LIST_ESTADO", "approved")
-      // }
 
       resolve()
     })
