@@ -403,7 +403,7 @@ const mutations = {
   ) => {
     // Actualiza todos los requerimientos aprobados priorizados
     // state.reqsAprobadosPriorizados.list = state.reqsAprobadosPriorizados.list.map(
-    state.changesRequerimientos = state.changesRequerimientos.map(ra => {
+    state.changesRequerimientos.map(ra => {
       if (ra.estado.id === estadoAsignadoId) {
         // Que tengan prioridad mayor o igual a orderStart y NO sea el reqerumiento priorizado
         const tieneOrdenMayorOIgual = ra.prioridad >= orderStart
@@ -419,7 +419,7 @@ const mutations = {
     })
 
     // re indexa la prioridades
-    state.changesRequerimientos = state.changesRequerimientos.map((ra, i) => {
+    state.changesRequerimientos.map((ra, i) => {
       ra.prioridad = i + 1
 
       return ra
