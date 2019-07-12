@@ -121,7 +121,7 @@ export function getDashboardData(userId) {
   })
 }
 
-export function getNotificaciones(userId) {
+export function checkNotificaciones(userId) {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await request({
