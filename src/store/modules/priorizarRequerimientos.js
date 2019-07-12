@@ -282,14 +282,10 @@ const getters = {
 }
 
 const mutations = {
-  SET_REQS_LIST: (state, { listType, listData }) => {
-    listType === "pending"
-      ? (state.reqsPendientesAprobacion.list = listData)
-      : (state.reqsAprobadosPriorizados.list = listData)
+  PULL_REQS_LIST: (state, { listType, listData }) => {
+    state.requerimientos.push(...listData)
 
-    state.requerimientos = [...state.requerimientos, ...listData]
-
-    state.changesRequerimientos = [...state.changesRequerimientos, ...listData]
+    state.changesRequerimientos.push(...listData)
   },
   SORT_LIST_BY_PRIORITY: (state, listType) => {
     // Obtengo la lista
@@ -475,7 +471,7 @@ const actions = {
 
     return getRequerimientosByUserAndEstado(userId, estadoReq.id)
       .then(({ data: { data } }) => {
-        commit("SET_REQS_LIST", { listType, listData: data })
+        commit("PULL_REQS_LIST", { listType, listData: data })
         commit("UPDATE_LIST_ESTADO", listType)
         commit("SORT_LIST_BY_PRIORITY", listType)
       })
