@@ -11,7 +11,7 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
-    "@quasar/extras": "^1.1.4",
+    "@quasar/extras": "^1.2.0",
     "axios": "^0.18.0",
     "dotenv": "^7.0.0",
     "file-saver": "^2.0.2",
@@ -20,11 +20,10 @@
     "lodash": "^4.17.11",
     "quasar": "^1.0.4",
     "vue-smooth-dnd": "^0.8.0",
-    "vue2-touch-events": "^2.0.0",
     "vuelidate": "^0.7.4"
   },
   "devDependencies": {
-    "@quasar/app": "^1.0.3",
+    "@quasar/app": "^1.0.4",
     "@quasar/quasar-app-extension-dotenv": "^1.0.0-beta.10",
     "@vue/eslint-config-prettier": "^4.0.0",
     "babel-eslint": "^10.0.1",

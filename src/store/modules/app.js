@@ -1,5 +1,9 @@
 import Cookies from "js-cookie"
-import { getDashboardData } from "@api/user"
+import {
+  getDashboardData,
+  getNotificaciones,
+  readNotificaciones,
+} from "@api/user"
 
 const state = {
   sidebarOpen: Cookies.get("sidebarStatus")
@@ -10,6 +14,8 @@ const state = {
   loadingLevel: 0,
   dashboard: {},
   loadingDashboard: false,
+  notificaciones: [],
+  loadingNotificaciones: false,
 }
 
 // getters
@@ -18,6 +24,16 @@ const getters = {
   device: state => state.device,
   size: state => state.size,
   isPageLoading: state => state.loadingLevel !== 0,
+  notificacionesUnread: state =>
+    _.filter(state.notificaciones, not => {
+      return not.notification_read_at === null
+    }),
+  notificacionesRead: state =>
+    _.filter(state.notificaciones, not => {
+      return not.notification_read_at !== null
+    }),
+  notificacionesAll: state =>
+    _.orderBy(state.notificaciones, ["notification_read_at.fecha"], ["desc"]),
 }
 
 const mutations = {
@@ -64,6 +80,16 @@ const mutations = {
   },
   SET_LOADING_DASHBOARD: (state, value) => {
     state.loadingDashboard = value
+  },
+  SET_LOADING_NOTIFICACIONES: (state, value) => {
+    state.loadingNotificaciones = value
+  },
+  SET_NOTIFICACIONES: (state, value) => {
+    if (value === null) {
+      state.notificaciones.splice(0, state.notificaciones.length)
+    } else {
+      state.notificaciones.push(value)
+    }
   },
 }
 
@@ -112,6 +138,38 @@ const actions = {
         reject(error)
       } finally {
         commit("SET_LOADING_DASHBOARD", false)
+      }
+    })
+  },
+  getNotificaciones({ commit, rootGetters }, userId = null) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const userIdToCheck = userId || rootGetters["auth/userId"]
+        commit("SET_LOADING_NOTIFICACIONES", true)
+        const res = await getNotificaciones(userIdToCheck)
+        commit("SET_NOTIFICACIONES", res)
+        resolve()
+      } catch (error) {
+        reject(error)
+      } finally {
+        commit("SET_LOADING_NOTIFICACIONES", false)
+      }
+    })
+  },
+  readNotificaciones({ commit, rootGetters }, userId = null) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const userIdToCheck = userId || rootGetters["auth/userId"]
+        commit("SET_LOADING_NOTIFICACIONES", true)
+        const res = await readNotificaciones(userIdToCheck)
+        setTimeout(() => {
+          commit("SET_NOTIFICACIONES", res)
+        }, 5000)
+        resolve()
+      } catch (error) {
+        reject(error)
+      } finally {
+        commit("SET_LOADING_NOTIFICACIONES", false)
       }
     })
   },
