@@ -191,7 +191,6 @@ const getters = {
     switch (reqEstado) {
       case "PEND":
         reqs = [...getters.getPendientesAprobacion]
-
         break
       case "APRV":
         reqs = [...getters.getAprobadosPriorizados]
@@ -282,10 +281,12 @@ const getters = {
 }
 
 const mutations = {
-  PULL_REQS_LIST: (state, { listType, listData }) => {
+  PUSH_REQS_LIST: (state, { listData }) => {
+    // listType === "pending"
+    //   ? (state.reqsPendientesAprobacion.list = listData)
+    //   : (state.reqsAprobadosPriorizados.list = listData)
     state.requerimientos.push(...listData)
-
-    state.changesRequerimientos.push(...listData)
+    state.changesRequerimientos.push(...state.requerimientos)
   },
   SORT_LIST_BY_PRIORITY: (state, listType) => {
     // Obtengo la lista
@@ -433,6 +434,14 @@ const mutations = {
       }
     })
   },
+
+  DROP_REQS_LIST: (state, reqs) => {
+    // listType === "pending"
+    //   ? (state.reqsPendientesAprobacion.list = listData)
+    //   : (state.reqsAprobadosPriorizados.list = listData)
+    state.requerimientos = reqs
+    state.changesRequerimientos = reqs
+  },
 }
 
 const actions = {
@@ -471,7 +480,7 @@ const actions = {
 
     return getRequerimientosByUserAndEstado(userId, estadoReq.id)
       .then(({ data: { data } }) => {
-        commit("PULL_REQS_LIST", { listType, listData: data })
+        commit("PUSH_REQS_LIST", { listData: data })
         commit("UPDATE_LIST_ESTADO", listType)
         commit("SORT_LIST_BY_PRIORITY", listType)
       })
@@ -632,10 +641,7 @@ const actions = {
         // })
         // commit("UPDATE_LIST_ESTADO", "approved")
       } else {
-        commit("SET_REQS_LIST", {
-          listType: "pending",
-          listData: [...state.changesRequerimientos],
-        })
+        commit("DROP_REQS_LIST", [...state.changesRequerimientos])
       }
 
       resolve()
