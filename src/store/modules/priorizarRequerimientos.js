@@ -290,19 +290,32 @@ const mutations = {
     state.requerimientos.push(...listData)
     state.changesRequerimientos.push(...listData)
   },
-  SORT_LIST_BY_PRIORITY: (state, listType) => {
+  SORT_REQUERIMIENTOS_BY_PRIORITY: state => {
     // Obtengo la lista
-    let list =
-      listType === "pending"
-        ? [...state.reqsPendientesAprobacion.list]
-        : [...state.reqsAprobadosPriorizados.list]
+    state.requerimientos = _.sortBy(state.requerimientos, ["prioridad"])
+  },
+  SORT_CHANGE_REQUERIMIENTOS_BY_PRIORITY: () => {
+    state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
+      "prioridad",
+    ])
+  },
+  REINDEX_PRIORITY_APROBADOS: state => {
+    let p = 1
 
-    list = _.sortBy(list, ["prioridad"])
+    for (var i in state.changesRequerimientos) {
+      if (state.changesRequerimientos[i].estado_priorizacion.id == 2) {
+        state.changesRequerimientos[i].prioridad = p
+        p++
+      }
+    }
 
-    // Persisto los cambios localmente
-    listType === "pending"
-      ? (state.reqsPendientesAprobacion.list = list)
-      : (state.reqsAprobadosPriorizados.list = list)
+    // state.changesRequerimientos.map(rq => {
+    //   if (rq.estado_priorizacion.id == 2) {
+    //     rq.prioridad = p
+    //     p++
+    //   }
+    //   return rq
+    // })
   },
   UPDATE_LIST_PRIORITY: (state, listType) => {
     // Obtengo la lista
@@ -393,7 +406,6 @@ const mutations = {
 
   UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS: (
     state,
-    // rootGetters,
     {
       estadoAsignadoId,
       orderStart,
@@ -402,8 +414,8 @@ const mutations = {
     },
   ) => {
     // Actualiza todos los requerimientos aprobados priorizados
-    // state.reqsAprobadosPriorizados.list = state.reqsAprobadosPriorizados.list.map(
-    state.changesRequerimientos.map(ra => {
+
+    state.changesRequerimientos = state.changesRequerimientos.map(ra => {
       if (ra.estado_priorizacion.id === estadoAsignadoId) {
         // Que tengan prioridad mayor o igual a orderStart y NO sea el reqerumiento priorizado
         const tieneOrdenMayorOIgual = ra.prioridad >= orderStart
@@ -417,19 +429,22 @@ const mutations = {
       }
       return ra
     })
-    // re indexa la prioridades
-    // rootGetters.getAprobadosPriorizados.map((ra, i) => {
-    //   console.log(ra, i)
-    // })
 
-    let prioridad = 0
-    state.changesRequerimientos.map(ra => {
-      if (ra.estado_priorizacion.id === estadoAsignadoId) {
-        ra.prioridad = prioridad + 1
-      }
+    state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
+      "prioridad",
+    ])
 
-      return ra
-    })
+    // re indexa la prioridades de los aprobados
+    let prioridad = 1
+    state.changesRequerimientos = state.changesRequerimientos.map(
+      (rq, i, list) => {
+        if (rq.estado_priorizacion.id == estadoAsignadoId) {
+          rq.prioridad = prioridad
+          prioridad++
+        }
+        return rq
+      },
+    )
   },
 
   UPDATE_ESTADO: (state, reqId) => {
@@ -484,8 +499,8 @@ const actions = {
     return getRequerimientosByUserAndEstado(userId, estadoReq.id)
       .then(({ data: { data } }) => {
         commit("PUSH_REQS_LIST", { listData: data })
-        // commit("UPDATE_LIST_ESTADO", listType)
-        commit("SORT_LIST_BY_PRIORITY", listType)
+        commit("SORT_REQUERIMIENTOS_BY_PRIORITY")
+        commit("SORT_CHANGE_REQUERIMIENTOS_BY_PRIORITY")
       })
       .catch(e => console.log(e))
       .finally(() => {
@@ -564,31 +579,41 @@ const actions = {
       resolve()
     })
   },
-  saveReorderApproved({ commit, state, getters, dispatch }) {
-    alert("1")
+  saveReorderApproved({ commit, state, getters, dispatch, rootGetters }) {
     return new Promise(async resolve => {
       const listType = "approved"
       // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
       if (getters.differentPositionsTarget) {
-        const targetBackup = [...state.reqsAprobadosPriorizados.list]
-        // Actualizo con los cambios en la lista del store local
-        commit("SET_REQS_LIST", {
-          listType,
-          listData: state.possibleChanges.targetList,
-        })
-        commit("UPDATE_LIST_PRIORITY", listType)
-        commit("UPDATE_LIST_ESTADO", listType)
-        // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
-        const res = await dispatch(
-          "persistChanges",
-          state.reqsAprobadosPriorizados.toUpdatePayload(),
+        // const reqId = getters.requerimientoIdToChange
+        const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"](
+          "APRV",
         )
+
+        const { orden } = getters.getNewOrder
+
+        commit("UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS", {
+          estadoAsignadoId: estAprobados.id,
+          orderStart: orden,
+          reqIdToAvoid: getters.requerimientoIdToChange,
+          updateOrderToCurrentRequerimiento: true,
+        })
+        // commit("REINDEX_PRIORITY_APROBADOS")
+
+        let tempReqs = UpdatePendingPayloadPriorizarReq([
+          ...state.changesRequerimientos,
+        ])
+
+        // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
+        const res = await dispatch("persistChanges", tempReqs)
         if (!res) {
           commit("SET_REQS_LIST", {
             listType,
             listData: targetBackup,
           })
           commit("UPDATE_LIST_ESTADO", listType)
+        } else {
+          let newList = [...state.changesRequerimientos]
+          commit("SET_REQS_LIST", newList)
         }
       }
       commit("CLEAR_OPERATIONS")
@@ -612,7 +637,7 @@ const actions = {
         comment,
       })
 
-      // actualiza estado
+      // Actualiza estado
       commit("UPDATE_ESTADO", reqId)
 
       // Calcula prioridad
