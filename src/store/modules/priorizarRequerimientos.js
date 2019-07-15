@@ -436,15 +436,13 @@ const mutations = {
 
     // re indexa la prioridades de los aprobados
     let prioridad = 1
-    state.changesRequerimientos = state.changesRequerimientos.map(
-      (rq, i, list) => {
-        if (rq.estado_priorizacion.id == estadoAsignadoId) {
-          rq.prioridad = prioridad
-          prioridad++
-        }
-        return rq
-      },
-    )
+    state.changesRequerimientos = state.changesRequerimientos.map(rq => {
+      if (rq.estado_priorizacion.id == estadoAsignadoId) {
+        rq.prioridad = prioridad
+        prioridad++
+      }
+      return rq
+    })
   },
 
   UPDATE_ESTADO: (state, reqId) => {
