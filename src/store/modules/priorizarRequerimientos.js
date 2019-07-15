@@ -8,9 +8,20 @@ import {
   deleteRequerimiento,
   // getRequerimiento,
 } from "@api/requerimientos"
-import { warn, success } from "@utils/helpers"
+import {
+  filterByAsuntoAndDescripcion,
+  filterBySistema,
+  filterByTipoRequerimiento,
+  // filterByUsuariosAsignados,
+  UpdatePendingPayloadPriorizarReq,
+} from "@utils/requerimientos"
+import { warn, success, pipeWith } from "@utils/helpers"
+// import { runInNewContext } from "vm"
 
 const state = {
+  requerimientos: [],
+  changesRequerimientos: [],
+
   reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
   reqsAprobadosPriorizados: new RequerimientosPriorizarList([], true),
 
@@ -33,6 +44,12 @@ const state = {
       changesSetted: false,
     },
     payload: {},
+  },
+  filtros: {
+    sistema: null,
+    requerimientoTipo: null,
+    descripcion: null,
+    // usuariosAsignados: [],
   },
 }
 
@@ -164,27 +181,141 @@ const getters = {
     )
     return userId === reqUserId
   },
+
+  //reqsPendientesAprobacion , reqsAprobadosPriorizados
+
+  // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
+  requerimientosFiltered: (state, getters) => reqEstado => {
+    let reqs
+
+    switch (reqEstado) {
+      case "PEND":
+        reqs = [...getters.getPendientesAprobacion]
+        break
+      case "APRV":
+        reqs = [...getters.getAprobadosPriorizados]
+        break
+    }
+    const {
+      descripcion = null,
+      sistema = null,
+      requerimientoTipo = null,
+      // usuariosAsignados = null,
+    } = state.filtros
+
+    // Determino que filtros aplicar, dependiendo de que hayan seteado
+    let filtersToApply = []
+    if (descripcion !== null) {
+      filtersToApply.push(filterByAsuntoAndDescripcion(descripcion))
+    }
+    if (sistema && sistema.id) {
+      filtersToApply.push(filterBySistema(sistema.id))
+    }
+    if (requerimientoTipo && requerimientoTipo.id) {
+      filtersToApply.push(filterByTipoRequerimiento(requerimientoTipo.id))
+    }
+    // const isAssigOrInExec = reqEstado === "ASSI" || reqEstado === "EXEC"
+    // if (isAssigOrInExec && usuariosAsignados && usuariosAsignados.length) {
+    //   filtersToApply.push(filterByUsuariosAsignados(usuariosAsignados))
+    // }
+    // aplica a reqs el conjunto de filtros
+    return pipeWith(reqs, ...filtersToApply)
+  },
+  getNewOrder: (state, getters) => {
+    // Busca el requerimiento a actualizar en el listado que está en pantalla
+    // const reqsAsignadosOnScreen = state.possibleChanges.targetList
+    const reqsAsignadosOnScreen = state.possibleChanges.targetList
+    const index = _.findIndex(reqsAsignadosOnScreen, {
+      id: getters.requerimientoIdToChange,
+    })
+    // De estos, busco el siguiente en pantalla
+    const nextReq = reqsAsignadosOnScreen[index + 1]
+
+    if (nextReq) {
+      // Si lo encuentra, devuelve su orden e indico que NO es el ultimo
+      return {
+        orden: nextReq.prioridad,
+        ultimo: false,
+      }
+    } else {
+      // Caso contario, determino el orden REAL
+      let orden
+      // Si no hay otros reqs asignados, orden = 1
+      if (getters.getAprobadosPriorizados.length === 0) {
+        orden = 1
+      } else {
+        // Busco el último reqs de los asignados, tomo su orden y le aumento 1
+
+        const lastReq =
+          getters.getAprobadosPriorizados[
+            getters.getAprobadosPriorizados.length - 1
+          ]
+
+        orden = lastReq.prioridad + 1
+      }
+      // Será el ultimo (ya sea porque se filtro el listado y no hay nada o porque efectivametne no habia otro asignado)
+      return {
+        orden,
+        ultimo: true,
+      }
+    }
+  },
+
+  getPendientesAprobacion: (state, getters, rootState, rootGetters) => {
+    const estPendienteAprobacion = rootGetters[
+      "requerimientos/getEstadoByCodigo"
+    ]("PEND")
+    const reqsResult = _.filter(state.requerimientos, {
+      estado_priorizacion: { id: estPendienteAprobacion.id },
+    })
+    return _.orderBy(reqsResult, "[prioridad]", "asc")
+  },
+
+  getAprobadosPriorizados: (state, getters, rootState, rootGetters) => {
+    const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"]("APRV")
+    const reqsResult = _.filter(state.requerimientos, {
+      estado_priorizacion: { id: estAprobados.id },
+    })
+    return _.orderBy(reqsResult, "[prioridad]", "asc")
+  },
 }
 
 const mutations = {
-  SET_REQS_LIST: (state, { listType, listData }) => {
-    listType === "pending"
-      ? (state.reqsPendientesAprobacion.list = listData)
-      : (state.reqsAprobadosPriorizados.list = listData)
+  SET_REQS_LIST: (state, listData) => {
+    state.requerimientos = [...listData]
+    state.changesRequerimientos = [...listData]
   },
-  SORT_LIST_BY_PRIORITY: (state, listType) => {
+
+  PUSH_REQS_LIST: (state, { listData }) => {
+    state.requerimientos.push(...listData)
+    state.changesRequerimientos.push(...listData)
+  },
+  SORT_REQUERIMIENTOS_BY_PRIORITY: state => {
     // Obtengo la lista
-    let list =
-      listType === "pending"
-        ? [...state.reqsPendientesAprobacion.list]
-        : [...state.reqsAprobadosPriorizados.list]
+    state.requerimientos = _.sortBy(state.requerimientos, ["prioridad"])
+  },
+  SORT_CHANGE_REQUERIMIENTOS_BY_PRIORITY: () => {
+    state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
+      "prioridad",
+    ])
+  },
+  REINDEX_PRIORITY_APROBADOS: state => {
+    let p = 1
 
-    list = _.sortBy(list, ["prioridad"])
+    for (var i in state.changesRequerimientos) {
+      if (state.changesRequerimientos[i].estado_priorizacion.id == 2) {
+        state.changesRequerimientos[i].prioridad = p
+        p++
+      }
+    }
 
-    // Persisto los cambios localmente
-    listType === "pending"
-      ? (state.reqsPendientesAprobacion.list = list)
-      : (state.reqsAprobadosPriorizados.list = list)
+    // state.changesRequerimientos.map(rq => {
+    //   if (rq.estado_priorizacion.id == 2) {
+    //     rq.prioridad = p
+    //     p++
+    //   }
+    //   return rq
+    // })
   },
   UPDATE_LIST_PRIORITY: (state, listType) => {
     // Obtengo la lista
@@ -255,13 +386,78 @@ const mutations = {
     }
     state.possibleChanges.payload = payload
   },
-  UPDATE_COMMENT_IN_REQ: (state, { listName, reqId, comment }) => {
-    _.find(state.possibleChanges[listName], {
+  UPDATE_COMMENT_IN_REQ: (state, { reqId, comment }) => {
+    _.find(state.changesRequerimientos, {
       id: reqId,
     }).comentario = comment
   },
   SET_USUARIO_IMPERSONATE: (state, usuarioImpersonateId) => {
     state.usuarioImpersonateId = usuarioImpersonateId
+  },
+  SET_FILTROS: (state, { filter, value }) => {
+    state.filtros[filter] = value
+  },
+  CLEAR_FILTROS: state => {
+    state.filtros.sistema = null
+    state.filtros.requerimientoTipo = null
+    state.filtros.descripcion = null
+    // state.filtros.usuariosAsignados = []
+  },
+
+  UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS: (
+    state,
+    {
+      estadoAsignadoId,
+      orderStart,
+      reqIdToAvoid,
+      updateOrderToCurrentRequerimiento = false,
+    },
+  ) => {
+    // Actualiza todos los requerimientos aprobados priorizados
+
+    state.changesRequerimientos = state.changesRequerimientos.map(ra => {
+      if (ra.estado_priorizacion.id === estadoAsignadoId) {
+        // Que tengan prioridad mayor o igual a orderStart y NO sea el reqerumiento priorizado
+        const tieneOrdenMayorOIgual = ra.prioridad >= orderStart
+        if (tieneOrdenMayorOIgual && ra.id !== reqIdToAvoid) {
+          ra.prioridad += 1
+        }
+      }
+      // Actualizo la prioridad del requerimiento en cuestion solo si es declarado explicitamente con updateOrderToCurrentRequerimiento=true (caso reordenamiento)
+      if (updateOrderToCurrentRequerimiento && ra.id === reqIdToAvoid) {
+        ra.prioridad = orderStart
+      }
+      return ra
+    })
+
+    state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
+      "prioridad",
+    ])
+
+    // re indexa la prioridades de los aprobados
+    let prioridad = 1
+    state.changesRequerimientos = state.changesRequerimientos.map(rq => {
+      if (rq.estado_priorizacion.id == estadoAsignadoId) {
+        rq.prioridad = prioridad
+        prioridad++
+      }
+      return rq
+    })
+  },
+
+  UPDATE_ESTADO: (state, reqId) => {
+    state.changesRequerimientos.map(req => {
+      if (req.id == reqId) {
+        if (req.estado_priorizacion.id == 1) {
+          req.estado_priorizacion = { id: 2, descripcion: "Aprobado" }
+        } else {
+          req.estado_priorizacion = {
+            id: 1,
+            descripcion: "Pendiente aprobación",
+          }
+        }
+      }
+    })
   },
 }
 
@@ -296,14 +492,13 @@ const actions = {
   ) {
     const estadoReq = rootGetters["requerimientos/getEstadoByCodigo"](reqState)
     const listType = reqState === "PEND" ? "pending" : "approved"
-
     commit("SET_LOADING_STATE_REQS_LISTS", { listType, loadingState: true })
 
     return getRequerimientosByUserAndEstado(userId, estadoReq.id)
       .then(({ data: { data } }) => {
-        commit("SET_REQS_LIST", { listType, listData: data })
-        commit("UPDATE_LIST_ESTADO", listType)
-        commit("SORT_LIST_BY_PRIORITY", listType)
+        commit("PUSH_REQS_LIST", { listData: data })
+        commit("SORT_REQUERIMIENTOS_BY_PRIORITY")
+        commit("SORT_CHANGE_REQUERIMIENTOS_BY_PRIORITY")
       })
       .catch(e => console.log(e))
       .finally(() => {
@@ -382,84 +577,102 @@ const actions = {
       resolve()
     })
   },
-  saveReorderApproved({ commit, state, getters, dispatch }) {
+  saveReorderApproved({ commit, state, getters, dispatch, rootGetters }) {
     return new Promise(async resolve => {
       const listType = "approved"
       // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
       if (getters.differentPositionsTarget) {
-        const targetBackup = [...state.reqsAprobadosPriorizados.list]
-        // Actualizo con los cambios en la lista del store local
-        commit("SET_REQS_LIST", {
-          listType,
-          listData: state.possibleChanges.targetList,
-        })
-        commit("UPDATE_LIST_PRIORITY", listType)
-        commit("UPDATE_LIST_ESTADO", listType)
-        // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
-        const res = await dispatch(
-          "persistChanges",
-          state.reqsAprobadosPriorizados.toUpdatePayload(),
+        // const reqId = getters.requerimientoIdToChange
+        const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"](
+          "APRV",
         )
+
+        const { orden } = getters.getNewOrder
+
+        commit("UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS", {
+          estadoAsignadoId: estAprobados.id,
+          orderStart: orden,
+          reqIdToAvoid: getters.requerimientoIdToChange,
+          updateOrderToCurrentRequerimiento: true,
+        })
+        // commit("REINDEX_PRIORITY_APROBADOS")
+
+        let tempReqs = UpdatePendingPayloadPriorizarReq([
+          ...state.changesRequerimientos,
+        ])
+
+        // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
+        const res = await dispatch("persistChanges", tempReqs)
         if (!res) {
           commit("SET_REQS_LIST", {
             listType,
             listData: targetBackup,
           })
           commit("UPDATE_LIST_ESTADO", listType)
+        } else {
+          let newList = [...state.changesRequerimientos]
+          commit("SET_REQS_LIST", newList)
         }
       }
       commit("CLEAR_OPERATIONS")
       resolve()
     })
   },
-  async confirmOperation({ commit, getters, state, dispatch }, comment) {
+  async confirmOperation(
+    { commit, getters, state, dispatch, rootGetters },
+    comment,
+  ) {
     return new Promise(async resolve => {
       const reqId = getters.requerimientoIdToChange
-      // copio los listados (de manera de tener un backup)
-      const sourceBackup = [...state.reqsPendientesAprobacion.list]
-      const targetBackup = [...state.reqsAprobadosPriorizados.list]
-
-      // Actualizo el comentario
-      let listToUpdateComment = getters.operationReject
-        ? "sourceList"
-        : "targetList"
+      const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"](
+        "APRV",
+      )
+      const { orden } = getters.getNewOrder
+      // console.log("esta en", state.requerimientos, state.changesRequerimientos)
+      // Actualiza el comentario
       commit("UPDATE_COMMENT_IN_REQ", {
-        listName: listToUpdateComment,
         reqId,
         comment,
       })
 
-      // Actualizo localmente los listados
-      commit("SET_REQS_LIST", {
-        listType: "pending",
-        listData: state.possibleChanges.sourceList,
-      })
-      commit("UPDATE_LIST_ESTADO", "pending")
-      commit("SET_REQS_LIST", {
-        listType: "approved",
-        listData: state.possibleChanges.targetList,
-      })
-      commit("UPDATE_LIST_ESTADO", "approved")
-      commit("UPDATE_LIST_PRIORITY", "approved")
-      commit("SORT_LIST_BY_PRIORITY", "approved")
+      // Actualiza estado
+      commit("UPDATE_ESTADO", reqId)
 
-      const tempReqsConcated = [
-        ...state.reqsPendientesAprobacion.toUpdatePayload(),
-        ...state.reqsAprobadosPriorizados.toUpdatePayload(),
-      ]
-      // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
-      const res = await dispatch("persistChanges", tempReqsConcated)
+      // Calcula prioridad
+      commit("UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS", {
+        estadoAsignadoId: estAprobados.id,
+        orderStart: orden,
+        reqIdToAvoid: getters.requerimientoIdToChange,
+        updateOrderToCurrentRequerimiento: true,
+      })
+      // console.log(state.changesRequerimientos)
+      // return false
+      // generar payload
+
+      let tempReqs = UpdatePendingPayloadPriorizarReq([
+        ...state.changesRequerimientos,
+      ])
+
+      // // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
+      const res = await dispatch("persistChanges", tempReqs)
+
       if (!res) {
-        commit("SET_REQS_LIST", {
-          listType: "pending",
-          listData: sourceBackup,
-        })
-        commit("UPDATE_LIST_ESTADO", "pending")
-        commit("SET_REQS_LIST", {
-          listType: "approved",
-          listData: targetBackup,
-        })
-        commit("UPDATE_LIST_ESTADO", "approved")
+        // commit("SET_REQS_LIST", {
+        //   listType: "pending",
+        //   listData: sourceBackup,
+        // })
+        // commit("UPDATE_LIST_ESTADO", "pending")
+        // commit("SET_REQS_LIST", {
+        //   listType: "approved",
+        //   listData: targetBackup,
+        // })
+        // commit("UPDATE_LIST_ESTADO", "approved")
+        alert("error")
+      } else {
+        let newList = [...state.changesRequerimientos]
+        // console.log(newList, state.requerimientos, state.changesRequerimientos)
+        // return false
+        commit("SET_REQS_LIST", newList)
       }
 
       resolve()
@@ -729,6 +942,18 @@ const actions = {
           break
         }
       }
+    })
+  },
+  setFilter({ commit }, { filter, value }) {
+    return new Promise(resolve => {
+      commit("SET_FILTROS", { filter, value })
+      resolve()
+    })
+  },
+  clearFilters({ commit }) {
+    return new Promise(resolve => {
+      commit("CLEAR_FILTROS")
+      resolve()
     })
   },
 }

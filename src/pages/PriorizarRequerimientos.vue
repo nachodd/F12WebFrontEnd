@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <page-header title="Priorizar Requerimientos">
+    <page-header title="Priorizar Requerimientos" no-margin>
       <template v-if="hasReportantes">
         <div class="row">
           <div class="col">
@@ -18,24 +18,29 @@
         </div>
       </template>
     </page-header>
-    <div class="row q-col-gutter-md justify-center">
+    <div class="row">
+      <div class="col">
+        <priorizar-requerimientos-filtros />
+      </div>
+    </div>
+    <div class="row q-pt-md q-px-xs q-col-gutter-sm">
       <div class="col-sm-6 col-xs-12">
         <draggable-list
           title="Pendientes de Aprobación"
           group-name="requerimientos"
           list-name="source"
-          :requerimientos-list.sync="reqsPendientesAprobacion"
+          :requerimientos-list="requerimientosFiltered('PEND')"
           :loading-list="loadingReqsPendientesAprobacion"
         />
       </div>
 
       <div v-if="!esElUltimoDeLaCadenaDeMando" class="col-sm-6 col-xs-12">
         <draggable-list
+          :requerimientos-list="requerimientosFiltered('APRV')"
+          :loading-list="loadingReqsAprobadosPriorizados"
           title="Aprobados"
           group-name="requerimientos"
           list-name="target"
-          :requerimientos-list.sync="reqsAprobadosPriorizados"
-          :loading-list="loadingReqsAprobadosPriorizados"
         />
       </div>
     </div>
@@ -52,6 +57,7 @@ import pageLoading from "@mixins/pageLoading"
 import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
 import DialogConfirmOperation from "@comp/PriorizarRequerimientos/DialogConfirmOperation"
 import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
+import PriorizarRequerimientosFiltros from "@comp/PriorizarRequerimientos/PriorizarRequerimientosFiltros"
 
 export default {
   name: "PriorizarRequerimientos",
@@ -60,12 +66,14 @@ export default {
     DraggableList,
     DialogConfirmOperation,
     DialogDetalleRequerimiento,
+    PriorizarRequerimientosFiltros,
   },
   mixins: [pageLoading],
   data: () => ({
     usuarioVerComo: null,
   }),
   computed: {
+    ...mapGetters("priorizarRequerimientos", ["requerimientosFiltered"]),
     ...mapGetters("auth", [
       "hasReportantes",
       "userReportantes",
@@ -94,6 +102,7 @@ export default {
     },
   },
   async created() {
+    this.$store.dispatch("requerimientos/createRequerimiento")
     this.changeUsuarioVerComo(null)
   },
   methods: {
