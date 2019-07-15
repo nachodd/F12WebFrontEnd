@@ -1,9 +1,13 @@
 import Cookies from "js-cookie"
 import {
   getDashboardData,
-  getNotificaciones,
+  checkNotificaciones,
   readNotificaciones,
 } from "@api/user"
+import Notificacion from "@models/notificacion"
+import { date } from "quasar"
+
+const LIMIT_NOTIFICACIONES_SHOWED = 3
 
 const state = {
   sidebarOpen: Cookies.get("sidebarStatus")
@@ -12,10 +16,16 @@ const state = {
   device: "desktop",
   size: Cookies.get("size") || "medium",
   loadingLevel: 0,
-  dashboard: {},
+  dashboard: {
+    asignados_ejecucion: 0,
+    asignados_pendiente_ejecucion: 0,
+    pendientes_asignacion: 0,
+    pendientes_priorizacion: 0,
+  },
   loadingDashboard: false,
   notificaciones: [],
-  loadingNotificaciones: false,
+  limitUnread: LIMIT_NOTIFICACIONES_SHOWED,
+  limitRead: LIMIT_NOTIFICACIONES_SHOWED,
 }
 
 // getters
@@ -24,16 +34,26 @@ const getters = {
   device: state => state.device,
   size: state => state.size,
   isPageLoading: state => state.loadingLevel !== 0,
-  notificacionesUnread: state =>
-    _.filter(state.notificaciones, not => {
-      return not.notification_read_at === null
-    }),
   notificacionesRead: state =>
-    _.filter(state.notificaciones, not => {
-      return not.notification_read_at !== null
-    }),
-  notificacionesAll: state =>
-    _.orderBy(state.notificaciones, ["notification_read_at.fecha"], ["desc"]),
+    _(state.notificaciones)
+      .filter({ leida: true })
+      .orderBy(["_read_at"], ["desc"])
+      .take(state.limitRead)
+      .value(),
+  notificacionesUnread: state =>
+    _(state.notificaciones)
+      .filter({ leida: false })
+      .orderBy(["_read_at"], ["desc"])
+      .take(state.limitUnread)
+      .value(),
+  notificacionesUnreadCount: state =>
+    _.filter(state.notificaciones, { leida: false }).length,
+  notificacionesReadCount: state =>
+    _.filter(state.notificaciones, { leida: true }).length,
+  notificacionesUnreadVerMasShowed: (state, getters) =>
+    state.limitUnread < getters.notificacionesUnreadCount,
+  notificacionesReadVerMasShowed: (state, getters) =>
+    state.limitRead < getters.notificacionesReadCount,
 }
 
 const mutations = {
@@ -75,20 +95,61 @@ const mutations = {
   LOADING_RESET: state => {
     state.loadingLevel = 0
   },
-  SET_DASHBOARD_DATA: (state, dashboard) => {
-    state.dashboard = dashboard
+  SET_DASHBOARD_DATA: (
+    state,
+    {
+      asignados_ejecucion = null,
+      asignados_pendiente_ejecucion = null,
+      pendientes_asignacion = null,
+      pendientes_priorizacion = null,
+    },
+  ) => {
+    state.dashboard.asignados_ejecucion = asignados_ejecucion
+    state.dashboard.asignados_pendiente_ejecucion = asignados_pendiente_ejecucion
+    state.dashboard.pendientes_asignacion = pendientes_asignacion
+    state.dashboard.pendientes_priorizacion = pendientes_priorizacion
   },
   SET_LOADING_DASHBOARD: (state, value) => {
     state.loadingDashboard = value
   },
-  SET_LOADING_NOTIFICACIONES: (state, value) => {
-    state.loadingNotificaciones = value
+  SET_NOTIFICACIONES: (state, notificaciones) => {
+    _.each(notificaciones, n => {
+      const index = _.findIndex(state.notificaciones, {
+        id: n.notification_id,
+      })
+      if (-1 === index) {
+        state.notificaciones.push(new Notificacion(n))
+      }
+    })
   },
-  SET_NOTIFICACIONES: (state, value) => {
-    if (value === null) {
-      state.notificaciones.splice(0, state.notificaciones.length)
+  SET_NOTIFICACIONES_READ: (state, notificacionesRead) => {
+    _.each(notificacionesRead, nr => {
+      // busco la notificacion en el array y la actualizo el tiempo de leido
+      const notificacion = _.find(state.notificaciones, {
+        id: nr.notification_id,
+      })
+      if (notificacion) {
+        notificacion._read_at = nr.notification_read_at
+        notificacion.read_at = date.formatDate(
+          nr.notification_read_at,
+          "HH:mm DD/MM",
+        )
+      }
+    })
+  },
+  SET_LIMIT_NOTIFICACIONES_SHOWED: (
+    state,
+    { which, showMore = 3, reset = false },
+  ) => {
+    if (reset) {
+      state.limitUnread = LIMIT_NOTIFICACIONES_SHOWED
+      state.limitRead = LIMIT_NOTIFICACIONES_SHOWED
     } else {
-      state.notificaciones.push(value)
+      if (which === "unread") {
+        state.limitUnread = state.limitUnread + showMore
+      } else {
+        state.limitRead = state.limitRead + showMore
+      }
     }
   },
 }
@@ -141,18 +202,15 @@ const actions = {
       }
     })
   },
-  getNotificaciones({ commit, rootGetters }, userId = null) {
+  checkNotificaciones({ commit, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {
         const userIdToCheck = userId || rootGetters["auth/userId"]
-        commit("SET_LOADING_NOTIFICACIONES", true)
-        const res = await getNotificaciones(userIdToCheck)
+        const res = await checkNotificaciones(userIdToCheck)
         commit("SET_NOTIFICACIONES", res)
         resolve()
       } catch (error) {
         reject(error)
-      } finally {
-        commit("SET_LOADING_NOTIFICACIONES", false)
       }
     })
   },
@@ -160,17 +218,29 @@ const actions = {
     return new Promise(async (resolve, reject) => {
       try {
         const userIdToCheck = userId || rootGetters["auth/userId"]
-        commit("SET_LOADING_NOTIFICACIONES", true)
         const res = await readNotificaciones(userIdToCheck)
-        setTimeout(() => {
-          commit("SET_NOTIFICACIONES", res)
-        }, 5000)
+        commit("SET_NOTIFICACIONES_READ", res)
         resolve()
       } catch (error) {
         reject(error)
-      } finally {
-        commit("SET_LOADING_NOTIFICACIONES", false)
       }
+    })
+  },
+  showMoreNotificaciones({ commit }, which) {
+    return new Promise(resolve => {
+      commit("SET_LIMIT_NOTIFICACIONES_SHOWED", {
+        which,
+        showMore: LIMIT_NOTIFICACIONES_SHOWED,
+      })
+      resolve()
+    })
+  },
+  resetMoreNotificaciones({ commit }) {
+    return new Promise(resolve => {
+      commit("SET_LIMIT_NOTIFICACIONES_SHOWED", {
+        reset: true,
+      })
+      resolve()
     })
   },
 }

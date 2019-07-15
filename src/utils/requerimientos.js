@@ -29,6 +29,7 @@ export function filterByTipoRequerimiento(tipoRequerimientoId) {
   }
 }
 
+// Set: https://dev.to/healeycodes/solving-puzzles-with-high-performance-javascript-3o4k
 export function filterByUsuariosAsignados(usuariosAsignados) {
   return reqs => {
     // Crea un Set de valores con los id de los usuarios asignados.

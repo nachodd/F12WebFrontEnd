@@ -165,6 +165,7 @@ export const applyDrag = (arr, dragResult) => {
   return result
 }
 
+// Pipe & PipeWith: https://dev.to/benlesh/a-simple-explanation-of-functional-pipe-in-javascript-2hbj
 export function pipe(...fns) {
   return arg => fns.reduce((prev, fn) => fn(prev), arg)
 }
