@@ -161,9 +161,11 @@ const getters = {
       rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
     if (esElUltimoDeLaCadenaDeMando) {
-      return state.reqsPendientesAprobacion.listLength + 1
+      // return state.reqsPendientesAprobacion.listLength + 1
+      return getters.requerimientosFiltered("PEND").length + 1
     } else {
-      return state.reqsAprobadosPriorizados.listLength + 1
+      // return state.reqsAprobadosPriorizados.listLength + 1
+      return getters.requerimientosFiltered("APRV").length + 1
     }
   },
   reqsPendientesAprobacionLength: state =>
@@ -579,10 +581,8 @@ const actions = {
   },
   saveReorderApproved({ commit, state, getters, dispatch, rootGetters }) {
     return new Promise(async resolve => {
-      const listType = "approved"
       // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
       if (getters.differentPositionsTarget) {
-        // const reqId = getters.requerimientoIdToChange
         const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"](
           "APRV",
         )
@@ -604,11 +604,11 @@ const actions = {
         // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
         const res = await dispatch("persistChanges", tempReqs)
         if (!res) {
-          commit("SET_REQS_LIST", {
-            listType,
-            listData: targetBackup,
-          })
-          commit("UPDATE_LIST_ESTADO", listType)
+          // commit("SET_REQS_LIST", {
+          //   listType,
+          //   listData: targetBackup,
+          // })
+          // commit("UPDATE_LIST_ESTADO", listType)
         } else {
           let newList = [...state.changesRequerimientos]
           commit("SET_REQS_LIST", newList)
