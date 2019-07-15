@@ -29,9 +29,10 @@
           title="Pendientes"
           group-name="requerimientos"
           list-name="source"
-          :requerimientos-list.sync="reqsAsignadosPendientes"
-          :loading-list="loadingReqsPendientesAprobacion"
+          :requerimientos-list="requerimientosFiltered('ASSI')"
+          :loading-list="loadingRequerimientos"
         />
+        <!-- requerimientosFiltered('ASSI') -->
       </div>
 
       <div class="col-sm-4 col-xs-12">
@@ -39,8 +40,8 @@
           title="En Ejecución"
           group-name="requerimientos"
           list-name="target"
-          :requerimientos-list.sync="reqsAsignadosEnEjecucion"
-          :loading-list="loadingReqsAprobadosPriorizados"
+          :requerimientos-list="requerimientosFiltered('EXEC')"
+          :loading-list="loadingRequerimientos"
         />
       </div>
 
@@ -49,8 +50,8 @@
           title="Testing"
           group-name="requerimientos"
           list-name="target"
-          :requerimientos-list.sync="reqsAsignadosEnEjecucion"
-          :loading-list="loadingReqsAprobadosPriorizados"
+          :requerimientos-list="requerimientosFiltered('TEST')"
+          :loading-list="loadingRequerimientos"
         />
       </div>
     </div>
@@ -61,7 +62,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import PageHeader from "@comp/Common/PageHeader"
 import pageLoading from "@mixins/pageLoading"
 import DraggableList from "@comp/RequerimientosAsignados/DraggableList"
@@ -80,18 +81,10 @@ export default {
   },
   mixins: [pageLoading],
   computed: {
-    ...mapState("priorizarRequerimientos", {
-      reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
-      reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,
-      loadingReqsPendientesAprobacion: state =>
-        state.loadingReqsPendientesAprobacion,
-      loadingReqsAprobadosPriorizados: state =>
-        state.loadingReqsAprobadosPriorizados,
-    }),
     ...mapState("requerimientosAsignados", {
-      reqsAsignadosPendientes: state => state.reqsAsignadosPendientes,
-      reqsAsignadosEnEjecucion: state => state.reqsAsignadosEnEjecucion,
+      loadingRequerimientos: state => state.loadingRequerimientos,
     }),
+    ...mapGetters("requerimientosAsignados", ["requerimientosFiltered"]),
   },
   async created() {
     this.$store.dispatch(

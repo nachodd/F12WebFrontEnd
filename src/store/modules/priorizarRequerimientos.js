@@ -604,10 +604,10 @@ const actions = {
         // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
         const res = await dispatch("persistChanges", tempReqs)
         if (!res) {
-          commit("SET_REQS_LIST", {
-            listType,
-            listData: targetBackup,
-          })
+          // commit("SET_REQS_LIST", {
+          //   listType,
+          //   listData: targetBackup,
+          // })
           commit("UPDATE_LIST_ESTADO", listType)
         } else {
           let newList = [...state.changesRequerimientos]

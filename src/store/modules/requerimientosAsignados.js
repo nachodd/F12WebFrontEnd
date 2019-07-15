@@ -8,10 +8,20 @@ import {
   pausarRequerimiento,
   reanudarRequerimiento,
 } from "@api/requerimientos"
-
-// import { warn, success } from "@utils/helpers"
+import {
+  filterByAsuntoAndDescripcion,
+  filterBySistema,
+  filterByTipoRequerimiento,
+  // filterByUsuariosAsignados,
+  // UpdatePendingPayloadPriorizarReq,
+} from "@utils/requerimientos"
+import { pipeWith } from "@utils/helpers"
 
 const state = {
+  requerimientos: [],
+  changesRequerimientos: [],
+  loadingRequerimientos: false,
+
   reqsAsignadosPendientes: new RequerimientosAsignadosList([], true),
   reqsAsignadosEnEjecucion: new RequerimientosAsignadosList([], true),
   dialogConfirmOpen: false,
@@ -30,43 +40,48 @@ const state = {
     },
     payload: {},
   },
+  filtros: {
+    sistema: null,
+    requerimientoTipo: null,
+    descripcion: null,
+  },
 }
 
 const getters = {
+  requerimientoIdToChange: state =>
+    _.get(state.possibleChanges.payload, "id", ""),
   // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
   // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
   possibleChangesSetted: state => {
     return (
-      (state.possibleChanges.sourceChanges.changesSetted &&
-        state.possibleChanges.targetChanges.changesSetted &&
-        Boolean(state.possibleChanges.payload.id)) ||
-      // FIXME: revisar porque la siguiente condicion no iria (en teoria)
-      (state.possibleChanges.sourceChanges.changesSetted &&
-        Boolean(state.possibleChanges.payload.id))
+      state.possibleChanges.sourceChanges.changesSetted &&
+      state.possibleChanges.targetChanges.changesSetted &&
+      Boolean(state.possibleChanges.payload.id)
+      //  ||
+      // (state.possibleChanges.sourceChanges.changesSetted &&
+      //   Boolean(state.possibleChanges.payload.id))
     )
   },
-
-  // FIXME: cambiar el nombre de las operaciones a uno mas adecuando (y eliminar las operaciones que no se necesitan)
-  // - reordenamiento de la lista de pendientes => no hace nada (a menos que esElUltimoDeLaCadenaDeMando=true)
-  operationReoderPendingList: state => {
-    const { sourceChanges, targetChanges } = state.possibleChanges
-    return (
-      targetChanges.removedIndex === null &&
-      targetChanges.addedIndex === null &&
-      sourceChanges.removedIndex !== null &&
-      sourceChanges.addedIndex !== null
-    )
-  },
-  // - reordenamiento de la lista de aprobados => disparar update aprobados
-  operationReoderApprovedList: state => {
-    const { sourceChanges, targetChanges } = state.possibleChanges
-    return (
-      targetChanges.removedIndex !== null &&
-      targetChanges.addedIndex !== null &&
-      sourceChanges.removedIndex === null &&
-      sourceChanges.addedIndex === null
-    )
-  },
+  // // - reordenamiento de la lista de pendientes => no hace nada (a menos que esElUltimoDeLaCadenaDeMando=true)
+  // operationReoderPendingList: state => {
+  //   const { sourceChanges, targetChanges } = state.possibleChanges
+  //   return (
+  //     targetChanges.removedIndex === null &&
+  //     targetChanges.addedIndex === null &&
+  //     sourceChanges.removedIndex !== null &&
+  //     sourceChanges.addedIndex !== null
+  //   )
+  // },
+  // // - reordenamiento de la lista de aprobados => disparar update aprobados
+  // operationReoderApprovedList: state => {
+  //   const { sourceChanges, targetChanges } = state.possibleChanges
+  //   return (
+  //     targetChanges.removedIndex !== null &&
+  //     targetChanges.addedIndex !== null &&
+  //     sourceChanges.removedIndex === null &&
+  //     sourceChanges.addedIndex === null
+  //   )
+  // },
   // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
   operationApprove: state => {
     const { sourceChanges, targetChanges } = state.possibleChanges
@@ -87,24 +102,23 @@ const getters = {
       sourceChanges.addedIndex !== null
     )
   },
-
-  // FIXME: cambiar el nombre de las operaciones devueltas aca, por uno mas apropiado (ej, put-on-exec y put-on-pending)
   operationType: (state, getters) => {
+    // if (
+    //   getters.operationReoderPendingList &&
+    //   !getters.operationReoderApprovedList &&
+    //   !getters.operationApprove &&
+    //   !getters.operationReject
+    // ) {
+    //   return "reorder-pending"
+    // } else if (
+    //   !getters.operationReoderPendingList &&
+    //   getters.operationReoderApprovedList &&
+    //   !getters.operationApprove &&
+    //   !getters.operationReject
+    // ) {
+    //   return "reorder-approved"
+    // } else
     if (
-      getters.operationReoderPendingList &&
-      !getters.operationReoderApprovedList &&
-      !getters.operationApprove &&
-      !getters.operationReject
-    ) {
-      return "reorder-pending"
-    } else if (
-      !getters.operationReoderPendingList &&
-      getters.operationReoderApprovedList &&
-      !getters.operationApprove &&
-      !getters.operationReject
-    ) {
-      return "reorder-approved"
-    } else if (
       !getters.operationReoderPendingList &&
       !getters.operationReoderApprovedList &&
       getters.operationApprove &&
@@ -122,14 +136,122 @@ const getters = {
       return ""
     }
   },
+  requerimientosAsignados: (state, getters, rootState, rootGetters) => {
+    const estAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
+    const reqsResult = _.filter(state.requerimientos, {
+      estado: { id: estAsignado.id },
+    })
+    return _.orderBy(reqsResult, ["estado.asignacion.orden"], "asc")
+  },
+  requerimientosEnEjecucion: (state, getters, rootState, rootGetters) => {
+    const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
+    const reqsResult = _.filter(state.requerimientos, {
+      estado: { id: estadoEnEjec.id },
+    })
+    return _.orderBy(
+      reqsResult,
+      ["estado.pausado", "estado.asignacion.orden"],
+      ["asc", "asc"],
+    )
+  },
+  requerimientosTesting: (state, getters, rootState, rootGetters) => {
+    const estTesting = rootGetters["requerimientos/getEstadoByCodigo"]("TEST")
+    const reqsResult = _.filter(state.requerimientos, {
+      estado: { id: estTesting.id },
+    })
+    return _.orderBy(reqsResult, ["estado.asignacion.orden"], "asc")
+  },
+  // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
+  requerimientosFiltered: (state, getters) => reqEstado => {
+    let reqs
 
-  requerimientoIdToChange: state =>
-    _.get(state.possibleChanges.payload, "id", ""),
+    switch (reqEstado) {
+      case "ASSI":
+        reqs = [...getters.requerimientosAsignados]
+        break
+      case "EXEC":
+        reqs = [...getters.requerimientosEnEjecucion]
+        break
+      case "TEST":
+        reqs = [...getters.requerimientosTesting]
+        break
+    }
+    const {
+      descripcion = null,
+      sistema = null,
+      requerimientoTipo = null,
+    } = state.filtros
+
+    // Determino que filtros aplicar, dependiendo de que hayan seteado
+    let filtersToApply = []
+    if (descripcion !== null) {
+      filtersToApply.push(filterByAsuntoAndDescripcion(descripcion))
+    }
+    if (sistema && sistema.id) {
+      filtersToApply.push(filterBySistema(sistema.id))
+    }
+    if (requerimientoTipo && requerimientoTipo.id) {
+      filtersToApply.push(filterByTipoRequerimiento(requerimientoTipo.id))
+    }
+    // aplica a reqs el conjunto de filtros
+    return pipeWith(reqs, ...filtersToApply)
+  },
+  getNewOrder: (state, getters) => {
+    // Busca el requerimiento a actualizar en el listado que está en pantalla
+    // const reqsAsignadosOnScreen = state.possibleChanges.targetList
+    const reqsAsignadosOnScreen = state.possibleChanges.targetList
+    const index = _.findIndex(reqsAsignadosOnScreen, {
+      id: getters.requerimientoIdToChange,
+    })
+    // De estos, busco el siguiente en pantalla
+    const nextReq = reqsAsignadosOnScreen[index + 1]
+
+    if (nextReq) {
+      // Si lo encuentra, devuelve su orden e indico que NO es el ultimo
+      return {
+        orden: nextReq.prioridad,
+        ultimo: false,
+      }
+    } else {
+      // Caso contario, determino el orden REAL
+      let orden
+      // Si no hay otros reqs asignados, orden = 1
+      if (getters.getAprobadosPriorizados.length === 0) {
+        orden = 1
+      } else {
+        // Busco el último reqs de los asignados, tomo su orden y le aumento 1
+        const lastReq =
+          getters.getAprobadosPriorizados[
+            getters.getAprobadosPriorizados.length - 1
+          ]
+        orden = lastReq.prioridad + 1
+      }
+      // Será el ultimo (ya sea porque se filtro el listado y no hay nada o porque efectivametne no habia otro asignado)
+      return {
+        orden,
+        ultimo: true,
+      }
+    }
+  },
 }
 
 const mutations = {
-  SET_REQS_LIST: (state, { listName, listData }) => {
-    state[`${listName}`].list = listData
+  // SET_REQS_LIST: (state, { listName, listData }) => {
+  //   state[`${listName}`].list = listData
+  // },
+  SET_REQS_LIST: (state, listData) => {
+    state.requerimientos = [...listData]
+    state.changesRequerimientos = [...listData]
+  },
+  PUSH_REQS_LIST: (state, { listData }) => {
+    state.requerimientos.push(...listData)
+    state.changesRequerimientos.push(...listData)
+    state.requerimientos = _.sortBy(state.requerimientos, [
+      "estado.asignacion.orden",
+    ])
+    state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
+      "estado.asignacion.orden",
+    ])
   },
 
   PROCESS_UPDATE_LISTS: (state, { listName, listResult, dropResult }) => {
@@ -180,6 +302,31 @@ const mutations = {
     //   ? (state.reqsAsignadosPendientes.list = list)
     //   : (state.reqsAsignadosEnEjecucion.list = list)
   },
+
+  UPDATE_REQ_ESTADO_ASSIGNED: (state, reqId) => {
+    const req = state.changesRequerimientos.find(r => r.id === reqId)
+    req.estado = { id: 4, descripcion: "Asignado" }
+  },
+  UPDATE_REQ_ESTADO_INEXCEC: (state, reqId) => {
+    const req = state.changesRequerimientos.find(r => r.id === reqId)
+    req.estado = { id: 5, descripcion: "En ejecución" }
+  },
+  UPDATE_REQ_ESTADO_TESTING: (state, reqId) => {
+    const req = state.changesRequerimientos.find(r => r.id === reqId)
+    req.estado = { id: 10, descripcion: "Testing" }
+  },
+
+  SET_FILTROS: (state, { filter, value }) => {
+    state.filtros[filter] = value
+  },
+  CLEAR_FILTROS: state => {
+    state.filtros.sistema = null
+    state.filtros.requerimientoTipo = null
+    state.filtros.descripcion = null
+  },
+  SET_LOADING_REQUERIMIENTOS: (state, value) => {
+    state.loadingRequerimientos = value
+  },
 }
 
 const actions = {
@@ -191,54 +338,17 @@ const actions = {
     })
   },
 
-  getRequerimientosAsignadosByUser({ commit, rootGetters }, { userId }) {
-    // const listType = reqState === "PEND" ? "pending" : "approved"
-
-    // commit("SET_LOADING_STATE_REQS_LISTS", { listType, loadingState: true })
-
-    let codReqPendiente = rootGetters["requerimientos/getEstadoByCodigo"](
-      "ASSI",
-    ).id
-    let codReqEjecucion = rootGetters["requerimientos/getEstadoByCodigo"](
-      "EXEC",
-    ).id
-
-    return getRequerimientosAsignadosByUser(
-      userId,
-      codReqPendiente,
-      codReqEjecucion,
-    )
-      .then(({ data: { data } }) => {
-        if (data.length > 0) {
-          let listadoPendientes = _.filter(data, {
-            estado: { id: codReqPendiente },
-          })
-
-          commit("SET_REQS_LIST", {
-            listName: "reqsAsignadosPendientes",
-            listData: listadoPendientes,
-          })
-
-          let listadoEnEjecucion = _.filter(data, {
-            estado: { id: codReqEjecucion },
-          })
-
-          commit("SET_REQS_LIST", {
-            listName: "reqsAsignadosEnEjecucion",
-            listData: listadoEnEjecucion,
-          })
-        }
-
-        // commit("UPDATE_LIST_ESTADO", listType)
-        // commit("SORT_LIST_BY_PRIORITY", listType)
+  getRequerimientosAsignadosByUser({ commit }, { userId }) {
+    commit("SET_LOADING_REQUERIMIENTOS", true)
+    return getRequerimientosAsignadosByUser(userId)
+      .then(data => {
+        commit("SET_REQS_LIST", data)
       })
       .catch(e => console.log(e))
       .finally(() => {
-        // commit("SET_LOADING_STATE_REQS_LISTS", {
-        //   listType,
-        //   loadingState: false,
-        // })
+        commit("SET_LOADING_REQUERIMIENTOS", false)
       })
+    // FIXME: seguir modificando el store y terminar esto...
   },
 
   processUpdateList({ commit, getters, dispatch }, updatedListData) {

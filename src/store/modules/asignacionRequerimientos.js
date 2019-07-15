@@ -56,7 +56,7 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estAsignado.id },
     })
-    return _.orderBy(reqsResult, "[estado.asignacion.orden]", "asc")
+    return _.orderBy(reqsResult, ["estado.asignacion.orden"], "asc")
   },
   requerimientosEnEjecucion: (state, getters, rootState, rootGetters) => {
     const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
