@@ -45,7 +45,7 @@ export function UpdatePendingPayloadPriorizarReq(requerimientos) {
   return requerimientos.map(req => {
     const result = {
       id: req.id,
-      aprobado: req.estado.id == 2,
+      aprobado: req.estado_priorizacion.id == 2,
       comentario: req.comentario || null,
     }
 
