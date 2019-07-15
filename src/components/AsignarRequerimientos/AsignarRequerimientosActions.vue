@@ -255,7 +255,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters("auth", ["userReportantes"]),
+    ...mapGetters("auth", ["userYoYReportantes"]),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
@@ -265,10 +265,6 @@ export default {
       "requerimientosFilteredLength",
       1,
     ]),
-    // ...mapActions({
-    //   setDialogConfirmOperationOpen:
-    //     "asignacionRequerimientos/setDialogConfirmOperationOpen",
-    // }),
     esArregloRapido() {
       return this.req.tipo.id === 1
     },
@@ -329,7 +325,7 @@ export default {
           label: "Seleccione un usuario...",
           value: null,
         },
-        ..._.orderBy(this.userReportantes, "label"),
+        ..._.orderBy(this.userYoYReportantes, "label"),
       ]
     },
     shouldValidateComment() {

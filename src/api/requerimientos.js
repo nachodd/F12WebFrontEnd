@@ -154,3 +154,25 @@ export function enviarAPriorizarRequerimiento(requerimientoId, comentario) {
     data,
   })
 }
+
+export function enviarATestingRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/testing`,
+    method: "put",
+    data,
+  })
+}
+
+export function pausarRequerimiento(requerimientoId) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/pausar`,
+    method: "put",
+  })
+}
+
+export function reanudarRequerimiento(requerimientoId) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/reanudar`,
+    method: "put",
+  })
+}

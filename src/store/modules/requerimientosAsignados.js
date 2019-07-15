@@ -4,6 +4,9 @@ import {
   ejecutarRequerimiento,
   cancelaEjecucionRequerimiento,
   finalizarRequerimiento,
+  enviarATestingRequerimiento,
+  pausarRequerimiento,
+  reanudarRequerimiento,
 } from "@api/requerimientos"
 
 // import { warn, success } from "@utils/helpers"
@@ -338,7 +341,7 @@ const actions = {
 
   processManualChanges(
     { commit, state, dispatch, rootState },
-    { operation, priority, comment, listName, horasEstimadas },
+    { operation, priority, comment, listName, horasEstimadas, usuarioTesting },
   ) {
     return new Promise(async (resolve, reject) => {
       // Esta funcion arma manualmente los listados de requerimientos (como si hiciese un drag&drop) y emite los cambios
@@ -353,12 +356,10 @@ const actions = {
         case "finalizar": {
           try {
             dispatch("app/loadingInc", null, { root: true })
-
             const removedIndexTarget = _.findIndex(
               state.reqsAsignadosEnEjecucion.list,
               { id: requerimientoItem.id },
             )
-
             let listResultTarget = [...state.reqsAsignadosEnEjecucion.list]
             listResultTarget.splice(removedIndexTarget, 1)[0]
 
@@ -366,9 +367,7 @@ const actions = {
             await finalizarRequerimiento(requerimientoItem.id, {
               horas_ejecucion: horasEstimadas,
             })
-
             commit("SET_REQS_LIST", { listName, listData: listResultTarget })
-
             resolve()
           } catch (e) {
             reject(e)
@@ -381,19 +380,12 @@ const actions = {
         case "ejecucion": {
           try {
             dispatch("app/loadingInc", null, { root: true })
-
-            const reqId = requerimientoItem.id
-
-            await ejecutarRequerimiento(reqId)
-
-            /**
-             * pendientes
-             */
+            await ejecutarRequerimiento(requerimientoItem.id)
+            // pendientes
             const removedIndexSource = _.findIndex(
               state.reqsAsignadosPendientes.list,
               { id: requerimientoItem.id },
             )
-
             let listResultSource = [...state.reqsAsignadosPendientes.list]
             const payload = listResultSource.splice(removedIndexSource, 1)[0]
 
@@ -403,10 +395,7 @@ const actions = {
             })
             commit("UPDATE_LIST_ESTADO", "reqsAsignadosPendientes")
 
-            /**
-             *  Ejecucion
-             *
-             */
+            // Ejecucion
             const addedIndexTarget = priority - 1
             // lista target: se inserta el item en el listado
             let listResultTarget = [...state.reqsAsignadosEnEjecucion.list]
@@ -417,7 +406,6 @@ const actions = {
               listData: listResultTarget,
             })
             commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
-
             commit("CLEAR_OPERATIONS")
 
             resolve()
@@ -432,14 +420,11 @@ const actions = {
         case "volverPendiente": {
           try {
             dispatch("app/loadingInc", null, { root: true })
-            const reqId = requerimientoItem.id
-            await cancelaEjecucionRequerimiento(reqId, { comentario: comment })
+            await cancelaEjecucionRequerimiento(requerimientoItem.id, {
+              comentario: comment,
+            })
 
-            /****************************
-            CAMBIOS EN EL Target
-            -------------------------
-            Se saca el item del listado
-            *****************************/
+            // CAMBIOS EN EL Target: Se saca el item del listado
             const removedIndexTarget = _.findIndex(
               state.reqsAsignadosEnEjecucion.list,
               { id: requerimientoItem.id },
@@ -453,11 +438,7 @@ const actions = {
             })
             commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
 
-            /*********************************
-            CAMBIOS EN EL SOURCE
-            -----------------------------
-            se inserta el item en el listado
-            **********************************/
+            // CAMBIOS EN EL SOURCE: se inserta el item en el listado
             const addedIndexSource = 0
             let listResultSource = [...state.reqsAsignadosPendientes.list]
             listResultSource.splice(addedIndexSource, 0, payload)
@@ -475,7 +456,40 @@ const actions = {
           } finally {
             dispatch("app/loadingDec", null, { root: true })
           }
-
+          break
+        }
+        case "testing": {
+          try {
+            dispatch("app/loadingInc", null, { root: true })
+            await enviarATestingRequerimiento(requerimientoItem.id, {
+              usuario_asignado: usuarioTesting.value,
+              comentario: comment,
+            })
+            // FIXME: faltaría cambiar de estado el req y eso
+            resolve()
+          } catch (e) {
+            reject(e)
+          } finally {
+            dispatch("app/loadingDec", null, { root: true })
+          }
+          break
+        }
+        case "pausar":
+        case "reanudar": {
+          try {
+            dispatch("app/loadingInc", null, { root: true })
+            // FIXME: alterar el requermiento en el listado, setear estado.pausado: true
+            if (operation === "pausar") {
+              await pausarRequerimiento(requerimientoItem.id)
+            } else if (operation === "reanudar") {
+              await reanudarRequerimiento(requerimientoItem.id)
+            }
+            resolve()
+          } catch (e) {
+            reject(e)
+          } finally {
+            dispatch("app/loadingDec", null, { root: true })
+          }
           break
         }
       }

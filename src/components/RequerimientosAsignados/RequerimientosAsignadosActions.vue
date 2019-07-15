@@ -7,19 +7,19 @@
     <q-select
       v-model="operation"
       filled
-      :options="optionsPriorizar"
+      :options="optionsReqsAsignados"
       emit-value
       map-options
     />
 
     <div class="q-mt-md">
       <q-slide-transition>
-        <div v-show="showComment" class="row">
+        <div v-show="operation === 'volverPendiente'" class="row">
           <div class="col">
             <q-input
               ref="comment"
               v-model="comment"
-              color="accent"
+              color="deep-purple-10"
               outlined
               autogrow
               label="Agregar un motivo:"
@@ -30,18 +30,56 @@
         </div>
       </q-slide-transition>
       <q-slide-transition>
-        <div v-show="showHoras">
+        <div v-show="operation == 'finalizar'">
           <div class="col">
             <q-input
               ref="horasEstimadas"
               v-model.number="horasEstimadas"
               type="number"
-              color="accent"
+              color="deep-purple-10"
               label="Horas Estimadas"
               filled
               outlined
               :rules="[notEmpty]"
             />
+          </div>
+        </div>
+      </q-slide-transition>
+      <q-slide-transition>
+        <div v-show="operation == 'testing'">
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Seleccione un usuario para enviar a Testing:
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <!-- :color="color"
+                :dark="dark" -->
+              <q-select
+                ref="usuarioTesting"
+                v-model="usuarioTesting"
+                :options="optionsUsersTesting"
+                filled
+                class="custom-error"
+                color="deep-purple-10"
+                emit-value
+                map-options
+                :rules="[notEmpty]"
+              />
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-input
+                v-model="comment"
+                color="deep-purple-10"
+                outlined
+                autogrow
+                label="Agregar un Comentario:"
+                :hide-bottom-space="true"
+              />
+            </div>
           </div>
         </div>
       </q-slide-transition>
@@ -65,78 +103,84 @@ import { warn, success } from "@utils/helpers"
 
 export default {
   name: "RequerimientosAsignadosActions",
+  components: {},
   mixins: [formValidation],
   data() {
     return {
       operation: null,
       comment: null,
       horasEstimadas: null,
+      usuarioTesting: null,
     }
   },
   computed: {
-    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
+    ...mapGetters("auth", ["userParesYReportantes"]),
     ...mapState("requerimientos", {
       detalleRequerimientoItem: state => state.detalleRequerimientoItem,
     }),
-
-    ...mapGetters("requerimientosAsignados", ["requerimientoIdToChange"]),
-    ...mapGetters("priorizarRequerimientos", [
-      "cantidadRequerimientos",
-      "reqsPendientesAprobacionLength",
-      "reqsAprobadosPriorizadosLength",
-      "esAutor",
-    ]),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
-    optionsPriorizar() {
+    optionsReqsAsignados() {
       const opt = []
       opt.push({
         label: "Ninguna seleccionada",
         value: null,
       })
 
-      if (this.statePendiente) {
+      if (this.detalleRequerimientoState === "ASSI") {
         opt.push({
           label: "Pasar a Ejecución",
           value: "ejecucion",
-          icon: "fas fa-undo",
         })
       }
-
-      if (this.stateEjecucion) {
-        opt.push({
-          label: "Volver a Pendiente",
-          value: "volverPendiente",
-          icon: "fas fa-undo",
-        })
-
-        opt.push({
-          label: "Finalizar",
-          value: "finalizar",
-        })
+      if (this.detalleRequerimientoState === "EXEC") {
+        if (this.detalleRequerimientoItem.estado.pausado === false) {
+          opt.push({
+            label: "Volver a Pendiente",
+            value: "volverPendiente",
+          })
+          opt.push({
+            label: "Enviar a Testing",
+            value: "testing",
+          })
+          opt.push({
+            label: "Pausar ejecución",
+            value: "pausar",
+          })
+          opt.push({
+            label: "Finalizar",
+            value: "finalizar",
+          })
+        } else {
+          opt.push({
+            label: "Reanudar ejecución",
+            value: "reanudar",
+          })
+        }
       }
       return opt
     },
-    statePendiente() {
-      return this.detalleRequerimientoState === "ASSI"
-    },
-    stateEjecucion() {
-      return this.detalleRequerimientoState === "EXEC"
-    },
-    showComment() {
-      const res = this.operation === "volverPendiente"
-      return res
-    },
-
-    showHoras() {
-      const res = this.operation == "finalizar"
-
-      return res
+    optionsUsersTesting() {
+      return [
+        {
+          label: "Seleccione un usuario...",
+          value: null,
+        },
+        ..._.orderBy(this.userParesYReportantes, "label"),
+      ]
     },
   },
   methods: {
     saveChanges() {
       // Valido, si esta descartando debe completar el comentario
       if (this.operation === "descartar" && !this.$refs.comment.validate()) {
+        return
+      }
+
+      // Valido, si esta enviando a testing debe seleccionar un usuario
+      if (
+        this.operation === "testing" &&
+        !this.$refs.usuarioTesting.validate()
+      ) {
         return
       }
 
@@ -151,28 +195,44 @@ export default {
       this.$store
         .dispatch("requerimientosAsignados/processManualChanges", {
           horasEstimadas: this.horasEstimadas,
+          usuarioTesting: _.find(this.optionsUsersTesting, {
+            value: this.usuarioTesting,
+          }),
           operation: this.operation,
           priority: this.approvedPriority,
           comment: this.comment,
-          listName: this.stateEjecucion
-            ? "reqsAsignadosEnEjecucion"
-            : "reqsAsignadosPendientes",
+          listName:
+            this.detalleRequerimientoState === "EXEC"
+              ? "reqsAsignadosEnEjecucion"
+              : "reqsAsignadosPendientes",
         })
         .then(() => {
           let message = ""
 
-          if (this.operation == "finalizar") {
+          if (this.operation === "finalizar") {
             message = `Requerimiento #${
               this.detalleRequerimientoItem.id
             } se FINALIZO.`
-          } else if (this.operation == "volverPendiente") {
+          } else if (this.operation === "volverPendiente") {
             message = `Requerimiento #${
               this.detalleRequerimientoItem.id
             } volvió a PENDIENTE.`
-          } else {
+          } else if (this.operation === "testing") {
+            message = `Requerimiento #${
+              this.detalleRequerimientoItem.id
+            } enviado a TESTING.`
+          } else if (this.operation === "ejecucion") {
             message = `Requerimiento #${
               this.detalleRequerimientoItem.id
             } en EJECUCIÓN.`
+          } else if (this.operation === "pausar") {
+            message = `Requerimiento #${
+              this.detalleRequerimientoItem.id
+            } en PAUSA.`
+          } else if (this.operation === "reanudar") {
+            message = `Requerimiento #${
+              this.detalleRequerimientoItem.id
+            } en REANUDADO.`
           }
 
           success({ message })

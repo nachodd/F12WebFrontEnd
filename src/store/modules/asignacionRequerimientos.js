@@ -65,6 +65,19 @@ const getters = {
     })
     return _.orderBy(reqsResult, "tipo.id", "asc")
   },
+  requerimientosEnEjecucionYTesting: (
+    state,
+    getters,
+    rootState,
+    rootGetters,
+  ) => {
+    const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
+    const estadoEnTest = rootGetters["requerimientos/getEstadoByCodigo"]("TEST")
+    const reqsResult = _.filter(state.requerimientos, req => {
+      return _.includes([estadoEnEjec.id, estadoEnTest.id], req.estado.id)
+    })
+    return _.orderBy(reqsResult, "tipo.id", "asc")
+  },
   // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
   requerimientosFiltered: (state, getters) => reqEstado => {
     let reqs
@@ -78,6 +91,9 @@ const getters = {
         break
       case "EXEC":
         reqs = [...getters.requerimientosEnEjecucion]
+        break
+      case "EXEC/TEST":
+        reqs = [...getters.requerimientosEnEjecucionYTesting]
         break
     }
 

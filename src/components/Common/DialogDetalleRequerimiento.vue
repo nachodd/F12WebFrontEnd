@@ -254,7 +254,7 @@ export default {
       comment: null,
       fixed: false,
       tab: "detalle",
-      asignacionUsuarios: [],
+      // asignacionUsuarios: [],
       usuarioAsignado: null,
     }
   },
@@ -263,7 +263,7 @@ export default {
       req: state => state.detalleRequerimientoItem,
     }),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
-    ...mapGetters("auth", ["userReportantes"]),
+    // ...mapGetters("auth", ["userReportantes"]),
     stateSentToProcess() {
       return this.detalleRequerimientoState === "STPR"
     },
@@ -326,12 +326,12 @@ export default {
     },
   },
   created() {
-    this.asignacionUsuarios = _.map(this.userReportantes, ur => {
-      return {
-        label: ur.RazonSocial,
-        value: ur.IdUsuario,
-      }
-    })
+    // this.asignacionUsuarios = _.map(this.userReportantes, ur => {
+    //   return {
+    //     label: ur.RazonSocial,
+    //     value: ur.IdUsuario,
+    //   }
+    // })
   },
   methods: {
     closeDialog() {

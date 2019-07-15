@@ -46,9 +46,9 @@
       </div>
       <div class="col-sm-4 col-xs-12">
         <asignar-requerimientos-list
-          :requerimientos-list="requerimientosFiltered('EXEC')"
+          :requerimientos-list="requerimientosFiltered('EXEC/TEST')"
           :loading-list="loadingList"
-          title="Requerimientos en Ejecucion"
+          title="Reqs. en Ejecucion / Testing"
         />
       </div>
     </div>

@@ -123,7 +123,12 @@ export default {
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
-    ...mapGetters("auth", ["userSistemas", "userReportantes"]),
+    ...mapGetters("auth", ["userSistemas"]),
+    sistemasUsuarioOptions() {
+      return _.filter(this.sistemas, s => {
+        return _.findIndex(this.userSistemas, { id: s.id }) !== -1
+      })
+    },
     // Filtro solo los sistemas que tiene el usuario logueado
     __descripcion: {
       get() {
@@ -195,47 +200,6 @@ export default {
 }
 </script>
 <style lang="stylus">
-// FIXME: estos estilos estan duplicados en el otro filtro, pasarlos al general
 // FIXME: implementar este filtro, que funcione
 // FIXME: re-implementar la store con 1 solo listado base y getters, como esta haciendo ari en priorizar reqs
-.q-menu-fix
-  z-index: 1 !important;
-  border-radius: 0px 0px 4px 4px !important;
-  //box-shadow: 0px 4px 6px -3px grey !important;
-  box-shadow:  0px 4px 5px 0px grey !important;
-  overflow-x: hidden;
-
-
-.q-field--standout .q-field__control:before
-  opacity: 1;
-  transition: none !important;
-
-.q-field--standout .q-field__control:hover
-  opacity: 1;
-
-.popupOpened .q-field__control
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-
-.popupOpened .q-field__control:before
-  background: white !important;
-  opacity: 1;
-  transition: none !important;
-  box-shadow: 0px 1px 5px 0px grey !important;
-
-.popupOpened .q-field__control:hover
-  opacity: 1;
-  transition: none !important;
-
-.filter-label .q-avatar__content
-  font-size: 0.4em;
-
-.filter__icon
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  transition: background-color 200ms linear;
-
-.filter__icon:hover
-  background-color: $grey-4;
 </style>

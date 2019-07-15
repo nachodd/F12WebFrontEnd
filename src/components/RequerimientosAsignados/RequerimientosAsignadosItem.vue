@@ -4,8 +4,12 @@
     :class="{
       'card--default': !esArregloRapido,
       'card--qf': esArregloRapido,
+      'card--paused': estaEnPausa,
     }"
   >
+    <q-tooltip v-if="estaEnPausa">
+      Este requerimiento esta EN PAUSA
+    </q-tooltip>
     <div class="row">
       <div class="col-12">
         <q-item-label lines="1">
@@ -74,52 +78,29 @@ export default {
     tieneComentario() {
       return this.req.comentario && this.req.comentario.length > 0
     },
+    estaEnPausa() {
+      return this.req.estado.pausado === true
+    },
   },
 }
 </script>
 <style lang="stylus" scoped>
-.prioridad-text {
-  font-size: 14px;
-  font-weight: 700;
-}
-
 .nro-req--default {
   background-color: $light-blue-7;
 }
-
 .nro-req--qf {
   background-color: $red-7;
 }
-
 .card--default {
   border-left: 3px solid $light-blue-7;
 }
-
 .card--qf {
   border-left: 3px solid $red-7;
 }
-
-.card--inprocess {
-  border-right: 3px solid $green-7;
-}
-
+// .card--inprocess {
+//   border-right: 3px solid $green-7;
+// }
 .card-row {
   flex-direction: column;
-}
-
-.card__process-row {
-  height: 3px;
-  position: absolute;
-  right: 7px;
-  top: -5px;
-  padding: 8px 0;
-}
-
-.card__process-ind {
-  display: inline-block;
-  width: 10px;
-  height: 3px;
-  background-color: $green-7;
-  margin: 0 3px;
 }
 </style>

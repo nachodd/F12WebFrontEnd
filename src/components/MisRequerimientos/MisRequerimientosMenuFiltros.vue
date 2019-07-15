@@ -1,5 +1,6 @@
 <template>
   <div class="q-py-md">
+    <q-resize-observer @resize="onResize" />
     <div class="q-mb-sm">
       <q-input
         ref="inputDescripcion"
@@ -21,13 +22,11 @@
             @click="popupOpened = !popupOpened"
           ></q-icon>
         </template>
-        <q-resize-observer @resize="onResize" />
       </q-input>
       <q-menu
         v-model="popupOpened"
         :offset="[0, -4]"
         content-class="q-menu-fix"
-        :content-style="{ maxWidth: widthInputDescripcion + 'px !important' }"
         no-parent-event
       >
         <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
@@ -175,7 +174,7 @@ export default {
   mounted() {},
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width + 60 + 30
+      this.widthInputDescripcion = size.width
     },
     filtrar() {
       this.popupOpened = false
@@ -200,53 +199,4 @@ export default {
   },
 }
 </script>
-<style lang="stylus">
-.q-menu-fix {
-  z-index: 1 !important;
-  border-radius: 0px 0px 4px 4px !important;
-  // box-shadow: 0px 4px 6px -3px grey !important;
-  box-shadow: 0px 4px 5px 0px grey !important;
-  overflow-x: hidden;
-}
-
-.q-field--standout .q-field__control:before {
-  opacity: 1;
-  transition: none !important;
-}
-
-.q-field--standout .q-field__control:hover {
-  opacity: 1;
-}
-
-.popupOpened .q-field__control {
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.popupOpened .q-field__control:before {
-  background: white !important;
-  opacity: 1;
-  transition: none !important;
-  box-shadow: 0px 1px 5px 0px grey !important;
-}
-
-.popupOpened .q-field__control:hover {
-  opacity: 1;
-  transition: none !important;
-}
-
-.filter-label .q-avatar__content {
-  font-size: 0.4em;
-}
-
-.filter__icon {
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  transition: background-color 200ms linear;
-}
-
-.filter__icon:hover {
-  background-color: $grey-4;
-}
-</style>
+<style lang="stylus"></style>

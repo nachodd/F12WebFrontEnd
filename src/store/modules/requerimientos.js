@@ -28,6 +28,7 @@ const state = {
     { codigo: "REJC", descripcion: "Rechazado", id: 7 },
     { codigo: "INGR", descripcion: "Ingresado", id: 8 },
     { codigo: "STPR", descripcion: "Pasado a procesos", id: 9 }, // sent to process
+    { codigo: "TEST", descripcion: "Testing", id: 10 },
   ],
   misRequerimientos: [],
   detalleRequerimientoOpen: false,

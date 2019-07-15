@@ -17,7 +17,11 @@ const state = {
   refreshToken: getRefreshToken(),
   user: null,
   userArea: {},
-  userVinculacion: {},
+  userVinculacion: {
+    jefes: [],
+    reportantes: [],
+    pares: [],
+  },
   userSistemas: [],
   // roles: [],
 }
@@ -41,6 +45,28 @@ const getters = {
         value: ur.IdUsuario,
       }
     })
+  },
+  userYoYReportantes: (state, getters) => {
+    const ur = getters.userReportantes
+    const currentUser = state.user || {}
+    ur.push({
+      label: currentUser.razonSocial,
+      value: currentUser.id,
+    })
+    return _.orderBy(ur, ["label"], ["asc"])
+  },
+  userPares: state => {
+    const userPares = _.get(state, "userVinculacion.pares", [])
+    return _.map(userPares, ur => {
+      return {
+        label: ur.RazonSocial,
+        value: ur.IdUsuario,
+      }
+    })
+  },
+  userParesYReportantes: (state, getters) => {
+    const users = [...getters.userReportantes, ...getters.userPares]
+    return _.orderBy(users, ["label"], ["asc"])
   },
   hasJefes: (state, getters) =>
     getters.userJefes && getters.userJefes.length > 0,
@@ -72,7 +98,9 @@ const mutations = {
     if (userData === null) {
       state.user = null
       state.userArea = {}
-      state.userVinculacion = {}
+      state.userVinculacion.jefes = []
+      state.userVinculacion.reportantes = []
+      state.userVinculacion.pares = []
       state.userSistemas = []
     } else {
       const user = {}
@@ -89,10 +117,9 @@ const mutations = {
       state.user = user
       state.userArea = userData.area
       state.userSistemas = userData.sistemas
-      state.userVinculacion = {
-        jefes: userData.jefes,
-        reportantes: userData.reportantes,
-      }
+      state.userVinculacion.jefes = userData.jefes
+      state.userVinculacion.reportantes = userData.reportantes
+      state.userVinculacion.pares = userData.pares
     }
   },
   // SET_ROLES: (state, roles) => {

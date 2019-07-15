@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex"
+import { mapState } from "vuex"
 import PageHeader from "@comp/Common/PageHeader"
 import pageLoading from "@mixins/pageLoading"
 import DraggableList from "@comp/RequerimientosAsignados/DraggableList"
@@ -80,7 +80,6 @@ export default {
   },
   mixins: [pageLoading],
   computed: {
-    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
     ...mapState("priorizarRequerimientos", {
       reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
       reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,

@@ -7,7 +7,7 @@ import {
 import Notificacion from "@models/notificacion"
 import { date } from "quasar"
 
-const LIMIT_NOTIFICACIONES_SHOWED = 3
+const LIMIT_NOTIFICACIONES_SHOWED = 5
 
 const state = {
   sidebarOpen: Cookies.get("sidebarStatus")
