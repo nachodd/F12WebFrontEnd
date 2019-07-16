@@ -49,7 +49,7 @@
         <draggable-list
           title="Testing"
           group-name="requerimientos"
-          list-name="target"
+          list-name="testing"
           :requerimientos-list="requerimientosFiltered('TEST')"
           :loading-list="loadingRequerimientos"
         />

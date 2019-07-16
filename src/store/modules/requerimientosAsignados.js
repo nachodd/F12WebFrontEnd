@@ -38,6 +38,12 @@ const state = {
       removedIndex: null,
       changesSetted: false,
     },
+    testingList: [],
+    testingChanges: {
+      addedIndex: null,
+      removedIndex: null,
+      changesSetted: false,
+    },
     payload: {},
   },
   filtros: {
@@ -56,82 +62,95 @@ const getters = {
     return (
       state.possibleChanges.sourceChanges.changesSetted &&
       state.possibleChanges.targetChanges.changesSetted &&
+      state.possibleChanges.testingChanges.changesSetted &&
       Boolean(state.possibleChanges.payload.id)
-      //  ||
-      // (state.possibleChanges.sourceChanges.changesSetted &&
-      //   Boolean(state.possibleChanges.payload.id))
     )
   },
-  // // - reordenamiento de la lista de pendientes => no hace nada (a menos que esElUltimoDeLaCadenaDeMando=true)
-  // operationReoderPendingList: state => {
-  //   const { sourceChanges, targetChanges } = state.possibleChanges
-  //   return (
-  //     targetChanges.removedIndex === null &&
-  //     targetChanges.addedIndex === null &&
-  //     sourceChanges.removedIndex !== null &&
-  //     sourceChanges.addedIndex !== null
-  //   )
-  // },
-  // // - reordenamiento de la lista de aprobados => disparar update aprobados
-  // operationReoderApprovedList: state => {
-  //   const { sourceChanges, targetChanges } = state.possibleChanges
-  //   return (
-  //     targetChanges.removedIndex !== null &&
-  //     targetChanges.addedIndex !== null &&
-  //     sourceChanges.removedIndex === null &&
-  //     sourceChanges.addedIndex === null
-  //   )
-  // },
-  // - arrastrar de pendientes a aprobados => confirmar y disparar update aprobados y pendientes
-  operationApprove: state => {
-    const { sourceChanges, targetChanges } = state.possibleChanges
+  operationToExec: state => {
+    const {
+      sourceChanges,
+      targetChanges,
+      testingChanges,
+    } = state.possibleChanges
     return (
+      sourceChanges.removedIndex !== null &&
+      sourceChanges.addedIndex === null &&
       targetChanges.removedIndex === null &&
       targetChanges.addedIndex !== null &&
-      sourceChanges.removedIndex !== null &&
-      sourceChanges.addedIndex === null
+      testingChanges.removedIndex === null &&
+      testingChanges.addedIndex === null
     )
   },
-  // - arrastrar de aprobados a pendientes => confirmar y disparar update aprobados y pendientes
-  operationReject: state => {
-    const { sourceChanges, targetChanges } = state.possibleChanges
+  operationToPending: state => {
+    const {
+      sourceChanges,
+      targetChanges,
+      testingChanges,
+    } = state.possibleChanges
     return (
+      sourceChanges.removedIndex === null &&
+      sourceChanges.addedIndex !== null &&
       targetChanges.removedIndex !== null &&
       targetChanges.addedIndex === null &&
+      testingChanges.removedIndex === null &&
+      testingChanges.addedIndex === null
+    )
+  },
+  operationToTesting: state => {
+    const {
+      sourceChanges,
+      targetChanges,
+      testingChanges,
+    } = state.possibleChanges
+    return (
       sourceChanges.removedIndex === null &&
-      sourceChanges.addedIndex !== null
+      sourceChanges.addedIndex === null &&
+      targetChanges.removedIndex !== null &&
+      targetChanges.addedIndex === null &&
+      testingChanges.removedIndex === null &&
+      testingChanges.addedIndex !== null
+    )
+  },
+  operationWrongToTesting: state => {
+    const {
+      sourceChanges,
+      targetChanges,
+      testingChanges,
+    } = state.possibleChanges
+    return (
+      sourceChanges.removedIndex !== null &&
+      sourceChanges.addedIndex === null &&
+      targetChanges.removedIndex === null &&
+      targetChanges.addedIndex === null &&
+      testingChanges.removedIndex === null &&
+      testingChanges.addedIndex !== null
+    )
+  },
+  operationWrongFromTesting: state => {
+    const { testingChanges } = state.possibleChanges
+    return (
+      testingChanges.removedIndex !== null && testingChanges.addedIndex === null
     )
   },
   operationType: (state, getters) => {
-    // if (
-    //   getters.operationReoderPendingList &&
-    //   !getters.operationReoderApprovedList &&
-    //   !getters.operationApprove &&
-    //   !getters.operationReject
-    // ) {
-    //   return "reorder-pending"
-    // } else if (
-    //   !getters.operationReoderPendingList &&
-    //   getters.operationReoderApprovedList &&
-    //   !getters.operationApprove &&
-    //   !getters.operationReject
-    // ) {
-    //   return "reorder-approved"
-    // } else
     if (
-      !getters.operationReoderPendingList &&
-      !getters.operationReoderApprovedList &&
-      getters.operationApprove &&
-      !getters.operationReject
+      getters.operationToExec &&
+      !getters.operationToPending &&
+      !getters.operationToTesting
     ) {
-      return "approve"
+      return "execute"
     } else if (
-      !getters.operationReoderPendingList &&
-      !getters.operationReoderApprovedList &&
-      !getters.operationApprove &&
-      getters.operationReject
+      !getters.operationToExec &&
+      getters.operationToPending &&
+      !getters.operationToTesting
     ) {
-      return "reject"
+      return "pending"
+    } else if (
+      !getters.operationToExec &&
+      !getters.operationToPending &&
+      getters.operationToTesting
+    ) {
+      return "test"
     } else {
       return ""
     }
@@ -200,7 +219,7 @@ const getters = {
     // aplica a reqs el conjunto de filtros
     return pipeWith(reqs, ...filtersToApply)
   },
-  getNewOrder: (state, getters) => {
+  /* getNewOrder: (state, getters) => {
     // Busca el requerimiento a actualizar en el listado que está en pantalla
     // const reqsAsignadosOnScreen = state.possibleChanges.targetList
     const reqsAsignadosOnScreen = state.possibleChanges.targetList
@@ -236,7 +255,7 @@ const getters = {
         ultimo: true,
       }
     }
-  },
+  }, */
 }
 
 const mutations = {
@@ -274,7 +293,7 @@ const mutations = {
   },
 
   CLEAR_OPERATIONS: state => {
-    for (const listName of ["source", "target"]) {
+    for (const listName of ["source", "target", "testing"]) {
       state.possibleChanges[`${listName}List`] = []
       state.possibleChanges[`${listName}Changes`] = {
         addedIndex: null,
@@ -356,24 +375,38 @@ const actions = {
 
   processUpdateList({ commit, getters, dispatch }, updatedListData) {
     // console.log(getters.operationType)
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       // updatea los listados temporales
       commit("PROCESS_UPDATE_LISTS", updatedListData)
 
       if (!getters.possibleChangesSetted) {
+        resolve()
         return
       }
 
-      // FIXME aca tampoco serian approve y rejet
+      if (getters.operationWrongFromTesting) {
+        reject({
+          message:
+            "Para quitar este requerimiento de testing, ingresa al detalle y seleccione la acción correspondiente",
+        })
+        commit("CLEAR_OPERATIONS")
+        return
+      }
+      if (getters.operationWrongToTesting) {
+        reject({
+          message:
+            "El requerimiento debe estar en ejecución para poder enviar a testing",
+        })
+        commit("CLEAR_OPERATIONS")
+        return
+      }
+
       switch (getters.operationType) {
-        // case "reorder-pending":
-        //   dispatch("saveReorderPending")
-        //   break
-        // case "reorder-approved":
-        //   dispatch("saveReorderApproved")
-        //   break
-        case "approve":
-        case "reject":
+        case "execute":
+        case "pending":
+          dispatch("setDialogConfirmOperationOpen", true)
+          break
+        case "test":
           dispatch("setDialogConfirmOperationOpen", true)
           break
       }
@@ -420,7 +453,7 @@ const actions = {
         dispatch("app/loadingInc", null, { root: true })
 
         // Persisto los cambios en el remoto.
-        if (getters.operationApprove) {
+        if (getters.operationToExec) {
           await ejecutarRequerimiento(reqId)
         } else {
           await cancelaEjecucionRequerimiento(reqId, { comentario })

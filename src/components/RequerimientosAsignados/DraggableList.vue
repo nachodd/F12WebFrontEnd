@@ -40,7 +40,7 @@
 <script>
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag } from "@utils/helpers"
+import { applyDrag, warn } from "@utils/helpers"
 import RequerimientosAsignadosItem from "@comp/RequerimientosAsignados/RequerimientosAsignadosItem"
 import ListRequerimientos from "@comp/Common/ListRequerimientos"
 
@@ -107,10 +107,11 @@ export default {
 
       const updatedListData = { listName, listResult, dropResult }
 
-      this.$store.dispatch(
-        "requerimientosAsignados/processUpdateList",
-        updatedListData,
-      )
+      this.$store
+        .dispatch("requerimientosAsignados/processUpdateList", updatedListData)
+        .catch(({ message }) => {
+          warn({ message })
+        })
     },
   },
 }

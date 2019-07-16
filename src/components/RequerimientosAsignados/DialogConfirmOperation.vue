@@ -22,17 +22,21 @@
         </span>
       </q-card-section>
       <q-card-section>
-        <p v-if="operationApprove">
+        <p v-if="operationToExec">
           Esta a punto de cambiar estado del requerimiento a
           <strong>EJECUCIÓN.</strong>
         </p>
-        <p v-else-if="operationReject">
+        <p v-else-if="operationToPending">
           Esta a punto de volver el estado del requerimiento a
           <strong>PENDIENTE.</strong>
         </p>
+        <p v-else-if="operationToTesting">
+          Esta a punto de cambiar el estado del requerimiento a
+          <strong>TESTING.</strong>
+        </p>
         ¿Desea confimar este cambio?
       </q-card-section>
-      <q-card-section v-if="operationReject">
+      <q-card-section v-if="operationToPending">
         <q-input
           v-model="comment"
           color="white"
@@ -75,8 +79,9 @@ export default {
 
     ...mapGetters("requerimientosAsignados", [
       "requerimientoIdToChange",
-      "operationApprove",
-      "operationReject",
+      "operationToExec",
+      "operationToPending",
+      "operationToTesting",
     ]),
 
     dialogConfirmOpen: {
