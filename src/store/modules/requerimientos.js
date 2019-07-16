@@ -202,17 +202,17 @@ const actions = {
       } else if (listName === "reqs-pendientes-aprobacion") {
         let reqList = _.get(
           rootState,
-          "priorizarRequerimientos.reqsPendientesAprobacion",
+          "priorizarRequerimientos.requerimientos",
           null,
         )
-        requerimiento = _.find(reqList.list, { id: reqId })
+        requerimiento = _.find(reqList, { id: reqId })
       } else if (listName === "reqs-aprobados-priorizados") {
         let reqList = _.get(
           rootState,
-          "priorizarRequerimientos.reqsAprobadosPriorizados",
+          "priorizarRequerimientos.requerimientos",
           null,
         )
-        requerimiento = _.find(reqList.list, { id: reqId })
+        requerimiento = _.find(reqList, { id: reqId })
       } else if (listName === "asignar-requerimientos") {
         let reqList = _.get(
           rootState,

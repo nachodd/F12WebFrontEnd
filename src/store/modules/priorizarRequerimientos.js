@@ -161,9 +161,11 @@ const getters = {
       rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
     if (esElUltimoDeLaCadenaDeMando) {
-      return state.reqsPendientesAprobacion.listLength + 1
+      // return state.reqsPendientesAprobacion.listLength + 1
+      return getters.requerimientosFiltered("PEND").length + 1
     } else {
-      return state.reqsAprobadosPriorizados.listLength + 1
+      // return state.reqsAprobadosPriorizados.listLength + 1
+      return getters.requerimientosFiltered("APRV").length + 1
     }
   },
   reqsPendientesAprobacionLength: state =>
@@ -579,10 +581,8 @@ const actions = {
   },
   saveReorderApproved({ commit, state, getters, dispatch, rootGetters }) {
     return new Promise(async resolve => {
-      const listType = "approved"
       // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
       if (getters.differentPositionsTarget) {
-        // const reqId = getters.requerimientoIdToChange
         const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"](
           "APRV",
         )
@@ -608,7 +608,7 @@ const actions = {
           //   listType,
           //   listData: targetBackup,
           // })
-          commit("UPDATE_LIST_ESTADO", listType)
+          // commit("UPDATE_LIST_ESTADO", listType)
         } else {
           let newList = [...state.changesRequerimientos]
           commit("SET_REQS_LIST", newList)
@@ -745,12 +745,13 @@ const actions = {
         case "aprobar": {
           // se debe llamar 2 veces a "PROCESS_UPDATE_LISTS", uno por cada lista
           const removedIndexSource = _.findIndex(
-            state.reqsPendientesAprobacion.list,
+            // state.reqsPendientesAprobacion.list,
+            getters.requerimientosFiltered("PEND"),
             { id: requerimientoItem.id },
           )
           const addedIndexSource = null
           // lista source, se saca el item del listado
-          let listResultSource = [...state.reqsPendientesAprobacion.list]
+          let listResultSource = [...getters.requerimientosFiltered("PEND")]
           const payload = listResultSource.splice(removedIndexSource, 1)[0]
 
           updatedListData = {
@@ -767,7 +768,8 @@ const actions = {
           const removedIndexTarget = null
           const addedIndexTarget = priority - 1
           // lista target: se inserta el item en el listado
-          let listResultTarget = [...state.reqsAprobadosPriorizados.list]
+
+          let listResultTarget = [...getters.requerimientosFiltered("APRV")]
           listResultTarget.splice(addedIndexTarget, 0, payload)
 
           updatedListData = {

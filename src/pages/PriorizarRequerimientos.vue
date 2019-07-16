@@ -80,8 +80,8 @@ export default {
       "esElUltimoDeLaCadenaDeMando",
     ]),
     ...mapState("priorizarRequerimientos", {
-      reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
-      reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,
+      // reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
+      // reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,
       loadingReqsPendientesAprobacion: state =>
         state.loadingReqsPendientesAprobacion,
       loadingReqsAprobadosPriorizados: state =>

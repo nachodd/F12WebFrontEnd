@@ -18,9 +18,7 @@
         <div v-show="isApprovingOrReordering" class="q-mt-md">
           <div class="row">
             <div class="col">
-              <div>
-                Seleccione una Prioridad para este Requerimiento:
-              </div>
+              <div>Seleccione una Prioridad para este Requerimiento:</div>
               <br />
               <q-slider
                 v-model="approvedPriority"
