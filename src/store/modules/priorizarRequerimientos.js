@@ -838,12 +838,14 @@ const actions = {
           // o podría preguntar por el getters.operationType
           if (listName === "source" && esElUltimoDeLaCadenaDeMando) {
             const removedIndexSource = _.findIndex(
-              state.reqsPendientesAprobacion.list,
+              // state.reqsPendientesAprobacion.list,
+              getters.requerimientosFiltered("PEND"),
               { id: requerimientoItem.id },
             )
             const addedIndexSource = priority - 1
             // lista source, se saca el item del listado y luego lo pongo en la nueva pos
-            let listResultSource = [...state.reqsPendientesAprobacion.list]
+            // let listResultSource = [...state.reqsPendientesAprobacion.list]
+            let listResultSource = [getters.requerimientosFiltered("PEND")]
             const payload = listResultSource.splice(removedIndexSource, 1)[0]
             listResultSource.splice(addedIndexSource, 0, payload)
 
@@ -862,12 +864,12 @@ const actions = {
             resolve()
           } else if (listName === "target" && !esElUltimoDeLaCadenaDeMando) {
             const removedIndexTarget = _.findIndex(
-              state.reqsAprobadosPriorizados.list,
+              getters.requerimientosFiltered("APRV"),
               { id: requerimientoItem.id },
             )
             const addedIndexTarget = priority - 1
             // lista source, se saca el item del listado y luego lo pongo en la nueva pos
-            let listResultTarget = [...state.reqsAprobadosPriorizados.list]
+            let listResultTarget = [...getters.requerimientosFiltered("APRV")]
             const payload = listResultTarget.splice(removedIndexTarget, 1)[0]
             listResultTarget.splice(addedIndexTarget, 0, payload)
 
