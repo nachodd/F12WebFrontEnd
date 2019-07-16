@@ -745,12 +745,13 @@ const actions = {
         case "aprobar": {
           // se debe llamar 2 veces a "PROCESS_UPDATE_LISTS", uno por cada lista
           const removedIndexSource = _.findIndex(
-            state.reqsPendientesAprobacion.list,
+            // state.reqsPendientesAprobacion.list,
+            getters.requerimientosFiltered("PEND"),
             { id: requerimientoItem.id },
           )
           const addedIndexSource = null
           // lista source, se saca el item del listado
-          let listResultSource = [...state.reqsPendientesAprobacion.list]
+          let listResultSource = [...getters.requerimientosFiltered("PEND")]
           const payload = listResultSource.splice(removedIndexSource, 1)[0]
 
           updatedListData = {
@@ -767,7 +768,8 @@ const actions = {
           const removedIndexTarget = null
           const addedIndexTarget = priority - 1
           // lista target: se inserta el item en el listado
-          let listResultTarget = [...state.reqsAprobadosPriorizados.list]
+
+          let listResultTarget = [...getters.requerimientosFiltered("APRV")]
           listResultTarget.splice(addedIndexTarget, 0, payload)
 
           updatedListData = {
