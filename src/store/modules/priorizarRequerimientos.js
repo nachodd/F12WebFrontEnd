@@ -790,12 +790,14 @@ const actions = {
         case "pendiente": {
           // se debe llamar 2 veces a "PROCESS_UPDATE_LISTS", uno por cada lista
           const removedIndexTarget = _.findIndex(
-            state.reqsAprobadosPriorizados.list,
+            // state.reqsAprobadosPriorizados.list,
+            getters.requerimientosFiltered("APRV"),
             { id: requerimientoItem.id },
           )
           const addedIndexTarget = null
           // lista target, se saca el item del listado
-          let listResultTarget = [...state.reqsAprobadosPriorizados.list]
+          // let listResultTarget = [...state.reqsAprobadosPriorizados.list]
+          let listResultTarget = [...getters.requerimientosFiltered("APRV")]
           const payload = listResultTarget.splice(removedIndexTarget, 1)[0]
 
           updatedListData = {
@@ -812,7 +814,8 @@ const actions = {
           const removedIndexSource = null
           const addedIndexSource = 0
           // lista source: se inserta el item en el listado
-          let listResultSource = [...state.reqsPendientesAprobacion.list]
+          // let listResultSource = [...state.reqsPendientesAprobacion.list]
+          let listResultSource = [...getters.requerimientosFiltered("PEND")]
           listResultSource.splice(addedIndexSource, 0, payload)
 
           updatedListData = {
@@ -824,6 +827,7 @@ const actions = {
               payload,
             },
           }
+
           commit("PROCESS_UPDATE_LISTS", updatedListData)
           await dispatch("confirmOperation", comment)
           commit("CLEAR_OPERATIONS")
@@ -834,12 +838,14 @@ const actions = {
           // o podría preguntar por el getters.operationType
           if (listName === "source" && esElUltimoDeLaCadenaDeMando) {
             const removedIndexSource = _.findIndex(
-              state.reqsPendientesAprobacion.list,
+              // state.reqsPendientesAprobacion.list,
+              getters.requerimientosFiltered("PEND"),
               { id: requerimientoItem.id },
             )
             const addedIndexSource = priority - 1
             // lista source, se saca el item del listado y luego lo pongo en la nueva pos
-            let listResultSource = [...state.reqsPendientesAprobacion.list]
+            // let listResultSource = [...state.reqsPendientesAprobacion.list]
+            let listResultSource = [getters.requerimientosFiltered("PEND")]
             const payload = listResultSource.splice(removedIndexSource, 1)[0]
             listResultSource.splice(addedIndexSource, 0, payload)
 
@@ -858,12 +864,12 @@ const actions = {
             resolve()
           } else if (listName === "target" && !esElUltimoDeLaCadenaDeMando) {
             const removedIndexTarget = _.findIndex(
-              state.reqsAprobadosPriorizados.list,
+              getters.requerimientosFiltered("APRV"),
               { id: requerimientoItem.id },
             )
             const addedIndexTarget = priority - 1
             // lista source, se saca el item del listado y luego lo pongo en la nueva pos
-            let listResultTarget = [...state.reqsAprobadosPriorizados.list]
+            let listResultTarget = [...getters.requerimientosFiltered("APRV")]
             const payload = listResultTarget.splice(removedIndexTarget, 1)[0]
             listResultTarget.splice(addedIndexTarget, 0, payload)
 
@@ -905,13 +911,15 @@ const actions = {
             // Lo elimino del listado correspondiente: busco el indice y lo quito y commiteo el cambio
             if (listName === "source") {
               const removedIndex = _.findIndex(
-                state.reqsPendientesAprobacion.list,
+                // state.reqsPendientesAprobacion.list,
+                // getters.requerimientosFiltered("PEND"),
+                state.changesRequerimientos,
                 { id: requerimientoItem.id },
               )
-              let listResult = [...state.reqsPendientesAprobacion.list]
+              let listResult = [...state.changesRequerimientos]
               listResult.splice(removedIndex, 1)
 
-              commit("SET_REQS_LIST", { listType, listData: listResult })
+              commit("SET_REQS_LIST", listResult)
             } else if (listName === "target") {
               const removedIndex = _.findIndex(
                 state.reqsAprobadosPriorizados.list,
@@ -957,6 +965,10 @@ const actions = {
       commit("CLEAR_FILTROS")
       resolve()
     })
+  },
+
+  flushRequerimientos({ commit }) {
+    commit("SET_REQS_LIST", [])
   },
 }
 

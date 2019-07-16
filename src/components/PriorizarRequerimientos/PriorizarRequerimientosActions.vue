@@ -99,6 +99,7 @@ export default {
       "reqsPendientesAprobacionLength",
       "reqsAprobadosPriorizadosLength",
       "esAutor",
+      "requerimientosFiltered",
     ]),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     optionsPriorizar() {
@@ -127,6 +128,7 @@ export default {
           value: "aprobar",
         })
       }
+
       if (this.stateApproved) {
         if (this.seleccionarPrioridadShown) {
           opt.push({
@@ -161,9 +163,13 @@ export default {
     },
     seleccionarPrioridadShown() {
       if (this.esElUltimoDeLaCadenaDeMando) {
-        return this.statePending && this.reqsPendientesAprobacionLength > 1
+        return (
+          this.statePending && this.requerimientosFiltered("PEND").length > 1
+        )
       } else {
-        return this.stateApproved && this.reqsAprobadosPriorizadosLength > 1
+        return (
+          this.stateApproved && this.requerimientosFiltered("APRV").length > 1
+        )
       }
     },
     maximoSliderPrioridad() {
