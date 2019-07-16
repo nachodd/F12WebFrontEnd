@@ -25,7 +25,12 @@ export default class Requerimiento {
         : null
     this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
 
-    this.estado = req.estado ? req.estado : null
+    // el estado puede estar setiado en estado o estado_general por eso va este ternario
+    this.estado = req.estado
+      ? req.estado
+      : req.estado_priorizacion
+      ? req.estado_priorizacion
+      : null
     // Consevervamos la original
     this._fechaAlta = req.fecha_alta ? req.fecha_alta : null
     this.fechaAlta =

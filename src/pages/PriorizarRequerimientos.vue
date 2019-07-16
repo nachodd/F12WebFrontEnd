@@ -80,8 +80,8 @@ export default {
       "esElUltimoDeLaCadenaDeMando",
     ]),
     ...mapState("priorizarRequerimientos", {
-      reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
-      reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,
+      // reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
+      // reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,
       loadingReqsPendientesAprobacion: state =>
         state.loadingReqsPendientesAprobacion,
       loadingReqsAprobadosPriorizados: state =>
@@ -100,6 +100,9 @@ export default {
         ..._.orderBy(this.userReportantes, "label"),
       ]
     },
+  },
+  beforeCreate() {
+    this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
   },
   async created() {
     this.$store.dispatch("requerimientos/createRequerimiento")
