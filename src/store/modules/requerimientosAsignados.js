@@ -239,7 +239,6 @@ const actions = {
   },
 
   processUpdateList({ commit, getters, dispatch }, updatedListData) {
-    // console.log(getters.operationType)
     return new Promise(resolve => {
       // updatea los listados temporales
       commit("PROCESS_UPDATE_LISTS", updatedListData)
