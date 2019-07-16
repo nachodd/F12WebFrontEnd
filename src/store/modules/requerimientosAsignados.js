@@ -159,7 +159,11 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estTesting.id },
     })
-    return _.orderBy(reqsResult, ["estado.asignacion.orden"], "asc")
+    return _.orderBy(
+      reqsResult,
+      ["estado.asignacion_testing", "estado.asignacion.orden"],
+      ["asc", "asc"],
+    )
   },
   // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
   requerimientosFiltered: (state, getters) => reqEstado => {
@@ -348,7 +352,6 @@ const actions = {
       .finally(() => {
         commit("SET_LOADING_REQUERIMIENTOS", false)
       })
-    // FIXME: seguir modificando el store y terminar esto...
   },
 
   processUpdateList({ commit, getters, dispatch }, updatedListData) {

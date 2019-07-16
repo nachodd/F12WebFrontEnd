@@ -48,6 +48,9 @@ export default {
         case "Requerimiento Rechazado":
           return "fas fa-ban"
 
+        case "Testear Requerimiento":
+          return "fas fa-flask"
+
         default:
           return "fas fa-dot-circle"
       }
@@ -74,6 +77,9 @@ export default {
 
         case "Requerimiento Rechazado":
           return "mis-requerimientos"
+
+        case "Testear Requerimiento":
+          return "requerimientos-asignados"
 
         default:
           return ""
