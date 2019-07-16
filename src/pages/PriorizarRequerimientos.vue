@@ -101,6 +101,9 @@ export default {
       ]
     },
   },
+  beforeCreate() {
+    this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
+  },
   async created() {
     this.$store.dispatch("requerimientos/createRequerimiento")
     this.changeUsuarioVerComo(null)
