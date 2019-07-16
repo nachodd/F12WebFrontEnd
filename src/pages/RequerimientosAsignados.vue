@@ -87,11 +87,31 @@ export default {
     ...mapGetters("requerimientosAsignados", ["requerimientosFiltered"]),
   },
   async created() {
+    this.$store.dispatch("requerimientos/createRequerimiento")
     this.$store.dispatch(
       "requerimientosAsignados/inicializarRequerimientosAsignados",
     )
   },
-  methods: {},
+  methods: {
+    aplicarFiltroRapidoTipoReq(filtroRapido) {
+      let value = null
+      if (filtroRapido === "Arreglo") {
+        value = {
+          descripcion: "Arreglo rápido",
+          id: 1,
+        }
+      } else if (filtroRapido === "Desarrollo") {
+        value = {
+          descripcion: "Desarrollos / Modificaciones / Implementaciones",
+          id: 2,
+        }
+      }
+      this.$store.dispatch("requerimientosAsignados/setFilter", {
+        filter: "requerimientoTipo",
+        value,
+      })
+    },
+  },
 }
 </script>
 <style lang="scss" scoped>

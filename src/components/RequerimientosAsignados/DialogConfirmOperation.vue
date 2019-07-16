@@ -17,44 +17,27 @@
         <span class="text-h6">
           Confirmación -
           <q-chip dense color="accent-light" text-color="white">
-            Req #{{ requerimientoIdToChange }}
+            Req #{{ detalleRequerimientoId }}
           </q-chip>
         </span>
       </q-card-section>
       <q-card-section>
-        <p v-if="operationToExec">
-          Esta a punto de cambiar estado del requerimiento a
-          <strong>EJECUCIÓN.</strong>
-        </p>
-        <p v-else-if="operationToPending">
-          Esta a punto de volver el estado del requerimiento a
-          <strong>PENDIENTE.</strong>
-        </p>
-        <p v-else-if="operationToTesting">
-          Esta a punto de cambiar el estado del requerimiento a
-          <strong>TESTING.</strong>
-        </p>
-        ¿Desea confimar este cambio?
-      </q-card-section>
-      <q-card-section v-if="operationToPending">
-        <q-input
-          v-model="comment"
+        <requerimientos-asignados-actions
+          ref="actions"
+          :dark="true"
+          hide-save-button
+          hide-order-asignacion
           color="white"
-          dark
-          outlined
-          type="textarea"
-          label="Si desea, puede agregar un comentario: "
-          :hide-bottom-space="true"
+          :operation-type="operationType"
         />
       </q-card-section>
       <q-card-actions align="right">
+        <q-btn label="CANCELAR" flat color="red-7" @click="cancelOperation" />
         <q-btn
-          label="CANCELAR"
-          outline
-          color="white"
-          @click="cancelOperation"
+          label="CONFIRMAR"
+          color="deep-purple-10"
+          @click="confirmOperation"
         />
-        <q-btn label="CONFIRMAR" color="purple-10" @click="confirmOperation" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -62,27 +45,24 @@
 
 <script>
 import { mapState, mapGetters } from "vuex"
-import { warn, success } from "@utils/helpers"
+import RequerimientosAsignadosActions from "@comp/RequerimientosAsignados/RequerimientosAsignadosActions"
 
 export default {
-  name: "DialogConfirmOperation",
-  data() {
-    return {
-      comment: "",
-    }
+  name: "RequerimientosAsignadosDialogConfirmOperation",
+  components: {
+    RequerimientosAsignadosActions,
   },
+  // data() {
+  //   return {
+  //     comment: "",
+  //   }
+  // },
   computed: {
     ...mapState("requerimientosAsignados", {
       dialogConfirmOpenState: state => state.dialogConfirmOpen,
-      requerimientoIdToChange: state => state.possibleChanges.payload.id,
     }),
-
-    ...mapGetters("requerimientosAsignados", [
-      "requerimientoIdToChange",
-      "operationToExec",
-      "operationToPending",
-      "operationToTesting",
-    ]),
+    ...mapGetters("requerimientosAsignados", ["operationType"]),
+    ...mapGetters("requerimientos", ["detalleRequerimientoId"]),
 
     dialogConfirmOpen: {
       get() {
@@ -102,7 +82,9 @@ export default {
       this.dialogConfirmOpen = false
     },
     confirmOperation() {
-      const comment = this.operationReject ? this.comment : null
+      // se llama al save del children (del componente RequerimientosAsignadosActions)
+      this.$refs.actions.saveChanges()
+      /* const comment = this.operationReject ? this.comment : null
 
       this.$store
         .dispatch("requerimientosAsignados/confirmOperation", comment)
@@ -113,12 +95,12 @@ export default {
         .then(() => {
           //
           let message = `Requerimiento #${
-            this.requerimientoIdToChange
+            this.detalleRequerimientoId
           } en EJECUCIÓN.`
 
           if (this.operationReject) {
             message = `Requerimiento #${
-              this.requerimientoIdToChange
+              this.detalleRequerimientoId
             } volvió a PENDIENTE.`
           }
 
@@ -126,7 +108,7 @@ export default {
         })
         .catch(e => {
           warn({ message: e.message })
-        })
+        }) */
     },
   },
 }

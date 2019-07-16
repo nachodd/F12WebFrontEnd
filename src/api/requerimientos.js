@@ -174,16 +174,18 @@ export function enviarATestingRequerimiento(requerimientoId, data) {
   })
 }
 
-export function pausarRequerimiento(requerimientoId) {
+export function pausarRequerimiento(requerimientoId, data) {
   return request({
     url: `v1/f12/requerimientos/${requerimientoId}/pausar`,
     method: "put",
+    data,
   })
 }
 
-export function reanudarRequerimiento(requerimientoId) {
+export function reanudarRequerimiento(requerimientoId, data) {
   return request({
     url: `v1/f12/requerimientos/${requerimientoId}/reanudar`,
     method: "put",
+    data,
   })
 }

@@ -176,6 +176,8 @@ const actions = {
         // const result_responsabilidades = await getResponsabilidades(user.Id)
         // commit("SET_RESPONSABILIDADES", result_responsabilidades)
 
+        commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
+
         const userData = await getUsuarioGestion()
         commit("SET_USER", userData)
 
@@ -245,6 +247,7 @@ const actions = {
         // commit("SET_RESPONSABILIDADES", [])
         commit("SET_USER", null)
         commit("app/LOADING_RESET", null, { root: true })
+        commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
         removeToken()
         resetRouter()
         resolve()

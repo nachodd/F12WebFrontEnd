@@ -1,80 +1,79 @@
 <template>
   <div>
     <div class="text-grey-7">
-      Seleccione una acción a ejecutar sobre el requerimiento
+      Seleccione una acción:
     </div>
 
     <q-select
       v-model="operation"
+      :color="color"
       filled
       :options="optionsReqsAsignados"
       emit-value
       map-options
+      :dark="dark"
+      :disable="operationDisabled"
+      :class="{ 'cursor-not-allowed': operationDisabled }"
     />
 
     <div class="q-mt-md">
       <q-slide-transition>
-        <div v-show="operation === 'volverPendiente'" class="row">
-          <div class="col">
-            <q-input
-              ref="comment"
-              v-model="comment"
-              color="deep-purple-10"
-              outlined
-              autogrow
-              label="Agregar un motivo:"
-              :hide-bottom-space="true"
-              :rules="[notEmpty]"
-            />
-          </div>
-        </div>
-      </q-slide-transition>
-      <q-slide-transition>
-        <div v-show="operation == 'finalizar'">
-          <div class="col">
-            <q-input
-              ref="horasEstimadas"
-              v-model.number="horasEstimadas"
-              type="number"
-              color="deep-purple-10"
-              label="Horas Estimadas"
-              filled
-              outlined
-              :rules="[notEmpty]"
-            />
-          </div>
-        </div>
-      </q-slide-transition>
-      <q-slide-transition>
-        <div v-show="operation == 'testing'">
+        <div v-show="operation === 'volverPendiente'">
           <div class="row q-mt-xs">
             <div class="col-12 text-grey-7">
-              Seleccione un usuario para enviar a Testing:
+              Comentarios:
+            </div>
+          </div>
+          <div class="row  q-mt-xs">
+            <div class="col">
+              <q-input
+                ref="comment"
+                v-model="comment"
+                :color="color"
+                :dark="dark"
+                filled
+                autogrow
+                label="Agregar un motivo:"
+                :hide-bottom-space="true"
+                :rules="[notEmpty]"
+              />
+            </div>
+          </div>
+        </div>
+      </q-slide-transition>
+      <q-slide-transition>
+        <div v-show="operation === 'finalizar'">
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Horas Estimadas del Desarrollo:
             </div>
           </div>
           <div class="row q-mt-xs">
-            <div class="col-12">
-              <!-- :color="color"
-                :dark="dark" -->
-              <q-select
-                ref="usuarioTesting"
-                v-model="usuarioTesting"
-                :options="optionsUsersTesting"
+            <div class="col">
+              <q-input
+                ref="horasEstimadas"
+                v-model.number="horasEstimadas"
+                type="number"
+                :color="color"
+                :dark="dark"
+                label="Horas Estimadas"
                 filled
-                class="custom-error"
-                color="deep-purple-10"
-                emit-value
-                map-options
                 :rules="[notEmpty]"
               />
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Comentarios:
             </div>
           </div>
           <div class="row q-mt-xs">
             <div class="col-12">
               <q-input
                 v-model="comment"
-                color="deep-purple-10"
-                outlined
+                :color="color"
+                :dark="dark"
+                filled
                 autogrow
                 label="Agregar un Comentario:"
                 :hide-bottom-space="true"
@@ -83,9 +82,101 @@
           </div>
         </div>
       </q-slide-transition>
+      <q-slide-transition>
+        <div v-show="operation === 'testing'">
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Seleccione un usuario para enviar a Testing:
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-select
+                ref="usuarioTesting"
+                v-model="usuarioTesting"
+                :options="optionsUsersTesting"
+                filled
+                class="custom-error"
+                :color="color"
+                :dark="dark"
+                emit-value
+                map-options
+                :rules="[notEmpty]"
+              />
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Deje un mensaje para la persona encargada del Testing:
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-input
+                v-model="comment"
+                :color="color"
+                :dark="dark"
+                filled
+                autogrow
+                label="Agregar un Comentario:"
+                :hide-bottom-space="true"
+              />
+            </div>
+          </div>
+        </div>
+      </q-slide-transition>
+      <q-slide-transition>
+        <div v-show="operation == 'devolverADesarrollo'">
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Deje un mensaje de feedback para la persona encargada del
+              Desarrollo:
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-input
+                ref="commentDevolverADesarrollo"
+                v-model="comment"
+                :color="color"
+                :dark="dark"
+                filled
+                autogrow
+                label="Agregar un Comentario:"
+                :hide-bottom-space="true"
+                :rules="[notEmpty]"
+              />
+            </div>
+          </div>
+        </div>
+      </q-slide-transition>
+      <q-slide-transition>
+        <div v-show="operation == 'pausar'">
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Comentarios:
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-input
+                ref="commentPausar"
+                v-model="comment"
+                :color="color"
+                :dark="dark"
+                filled
+                autogrow
+                label="Agregar un Comentario:"
+                :hide-bottom-space="true"
+                :rules="[notEmpty]"
+              />
+            </div>
+          </div>
+        </div>
+      </q-slide-transition>
     </div>
 
-    <div v-show="operation !== null" class="q-mt-md">
+    <div v-show="operation !== null && !hideSaveButton" class="q-mt-md">
       <q-btn
         class="full-width"
         label="Guardar"
@@ -105,10 +196,29 @@ export default {
   name: "RequerimientosAsignadosActions",
   components: {},
   mixins: [formValidation],
+  props: {
+    dark: {
+      type: Boolean,
+      default: false,
+    },
+    hideSaveButton: {
+      type: Boolean,
+      default: false,
+    },
+    color: {
+      type: String,
+      default: "purple-10", // accent
+    },
+    operationType: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       operation: null,
       comment: null,
+      operationDisabled: false,
       horasEstimadas: null,
       usuarioTesting: null,
     }
@@ -157,6 +267,16 @@ export default {
           })
         }
       }
+      if (this.detalleRequerimientoState === "TEST") {
+        opt.push({
+          label: "Devolver a Desarrollo",
+          value: "devolverADesarrollo",
+        })
+        opt.push({
+          label: "Finalizar",
+          value: "finalizar",
+        })
+      }
       return opt
     },
     optionsUsersTesting() {
@@ -169,13 +289,25 @@ export default {
       ]
     },
   },
+  mounted() {
+    // Si se le setea el operationType por prop, asigno el valor correspondiente al combo
+    this.operationDisabled = true
+    if (this.operationType === "execute") {
+      this.operation = "ejecucion"
+    } else if (this.operationType === "pending") {
+      this.operation = "volverPendiente"
+    } else if (this.operationType === "test") {
+      this.operation = "testing"
+    } else {
+      this.operationDisabled = false
+    }
+  },
   methods: {
     saveChanges() {
       // Valido, si esta descartando debe completar el comentario
       if (this.operation === "descartar" && !this.$refs.comment.validate()) {
         return
       }
-
       // Valido, si esta enviando a testing debe seleccionar un usuario
       if (
         this.operation === "testing" &&
@@ -183,12 +315,22 @@ export default {
       ) {
         return
       }
-
       // Valido, si esta finalizando debe completar horas de ejecucion
       if (
         this.operation === "finalizar" &&
         !this.$refs.horasEstimadas.validate()
       ) {
+        return
+      }
+      // Valido, si esta en testing debe completar horas de ejecucion
+      if (
+        this.operation === "devolverADesarrollo" &&
+        !this.$refs.commentDevolverADesarrollo.validate()
+      ) {
+        return
+      }
+
+      if (this.operation === "pausar" && !this.$refs.commentPausar.validate()) {
         return
       }
 
@@ -199,12 +341,7 @@ export default {
             value: this.usuarioTesting,
           }),
           operation: this.operation,
-          priority: this.approvedPriority,
           comment: this.comment,
-          listName:
-            this.detalleRequerimientoState === "EXEC"
-              ? "reqsAsignadosEnEjecucion"
-              : "reqsAsignadosPendientes",
         })
         .then(() => {
           let message = ""
@@ -250,9 +387,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scope>
-.slider {
-  margin: 0 auto;
-  width: 95%;
-}
-</style>
+<style lang="stylus" scoped></style>

@@ -27,7 +27,7 @@
             @click.native="
               abrirDetalleRequerimiento({
                 reqId: req.id,
-                listName: listNameForDetalle,
+                listName: 'requerimientos-asignados',
               })
             "
           />
@@ -88,11 +88,6 @@ export default {
     listEmpty() {
       return this.requerimientosList.length === 0
     },
-    listNameForDetalle() {
-      return this.listName === "source"
-        ? "reqsAsignadosPendientes"
-        : "reqsAsignadosEnEjecucion"
-    },
   },
   methods: {
     // map `this.abrirDetalleRequerimiento(...)` to `this.$store.dispatch("priorizarRequerimientos/abrirDetalleRequerimiento",...)`
@@ -104,7 +99,6 @@ export default {
     },
     onDrop(listName, dropResult) {
       const listResult = applyDrag(this.requerimientosList, dropResult)
-
       const updatedListData = { listName, listResult, dropResult }
 
       this.$store

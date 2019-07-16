@@ -52,6 +52,9 @@ const getters = {
     }
     return null
   },
+  detalleRequerimientoId: state => {
+    return _.get(state, "detalleRequerimientoItem.id", null)
+  },
 }
 
 const mutations = {
@@ -199,14 +202,7 @@ const actions = {
         // cuando es true viene desde "mis-requerimientos" cambiar nombre de la variable
         let reqList = state.misRequerimientos
         requerimiento = _.find(reqList, { id: reqId })
-      } else if (listName === "reqs-pendientes-aprobacion") {
-        let reqList = _.get(
-          rootState,
-          "priorizarRequerimientos.requerimientos",
-          null,
-        )
-        requerimiento = _.find(reqList, { id: reqId })
-      } else if (listName === "reqs-aprobados-priorizados") {
+      } else if (listName === "priorizar-requerimientos") {
         let reqList = _.get(
           rootState,
           "priorizarRequerimientos.requerimientos",
@@ -220,19 +216,26 @@ const actions = {
           null,
         )
         requerimiento = _.find(reqList, { id: reqId })
-      } else if (
-        // detalle desde vista de Requerimientos Asignados
-        listName === "reqsAsignadosPendientes" ||
-        listName === "reqsAsignadosEnEjecucion"
-      ) {
+      } else if (listName === "requerimientos-asignados") {
         let reqList = _.get(
           rootState,
-          `requerimientosAsignados.${listName}`,
+          "requerimientosAsignados.requerimientos",
           null,
         )
-
-        requerimiento = _.find(reqList.list, { id: reqId })
+        requerimiento = _.find(reqList, { id: reqId })
       }
+      // else if (
+      //   // detalle desde vista de Requerimientos Asignados
+      //   listName === "reqsAsignadosPendientes" ||
+      //   listName === "reqsAsignadosEnEjecucion"
+      // ) {
+      //   let reqList = _.get(
+      //     rootState,
+      //     `requerimientosAsignados.${listName}`,
+      //     null,
+      //   )
+      //   requerimiento = _.find(reqList.list, { id: reqId })
+      // }
 
       if (requerimiento) {
         commit("SET_DETALLE_REQUERIMIENTO_ITEM", requerimiento)

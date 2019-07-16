@@ -27,7 +27,7 @@
             @click.native="
               abrirDetalleRequerimiento({
                 reqId: req.id,
-                listName: listNameForDetalle,
+                listName: 'priorizar-requerimientos',
               })
             "
           />
@@ -88,11 +88,6 @@ export default {
   computed: {
     listEmpty() {
       return this.requerimientosList.length === 0
-    },
-    listNameForDetalle() {
-      return this.listName === "source"
-        ? "reqs-pendientes-aprobacion"
-        : "reqs-aprobados-priorizados"
     },
   },
   methods: {

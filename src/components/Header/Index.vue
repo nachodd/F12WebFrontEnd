@@ -67,7 +67,7 @@
             </template>
 
             <template v-if="notificacionesRead.length">
-              <q-item-label header>ANTERIORES</q-item-label>
+              <q-item-label caption class="q-pa-sm">ANTERIORES</q-item-label>
               <div
                 v-for="(notif, i) in notificacionesRead"
                 :key="notif.id"

@@ -132,10 +132,10 @@ export default {
     // Filtro solo los sistemas que tiene el usuario logueado
     __descripcion: {
       get() {
-        return this.$store.state.asignacionRequerimientos.filtros.descripcion
+        return this.$store.state.requerimientosAsignados.filtros.descripcion
       },
       set(value) {
-        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+        this.$store.dispatch("requerimientosAsignados/setFilter", {
           filter: "descripcion",
           value,
         })
@@ -143,10 +143,10 @@ export default {
     },
     __sistema: {
       get() {
-        return this.$store.state.asignacionRequerimientos.filtros.sistema
+        return this.$store.state.requerimientosAsignados.filtros.sistema
       },
       set(value) {
-        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+        this.$store.dispatch("requerimientosAsignados/setFilter", {
           filter: "sistema",
           value,
         })
@@ -154,11 +154,11 @@ export default {
     },
     __tipo: {
       get() {
-        return this.$store.state.asignacionRequerimientos.filtros
+        return this.$store.state.requerimientosAsignados.filtros
           .requerimientoTipo
       },
       set(value) {
-        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+        this.$store.dispatch("requerimientosAsignados/setFilter", {
           filter: "requerimientoTipo",
           value,
         })
@@ -185,13 +185,13 @@ export default {
       this.widthInputDescripcion = size.width + 60 + 30
     },
     removeFilter(filter) {
-      this.$store.dispatch("asignacionRequerimientos/setFilter", {
+      this.$store.dispatch("requerimientosAsignados/setFilter", {
         filter,
         value: null,
       })
     },
     clearFilters() {
-      this.$store.dispatch("asignacionRequerimientos/clearFilters")
+      this.$store.dispatch("requerimientosAsignados/clearFilters")
     },
     closeFilters() {
       this.popupOpened = false

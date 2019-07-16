@@ -112,6 +112,9 @@ const mutations = {
   SET_LOADING_DASHBOARD: (state, value) => {
     state.loadingDashboard = value
   },
+  FLUSH_NOTIFICACIONES: state => {
+    state.notificacion = []
+  },
   SET_NOTIFICACIONES: (state, notificaciones) => {
     _.each(notificaciones, n => {
       const index = _.findIndex(state.notificaciones, {

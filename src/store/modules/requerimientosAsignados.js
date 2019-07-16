@@ -1,4 +1,3 @@
-import RequerimientosAsignadosList from "src/models/RequerimientosAsignadosList"
 import {
   getRequerimientosAsignadosByUser,
   ejecutarRequerimiento,
@@ -19,11 +18,9 @@ import { pipeWith } from "@utils/helpers"
 
 const state = {
   requerimientos: [],
-  changesRequerimientos: [],
+  // changesRequerimientos: [],
   loadingRequerimientos: false,
 
-  reqsAsignadosPendientes: new RequerimientosAsignadosList([], true),
-  reqsAsignadosEnEjecucion: new RequerimientosAsignadosList([], true),
   dialogConfirmOpen: false,
   possibleChanges: {
     sourceList: [],
@@ -65,6 +62,9 @@ const getters = {
       state.possibleChanges.testingChanges.changesSetted &&
       Boolean(state.possibleChanges.payload.id)
     )
+  },
+  isPaused: state => {
+    return _.get(state, "possibleChanges.payload.estado.pausado", false)
   },
   operationToExec: state => {
     const {
@@ -219,64 +219,12 @@ const getters = {
     // aplica a reqs el conjunto de filtros
     return pipeWith(reqs, ...filtersToApply)
   },
-  /* getNewOrder: (state, getters) => {
-    // Busca el requerimiento a actualizar en el listado que está en pantalla
-    // const reqsAsignadosOnScreen = state.possibleChanges.targetList
-    const reqsAsignadosOnScreen = state.possibleChanges.targetList
-    const index = _.findIndex(reqsAsignadosOnScreen, {
-      id: getters.requerimientoIdToChange,
-    })
-    // De estos, busco el siguiente en pantalla
-    const nextReq = reqsAsignadosOnScreen[index + 1]
-
-    if (nextReq) {
-      // Si lo encuentra, devuelve su orden e indico que NO es el ultimo
-      return {
-        orden: nextReq.prioridad,
-        ultimo: false,
-      }
-    } else {
-      // Caso contario, determino el orden REAL
-      let orden
-      // Si no hay otros reqs asignados, orden = 1
-      if (getters.getAprobadosPriorizados.length === 0) {
-        orden = 1
-      } else {
-        // Busco el último reqs de los asignados, tomo su orden y le aumento 1
-        const lastReq =
-          getters.getAprobadosPriorizados[
-            getters.getAprobadosPriorizados.length - 1
-          ]
-        orden = lastReq.prioridad + 1
-      }
-      // Será el ultimo (ya sea porque se filtro el listado y no hay nada o porque efectivametne no habia otro asignado)
-      return {
-        orden,
-        ultimo: true,
-      }
-    }
-  }, */
 }
 
 const mutations = {
-  // SET_REQS_LIST: (state, { listName, listData }) => {
-  //   state[`${listName}`].list = listData
-  // },
   SET_REQS_LIST: (state, listData) => {
     state.requerimientos = [...listData]
-    state.changesRequerimientos = [...listData]
   },
-  PUSH_REQS_LIST: (state, { listData }) => {
-    state.requerimientos.push(...listData)
-    state.changesRequerimientos.push(...listData)
-    state.requerimientos = _.sortBy(state.requerimientos, [
-      "estado.asignacion.orden",
-    ])
-    state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
-      "estado.asignacion.orden",
-    ])
-  },
-
   PROCESS_UPDATE_LISTS: (state, { listName, listResult, dropResult }) => {
     const { removedIndex, addedIndex, payload } = dropResult
     state.possibleChanges[`${listName}List`] = listResult
@@ -287,11 +235,9 @@ const mutations = {
     }
     state.possibleChanges.payload = payload
   },
-
   SET_DIALOG_CONFIRM_OPERATION_OPEN: (state, value) => {
     state.dialogConfirmOpen = value
   },
-
   CLEAR_OPERATIONS: state => {
     for (const listName of ["source", "target", "testing"]) {
       state.possibleChanges[`${listName}List`] = []
@@ -304,39 +250,30 @@ const mutations = {
     state.possibleChanges.payload = {}
     state.dialogConfirmOpen = false
   },
-
-  UPDATE_LIST_ESTADO: (state, listType) => {
-    let list = [...state[`${listType}`].list]
-
-    // Mapeo el valor del estado aca, porque si se produce un cambio de estado local
-    // (de pendiente a aprobado y vicerversa) el nuevo listado va a tener el valor correcto en el campo estado
-    list = list.map(req => {
-      if (listType === "reqsAsignadosEnEjecucion") {
-        req.estado = { id: 5, descripcion: "En ejecución" }
-      } else {
-        req.estado = { id: 4, descripcion: "Asignado" }
-      }
-      return req
-    })
-    // Persisto los cambios localmente
-    state[`${listType}`].list = list
-
-    // listType === "reqsAsignadosPendientes"
-    //   ? (state.reqsAsignadosPendientes.list = list)
-    //   : (state.reqsAsignadosEnEjecucion.list = list)
-  },
-
   UPDATE_REQ_ESTADO_ASSIGNED: (state, reqId) => {
-    const req = state.changesRequerimientos.find(r => r.id === reqId)
+    const req = state.requerimientos.find(r => r.id === reqId)
     req.estado = { id: 4, descripcion: "Asignado" }
+    req.estado.asignacion_testing = null
+    req.estado.pausado = false
   },
   UPDATE_REQ_ESTADO_INEXCEC: (state, reqId) => {
-    const req = state.changesRequerimientos.find(r => r.id === reqId)
+    const req = state.requerimientos.find(r => r.id === reqId)
     req.estado = { id: 5, descripcion: "En ejecución" }
+    req.estado.pausado = false
   },
-  UPDATE_REQ_ESTADO_TESTING: (state, reqId) => {
-    const req = state.changesRequerimientos.find(r => r.id === reqId)
+  UPDATE_REQ_ESTADO_PAUSED: (state, { reqId, paused }) => {
+    const req = state.requerimientos.find(r => r.id === reqId)
+    req.estado.pausado = paused
+  },
+  UPDATE_REQ_ESTADO_TESTING: (state, { reqId, usuarioTesting }) => {
+    const req = state.requerimientos.find(r => r.id === reqId)
     req.estado = { id: 10, descripcion: "Testing" }
+    req.estado.asignacion_testing = usuarioTesting
+  },
+  UPDATE_REQ_ESTADO_FINISH: (state, reqId) => {
+    const index = _.findIndex(state.requerimientos, { id: reqId })
+    state.requerimientos.splice(index, 1)
+    // _.remove(state.requerimientos, )
   },
 
   SET_FILTROS: (state, { filter, value }) => {
@@ -375,7 +312,7 @@ const actions = {
 
   processUpdateList({ commit, getters, dispatch }, updatedListData) {
     // console.log(getters.operationType)
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       // updatea los listados temporales
       commit("PROCESS_UPDATE_LISTS", updatedListData)
 
@@ -383,7 +320,6 @@ const actions = {
         resolve()
         return
       }
-
       if (getters.operationWrongFromTesting) {
         reject({
           message:
@@ -400,13 +336,27 @@ const actions = {
         commit("CLEAR_OPERATIONS")
         return
       }
+      if (getters.isPaused) {
+        reject({
+          message: "El requerimiento se encuentra PAUSADO",
+        })
+        commit("CLEAR_OPERATIONS")
+        return
+      }
 
       switch (getters.operationType) {
         case "execute":
         case "pending":
-          dispatch("setDialogConfirmOperationOpen", true)
-          break
         case "test":
+          // se setea el requerimiento abierto en el store y luego se abre el modal de confirmacion
+          await dispatch(
+            "requerimientos/setDetalleRequerimiento",
+            {
+              reqId: getters.requerimientoIdToChange,
+              listName: "requerimientos-asignados",
+            },
+            { root: true },
+          )
           dispatch("setDialogConfirmOperationOpen", true)
           break
       }
@@ -425,220 +375,103 @@ const actions = {
     })
   },
 
-  // async confirmOperation({ commit, getters, state, dispatch }, comment) {
-  async confirmOperation({ commit, getters, state, dispatch }, comentario) {
-    return new Promise(async (resolve, reject) => {
-      const reqId = getters.requerimientoIdToChange
-      // FIXME: cambiar la logica de esto para que primero haga la llamada al save, y si esta todo bien, recien ahí actualizo la vista
-      // copio los listados (de manera de tener un backup)
-      const sourceBackup = [...state.reqsAsignadosPendientes.list]
-      const targetBackup = [...state.reqsAsignadosEnEjecucion.list]
-
-      commit("SET_REQS_LIST", {
-        listName: "reqsAsignadosPendientes",
-        listData: state.possibleChanges.sourceList,
-      })
-
-      commit("SET_REQS_LIST", {
-        listName: "reqsAsignadosEnEjecucion",
-        listData: state.possibleChanges.targetList,
-      })
-
-      // FIXME: en vez de llamar a esta mutation, se podría llamar a otra que actualice SOLO el campo estado del req en cuestion (como la mutation asginacionRequerimientos/SET_ESTADO_REQUERIMIENTO)
-      // actualiza todos los estados de las listas para que correspondan con la columna en la que estan.
-      commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
-      commit("UPDATE_LIST_ESTADO", "reqsAsignadosPendientes")
-
-      try {
-        dispatch("app/loadingInc", null, { root: true })
-
-        // Persisto los cambios en el remoto.
-        if (getters.operationToExec) {
-          await ejecutarRequerimiento(reqId)
-        } else {
-          await cancelaEjecucionRequerimiento(reqId, { comentario })
-        }
-
-        resolve()
-      } catch (e) {
-        //si no guardo correctamente, revierto los cambios.
-        // pendientes
-        commit("SET_REQS_LIST", {
-          listName: "reqsAsignadosPendientes",
-          listData: sourceBackup,
-        })
-        commit("UPDATE_LIST_ESTADO", "reqsAsignadosPendientes")
-
-        // En ejecucion
-        commit("SET_REQS_LIST", {
-          listName: "reqsAsignadosEnEjecucion",
-          listData: targetBackup,
-        })
-
-        commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
-        reject(e)
-      } finally {
-        dispatch("app/loadingDec", null, { root: true })
-      }
-
-      resolve()
-    })
-  },
-
   processManualChanges(
-    { commit, state, dispatch, rootState },
-    { operation, priority, comment, listName, horasEstimadas, usuarioTesting },
+    { commit, dispatch, rootState },
+    { operation, comment, horasEstimadas, usuarioTesting },
   ) {
     return new Promise(async (resolve, reject) => {
-      // Esta funcion arma manualmente los listados de requerimientos (como si hiciese un drag&drop) y emite los cambios
-
       let requerimientoItem = _.get(
         rootState,
         "requerimientos.detalleRequerimientoItem",
         null,
       )
 
-      switch (operation) {
-        case "finalizar": {
-          try {
-            dispatch("app/loadingInc", null, { root: true })
-            const removedIndexTarget = _.findIndex(
-              state.reqsAsignadosEnEjecucion.list,
-              { id: requerimientoItem.id },
-            )
-            let listResultTarget = [...state.reqsAsignadosEnEjecucion.list]
-            listResultTarget.splice(removedIndexTarget, 1)[0]
-
-            // genera persistencia de los cambios
+      try {
+        dispatch("app/loadingInc", null, { root: true })
+        switch (operation) {
+          case "finalizar": {
             await finalizarRequerimiento(requerimientoItem.id, {
               horas_ejecucion: horasEstimadas,
+              comentario: comment,
             })
-            commit("SET_REQS_LIST", { listName, listData: listResultTarget })
+            commit("UPDATE_REQ_ESTADO_FINISH", requerimientoItem.id)
             resolve()
-          } catch (e) {
-            reject(e)
-          } finally {
-            dispatch("app/loadingDec", null, { root: true })
+            break
           }
-
-          break
-        }
-        case "ejecucion": {
-          try {
-            dispatch("app/loadingInc", null, { root: true })
+          case "ejecucion": {
             await ejecutarRequerimiento(requerimientoItem.id)
-            // pendientes
-            const removedIndexSource = _.findIndex(
-              state.reqsAsignadosPendientes.list,
-              { id: requerimientoItem.id },
-            )
-            let listResultSource = [...state.reqsAsignadosPendientes.list]
-            const payload = listResultSource.splice(removedIndexSource, 1)[0]
-
-            commit("SET_REQS_LIST", {
-              listName: "reqsAsignadosPendientes",
-              listData: listResultSource,
-            })
-            commit("UPDATE_LIST_ESTADO", "reqsAsignadosPendientes")
-
-            // Ejecucion
-            const addedIndexTarget = priority - 1
-            // lista target: se inserta el item en el listado
-            let listResultTarget = [...state.reqsAsignadosEnEjecucion.list]
-            listResultTarget.splice(addedIndexTarget, 0, payload)
-
-            commit("SET_REQS_LIST", {
-              listName: "reqsAsignadosEnEjecucion",
-              listData: listResultTarget,
-            })
-            commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
+            commit("UPDATE_REQ_ESTADO_INEXCEC", requerimientoItem.id)
             commit("CLEAR_OPERATIONS")
-
             resolve()
-          } catch (e) {
-            reject(e)
-          } finally {
-            dispatch("app/loadingDec", null, { root: true })
+            break
           }
-
-          break
-        }
-        case "volverPendiente": {
-          try {
-            dispatch("app/loadingInc", null, { root: true })
+          case "volverPendiente": {
             await cancelaEjecucionRequerimiento(requerimientoItem.id, {
               comentario: comment,
             })
-
-            // CAMBIOS EN EL Target: Se saca el item del listado
-            const removedIndexTarget = _.findIndex(
-              state.reqsAsignadosEnEjecucion.list,
-              { id: requerimientoItem.id },
-            )
-            let listResultTarget = [...state.reqsAsignadosEnEjecucion.list]
-            const payload = listResultTarget.splice(removedIndexTarget, 1)[0]
-
-            commit("SET_REQS_LIST", {
-              listName: "reqsAsignadosEnEjecucion",
-              listData: listResultTarget,
-            })
-            commit("UPDATE_LIST_ESTADO", "reqsAsignadosEnEjecucion")
-
-            // CAMBIOS EN EL SOURCE: se inserta el item en el listado
-            const addedIndexSource = 0
-            let listResultSource = [...state.reqsAsignadosPendientes.list]
-            listResultSource.splice(addedIndexSource, 0, payload)
-
-            commit("SET_REQS_LIST", {
-              listName: "reqsAsignadosPendientes",
-              listData: listResultSource,
-            })
-
-            commit("UPDATE_LIST_ESTADO", "reqsAsignadosPendientes")
+            commit("UPDATE_REQ_ESTADO_ASSIGNED", requerimientoItem.id)
             commit("CLEAR_OPERATIONS")
             resolve()
-          } catch (e) {
-            reject(e)
-          } finally {
-            dispatch("app/loadingDec", null, { root: true })
+            break
           }
-          break
-        }
-        case "testing": {
-          try {
-            dispatch("app/loadingInc", null, { root: true })
+          case "testing": {
             await enviarATestingRequerimiento(requerimientoItem.id, {
               usuario_asignado: usuarioTesting.value,
               comentario: comment,
             })
-            // FIXME: faltaría cambiar de estado el req y eso
+            commit("UPDATE_REQ_ESTADO_TESTING", {
+              reqId: requerimientoItem.id,
+              usuarioTesting,
+            })
+            commit("CLEAR_OPERATIONS")
             resolve()
-          } catch (e) {
-            reject(e)
-          } finally {
-            dispatch("app/loadingDec", null, { root: true })
+            break
           }
-          break
-        }
-        case "pausar":
-        case "reanudar": {
-          try {
-            dispatch("app/loadingInc", null, { root: true })
-            // FIXME: alterar el requermiento en el listado, setear estado.pausado: true
-            if (operation === "pausar") {
-              await pausarRequerimiento(requerimientoItem.id)
-            } else if (operation === "reanudar") {
-              await reanudarRequerimiento(requerimientoItem.id)
-            }
+          case "pausar": {
+            await pausarRequerimiento(requerimientoItem.id, {
+              comentario: comment,
+            })
+            commit("UPDATE_REQ_ESTADO_PAUSED", {
+              reqId: requerimientoItem.id,
+              paused: true,
+            })
+            commit("CLEAR_OPERATIONS")
             resolve()
-          } catch (e) {
-            reject(e)
-          } finally {
-            dispatch("app/loadingDec", null, { root: true })
+            break
           }
-          break
+          case "reanudar": {
+            await reanudarRequerimiento(requerimientoItem.id, {
+              comentario: comment,
+            })
+            commit("UPDATE_REQ_ESTADO_PAUSED", {
+              reqId: requerimientoItem.id,
+              paused: false,
+            })
+            commit("CLEAR_OPERATIONS")
+            resolve()
+            break
+          }
+          case "devolverADesarrollo": {
+            // FIXME: implementar esto, falta el endpoint
+          }
         }
+      } catch (e) {
+        reject(e)
+      } finally {
+        dispatch("app/loadingDec", null, { root: true })
       }
+    })
+  },
+  setFilter({ commit }, { filter, value }) {
+    return new Promise(resolve => {
+      commit("SET_FILTROS", { filter, value })
+      resolve()
+    })
+  },
+  clearFilters({ commit }) {
+    return new Promise(resolve => {
+      commit("CLEAR_FILTROS")
+      resolve()
     })
   },
 }
