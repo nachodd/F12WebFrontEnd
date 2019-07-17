@@ -2,7 +2,10 @@
   <q-page padding>
     <page-header title="Inicio" />
 
-    <div class="row justify-around q-col-gutter-md">
+    <div
+      v-if="!esElUltimoDeLaCadenaDeMando"
+      class="row justify-around q-col-gutter-md"
+    >
       <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'priorizar-requerimientos' }" class="no-dec">
           <widget-simple
@@ -38,7 +41,7 @@
         <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
           <widget-simple
             icon="fas fa-bell"
-            :value="reqsAsignadosYEjecuando"
+            :value="dashboardAsignadosYEjecutando"
             description="Reqs. ASIGNADOS"
             icon-background-color="#2e7d32"
             icon-background-gradient
@@ -84,17 +87,13 @@ export default {
       "userEsResponsable",
       "puedeVerRequerimientosAsignados",
       "userId",
+      "esElUltimoDeLaCadenaDeMando",
     ]),
+    ...mapGetters("app", ["dashboardAsignadosYEjecutando"]),
     ...mapState("app", {
       dashboard: state => state.dashboard,
       loadingDashboard: state => state.loadingDashboard,
     }),
-    reqsAsignadosYEjecuando() {
-      return (
-        this.dashboard.asignados_pendiente_ejecucion +
-        this.dashboard.asignados_ejecucion
-      )
-    },
   },
   mounted() {
     this.$store.dispatch("app/getDashboardData", this.userId)

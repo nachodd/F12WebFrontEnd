@@ -674,11 +674,13 @@ const actions = {
           break
         case "approve":
           message = `Requerimiento #${getters.requerimientoIdToChange} APROBADO`
+          dispatch("app/getDashboardData", null, { root: true })
           break
         case "reject":
           message = `Requerimiento #${
             getters.requerimientoIdToChange
           } marcado como "PEND. DE APROBACIÓN"`
+          dispatch("app/getDashboardData", null, { root: true })
           break
       }
       success({ message })

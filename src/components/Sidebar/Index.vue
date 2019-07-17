@@ -53,14 +53,14 @@
         >
           <q-item-section avatar class="button">
             <q-icon name="fas fa-sort-amount-down" />
-
-            <!-- <div class="icons">
-              <i class="fas fa-sort-amount-down icon-default"></i>
-              <i class="fas fa-sort-amount-up icon-hover"></i>
-            </div>-->
           </q-item-section>
           <q-item-section>
-            <q-item-label>Priorizar Requerimientos</q-item-label>
+            <q-item-label>
+              Priorizar Requerimientos
+              <span v-if="showPriorizarRequerimientosCount" class="text-bold">
+                ({{ dashboard.pendientes_priorizacion }})
+              </span>
+            </q-item-label>
           </q-item-section>
         </q-item>
 
@@ -75,7 +75,15 @@
             <q-icon name="far fa-hand-pointer" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Asignar Requerimientos</q-item-label>
+            <q-item-label>
+              Asignar Requerimientos
+              <span
+                v-if="dashboard.pendientes_asignacion > 0"
+                class="text-bold"
+              >
+                ({{ dashboard.pendientes_asignacion }})
+              </span>
+            </q-item-label>
           </q-item-section>
         </q-item>
 
@@ -90,7 +98,12 @@
             <q-icon name="fas fa-tasks" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Requerimientos Asignados</q-item-label>
+            <q-item-label>
+              Requerimientos Asignados
+              <span v-if="dashboardAsignadosYEjecutando > 0" class="text-bold">
+                ({{ dashboardAsignadosYEjecutando }})
+              </span>
+            </q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -104,13 +117,15 @@ import { mapGetters, mapState } from "vuex"
 export default {
   name: "F12Sidebar",
   computed: {
-    // ...mapGetters("app", ["sidebarOpen"]),
     ...mapGetters("auth", [
       "userEsResponsable",
       "puedeVerRequerimientosAsignados",
     ]),
+    ...mapGetters("app", ["dashboardAsignadosYEjecutando"]),
     ...mapState("app", {
       sidebarOpenStore: state => state.sidebarOpen,
+      dashboard: state => state.dashboard,
+      loadingDashboard: state => state.loadingDashboard,
     }),
     sidebarOpened: {
       set(state) {
@@ -120,6 +135,15 @@ export default {
         return this.sidebarOpenStore
       },
     },
+    showPriorizarRequerimientosCount() {
+      return (
+        this.dashboard.pendientes_priorizacion > 0 &&
+        !this.esElUltimoDeLaCadenaDeMando
+      )
+    },
+  },
+  mounted() {
+    this.$store.dispatch("app/getDashboardData", this.userId)
   },
   methods: {},
 }

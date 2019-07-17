@@ -41,16 +41,16 @@ const getters = {
     const userReps = _.get(state, "userVinculacion.reportantes", [])
     return _.map(userReps, ur => {
       return {
-        label: ur.RazonSocial,
-        value: ur.IdUsuario,
+        label: ur.razon_social,
+        value: ur.usuario_id,
       }
     })
   },
   userYoYReportantes: (state, getters) => {
-    const ur = getters.userReportantes
+    const ur = [...getters.userReportantes]
     const currentUser = state.user || {}
     ur.push({
-      label: currentUser.razonSocial,
+      label: currentUser.razon_social,
       value: currentUser.id,
     })
     return _.orderBy(ur, ["label"], ["asc"])
@@ -59,8 +59,8 @@ const getters = {
     const userPares = _.get(state, "userVinculacion.pares", [])
     return _.map(userPares, ur => {
       return {
-        label: ur.RazonSocial,
-        value: ur.IdUsuario,
+        label: ur.razon_social,
+        value: ur.usuario_id,
       }
     })
   },
