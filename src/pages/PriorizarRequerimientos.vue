@@ -109,7 +109,8 @@ export default {
     this.changeUsuarioVerComo(null)
   },
   methods: {
-    changeUsuarioVerComo(userId) {
+    async changeUsuarioVerComo(userId) {
+      await this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
       this.$store.dispatch(
         "priorizarRequerimientos/inicializarPriorizarRequerimientos",
         { userId },

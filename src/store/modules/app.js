@@ -19,6 +19,7 @@ const state = {
   dashboard: {
     asignados_ejecucion: 0,
     asignados_pendiente_ejecucion: 0,
+    asignados_testing: 0,
     pendientes_asignacion: 0,
     pendientes_priorizacion: 0,
   },
@@ -100,12 +101,14 @@ const mutations = {
     {
       asignados_ejecucion = null,
       asignados_pendiente_ejecucion = null,
+      asignados_testing = null,
       pendientes_asignacion = null,
       pendientes_priorizacion = null,
     },
   ) => {
     state.dashboard.asignados_ejecucion = asignados_ejecucion
     state.dashboard.asignados_pendiente_ejecucion = asignados_pendiente_ejecucion
+    state.dashboard.asignados_testing = asignados_testing
     state.dashboard.pendientes_asignacion = pendientes_asignacion
     state.dashboard.pendientes_priorizacion = pendientes_priorizacion
   },
