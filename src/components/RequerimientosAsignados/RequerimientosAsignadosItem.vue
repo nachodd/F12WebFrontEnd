@@ -55,7 +55,7 @@
         </q-badge>
         &nbsp;
       </div>
-      <div v-if="!esArregloRapido" class="col-6 text-right">
+      <!-- <div v-if="!esArregloRapido" class="col-6 text-right">
         <q-badge
           :style="{
             color: getColorPrioridadText(req.prioridad),
@@ -64,7 +64,7 @@
         >
           PR: {{ req.prioridad }}
         </q-badge>
-      </div>
+      </div> -->
     </div>
   </q-item>
 </template>

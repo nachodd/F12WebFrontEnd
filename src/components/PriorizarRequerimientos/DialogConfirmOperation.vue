@@ -97,7 +97,7 @@ export default {
         .dispatch("priorizarRequerimientos/confirmOperation", comment)
         .then(() => {
           this.dialogConfirmOpen = false
-          this.comment = ""
+          this.approveComment = ""
         })
 
       // this.$emit("dialog-confirm-operation-confirm", comment)

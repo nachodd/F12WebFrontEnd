@@ -35,6 +35,13 @@ const getters = {
   device: state => state.device,
   size: state => state.size,
   isPageLoading: state => state.loadingLevel !== 0,
+  dashboardAsignadosYEjecutando: state => {
+    return (
+      state.dashboard.asignados_pendiente_ejecucion +
+      state.dashboard.asignados_ejecucion
+    )
+  },
+
   notificacionesRead: state =>
     _(state.notificaciones)
       .filter({ leida: true })
@@ -194,11 +201,12 @@ const actions = {
   loadingReset({ commit }) {
     commit("LOADING_RESET")
   },
-  getDashboardData({ commit }, userId) {
+  getDashboardData({ commit, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {
         commit("SET_LOADING_DASHBOARD", true)
-        const res = await getDashboardData(userId)
+        const userIdToCheck = userId ? userId : rootGetters["auth/userId"]
+        const res = await getDashboardData(userIdToCheck)
         commit("SET_DASHBOARD_DATA", res)
         resolve()
       } catch (error) {

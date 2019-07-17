@@ -394,6 +394,7 @@ const actions = {
               horas_ejecucion: horasEstimadas,
               comentario: comment,
             })
+            dispatch("app/getDashboardData", null, { root: true })
             commit("UPDATE_REQ_ESTADO_FINISH", requerimientoItem.id)
             resolve()
             break
@@ -419,6 +420,7 @@ const actions = {
               usuario_asignado: usuarioTesting.value,
               comentario: comment,
             })
+            dispatch("app/getDashboardData", null, { root: true })
             commit("UPDATE_REQ_ESTADO_TESTING", {
               reqId: requerimientoItem.id,
               usuarioTesting,
@@ -452,6 +454,8 @@ const actions = {
             break
           }
           case "devolverADesarrollo": {
+            // FIXME: el endpoint de asignacion no estaria sirviendo,
+            // TODO: si yo NO soy el asignado al req, deberia BORRARLO del array de requerimientos, sino va a ir a parar a mi panel
             //const dataAsignar = {
             //  usuario: requerimientoItem.usuario.id,
             //  usuario_asignado: requerimientoItem.estado.asignacion.usuario_id,
@@ -463,11 +467,7 @@ const actions = {
             //  dataAsignar,
             //)
             // commit("UPDATE_REQ_ESTADO_ASSIGNED", requerimientoItem.id)
-            // FIXME: implementar esto, falta el endpoint
-            await ejecutarRequerimiento(requerimientoItem.id)
-            commit("UPDATE_REQ_ESTADO_INEXCEC", requerimientoItem.id)
-            commit("CLEAR_OPERATIONS")
-            resolve()
+            dispatch("app/getDashboardData", null, { root: true })
           }
         }
       } catch (e) {
