@@ -28,6 +28,7 @@ const state = {
     { codigo: "REJC", descripcion: "Rechazado", id: 7 },
     { codigo: "INGR", descripcion: "Ingresado", id: 8 },
     { codigo: "STPR", descripcion: "Pasado a procesos", id: 9 }, // sent to process
+    { codigo: "TEST", descripcion: "Testing", id: 10 },
   ],
   misRequerimientos: [],
   detalleRequerimientoOpen: false,
@@ -50,6 +51,9 @@ const getters = {
       }).codigo
     }
     return null
+  },
+  detalleRequerimientoId: state => {
+    return _.get(state, "detalleRequerimientoItem.id", null)
   },
 }
 
@@ -198,14 +202,7 @@ const actions = {
         // cuando es true viene desde "mis-requerimientos" cambiar nombre de la variable
         let reqList = state.misRequerimientos
         requerimiento = _.find(reqList, { id: reqId })
-      } else if (listName === "reqs-pendientes-aprobacion") {
-        let reqList = _.get(
-          rootState,
-          "priorizarRequerimientos.requerimientos",
-          null,
-        )
-        requerimiento = _.find(reqList, { id: reqId })
-      } else if (listName === "reqs-aprobados-priorizados") {
+      } else if (listName === "priorizar-requerimientos") {
         let reqList = _.get(
           rootState,
           "priorizarRequerimientos.requerimientos",
@@ -219,19 +216,26 @@ const actions = {
           null,
         )
         requerimiento = _.find(reqList, { id: reqId })
-      } else if (
-        // detalle desde vista de Requerimientos Asignados
-        listName === "reqsAsignadosPendientes" ||
-        listName === "reqsAsignadosEnEjecucion"
-      ) {
+      } else if (listName === "requerimientos-asignados") {
         let reqList = _.get(
           rootState,
-          `requerimientosAsignados.${listName}`,
+          "requerimientosAsignados.requerimientos",
           null,
         )
-
-        requerimiento = _.find(reqList.list, { id: reqId })
+        requerimiento = _.find(reqList, { id: reqId })
       }
+      // else if (
+      //   // detalle desde vista de Requerimientos Asignados
+      //   listName === "reqsAsignadosPendientes" ||
+      //   listName === "reqsAsignadosEnEjecucion"
+      // ) {
+      //   let reqList = _.get(
+      //     rootState,
+      //     `requerimientosAsignados.${listName}`,
+      //     null,
+      //   )
+      //   requerimiento = _.find(reqList.list, { id: reqId })
+      // }
 
       if (requerimiento) {
         commit("SET_DETALLE_REQUERIMIENTO_ITEM", requerimiento)

@@ -11,12 +11,14 @@
     >
       <template v-if="listEmpty">
         <div class="text-h6 text-center">
-          No hay requerimientos para mostrar!
+          No hay requerimientos
+          <br />
+          para mostrar!
         </div>
       </template>
       <template v-else>
         <Draggable
-          v-for="(req, index) in requerimientosList.list"
+          v-for="(req, index) in requerimientosList"
           :key="`req_${req.id}`"
         >
           <requerimientos-asignados-Item
@@ -25,7 +27,7 @@
             @click.native="
               abrirDetalleRequerimiento({
                 reqId: req.id,
-                listName: listNameForDetalle,
+                listName: 'requerimientos-asignados',
               })
             "
           />
@@ -38,10 +40,9 @@
 <script>
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag } from "@utils/helpers"
+import { applyDrag, warn } from "@utils/helpers"
 import RequerimientosAsignadosItem from "@comp/RequerimientosAsignados/RequerimientosAsignadosItem"
 import ListRequerimientos from "@comp/Common/ListRequerimientos"
-import RequerimientosAsignadosList from "@models/RequerimientosAsignadosList"
 
 export default {
   name: "DraggableList",
@@ -61,7 +62,7 @@ export default {
       required: true,
     },
     requerimientosList: {
-      type: RequerimientosAsignadosList,
+      type: Array,
       required: true,
     },
     listName: {
@@ -85,12 +86,7 @@ export default {
   },
   computed: {
     listEmpty() {
-      return this.requerimientosList.list.length === 0
-    },
-    listNameForDetalle() {
-      return this.listName === "source"
-        ? "reqsAsignadosPendientes"
-        : "reqsAsignadosEnEjecucion"
+      return this.requerimientosList.length === 0
     },
   },
   methods: {
@@ -99,17 +95,17 @@ export default {
       abrirDetalleRequerimiento: "requerimientos/abrirDetalleRequerimiento",
     }),
     getPayload(index) {
-      return this.requerimientosList.list[index]
+      return this.requerimientosList[index]
     },
     onDrop(listName, dropResult) {
-      const listResult = applyDrag(this.requerimientosList.list, dropResult)
-
+      const listResult = applyDrag(this.requerimientosList, dropResult)
       const updatedListData = { listName, listResult, dropResult }
 
-      this.$store.dispatch(
-        "requerimientosAsignados/processUpdateList",
-        updatedListData,
-      )
+      this.$store
+        .dispatch("requerimientosAsignados/processUpdateList", updatedListData)
+        .catch(({ message }) => {
+          warn({ message })
+        })
     },
   },
 }

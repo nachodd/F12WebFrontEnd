@@ -1,6 +1,5 @@
 <template>
   <div class="q-py-md">
-    <q-resize-observer @resize="onResize" />
     <div class="q-mb-sm">
       <q-input
         ref="inputDescripcion"
@@ -9,7 +8,7 @@
         :class="{ popupOpened: popupOpened }"
         dense
         standout="bg-white text-black"
-        placeholder="Buscar por Asunto, Descripcion, Usuario Asignado..."
+        placeholder="Buscar por Asunto, Descripcion..."
         @keyup.enter="closeFilters"
       >
         <template v-slot:prepend>
@@ -22,12 +21,14 @@
             @click="popupOpened = !popupOpened"
           ></q-icon>
         </template>
+        <q-resize-observer @resize="onResize" />
       </q-input>
 
       <q-menu
         v-model="popupOpened"
         no-parent-event
         content-class="q-menu-fix"
+        :content-style="{ maxWidth: widthInputDescripcion + 'px !important' }"
         :offset="[0, -4]"
       >
         <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
@@ -62,30 +63,7 @@
               />
             </div>
           </div>
-          <div class="row q-pt-sm q-col-gutter-xs">
-            <div class="col-12 text-caption q-pt-md text-caption">
-              Para las columans de "Requerimientos Asignados" y "Requerimientos
-              en Ejecución"
-            </div>
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
-              Usuarios Asignados
-            </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-              <q-select
-                v-model="__usuariosAsignados"
-                :options="usuariosAsignadosOptionsFiltered"
-                clearable
-                dense
-                :hide-bottom-space="true"
-                label="Usuarios Asignados"
-                use-input
-                use-chips
-                multiple
-                color="deep-purple-10"
-                @filter="filterUsuariosAsignados"
-              />
-            </div>
-          </div>
+
           <div class="row q-pt-md justify-end q-col-gutter-x-md">
             <div class="col-auto">
               <q-btn color="negative" flat size="md" @click="clearFilters">
@@ -122,15 +100,6 @@
           <q-tooltip>Tipo de Requerimiento</q-tooltip>
         </q-chip>
       </span>
-      <span v-if="usuariosAsignadosSetted" class="q-mx-xs">
-        <q-chip removable @remove="removeFilter('usuariosAsignados')">
-          <q-avatar color="green" text-color="white" class="filter-label">
-            U.A.:
-          </q-avatar>
-          {{ usuariosAsignadosDescripcion }}
-          <q-tooltip>Usuarios Asignados</q-tooltip>
-        </q-chip>
-      </span>
     </div>
   </div>
 </template>
@@ -146,7 +115,6 @@ export default {
       input: "",
       widthInputDescripcion: 0,
       popupOpened: false,
-      usuariosAsignadosOptionsFiltered: null,
     }
   },
   computed: {
@@ -155,19 +123,19 @@ export default {
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
-    ...mapGetters("auth", ["userSistemas", "userYoYReportantes"]),
-    // Filtro solo los sistemas que tiene el usuario logueado
+    ...mapGetters("auth", ["userSistemas"]),
     sistemasUsuarioOptions() {
       return _.filter(this.sistemas, s => {
         return _.findIndex(this.userSistemas, { id: s.id }) !== -1
       })
     },
+    // Filtro solo los sistemas que tiene el usuario logueado
     __descripcion: {
       get() {
-        return this.$store.state.asignacionRequerimientos.filtros.descripcion
+        return this.$store.state.requerimientosAsignados.filtros.descripcion
       },
       set(value) {
-        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+        this.$store.dispatch("requerimientosAsignados/setFilter", {
           filter: "descripcion",
           value,
         })
@@ -175,10 +143,10 @@ export default {
     },
     __sistema: {
       get() {
-        return this.$store.state.asignacionRequerimientos.filtros.sistema
+        return this.$store.state.requerimientosAsignados.filtros.sistema
       },
       set(value) {
-        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+        this.$store.dispatch("requerimientosAsignados/setFilter", {
           filter: "sistema",
           value,
         })
@@ -186,24 +154,12 @@ export default {
     },
     __tipo: {
       get() {
-        return this.$store.state.asignacionRequerimientos.filtros
+        return this.$store.state.requerimientosAsignados.filtros
           .requerimientoTipo
       },
       set(value) {
-        this.$store.dispatch("asignacionRequerimientos/setFilter", {
+        this.$store.dispatch("requerimientosAsignados/setFilter", {
           filter: "requerimientoTipo",
-          value,
-        })
-      },
-    },
-    __usuariosAsignados: {
-      get() {
-        return this.$store.state.asignacionRequerimientos.filtros
-          .usuariosAsignados
-      },
-      set(value) {
-        this.$store.dispatch("asignacionRequerimientos/setFilter", {
-          filter: "usuariosAsignados",
           value,
         })
       },
@@ -223,47 +179,27 @@ export default {
     tipoRequerimientoSetted() {
       return this.__tipo && Boolean(this.__tipo.id)
     },
-    usuariosAsignadosDescripcion() {
-      if (this.usuariosAsignadosSetted) {
-        return this.__usuariosAsignados.map(ua => ua.label).join(", ")
-      }
-      return ""
-    },
-    usuariosAsignadosSetted() {
-      return this.__usuariosAsignados && this.__usuariosAsignados.length > 0
-    },
   },
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width
+      this.widthInputDescripcion = size.width + 60 + 30
     },
     removeFilter(filter) {
-      this.$store.dispatch("asignacionRequerimientos/setFilter", {
+      this.$store.dispatch("requerimientosAsignados/setFilter", {
         filter,
         value: null,
       })
     },
     clearFilters() {
-      this.$store.dispatch("asignacionRequerimientos/clearFilters")
+      this.$store.dispatch("requerimientosAsignados/clearFilters")
     },
     closeFilters() {
       this.popupOpened = false
     },
-    filterUsuariosAsignados(val, update) {
-      if (val === "") {
-        update(() => {
-          this.usuariosAsignadosOptionsFiltered = this.userYoYReportantes
-        })
-        return
-      }
-      update(() => {
-        const needle = val.toLowerCase()
-        this.usuariosAsignadosOptionsFiltered = this.userYoYReportantes.filter(
-          v => v.label.toLowerCase().indexOf(needle) > -1,
-        )
-      })
-    },
   },
 }
 </script>
-<style lang="stylus"></style>
+<style lang="stylus">
+// FIXME: implementar este filtro, que funcione
+// FIXME: re-implementar la store con 1 solo listado base y getters, como esta haciendo ari en priorizar reqs
+</style>

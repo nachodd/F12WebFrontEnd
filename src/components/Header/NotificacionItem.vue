@@ -23,10 +23,6 @@ export default {
       type: Object,
       required: true,
     },
-    unread: {
-      type: Boolean,
-      default: false,
-    },
   },
   computed: {
     icon() {
@@ -52,12 +48,12 @@ export default {
         case "Requerimiento Rechazado":
           return "fas fa-ban"
 
+        case "Testear Requerimiento":
+          return "fas fa-flask"
+
         default:
           return "fas fa-dot-circle"
       }
-    },
-    iconColor() {
-      return !this.unread ? "red-3" : "red-5"
     },
     to() {
       switch (this.notif.type) {
@@ -81,6 +77,9 @@ export default {
 
         case "Requerimiento Rechazado":
           return "mis-requerimientos"
+
+        case "Testear Requerimiento":
+          return "requerimientos-asignados"
 
         default:
           return ""

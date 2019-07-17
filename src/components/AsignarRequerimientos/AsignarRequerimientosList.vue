@@ -121,7 +121,6 @@ export default {
   },
   methods: {
     ...mapActions({
-      setDetalleRequerimiento: "requerimientos/setDetalleRequerimiento",
       abrirDetalleRequerimiento: "requerimientos/abrirDetalleRequerimiento",
     }),
     getPayload(index) {

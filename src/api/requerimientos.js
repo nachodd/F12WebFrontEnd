@@ -89,9 +89,20 @@ export function getRequerimientosForPanelAsignacion(userId) {
 }
 
 export function getRequerimientosAsignadosByUser(userId) {
-  return request({
-    url: `/v1/f12/${userId}/requerimientos/asignados`,
-    method: "get",
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/${userId}/requerimientos/asignados`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener la Requerimientos Pendientes de Asignación")
+      }
+    } catch (e) {
+      reject(e)
+    }
   })
 }
 
@@ -150,6 +161,30 @@ export function enviarAPriorizarRequerimiento(requerimientoId, comentario) {
   }
   return request({
     url: `v1/f12/requerimientos/${requerimientoId}/cambioTipo`,
+    method: "put",
+    data,
+  })
+}
+
+export function enviarATestingRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/testing`,
+    method: "put",
+    data,
+  })
+}
+
+export function pausarRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/pausar`,
+    method: "put",
+    data,
+  })
+}
+
+export function reanudarRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/reanudar`,
     method: "put",
     data,
   })

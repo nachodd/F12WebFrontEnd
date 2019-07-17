@@ -45,7 +45,7 @@
             <template v-if="notificacionesUnread.length">
               <q-item-label caption class="q-pa-sm">NUEVAS</q-item-label>
               <div v-for="(notif, i) in notificacionesUnread" :key="notif.id">
-                <notificacion-item :notif="notif" unread />
+                <notificacion-item :notif="notif" />
                 <q-separator
                   v-if="notificacionesUnread.length - 1 !== i"
                   inset="item"
@@ -67,7 +67,7 @@
             </template>
 
             <template v-if="notificacionesRead.length">
-              <q-item-label header>ANTERIORES</q-item-label>
+              <q-item-label caption class="q-pa-sm">ANTERIORES</q-item-label>
               <div
                 v-for="(notif, i) in notificacionesRead"
                 :key="notif.id"

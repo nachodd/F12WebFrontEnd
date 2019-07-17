@@ -11,7 +11,9 @@
     >
       <template v-if="listEmpty">
         <div class="text-h6 text-center">
-          No hay requerimientos para mostrar!
+          No hay requerimientos
+          <br />
+          para mostrar!
         </div>
       </template>
       <template v-else>
@@ -25,7 +27,7 @@
             @click.native="
               abrirDetalleRequerimiento({
                 reqId: req.id,
-                listName: listNameForDetalle,
+                listName: 'priorizar-requerimientos',
               })
             "
           />
@@ -86,11 +88,6 @@ export default {
   computed: {
     listEmpty() {
       return this.requerimientosList.length === 0
-    },
-    listNameForDetalle() {
-      return this.listName === "source"
-        ? "reqs-pendientes-aprobacion"
-        : "reqs-aprobados-priorizados"
     },
   },
   methods: {

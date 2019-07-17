@@ -152,6 +152,22 @@ export default class Requerimiento {
     return []
   }
 
+  static getEstadoId(codigo) {
+    const arrEstados = {
+      PEND: 1,
+      APRV: 2,
+      NOAS: 3,
+      ASSI: 4,
+      EXEC: 5,
+      RESC: 6,
+      REJC: 7,
+      INGR: 8,
+      STPR: 9,
+      TEST: 10,
+    }
+    return arrEstados[codigo] || null
+  }
+
   // Vuelidate validations
   // static get validations() {
   //   return {

@@ -38,9 +38,26 @@
         <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
           <widget-simple
             icon="fas fa-bell"
-            :value="dashboard.asignados_ejecucion"
+            :value="reqsAsignadosYEjecuando"
             description="Reqs. ASIGNADOS"
             icon-background-color="#2e7d32"
+            icon-background-gradient
+            info-text-class="text-green-9"
+            :loading="loadingDashboard"
+          />
+        </router-link>
+      </div>
+
+      <div
+        v-if="puedeVerRequerimientosAsignados"
+        class="col-md-4 col-sm-4 col-xs-12 q-mb-lg"
+      >
+        <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
+          <widget-simple
+            icon="fas fa-flask"
+            :value="dashboard.asignados_testing"
+            description="Reqs. TESTING"
+            icon-background-color="#91981f"
             icon-background-gradient
             info-text-class="text-green-9"
             :loading="loadingDashboard"
@@ -60,11 +77,7 @@ export default {
   name: "Index",
   components: { PageHeader, WidgetSimple },
   data() {
-    return {
-      reqsAPriorizar: 0,
-      reqsPendAsignacion: 0,
-      reqsAsignados: 0,
-    }
+    return {}
   },
   computed: {
     ...mapGetters("auth", [
@@ -76,6 +89,12 @@ export default {
       dashboard: state => state.dashboard,
       loadingDashboard: state => state.loadingDashboard,
     }),
+    reqsAsignadosYEjecuando() {
+      return (
+        this.dashboard.asignados_pendiente_ejecucion +
+        this.dashboard.asignados_ejecucion
+      )
+    },
   },
   mounted() {
     this.$store.dispatch("app/getDashboardData", this.userId)
