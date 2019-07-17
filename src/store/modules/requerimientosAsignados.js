@@ -178,11 +178,7 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estTesting.id },
     })
-    return _.orderBy(
-      reqsResult,
-      ["estado.asignacion_testing", "estado.asignacion.orden"],
-      ["asc", "asc"],
-    )
+    return _.orderBy(reqsResult, ["estado.asignacion.orden"], ["asc"])
   },
   // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
   requerimientosFiltered: (state, getters) => reqEstado => {
@@ -259,6 +255,7 @@ const mutations = {
   UPDATE_REQ_ESTADO_INEXCEC: (state, reqId) => {
     const req = state.requerimientos.find(r => r.id === reqId)
     req.estado = { id: 5, descripcion: "En ejecución" }
+    req.estado.asignacion_testing = null
     req.estado.pausado = false
   },
   UPDATE_REQ_ESTADO_PAUSED: (state, { reqId, paused }) => {
@@ -268,7 +265,10 @@ const mutations = {
   UPDATE_REQ_ESTADO_TESTING: (state, { reqId, usuarioTesting }) => {
     const req = state.requerimientos.find(r => r.id === reqId)
     req.estado = { id: 10, descripcion: "Testing" }
-    req.estado.asignacion_testing = usuarioTesting
+    req.estado.asignacion_testing = {
+      usuario_id: usuarioTesting.value,
+      usuario_nombre: usuarioTesting.label,
+    }
   },
   UPDATE_REQ_ESTADO_FINISH: (state, reqId) => {
     const index = _.findIndex(state.requerimientos, { id: reqId })
@@ -452,7 +452,22 @@ const actions = {
             break
           }
           case "devolverADesarrollo": {
+            //const dataAsignar = {
+            //  usuario: requerimientoItem.usuario.id,
+            //  usuario_asignado: requerimientoItem.estado.asignacion.usuario_id,
+            //  comentario: comment,
+            //  orden: requerimientoItem.estado.asignacion.orden
+            //}
+            //const res = await asignarRequerimiento(
+            //  requerimientoItem.id,
+            //  dataAsignar,
+            //)
+            // commit("UPDATE_REQ_ESTADO_ASSIGNED", requerimientoItem.id)
             // FIXME: implementar esto, falta el endpoint
+            await ejecutarRequerimiento(requerimientoItem.id)
+            commit("UPDATE_REQ_ESTADO_INEXCEC", requerimientoItem.id)
+            commit("CLEAR_OPERATIONS")
+            resolve()
           }
         }
       } catch (e) {

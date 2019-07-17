@@ -2,7 +2,10 @@
   <q-page padding>
     <page-header title="Inicio" />
 
-    <div class="row justify-around q-col-gutter-md">
+    <div
+      v-if="!esElUltimoDeLaCadenaDeMando"
+      class="row justify-around q-col-gutter-md"
+    >
       <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'priorizar-requerimientos' }" class="no-dec">
           <widget-simple
@@ -84,6 +87,7 @@ export default {
       "userEsResponsable",
       "puedeVerRequerimientosAsignados",
       "userId",
+      "esElUltimoDeLaCadenaDeMando",
     ]),
     ...mapState("app", {
       dashboard: state => state.dashboard,
