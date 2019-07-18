@@ -400,10 +400,7 @@ const actions = {
             break
           }
           case "reordenar": {
-            debugger
-            // TODO: ver si llega el mensaje del back
-            const res = await dispatch("operationSaveReorderAssigned")
-            message = _.get(res, "data.message", null)
+            message = await dispatch("operationSaveReorderAssigned")
             break
           }
           case "aProcesos": {
@@ -456,7 +453,7 @@ const actions = {
       resolve()
     })
   },
-  processUpdateList({ commit, getters, dispatch }, updatedListData) {
+  processUpdateList({ state, commit, getters, dispatch }, updatedListData) {
     // console.log(getters.operationType)
     return new Promise(async (resolve, reject) => {
       try {
@@ -484,9 +481,15 @@ const actions = {
             resolve()
             break
           case "reorder-assigned": {
-            const message = await dispatch("operationSaveReorderAssigned")
+            // Solo si movio algo ejecuta la accion
+            if (
+              state.possibleChanges.targetChanges.addedIndex !==
+              state.possibleChanges.targetChanges.removedIndex
+            ) {
+              const message = await dispatch("operationSaveReorderAssigned")
+              resolve(message)
+            }
             dispatch("clearOperations")
-            resolve(message)
             break
           }
           default:

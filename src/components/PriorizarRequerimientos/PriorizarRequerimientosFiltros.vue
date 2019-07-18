@@ -1,5 +1,6 @@
 <template>
   <div class="q-py-md">
+    <q-resize-observer @resize="onResize" />
     <div class="q-mb-sm">
       <q-input
         ref="inputDescripcion"
@@ -21,14 +22,12 @@
             @click="popupOpened = !popupOpened"
           ></q-icon>
         </template>
-        <q-resize-observer @resize="onResize" />
       </q-input>
 
       <q-menu
         v-model="popupOpened"
         no-parent-event
         content-class="q-menu-fix"
-        :content-style="{ maxWidth: widthInputDescripcion + 'px !important' }"
         :offset="[0, -4]"
       >
         <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
@@ -239,7 +238,7 @@ export default {
   },
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width + 60 + 30
+      this.widthInputDescripcion = size.width
     },
     removeFilter(filter) {
       this.$store.dispatch("priorizarRequerimientos/setFilter", {

@@ -108,12 +108,26 @@
           <span class="card__text-user">
             <q-icon
               name="fas fa-user-check"
-              class="vertical-top q-mr-xs q-pl-xs"
+              class="vertical-top q-mr-xs q-pl-sm"
             />
             {{ usuarioAsignado }}
             <q-tooltip>
               Usuario Asignado:
               <strong>{{ usuarioAsignado }}</strong>
+            </q-tooltip>
+          </span>
+        </q-item-label>
+
+        <q-item-label v-if="estaEnTesting">
+          <span class="card__text-user">
+            <q-icon
+              name="fas fas fa-flask"
+              class="vertical-top q-mr-xs q-pl-xs"
+            />
+            {{ usuarioTesting }}
+            <q-tooltip>
+              Usuario Tester:
+              <strong>{{ usuarioTesting }}</strong>
             </q-tooltip>
           </span>
         </q-item-label>
@@ -172,6 +186,7 @@
 import { mapGetters } from "vuex"
 import priorityColor from "@mixins/priorityColor"
 import { pSBC } from "@utils/colorHelper"
+import Requerimiento from "@models/Requerimiento"
 
 export default {
   name: "AsignarRequerimientosItem",
@@ -270,6 +285,13 @@ export default {
       )
       const estado = this.getEstadoById(estadoId)
       return estado.descripcion
+    },
+    estaEnTesting() {
+      const estadoTestingId = Requerimiento.getEstadoId("TEST")
+      return this.req.estado.id === estadoTestingId
+    },
+    usuarioTesting() {
+      return this.req.estado.asignacion_testing.usuario_nombre
     },
   },
 }

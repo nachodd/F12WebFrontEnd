@@ -78,7 +78,6 @@
               class="col-12"
             >
               <q-tooltip
-                v-model="tooltipShowed"
                 anchor="top middle"
                 self="center middle"
                 :offset="[0, 100]"
@@ -181,11 +180,9 @@
             </div>
           </div>
           <q-tooltip
-            v-model="tooltipShowed"
             anchor="top middle"
             self="center middle"
             :offset="[0, 100]"
-            :target="tooltipTarget"
             content-class="bg-amber text-black text-body2 shadow-4 tooltip-fix"
           >
             <!-- eslint-disable-next-line vue/no-v-html -->
@@ -250,8 +247,7 @@ export default {
       asignarcionOrden: 1,
       ordenTooltip: "",
       reqsPossibleNewOrder: [],
-      tooltipShowed: false,
-      tooltipTarget: false,
+      // tooltipShowed: false,
     }
   },
   computed: {
@@ -441,11 +437,9 @@ export default {
           </ol>
         </div>
       </div>`
-      // this.tooltipTarget = "#ordenContainer"
-      // this.tooltipShowed = true
     },
     sliderChange() {
-      this.tooltipShowed = false
+      // this.tooltipShowed = false
     },
     async saveChanges() {
       // Si es descartar, debo incluir un comentario
