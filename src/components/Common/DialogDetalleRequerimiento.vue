@@ -101,23 +101,33 @@
               <div class="row">
                 <div class="col">
                   <div class="text-grey-6">Ultimo movimiento</div>
-                  <div class="text-grey-7">
-                    <strong>{{ ultimoMovimiento.usuario }}</strong>
-                    @
-                    <span class="text-italic text-grey-6">
-                      {{ ultimoMovimiento.fecha | formatearFechaHora }}
-                    </span>
+                  <div>
+                    <!-- eslint-disable-next-line -->
+                    {{ ultimoMovimiento.usuario }} @ <span class="text-italic">{{ ultimoMovimiento.fecha | formatearFechaHora }}</span>
                   </div>
-                  <div class="text-black-7">
+                  <div>
+                    Estado:
                     {{
                       ultimoMovimiento.estado
                         | formatearEstado(ultimoMovimiento)
                     }}
-                    <span v-if="ultimoMovimientoHasComentario">
-                      :&nbsp;
+                    <div v-if="ultimoMovimientoHasComentario">
+                      Comentarios:
                       {{ ultimoMovimiento.comentario }}
-                    </span>
+                    </div>
                   </div>
+                </div>
+              </div>
+
+              <br />
+
+              <div v-if="req.fueEnviadoAProcesos" class="row">
+                <div class="col">
+                  <div class="text-grey-6">
+                    Requerimiento Asociado en Procesos:
+                    <strong>#{{ reqProcesosId }}</strong>
+                  </div>
+                  <div>Estado req. en Procesos: {{ reqProcesosEstado }}</div>
                 </div>
               </div>
 
@@ -262,7 +272,10 @@ export default {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
-    ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
+    ...mapGetters("requerimientos", [
+      "detalleRequerimientoState",
+      "getEstadoById",
+    ]),
     // ...mapGetters("auth", ["userReportantes"]),
     stateSentToProcess() {
       return this.detalleRequerimientoState === "STPR"
@@ -299,10 +312,15 @@ export default {
         return this.$store.state.requerimientos.detalleRequerimientoOpen
       },
       set(value) {
-        return this.$store.dispatch(
-          "requerimientos/setDetalleRequerimientoOpen",
-          value,
-        )
+        // solo disparamos el dispatch si el valor es distinto al actual
+        if (
+          value !== this.$store.state.requerimientos.detalleRequerimientoOpen
+        ) {
+          return this.$store.dispatch(
+            "requerimientos/setDetalleRequerimientoOpen",
+            value,
+          )
+        }
       },
     },
     movimientosOrdenados() {
@@ -323,6 +341,19 @@ export default {
     },
     diasVencimiento() {
       return this.req.diasToVencimiento
+    },
+    reqProcesosId() {
+      return _.get(this.req, "requerimientoProcesos.IdRequerimiento", null)
+    },
+    reqProcesosEstado() {
+      // FIXME: aca deberia devolver el objeto estado (y ojo con la KEY, IdRequerimientoEstadoSistemas)
+      const estadoId = _.get(
+        this.req,
+        "requerimientoProcesos.IdRequerimientoEstadoSistemas",
+        null,
+      )
+      const estado = this.getEstadoById(estadoId)
+      return estado.descripcion
     },
   },
   created() {

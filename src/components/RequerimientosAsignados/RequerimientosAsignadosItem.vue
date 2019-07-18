@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <div class="row justify-around">
+    <div class="row">
       <div
         class="text-left"
         :class="{ 'col-6': !esArregloRapido, 'col-12': esArregloRapido }"
