@@ -10,12 +10,22 @@
       :options="optionsPriorizar"
       emit-value
       map-options
+      @input="operationChange"
     />
 
     <div class="q-mt-md">
       <!-- seleccion de prioridad y motivo para cuando aprueba o reordena-->
       <q-slide-transition>
         <div v-show="isApprovingOrReordering" class="q-mt-md">
+          <q-tooltip
+            anchor="top middle"
+            self="center middle"
+            :offset="[0, 100]"
+            content-class="bg-amber text-black text-body2 shadow-4 tooltip-fix"
+          >
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <div v-html="ordenTooltip"></div>
+          </q-tooltip>
           <div class="row">
             <div class="col">
               <div>Seleccione una Prioridad para este Requerimiento:</div>
@@ -29,6 +39,7 @@
                 label
                 label-always
                 color="accent"
+                @input="updateOrdenTooltip"
               />
             </div>
           </div>
@@ -78,7 +89,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex"
+import { mapGetters, mapState } from "vuex"
 import formValidation from "@mixins/formValidation"
 import { warn, success } from "@utils/helpers"
 
@@ -90,6 +101,8 @@ export default {
       operation: null,
       approvedPriority: 1,
       comment: null,
+      ordenTooltip: "",
+      // tooltipShowed: false,
     }
   },
   computed: {
@@ -102,6 +115,9 @@ export default {
       "requerimientosFiltered",
     ]),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
+    ...mapState("requerimientos", {
+      req: state => state.detalleRequerimientoItem,
+    }),
     optionsPriorizar() {
       const opt = []
       opt.push({
@@ -184,6 +200,94 @@ export default {
     },
   },
   methods: {
+    operationChange() {
+      if (
+        this.operation === "aprobar" ||
+        this.operation === "seleccionarPrioridad"
+      ) {
+        this.updateOrdenTooltip()
+      }
+    },
+    updateOrdenTooltip() {
+      this.reqsPossibleNewOrder = [...this.requerimientosFiltered("APRV")]
+      let startIndex = 1
+      const realIndex = this.approvedPriority - 1
+      let currReq, pre3Req, pre2Req, pre1Req, pos1Req, pos2Req, pos3Req
+
+      // Dependiendo del tipo de operacion, inserto el nuevo
+      if (this.operation === "aprobar") {
+        // ubico el req a insertar en la posicion this.approvedPriority
+        const reqToInsert = this.req
+        this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
+      } else if (this.operation === "seleccionarPrioridad") {
+        // primero lo saco del array resultado
+        const currentIndex = _.findIndex(this.reqsPossibleNewOrder, {
+          id: this.req.id,
+        })
+        const reqToInsert = this.reqsPossibleNewOrder.splice(currentIndex, 1)[0]
+        // luego lo ubico en la posicion this.approvedPriority
+        this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
+      }
+      pre3Req = this.reqsPossibleNewOrder[realIndex - 3]
+      pre2Req = this.reqsPossibleNewOrder[realIndex - 2]
+      pre1Req = this.reqsPossibleNewOrder[realIndex - 1]
+      currReq = this.reqsPossibleNewOrder[realIndex]
+      pos1Req = this.reqsPossibleNewOrder[realIndex + 1]
+      pos2Req = this.reqsPossibleNewOrder[realIndex + 2]
+      pos3Req = this.reqsPossibleNewOrder[realIndex + 3]
+
+      let pre3ReqFragment = "",
+        pre2ReqFragment = "",
+        pre1ReqFragment = "",
+        currReqFragment = "",
+        pos1ReqFragment = "",
+        pos2ReqFragment = "",
+        pos3ReqFragment = ""
+
+      if (pos3Req) {
+        startIndex = realIndex + 2
+        pos3ReqFragment = `<li>...</li>`
+      }
+      if (pos2Req) {
+        startIndex = realIndex + 1
+        pos2ReqFragment = `<li>${pos2Req.asunto}</li>`
+      }
+      if (pos1Req) {
+        startIndex = realIndex
+        pos1ReqFragment = `<li>${pos1Req.asunto}</li>`
+      }
+      if (currReq) {
+        startIndex = realIndex
+        currReqFragment = `<li><strong>${currReq.asunto}</strong></li>`
+      }
+      if (pre1Req) {
+        startIndex = realIndex - 1
+        pre1ReqFragment = `<li>${pre1Req.asunto}</li>`
+      }
+      if (pre2Req) {
+        startIndex = realIndex - 2
+        pre2ReqFragment = `<li>${pre2Req.asunto}</li>`
+      }
+      if (pre3Req) {
+        startIndex = realIndex - 3
+        pre3ReqFragment = `<li>...</li>`
+      }
+
+      this.ordenTooltip = `
+      <div class="row items-center tooltip-height-fix">
+        <div class="col">
+          <ol class="orden-tooltip" start="${startIndex + 1}">
+            ${pre3ReqFragment}
+            ${pre2ReqFragment}
+            ${pre1ReqFragment}
+            ${currReqFragment}
+            ${pos1ReqFragment}
+            ${pos2ReqFragment}
+            ${pos3ReqFragment}
+          </ol>
+        </div>
+      </div>`
+    },
     saveChanges() {
       // Valido, si esta descartando (operacion: descartar && NO es esAutor), debe completar el comentario
       if (
