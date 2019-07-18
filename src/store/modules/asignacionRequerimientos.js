@@ -400,20 +400,25 @@ const actions = {
             break
           }
           case "reordenar": {
-            const message = await dispatch("operationSaveReorderAssigned")
-            resolve(message)
+            debugger
+            // TODO: ver si llega el mensaje del back
+            const res = await dispatch("operationSaveReorderAssigned")
+            message = _.get(res, "data.message", null)
             break
           }
-          case "aProcesos":
+          case "aProcesos": {
+            const res = await pasarAProcesosRequerimiento(requerimientoId, {
+              comentario,
+            })
+            message = _.get(res, "data.message", null)
+
+            break
+          }
           case "descartar":
           case "aPriorizar": {
             let res
             if (operation === "descartar") {
               res = await refuseRequerimiento(requerimientoId, {
-                comentario,
-              })
-            } else if (operation === "aProcesos") {
-              res = await pasarAProcesosRequerimiento(requerimientoId, {
                 comentario,
               })
             } else if (operation === "aPriorizar") {
@@ -462,21 +467,6 @@ const actions = {
           return
         }
         commit("app/LOADING_INC", null, { root: true })
-
-        // ESTA VALIDACION NO VA POR AHORA
-        // Valido si el requerimiento fue enviado a procesos
-        // const stateSentToProcess = rootGetters[
-        //   "requerimientos/getEstadoByCodigo"
-        // ]("STPR")
-        // const reqToChange = state.possibleChanges.payload
-        // if (reqToChange.estado.id === stateSentToProcess.id) {
-        //   dispatch("clearOperations")
-        //   reject({
-        //     message:
-        //       "El requermiento no se puede asignar, el mismo se encuentra EN PROCESOS",
-        //   })
-        //   return
-        // }
 
         switch (getters.operationType) {
           case "assign":

@@ -41,6 +41,9 @@ const getters = {
   getEstadoByCodigo(state) {
     return codigo => _.find(state.estados, { codigo })
   },
+  getEstadoById(state) {
+    return id => _.find(state.estados, { id })
+  },
   detalleRequerimientoState: state => {
     if (
       state.detalleRequerimientoItem &&
@@ -85,11 +88,6 @@ const mutations = {
       } else {
         state.detalleRequerimientoItem = new Requerimiento(requerimiento)
       }
-      // state.detalleRequerimientoItem = Object.assign(
-      //   {},
-      //   state.detalleRequerimientoItem,
-      //   new Requerimiento(requerimiento),
-      // )
     } else {
       state.detalleRequerimientoItem = null
     }

@@ -105,7 +105,7 @@
                 @change="sliderChange"
               />
             </div>
-            <div v-else class="col-12" @touchstart="test">
+            <div v-else class="col-12">
               Orden:
               <strong>Último</strong>
             </div>
@@ -255,7 +255,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters("auth", ["userYoYReportantes"]),
+    ...mapGetters("auth", [
+      "userYoYReportantes",
+      "userEsResponsableDeProcesos",
+    ]),
     ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
@@ -297,11 +300,16 @@ export default {
             value: "aPriorizar",
           })
         }
-        // TODO: la parte de enviar a procesos la vamos a ver mas adelante
-        // opt.push({
-        //   label: "Enviar a Procesos",
-        //   value: "aProcesos",
-        // })
+        // Se podrá enviar a procesos si: no fue enviado Y el usuario logueado no es de procesos
+        if (
+          !this.req.fueEnviadoAProcesos &&
+          !this.userEsResponsableDeProcesos
+        ) {
+          opt.push({
+            label: "Enviar a Procesos",
+            value: "aProcesos",
+          })
+        }
       }
       if (this.stateAssigned) {
         opt.push({

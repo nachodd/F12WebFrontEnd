@@ -88,6 +88,22 @@
           </span>
         </q-item-label>
 
+        <q-item-label v-if="req.fueEnviadoAProcesos">
+          <span class="card__text-body">
+            <q-icon name="fas fa-cogs" class="vertical-top q-mr-xs q-pl-xs" />
+            Req. Procesos
+            <strong>#{{ reqProcesosId }}</strong>
+            ({{ reqProcesosEstado }})
+            <q-tooltip>
+              - Requerimiento Asociado en Procesos:
+              <strong>#{{ reqProcesosId }}</strong>
+              <br />
+              - Estado:
+              <strong>{{ reqProcesosEstado }}</strong>
+            </q-tooltip>
+          </span>
+        </q-item-label>
+
         <q-item-label v-if="estaAsignado">
           <span class="card__text-user">
             <q-icon
@@ -172,7 +188,7 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
-    ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
+    ...mapGetters("requerimientos", ["getEstadoByCodigo", "getEstadoById"]),
     esArregloRapido() {
       return this.req.tipo.id === 1
     },
@@ -241,6 +257,19 @@ export default {
     },
     isDevelopment() {
       return process.env.DEV && false
+    },
+    reqProcesosId() {
+      return _.get(this.req, "requerimientoProcesos.IdRequerimiento", null)
+    },
+    reqProcesosEstado() {
+      // FIXME: aca deberia devolver el objeto estado (y ojo con la KEY, IdRequerimientoEstadoSistemas)
+      const estadoId = _.get(
+        this.req,
+        "requerimientoProcesos.IdRequerimientoEstadoSistemas",
+        null,
+      )
+      const estado = this.getEstadoById(estadoId)
+      return estado.descripcion
     },
   },
 }

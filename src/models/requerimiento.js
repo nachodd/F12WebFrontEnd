@@ -42,6 +42,9 @@ export default class Requerimiento {
     this.usuario = req.usuario ? req.usuario : null
     this.comentario = req.comentario ? req.comentario : null
     this.movimientos = req.movimientos ? req.movimientos : []
+    this.requerimientoProcesos = req.requerimiento_procesos
+      ? req.requerimiento_procesos
+      : null
   }
 
   // get name() {
@@ -61,6 +64,10 @@ export default class Requerimiento {
       return diff
     }
     return null
+  }
+
+  get fueEnviadoAProcesos() {
+    return this.requerimientoProcesos !== null
   }
 
   async toCreatePayload() {

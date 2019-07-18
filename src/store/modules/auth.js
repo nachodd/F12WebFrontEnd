@@ -7,6 +7,7 @@ import {
   setToken,
   removeToken,
 } from "@utils/auth"
+import { keysToCamel } from "@utils/helpers"
 import { resetRouter } from "@router"
 // import * as types from "../mutation-types";
 
@@ -41,8 +42,8 @@ const getters = {
     const userReps = _.get(state, "userVinculacion.reportantes", [])
     return _.map(userReps, ur => {
       return {
-        label: ur.razon_social,
-        value: ur.usuario_id,
+        label: ur.razonSocial,
+        value: ur.usuarioId,
       }
     })
   },
@@ -50,7 +51,7 @@ const getters = {
     const ur = [...getters.userReportantes]
     const currentUser = state.user || {}
     ur.push({
-      label: currentUser.razon_social,
+      label: currentUser.razonSocial,
       value: currentUser.id,
     })
     return _.orderBy(ur, ["label"], ["asc"])
@@ -59,8 +60,8 @@ const getters = {
     const userPares = _.get(state, "userVinculacion.pares", [])
     return _.map(userPares, ur => {
       return {
-        label: ur.razon_social,
-        value: ur.usuario_id,
+        label: ur.razonSocial,
+        value: ur.usuarioId,
       }
     })
   },
@@ -78,6 +79,8 @@ const getters = {
   userEsResponsable: state => state.userSistemas.length > 0,
   puedeVerRequerimientosAsignados: state =>
     _.filter([8, 16, 36, 37, 48], id => id == state.userArea.id).length > 0,
+  userEsResponsableDeProcesos: state =>
+    _.find(state.userSistemas, { id: 13 }) !== undefined,
 }
 
 // mutations
@@ -117,9 +120,9 @@ const mutations = {
       state.user = user
       state.userArea = userData.area
       state.userSistemas = userData.sistemas
-      state.userVinculacion.jefes = userData.jefes
-      state.userVinculacion.reportantes = userData.reportantes
-      state.userVinculacion.pares = userData.pares
+      state.userVinculacion.jefes = keysToCamel(userData.jefes)
+      state.userVinculacion.reportantes = keysToCamel(userData.reportantes)
+      state.userVinculacion.pares = keysToCamel(userData.pares)
     }
   },
   // SET_ROLES: (state, roles) => {
@@ -225,6 +228,8 @@ const actions = {
 
         resolve()
       } catch (error) {
+        debugger
+        // TODO: cuanod falla al cargar la info del usuario, devolver un error que especifique qu ehayproblemas con el servidor y que vuelva a intentar mas tarde
         reject(error)
       }
     })

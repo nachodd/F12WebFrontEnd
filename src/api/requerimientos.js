@@ -189,3 +189,21 @@ export function reanudarRequerimiento(requerimientoId, data) {
     data,
   })
 }
+
+export function getGerentes() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/gerentes`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener la Gerentes")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
