@@ -140,11 +140,10 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    // const { usuario, password } = userInfo;
     return new Promise(async (resolve, reject) => {
       try {
         const { data } = await login(userInfo)
-
+        // console.log("loginData", data)
         const expires = expiresToUnixTS(data.expires_in)
         commit("SET_TOKEN", {
           token: data.access_token,
@@ -152,33 +151,6 @@ const actions = {
           refreshToken: data.refresh_token,
         })
         setToken(data.access_token, expires, data.refresh_token)
-
-        /* const result_user = await getInfo()
-        if (!result_user.data || !result_user.data.data) {
-          reject("Verification failed, please Login again.")
-        }
-        const user = result_user.data.data
-        commit("SET_USER", user)
-        */
-
-        /* const result_roles = await getRoles()
-        if (!result_roles.data || !result_roles.data.data) {
-          reject("Verification failed, please Login again.")
-        }
-        const roles = mapRoles(result_roles.data.data)
-        // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
-          reject("getInfo: roles must be a non-null array!")
-        }
-        commit("SET_ROLES", roles) */
-
-        // Busco el arbol de vinculacion directa (estructura de superiores - subordinados)
-        // const result_vinculacion = await getVinculacion(user.Id)
-        // commit("SET_VINCULACION", result_vinculacion)
-
-        // const result_responsabilidades = await getResponsabilidades(user.Id)
-        // commit("SET_RESPONSABILIDADES", result_responsabilidades)
-
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
 
         const userData = await getUsuarioGestion()
@@ -190,47 +162,38 @@ const actions = {
       }
     })
   },
-
-  // get user info
-  getInfo({ commit }) {
+  getUserInfo({ commit }) {
     return new Promise(async (resolve, reject) => {
       try {
-        /* const result_user = await getInfo()
-        if (!result_user.data || !result_user.data.data) {
-          reject("Verification failed, please Login again.")
-        }
-        const user = result_user.data.data */
-
-        /* const result_roles = await getRoles()
-        if (!result_roles.data || !result_roles.data.data) {
-          reject("Verification failed, please Login again.")
-        }
-        const roles = mapRoles(result_roles.data.data)
-        // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
-          reject("getInfo: roles must be a non-null array!")
-        }
-        commit("SET_ROLES", roles)
-        */
-        // const result_vinculacion = await getVinculacion(user.Id)
-        // const result_responsabilidades = await getResponsabilidades(user.Id)
-        // commit("SET_USER", user)
-        // commit("SET_VINCULACION", result_vinculacion)
-        // commit("SET_RESPONSABILIDADES", result_responsabilidades)
-
-        // resolve({
-        //   user: state.user,
-        //   sistemas: state.userSistemas,
-        // })
-
         const userData = await getUsuarioGestion()
         commit("SET_USER", userData)
 
         resolve()
       } catch (error) {
         debugger
-        // TODO: cuanod falla al cargar la info del usuario, devolver un error que especifique qu ehayproblemas con el servidor y que vuelva a intentar mas tarde
+        // TODO: cuando falla al cargar la info del usuario, devolver un error que especifique qu ehayproblemas con el servidor y que vuelva a intentar mas tarde
         reject(error)
+      }
+    })
+  },
+  loginHorus({ commit }, { access_token, expires_in, refresh_token }) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const expires = expiresToUnixTS(expires_in)
+        commit("SET_TOKEN", {
+          token: access_token,
+          expiresIn: expires,
+          refreshToken: refresh_token,
+        })
+        setToken(access_token, expires, refresh_token)
+        commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
+
+        const userData = await getUsuarioGestion()
+        commit("SET_USER", userData)
+
+        resolve()
+      } catch (e) {
+        reject(e)
       }
     })
   },
