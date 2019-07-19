@@ -14,7 +14,7 @@ export function login({ usuario, password }) {
   })
 }
 
-export function getInfo() {
+export function getUserInfo() {
   return request({
     url: "/v1/usuario",
     method: "get",

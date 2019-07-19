@@ -27,7 +27,7 @@
           <div class="text-h6">Cargando...</div>
         </template>
         <template v-else>
-          <div class="text-h3">{{ value }}</div>
+          <div class="text-h3">{{ Number(value) }}</div>
           <div class="text-subtitle">{{ description }}</div>
         </template>
       </div>
@@ -47,7 +47,7 @@ export default {
       required: true,
     },
     value: {
-      type: [String, Number],
+      type: [String, Number, null],
       required: true,
     },
     description: {

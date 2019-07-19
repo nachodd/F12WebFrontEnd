@@ -7,6 +7,11 @@ const routes = [
     component: () => import("pages/Login.vue"),
   },
   {
+    path: "/login-horus",
+    name: "login-horus",
+    component: () => import("pages/LoginHorus.vue"),
+  },
+  {
     path: "/",
     component: () => import("layouts/Layout.vue"),
     children: [
@@ -23,27 +28,6 @@ const routes = [
           // roles: ["menu_sistemas"],
         },
       },
-
-      /* {
-        path: "/nuevo-requerimiento",
-        name: "nuevo-requerimiento",
-        components: {
-          modal: MisRequerimientosCrudModal,
-        },
-        meta: {
-          title: "Nuevo Requerimiento - F12",
-        },
-      },
-      {
-        path: "/editar-requerimiento/:id",
-        name: "editar-requerimiento",
-        components: {
-          modal: MisRequerimientosCrudModal,
-        },
-        meta: {
-          title: "Editar Requerimiento - F12",
-        },
-      }, */
       {
         path: "/mis-requerimientos",
         name: "mis-requerimientos",

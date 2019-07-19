@@ -190,3 +190,22 @@
   background-color: $grey-4;
 }
 /** FIN */
+
+
+.loginHorus__bg {
+  background: linear-gradient(-45deg, #5e35b1, #1565c0);
+	background-size: 400% 400%;
+  animation: loginHorus 10s ease infinite;
+}
+
+@keyframes loginHorus {
+  0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
+}
