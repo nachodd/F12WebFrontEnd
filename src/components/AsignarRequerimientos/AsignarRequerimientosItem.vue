@@ -5,7 +5,7 @@
       'card--default': !esArregloRapido,
       'card--qf': esArregloRapido,
     }"
-    :style="{ backgroundColor: bgCardColor }"
+    :style="{ background: bgCardColor }"
   >
     <div v-if="estadoEnProcesos" class="row card__process-row">
       <div class="col-12 text-right">
@@ -67,6 +67,7 @@
               v-if="diasVencimiento < 7"
               name="fas fa-exclamation-triangle"
               class="vertical-top q-mr-xs q-pl-xs"
+              :style="{ color: getColorVencimiento() }"
             />
             <q-tooltip>
               Vencimiento:
@@ -251,7 +252,6 @@ export default {
       return {}
     },
     bgCardColor() {
-      const rojoMax = "#ef5350"
       const blanco = "#FFFFFF"
       if (!this.req.vence) {
         return blanco
@@ -259,12 +259,9 @@ export default {
       const diasVenc = this.req.diasToVencimiento
       if (diasVenc > 7) {
         return blanco
-      } else if (diasVenc > -15 && diasVenc <= 7) {
-        const factorDias = (diasVenc + 15) * 100
-        const factorAclarado = factorDias / 22 / 100
-        return pSBC(factorAclarado, rojoMax, false, true)
       } else {
-        return rojoMax
+        const colorGradiente = this.getColorVencimiento()
+        return `linear-gradient(45deg, #fff 0%, #fff 25%, ${colorGradiente} 100%)`
       }
     },
     diasVencimiento() {
@@ -292,6 +289,25 @@ export default {
     },
     usuarioTesting() {
       return this.req.estado.asignacion_testing.usuario_nombre
+    },
+  },
+  methods: {
+    getColorVencimiento() {
+      const rojoMax = "#ef5350"
+      const blanco = "#FFFFFF"
+      if (!this.req.vence) {
+        return blanco
+      }
+      const diasVenc = this.req.diasToVencimiento
+      if (diasVenc > 7) {
+        return blanco
+      } else if (diasVenc > -15 && diasVenc <= 7) {
+        const factorDias = (diasVenc + 15) * 100
+        const factorAclarado = factorDias / 22 / 100
+        return pSBC(factorAclarado, rojoMax, false, true)
+      } else {
+        return rojoMax
+      }
     },
   },
 }
