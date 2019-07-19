@@ -1,8 +1,15 @@
+// import MisRequerimientosCrudModal from "@comp/MisRequerimientos/MisRequerimientosCrudModal"
+
 const routes = [
   {
     path: "/login",
     name: "login",
     component: () => import("pages/Login.vue"),
+  },
+  {
+    path: "/login-horus",
+    name: "login-horus",
+    component: () => import("pages/LoginHorus.vue"),
   },
   {
     path: "/",
@@ -18,16 +25,40 @@ const routes = [
         component: () => import("pages/Index.vue"),
         meta: {
           title: "Inicio - F12",
-          roles: ["menu_sistemas"],
+          // roles: ["menu_sistemas"],
         },
       },
       {
-        path: "/nuevo-ticket",
-        name: "nuevo-ticket",
-        component: () => import("pages/NuevoTicket.vue"),
+        path: "/mis-requerimientos",
+        name: "mis-requerimientos",
+        component: () => import("pages/MisRequerimientos.vue"),
         meta: {
-          title: "Nuevo Ticket - F12",
-          roles: ["menu_sistemas"],
+          title: "Mis Requerimientos - F12",
+        },
+      },
+      {
+        path: "/priorizar-requerimientos",
+        name: "priorizar-requerimientos",
+        component: () => import("pages/PriorizarRequerimientos.vue"),
+        meta: {
+          title: "Priorizar Requerimientos - F12",
+        },
+      },
+      {
+        path: "/asignar-requerimientos",
+        name: "asignar-requerimientos",
+        component: () => import("pages/AsignarRequerimientos.vue"),
+        meta: {
+          title: "Asignar Requerimientos - F12",
+          checkHasResponsabilities: true,
+        },
+      },
+      {
+        path: "/requerimientos-asignados",
+        name: "requerimientos-asignados",
+        component: () => import("pages/RequerimientosAsignados.vue"),
+        meta: {
+          title: "Requerimientos Asignados - F12",
         },
       },
     ],

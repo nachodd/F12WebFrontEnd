@@ -1,8 +1,9 @@
 // eslint-disable-next-line no-undef
 const path = require("path")
 // eslint-disable-next-line no-undef
-const env = require("./env")
+const webpack = require("webpack")
 // eslint-disable-next-line no-undef
+
 // var envparser = require("./envparser")
 
 // eslint-disable-next-line no-undef
@@ -10,7 +11,13 @@ module.exports = function(ctx) {
   return {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
-    boot: ["axios", "router-hooks", "permission-directive", "filters"], // "vuelidate"
+    boot: [
+      "axios",
+      "router-hooks",
+      // "permission-directive",
+      "filters",
+      "auth-href-directive",
+    ], // "vuelidate"
 
     css: ["app.scss"],
 
@@ -27,6 +34,17 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QPageSticky",
+        "QExpansionItem",
+        "QToggle",
+        "QBtnToggle",
+        "QUploaderAddTrigger",
+        "QChip",
+        "QBar",
+        "QSpace",
+        "QInnerLoading",
+        "QSpinnerGears",
+        "QDialog",
         "QUploader",
         "QTooltip",
         "QPopupProxy",
@@ -46,6 +64,7 @@ module.exports = function(ctx) {
         "QInput",
         "QLayout",
         "QHeader",
+        "QFooter",
         "QDrawer",
         "QPageContainer",
         "QPage",
@@ -60,12 +79,21 @@ module.exports = function(ctx) {
         "QCard",
         "QCardSection",
         "QCardActions",
+        "QTimeline",
+        "QTimelineEntry",
+        "QTab",
+        "QTabs",
+        "QTabPanel",
+        "QTabPanels",
+        "QBanner",
+        "QPagination",
+        "QResizeObserver",
       ],
 
       directives: ["Ripple", "ClosePopup"],
 
       // Quasar plugins
-      plugins: ["Dialog", "Notify", "LoadingBar"],
+      plugins: ["Dialog", "Notify", "Loading", "LoadingBar"],
       iconSet: "fontawesome-v5",
       lang: "es", // Quasar language
       // iconSet: 'ionicons-v4'
@@ -76,12 +104,11 @@ module.exports = function(ctx) {
     build: {
       scopeHoisting: true,
       vueRouterMode: "history",
-      // env: envparser(),
-      env: {
-        VUE_APP_BASE_API: JSON.stringify(env.VUE_APP_BASE_API),
-        VUE_APP_CLIENT_ID: JSON.stringify(env.VUE_APP_CLIENT_ID),
-        VUE_APP_CLIENT_SECRET: JSON.stringify(env.VUE_APP_CLIENT_SECRET),
-      },
+      // env: {
+      //   VUE_APP_BASE_API: JSON.stringify(env.VUE_APP_BASE_API),
+      //   VUE_APP_CLIENT_ID: JSON.stringify(env.VUE_APP_CLIENT_ID),
+      //   VUE_APP_CLIENT_SECRET: JSON.stringify(env.VUE_APP_CLIENT_SECRET),
+      // },
       // vueCompiler: true,
       // gzip: true,
       // analyze: true,
@@ -93,6 +120,13 @@ module.exports = function(ctx) {
           loader: "eslint-loader",
           exclude: /node_modules/,
         })
+
+        cfg.plugins.push(
+          new webpack.ProvidePlugin({
+            _: "lodash",
+          }),
+        )
+
         cfg.resolve.alias = {
           ...cfg.resolve.alias, // This adds the existing alias
           // Add your own alias like this

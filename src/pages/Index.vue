@@ -2,58 +2,101 @@
   <q-page padding>
     <page-header title="Inicio" />
 
-    <div class="row justify-around q-col-gutter-md">
+    <div
+      v-if="!esElUltimoDeLaCadenaDeMando"
+      class="row justify-around q-col-gutter-md"
+    >
       <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
-        <widget-simple
-          icon="fas fa-ticket-alt"
-          value="15"
-          description="Tickets Nuevos"
-          icon-background-class="bg-green-9"
-          info-text-class="text-green-9"
-          :loading="loading"
-        />
+        <router-link :to="{ name: 'priorizar-requerimientos' }" class="no-dec">
+          <widget-simple
+            icon="fas fa-sort-amount-down"
+            :value="dashboard.pendientes_priorizacion"
+            description="Reqs. a PRIORIZAR"
+            icon-background-color="#3949ab"
+            icon-background-gradient
+            info-text-class="text-indigo-7"
+            :loading="loadingDashboard"
+          />
+        </router-link>
       </div>
 
-      <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
-        <widget-simple
-          icon="fas fa-exclamation-triangle"
-          value="7"
-          description="Tickets importantes"
-          :loading="loading"
-        />
+      <div v-if="userEsResponsable" class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
+        <router-link :to="{ name: 'asignar-requerimientos' }" class="no-dec">
+          <widget-simple
+            icon="far fa-hand-pointer "
+            :value="dashboard.pendientes_asignacion"
+            description="Reqs. PEND. de ASIG."
+            icon-background-color="#c62828"
+            icon-background-gradient
+            info-text-class="text-red-9"
+            :loading="loadingDashboard"
+          />
+        </router-link>
       </div>
 
-      <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
-        <widget-simple
-          icon="fas fa-bell"
-          value="3"
-          description="Recordatorios"
-          icon-background-class="bg-blue-9"
-          info-text-class="text-blue-9"
-          :loading="loading"
-        />
+      <div
+        v-if="puedeVerRequerimientosAsignados"
+        class="col-md-4 col-sm-4 col-xs-12 q-mb-lg"
+      >
+        <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
+          <widget-simple
+            icon="fas fa-bell"
+            :value="dashboardAsignadosYEjecutando"
+            description="Reqs. ASIGNADOS"
+            icon-background-color="#2e7d32"
+            icon-background-gradient
+            info-text-class="text-green-9"
+            :loading="loadingDashboard"
+          />
+        </router-link>
+      </div>
+
+      <div
+        v-if="puedeVerRequerimientosAsignados"
+        class="col-md-4 col-sm-4 col-xs-12 q-mb-lg"
+      >
+        <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
+          <widget-simple
+            icon="fas fa-flask"
+            :value="dashboard.asignados_testing"
+            description="Reqs. TESTING"
+            icon-background-color="#91981f"
+            icon-background-gradient
+            info-text-class="text-green-9"
+            :loading="loadingDashboard"
+          />
+        </router-link>
       </div>
     </div>
   </q-page>
 </template>
 
 <script>
-import PageHeader from "@comp/PageHeader"
-import WidgetSimple from "@comp/WidgetSimple"
+import PageHeader from "@comp/Common/PageHeader"
+import WidgetSimple from "@comp/Inicio/WidgetSimple"
+import { mapGetters, mapState } from "vuex"
 
 export default {
   name: "Index",
   components: { PageHeader, WidgetSimple },
   data() {
-    return {
-      loading: true,
-    }
+    return {}
   },
-  methods: {},
+  computed: {
+    ...mapGetters("auth", [
+      "userEsResponsable",
+      "puedeVerRequerimientosAsignados",
+      "userId",
+      "esElUltimoDeLaCadenaDeMando",
+    ]),
+    ...mapGetters("app", ["dashboardAsignadosYEjecutando"]),
+    ...mapState("app", {
+      dashboard: state => state.dashboard,
+      loadingDashboard: state => state.loadingDashboard,
+    }),
+  },
   mounted() {
-    setTimeout(() => {
-      this.loading = false
-    }, 3000)
+    this.$store.dispatch("app/getDashboardData", this.userId)
   },
 }
 </script>

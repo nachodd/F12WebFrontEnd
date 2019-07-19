@@ -9,6 +9,13 @@ export default {
           : "El campo es requerido"
       return !!val || msg
     },
+    numberPositive: val => {
+      const msg =
+        event && event.target && event.target.id
+          ? `'${event.target.id}' debe ser un entero positivo`
+          : "Debe ser un entero positivo"
+      return /^[1-9]\d*$/.test(val) || msg
+    },
     validDate(value) {
       const valueParsed = value.split("/")
       if (!valueParsed.length === 3) {

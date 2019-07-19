@@ -1,22 +1,29 @@
 import axios from "axios"
 import store from "@store"
 import router from "@router"
-import { Notify } from "quasar"
+import { warn, warnDialogParse } from "@utils/helpers"
 
 // import jwt_decode from "jwt-decode"
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API,
-  // baseURL: "https://coretest.bld.com.ar",
+  baseURL: process.env.APP_BASE_API,
   // withCredentials: true,
   timeout: 30000, // request timeout,
+  // Flag to handle the error directly in the respose
+  __handleErrorsInResponse: true,
   // validateStatus: status => status < 204, // Reject only if the status code is greater than or equal to 500
+  // Default Headers & empty data. Empty data is used because if it isn't present, this headers are not sent
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+  data: {},
 })
 
 // Add headers to every request:
-service.defaults.headers.common["Content-Type"] = "application/json"
-service.defaults.headers.common["Accept"] = "application/json"
+// service.defaults.headers.common["Content-Type"] = "application/json"
+// service.defaults.headers.common["Accept"] = "application/json"
 
 // request interceptor
 service.interceptors.request.use(
@@ -34,10 +41,11 @@ service.interceptors.request.use(
         request.headers["Authorization"] = `Bearer ${token}`
       }
     } else {
+      // TODO: Ver si se puede refrscar el token async
       request.headers["Authorization"] = "Bearer " + (await getAuthToken())
     }
-    request.headers.common["Content-Type"] = "application/json"
-    request.headers.common["Accept"] = "application/json"
+    // request.headers.common["Content-Type"] = "application/json"
+    // request.headers.common["Accept"] = "application/json"
 
     return request
   },
@@ -52,18 +60,34 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => response,
   async error => {
-    const req = (error && error.request) || undefined
-    const message =
-      (error &&
-        error.response &&
-        error.response.data &&
-        error.response.data.message) ||
-      "Ocurrio un problema al procesar su petición"
-    const status =
-      (error && error.response && error.response.status) || undefined
-    const errorData =
-      (error && error.response && error.response.data) || undefined
+    const req = _.get(error, "request", undefined) // (error && error.request) || undefined
+    const message = _.get(
+      error,
+      "response.data.message",
+      "Ocurrio un problema al procesar su petición",
+    )
+    const status = _.get(error, "response.status", undefined) // (error && error.response && error.response.status) || undefined
+    const errorData = _.get(error, "response.data", undefined) // (error && error.response && error.response.data) || undefined
 
+    // Check if it was 'Unprocessable Entity' error and if it has to handle it here:
+    const handleErrorsHere = _.get(
+      error,
+      "config.__handleErrorsInResponse",
+      undefined,
+    )
+    // (error && error.config && error.config.__handleErrorsInResponse) || false
+    const errorsArray = _.get(error, "response.data.data.errors", undefined)
+
+    if (status === 422 && handleErrorsHere && errorsArray) {
+      warnDialogParse(errorsArray)
+      return Promise.reject({
+        message,
+        status,
+        data: errorData,
+      })
+    }
+
+    //Si esta en el login, rejecto el error
     if (req !== undefined && req.responseURL.includes("login")) {
       return Promise.reject({
         message,
@@ -71,6 +95,8 @@ service.interceptors.response.use(
         data: errorData,
       })
     }
+
+    // TODO: ver de pasar esta logica al metodo del store auth/refresh
 
     // If you can't refresh your token or you are sent Unauthorized on any request, reset token and go to login
     const isRefreshOrLogout =
@@ -95,21 +121,16 @@ service.interceptors.response.use(
       isRefreshOrLogout ||
       (status === 401 && !error.config.__isRetryRequest)
     ) {
+      await store.dispatch("auth/refresh")
       error.config.__isRetryRequest = true
       return service.request(error.config)
     }
 
+    // Check if it's server error:
     if (status >= 500) {
-      Notify.create({
-        message: "Ocurrio un problema al procesar su petición",
-        color: "danger",
-      })
-      return Promise.reject({
-        message,
-        status,
-        data: errorData,
-      })
+      warn({ message: "Ocurrio un problema al procesar su petición" })
     }
+
     return Promise.reject({
       message,
       status,
@@ -118,11 +139,6 @@ service.interceptors.response.use(
   },
 )
 
-// let authTokenRequest = null
-// tokenRequest dirty bit reseter
-// function resetAuthTokenRequest() {
-//   authTokenRequest = null
-// }
 async function getAuthToken() {
   // if the current token expires soon
   const expiresIn = store.getters["auth/expiresIn"]
@@ -131,9 +147,9 @@ async function getAuthToken() {
   expiresMinus15Minutes.setSeconds(
     expiresMinus15Minutes.getSeconds() - minutesBefore,
   ) // returns unix ts
-  const expiresDateMinus2Minutes = new Date(expiresMinus15Minutes)
+  const expiresDateMinus15Minutes = new Date(expiresMinus15Minutes)
   const isTokenExpiredOrAboutTo =
-    expiresDateMinus2Minutes.getTime() <= Date.now()
+    expiresDateMinus15Minutes.getTime() <= Date.now()
 
   if (isTokenExpiredOrAboutTo) {
     // refresh it and update it
