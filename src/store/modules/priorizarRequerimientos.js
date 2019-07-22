@@ -1,4 +1,4 @@
-import RequerimientosPriorizarList from "models/requerimientosPriorizarList"
+// import RequerimientosPriorizarList from "models/requerimientosPriorizarList"
 // import Requerimiento from "models/requerimiento"
 
 import {
