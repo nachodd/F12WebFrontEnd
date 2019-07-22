@@ -187,7 +187,7 @@
 import { mapGetters } from "vuex"
 import priorityColor from "mixins/priorityColor"
 import { pSBC } from "utils/colorHelper"
-import Requerimiento from "models/Requerimiento"
+import Requerimiento from "models/requerimiento"
 
 export default {
   name: "AsignarRequerimientosItem",

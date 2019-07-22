@@ -6,7 +6,7 @@ import {
   pasarAProcesosRequerimiento,
   enviarAPriorizarRequerimiento,
 } from "api/requerimientos"
-import Requerimiento from "models/Requerimiento"
+import Requerimiento from "models/requerimiento"
 import {
   filterByAsuntoAndDescripcion,
   filterBySistema,
