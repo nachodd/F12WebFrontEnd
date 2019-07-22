@@ -45,7 +45,7 @@
 
 <script>
 import { mapState, mapGetters } from "vuex"
-import AsignarRequerimientosActions from "@comp/AsignarRequerimientos/AsignarRequerimientosActions"
+import AsignarRequerimientosActions from "comp/AsignarRequerimientos/AsignarRequerimientosActions"
 export default {
   name: "AsignarRequerimientosDialogConfirmOperation",
   components: {

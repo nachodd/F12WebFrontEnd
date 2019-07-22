@@ -1,5 +1,5 @@
-import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
-// import Requerimiento from "@models/Requerimiento"
+import RequerimientosPriorizarList from "models/RequerimientosPriorizarList"
+// import Requerimiento from "models/Requerimiento"
 
 import {
   getRequerimientosByUserAndEstado,
@@ -7,15 +7,15 @@ import {
   refuseRequerimiento,
   deleteRequerimiento,
   // getRequerimiento,
-} from "@api/requerimientos"
+} from "api/requerimientos"
 import {
   filterByAsuntoAndDescripcion,
   filterBySistema,
   filterByTipoRequerimiento,
   // filterByUsuariosAsignados,
   UpdatePendingPayloadPriorizarReq,
-} from "@utils/requerimientos"
-import { warn, success, pipeWith } from "@utils/helpers"
+} from "utils/requerimientos"
+import { warn, success, pipeWith } from "utils/helpers"
 // import vuelidate from "src/boot/vuelidate"
 // import { runInNewContext } from "vm"
 

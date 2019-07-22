@@ -11,13 +11,13 @@
 </template>
 <script>
 import { mapState } from "vuex"
-import pageLoading from "@mixins/pageLoading"
-import PageHeader from "@comp/Common/PageHeader"
-import RequerimientoForm from "@comp/Requerimientos/RequerimientosForm"
-import Requerimiento from "@models/Requerimiento"
-import { warn, success, warnDialog } from "@utils/helpers"
-import { getRequerimiento } from "@api/requerimientos"
-import router from "@router"
+import pageLoading from "mixins/pageLoading"
+import PageHeader from "comp/Common/PageHeader"
+import RequerimientoForm from "comp/Requerimientos/RequerimientosForm"
+import Requerimiento from "models/Requerimiento"
+import { warn, success, warnDialog } from "utils/helpers"
+import { getRequerimiento } from "api/requerimientos"
+import router from "router"
 
 export default {
   components: { PageHeader, RequerimientoForm },

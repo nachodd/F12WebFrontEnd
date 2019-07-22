@@ -4,9 +4,9 @@ import {
   listRequerimientos,
   getRequerimiento,
   updateRequerimiento,
-} from "@api/requerimientos"
+} from "api/requerimientos"
 
-import Requerimiento from "@models/Requerimiento"
+import Requerimiento from "models/Requerimiento"
 
 const state = {
   // Create

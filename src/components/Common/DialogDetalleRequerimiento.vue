@@ -228,13 +228,13 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import { date } from "quasar"
-import formValidation from "@mixins/formValidation"
-// import { warn, success } from "@utils/helpers"
-import PriorizarRequerimientosActions from "@comp/PriorizarRequerimientos/PriorizarRequerimientosActions"
-import AsignarRequerimientosActions from "@comp/AsignarRequerimientos/AsignarRequerimientosActions"
-import RequerimientosAsignadosActions from "@comp/RequerimientosAsignados/RequerimientosAsignadosActions"
-import Note from "@comp/Common/Note"
-import AdjuntoCard from "@comp/Common/AdjuntoCard"
+import formValidation from "mixins/formValidation"
+// import { warn, success } from "utils/helpers"
+import PriorizarRequerimientosActions from "comp/PriorizarRequerimientos/PriorizarRequerimientosActions"
+import AsignarRequerimientosActions from "comp/AsignarRequerimientos/AsignarRequerimientosActions"
+import RequerimientosAsignadosActions from "comp/RequerimientosAsignados/RequerimientosAsignadosActions"
+import Note from "comp/Common/Note"
+import AdjuntoCard from "comp/Common/AdjuntoCard"
 
 export default {
   name: "DialogDetalleRequerimiento",

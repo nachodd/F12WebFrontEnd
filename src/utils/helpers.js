@@ -1,7 +1,7 @@
 import { Notify } from "quasar"
 import { Dialog } from "quasar"
-import DialogCustom from "@comp/Common/DialogCustom"
-import request from "@utils/request"
+import DialogCustom from "comp/Common/DialogCustom"
+import request from "utils/request"
 
 export function firstWord(string) {
   return string.replace(/ .*/, "")

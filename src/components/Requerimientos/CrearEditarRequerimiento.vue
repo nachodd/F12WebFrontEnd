@@ -10,13 +10,13 @@
 </template>
 <script>
 import { mapState } from "vuex"
-import pageLoading from "@mixins/pageLoading"
-import RequerimientoForm from "@comp/Requerimientos/RequerimientosForm"
-import Requerimiento from "@models/Requerimiento"
-import { warn, success, warnDialog } from "@utils/helpers"
-import Bus from "@utils/bus"
-import { getRequerimiento } from "@api/requerimientos"
-import router from "@router"
+import pageLoading from "mixins/pageLoading"
+import RequerimientoForm from "comp/Requerimientos/RequerimientosForm"
+import Requerimiento from "models/Requerimiento"
+import { warn, success, warnDialog } from "utils/helpers"
+import Bus from "utils/bus"
+import { getRequerimiento } from "api/requerimientos"
+import router from "router"
 
 export default {
   components: { RequerimientoForm },

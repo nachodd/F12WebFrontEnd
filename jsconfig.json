@@ -5,14 +5,14 @@
     "baseUrl": "./",
     "paths": {
       "src/*": ["src/*"],
-      "@api/*": ["src/api/*"],
-      "@comp/*": ["src/components/*"],
-      "@mixins/*": ["src/mixins/*"],
-      "@utils/*": ["src/utils/*"],
-      "@router/*": ["src/router/*"],
-      "@boot/*": ["src/boot/*"],
-      "@store/*": ["src/store/*"],
-      "@models/*": ["src/models/*"]
+      "api/*": ["src/api/*"],
+      "comp/*": ["src/components/*"],
+      "mixins/*": ["src/mixins/*"],
+      "utils/*": ["src/utils/*"],
+      "router/*": ["src/router/*"],
+      "boot/*": ["src/boot/*"],
+      "store/*": ["src/store/*"],
+      "models/*": ["src/models/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

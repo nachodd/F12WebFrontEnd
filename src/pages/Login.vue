@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import formValidation from "@mixins/formValidation"
+import formValidation from "mixins/formValidation"
 
 export default {
   mixins: [formValidation],

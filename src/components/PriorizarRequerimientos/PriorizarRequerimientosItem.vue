@@ -47,7 +47,7 @@
 </template>
 <script>
 import { mapGetters } from "vuex"
-import priorityColor from "@mixins/priorityColor"
+import priorityColor from "mixins/priorityColor"
 
 export default {
   name: "PriorizarRequerimientosItem",

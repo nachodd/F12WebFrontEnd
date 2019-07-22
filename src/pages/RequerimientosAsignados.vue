@@ -63,12 +63,12 @@
 
 <script>
 import { mapState, mapGetters } from "vuex"
-import PageHeader from "@comp/Common/PageHeader"
-import pageLoading from "@mixins/pageLoading"
-import DraggableList from "@comp/RequerimientosAsignados/DraggableList"
-import DialogConfirmOperation from "@comp/RequerimientosAsignados/DialogConfirmOperation"
-import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
-import RequerimientosAsignadosFiltros from "@comp/RequerimientosAsignados/RequerimientosAsignadosFiltros"
+import PageHeader from "comp/Common/PageHeader"
+import pageLoading from "mixins/pageLoading"
+import DraggableList from "comp/RequerimientosAsignados/DraggableList"
+import DialogConfirmOperation from "comp/RequerimientosAsignados/DialogConfirmOperation"
+import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
+import RequerimientosAsignadosFiltros from "comp/RequerimientosAsignados/RequerimientosAsignadosFiltros"
 
 export default {
   name: "RequerimientosAsigandos",

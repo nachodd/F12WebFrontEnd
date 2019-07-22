@@ -1,4 +1,4 @@
-// import MisRequerimientosCrudModal from "@comp/MisRequerimientos/MisRequerimientosCrudModal"
+// import MisRequerimientosCrudModal from "comp/MisRequerimientos/MisRequerimientosCrudModal"
 
 const routes = [
   {

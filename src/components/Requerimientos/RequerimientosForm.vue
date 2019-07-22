@@ -125,11 +125,11 @@
 
 <script>
 import { mapState } from "vuex"
-import SelectCustom from "@comp/Requerimientos/SelectCustom"
-import InputDateCustom from "@comp/Common/InputDateCustom"
-import UploaderCustom from "@comp/Requerimientos/UploaderCustom"
-import formValidation from "@mixins/formValidation"
-import { warn } from "@utils/helpers"
+import SelectCustom from "comp/Requerimientos/SelectCustom"
+import InputDateCustom from "comp/Common/InputDateCustom"
+import UploaderCustom from "comp/Requerimientos/UploaderCustom"
+import formValidation from "mixins/formValidation"
+import { warn } from "utils/helpers"
 
 export default {
   components: { SelectCustom, InputDateCustom, UploaderCustom },

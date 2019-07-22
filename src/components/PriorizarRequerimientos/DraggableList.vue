@@ -40,10 +40,10 @@
 <script>
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag } from "@utils/helpers"
-import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
-import ListRequerimientos from "@comp/Common/ListRequerimientos"
-// import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
+import { applyDrag } from "utils/helpers"
+import PriorizarRequerimientosItem from "comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
+import ListRequerimientos from "comp/Common/ListRequerimientos"
+// import RequerimientosPriorizarList from "models/RequerimientosPriorizarList"
 
 export default {
   name: "DraggableList",

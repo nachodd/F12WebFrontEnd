@@ -23,12 +23,12 @@
 </template>
 <script>
 import { mapState } from "vuex"
-import { warn } from "@utils/helpers"
-import PageHeader from "@comp/Common/PageHeader"
-import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
-import MisRequerimientosMenuFiltros from "@comp/MisRequerimientos/MisRequerimientosMenuFiltros"
-import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
-import Bus from "@utils/bus"
+import { warn } from "utils/helpers"
+import PageHeader from "comp/Common/PageHeader"
+import MisRequerimientosListado from "comp/MisRequerimientos/MisRequerimientosListado"
+import MisRequerimientosMenuFiltros from "comp/MisRequerimientos/MisRequerimientosMenuFiltros"
+import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
+import Bus from "utils/bus"
 
 export default {
   components: {

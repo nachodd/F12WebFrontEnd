@@ -1,6 +1,6 @@
 // import { required, alpha } from "vuelidate/lib/validators"
 import { date } from "quasar"
-import { getBase64FromInput, getBase64FromUrl } from "@utils/helpers"
+import { getBase64FromInput, getBase64FromUrl } from "utils/helpers"
 
 export default class Requerimiento {
   constructor(req = {}) {
