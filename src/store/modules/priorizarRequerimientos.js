@@ -23,8 +23,8 @@ const state = {
   requerimientos: [],
   changesRequerimientos: [],
 
-  reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
-  reqsAprobadosPriorizados: new RequerimientosPriorizarList([], true),
+  // reqsPendientesAprobacion: new RequerimientosPriorizarList([], false),
+  // reqsAprobadosPriorizados: new RequerimientosPriorizarList([], true),
 
   loadingReqsPendientesAprobacion: false,
   loadingReqsAprobadosPriorizados: false,
@@ -169,10 +169,10 @@ const getters = {
       return getters.requerimientosFiltered("APRV").length + 1
     }
   },
-  reqsPendientesAprobacionLength: state =>
-    state.reqsPendientesAprobacion.listLength,
-  reqsAprobadosPriorizadosLength: state =>
-    state.reqsAprobadosPriorizados.listLength,
+  // reqsPendientesAprobacionLength: state =>
+  //   state.reqsPendientesAprobacion.listLength,
+  // reqsAprobadosPriorizadosLength: state =>
+  //   state.reqsAprobadosPriorizados.listLength,
   esAutor: (state, getters, rootState, rootGetters) => {
     const userId = Number(rootGetters["auth/userId"])
     const reqUserId = Number(
@@ -304,42 +304,42 @@ const mutations = {
       "prioridad",
     ])
   },
-  UPDATE_LIST_PRIORITY: (state, listType) => {
-    // Obtengo la lista
-    let list =
-      listType === "pending"
-        ? [...state.reqsPendientesAprobacion.list]
-        : [...state.reqsAprobadosPriorizados.list]
-    // Actualizo la prioridad por indice (orden)
-    list = list.map((req, index) => {
-      req.prioridad = index + 1
-      return req
-    })
-    // Persisto los cambios localmente
-    listType === "pending"
-      ? (state.reqsPendientesAprobacion.list = list)
-      : (state.reqsAprobadosPriorizados.list = list)
-  },
-  UPDATE_LIST_ESTADO: (state, listType) => {
-    let list =
-      listType === "pending"
-        ? [...state.reqsPendientesAprobacion.list]
-        : [...state.reqsAprobadosPriorizados.list]
-    // Mapeo el valor del estado aca, porque si se produce un cambio de estado local
-    // (de pendiente a aprobado y vicerversa) el nuevo listado va a tener el valor correcto en el campo estado
-    list = list.map(req => {
-      if (listType === "approved") {
-        req.estado = { id: 2, descripcion: "Aprobado" }
-      } else {
-        req.estado = { id: 1, descripcion: "Pendiente aprobación" }
-      }
-      return req
-    })
-    // Persisto los cambios localmente
-    listType === "pending"
-      ? (state.reqsPendientesAprobacion.list = list)
-      : (state.reqsAprobadosPriorizados.list = list)
-  },
+  // UPDATE_LIST_PRIORITY: (state, listType) => {
+  //   // Obtengo la lista
+  //   let list =
+  //     listType === "pending"
+  //       ? [...state.reqsPendientesAprobacion.list]
+  //       : [...state.reqsAprobadosPriorizados.list]
+  //   // Actualizo la prioridad por indice (orden)
+  //   list = list.map((req, index) => {
+  //     req.prioridad = index + 1
+  //     return req
+  //   })
+  //   // Persisto los cambios localmente
+  //   listType === "pending"
+  //     ? (state.reqsPendientesAprobacion.list = list)
+  //     : (state.reqsAprobadosPriorizados.list = list)
+  // },
+  // UPDATE_LIST_ESTADO: (state, listType) => {
+  //   let list =
+  //     listType === "pending"
+  //       ? [...state.reqsPendientesAprobacion.list]
+  //       : [...state.reqsAprobadosPriorizados.list]
+  //   // Mapeo el valor del estado aca, porque si se produce un cambio de estado local
+  //   // (de pendiente a aprobado y vicerversa) el nuevo listado va a tener el valor correcto en el campo estado
+  //   list = list.map(req => {
+  //     if (listType === "approved") {
+  //       req.estado = { id: 2, descripcion: "Aprobado" }
+  //     } else {
+  //       req.estado = { id: 1, descripcion: "Pendiente aprobación" }
+  //     }
+  //     return req
+  //   })
+  //   // Persisto los cambios localmente
+  //   listType === "pending"
+  //     ? (state.reqsPendientesAprobacion.list = list)
+  //     : (state.reqsAprobadosPriorizados.list = list)
+  // },
   SET_LOADING_STATE_REQS_LISTS: (state, { listType, loadingState }) => {
     listType === "pending"
       ? (state.loadingReqsPendientesAprobacion = loadingState)
@@ -538,9 +538,9 @@ const actions = {
             listData: state.possibleChanges.sourceList,
           })
 
-          commit("UPDATE_LIST_PRIORITY", listType)
+          // commit("UPDATE_LIST_PRIORITY", listType)
 
-          commit("UPDATE_LIST_ESTADO", listType)
+          // commit("UPDATE_LIST_ESTADO", listType)
           // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
           const res = await dispatch(
             "persistChanges",
@@ -551,7 +551,7 @@ const actions = {
               listType,
               listData: sourceBackup,
             })
-            commit("UPDATE_LIST_ESTADO", listType)
+            // commit("UPDATE_LIST_ESTADO", listType)
           }
         }
       } else {
@@ -560,7 +560,7 @@ const actions = {
           listType,
           listData: state.possibleChanges.sourceList,
         })
-        commit("UPDATE_LIST_ESTADO", listType)
+        // commit("UPDATE_LIST_ESTADO", listType)
       }
       commit("CLEAR_OPERATIONS")
       resolve()

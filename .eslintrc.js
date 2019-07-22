@@ -32,6 +32,8 @@ module.exports = {
   // add your custom rules here
   // (example rules: https://github.com/prettier/prettier/issues/5844#issuecomment-462521665)
   rules: {
+    //"linebreak-style": ["error", (process.platform === "win32" ? "windows" : "unix")],
+    "linebreak-style": 0,
     "no-async-promise-executor": "off",
     "prefer-promise-reject-errors": "off",
     "no-empty": ["error", { allowEmptyCatch: true }],
