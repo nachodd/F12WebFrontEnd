@@ -6,7 +6,7 @@ import {
   updateRequerimiento,
 } from "api/requerimientos"
 
-import Requerimiento from "models/Requerimiento"
+import Requerimiento from "models/requerimiento"
 
 const state = {
   // Create
