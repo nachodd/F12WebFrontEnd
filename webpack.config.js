@@ -4,7 +4,7 @@
 // eslint-disable-next-line no-undef
 const path = require("path")
 // eslint-disable-next-line no-undef
-const webpack = require("webpack")
+// const webpack = require("webpack")
 
 // eslint-disable-next-line no-undef
 module.exports = {

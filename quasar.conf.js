@@ -1,13 +1,10 @@
-// eslint-disable-next-line no-undef
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
+
 const path = require("path")
-// eslint-disable-next-line no-undef
 const webpack = require("webpack")
-// eslint-disable-next-line no-undef
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 
-// var envparser = require("./envparser")
-
-// eslint-disable-next-line no-undef
 module.exports = function(ctx) {
   return {
     // app boot file (/src/boot)
@@ -176,7 +173,7 @@ module.exports = function(ctx) {
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",
-        theme_color: "#027be3",
+        theme_color: "#311b92",
         icons: [
           {
             src: "statics/icons/icon-128x128.png",
