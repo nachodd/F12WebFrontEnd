@@ -90,8 +90,8 @@
 
 <script>
 import { mapGetters, mapState } from "vuex"
-import formValidation from "@mixins/formValidation"
-import { warn, success } from "@utils/helpers"
+import formValidation from "mixins/formValidation"
+import { warn, success } from "utils/helpers"
 
 export default {
   name: "PriorizarRequerimientosActions",

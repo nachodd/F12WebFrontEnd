@@ -35,7 +35,7 @@
   </div>
 </template>
 <script>
-import { pSBC, changeHue } from "@utils/colorHelper"
+import { pSBC, changeHue } from "utils/colorHelper"
 export default {
   props: {
     loading: {

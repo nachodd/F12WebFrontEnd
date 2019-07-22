@@ -1,4 +1,4 @@
-import { login, logout, refresh, getUsuarioGestion } from "@api/user"
+import { login, logout, refresh, getUsuarioGestion } from "api/user"
 import {
   getToken,
   getExpiresIn,
@@ -6,9 +6,9 @@ import {
   expiresToUnixTS,
   setToken,
   removeToken,
-} from "@utils/auth"
-import { keysToCamel } from "@utils/helpers"
-import { resetRouter } from "@router"
+} from "utils/auth"
+import { keysToCamel } from "utils/helpers"
+import { resetRouter } from "router"
 // import * as types from "../mutation-types";
 
 // state

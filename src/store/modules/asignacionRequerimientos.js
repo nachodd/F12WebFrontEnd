@@ -5,15 +5,15 @@ import {
   refuseRequerimiento,
   pasarAProcesosRequerimiento,
   enviarAPriorizarRequerimiento,
-} from "@api/requerimientos"
-import Requerimiento from "@models/Requerimiento"
+} from "api/requerimientos"
+import Requerimiento from "models/Requerimiento"
 import {
   filterByAsuntoAndDescripcion,
   filterBySistema,
   filterByTipoRequerimiento,
   filterByUsuariosAsignados,
-} from "@utils/requerimientos"
-import { pipeWith } from "@utils/helpers"
+} from "utils/requerimientos"
+import { pipeWith } from "utils/helpers"
 
 const state = {
   requerimientos: [],

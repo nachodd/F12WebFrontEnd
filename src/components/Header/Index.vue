@@ -131,7 +131,7 @@
 </template>
 <script>
 import { mapActions, mapGetters, mapState } from "vuex"
-import NotificacionItem from "@comp/Header/NotificacionItem"
+import NotificacionItem from "comp/Header/NotificacionItem"
 
 export default {
   name: "Header",

@@ -40,9 +40,9 @@
 <script>
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag, warn } from "@utils/helpers"
-import RequerimientosAsignadosItem from "@comp/RequerimientosAsignados/RequerimientosAsignadosItem"
-import ListRequerimientos from "@comp/Common/ListRequerimientos"
+import { applyDrag, warn } from "utils/helpers"
+import RequerimientosAsignadosItem from "comp/RequerimientosAsignados/RequerimientosAsignadosItem"
+import ListRequerimientos from "comp/Common/ListRequerimientos"
 
 export default {
   name: "DraggableList",

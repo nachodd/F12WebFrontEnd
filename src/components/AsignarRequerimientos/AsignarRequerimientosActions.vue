@@ -204,9 +204,9 @@
 
 <script>
 import { mapGetters, mapState } from "vuex"
-import formValidation from "@mixins/formValidation"
-import { warn, success } from "@utils/helpers"
-import InputDateCustom from "@comp/Common/InputDateCustom"
+import formValidation from "mixins/formValidation"
+import { warn, success } from "utils/helpers"
+import InputDateCustom from "comp/Common/InputDateCustom"
 
 export default {
   name: "AsignarRequerimientosActions",

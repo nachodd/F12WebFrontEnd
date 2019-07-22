@@ -6,15 +6,15 @@ import {
   enviarATestingRequerimiento,
   pausarRequerimiento,
   reanudarRequerimiento,
-} from "@api/requerimientos"
+} from "api/requerimientos"
 import {
   filterByAsuntoAndDescripcion,
   filterBySistema,
   filterByTipoRequerimiento,
   // filterByUsuariosAsignados,
   // UpdatePendingPayloadPriorizarReq,
-} from "@utils/requerimientos"
-import { pipeWith } from "@utils/helpers"
+} from "utils/requerimientos"
+import { pipeWith } from "utils/helpers"
 
 const state = {
   requerimientos: [],

@@ -120,7 +120,7 @@
   </q-uploader>
 </template>
 <script>
-import AdjuntoCard from "@comp/Common/AdjuntoCard"
+import AdjuntoCard from "comp/Common/AdjuntoCard"
 
 export default {
   components: { AdjuntoCard },

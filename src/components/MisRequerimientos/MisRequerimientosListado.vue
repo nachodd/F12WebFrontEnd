@@ -14,10 +14,10 @@
   </list-container>
 </template>
 <script>
-import ListContainer from "@comp/Common/ListContainer"
+import ListContainer from "comp/Common/ListContainer"
 import MisRequerimientosItem from "./MisRequerimientosItem"
 import { mapActions } from "vuex"
-import pageLoading from "@mixins/pageLoading"
+import pageLoading from "mixins/pageLoading"
 
 export default {
   name: "MisRequerimientosListado",

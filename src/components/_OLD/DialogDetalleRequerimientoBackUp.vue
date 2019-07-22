@@ -288,11 +288,11 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import { date } from "quasar"
-import formValidation from "@mixins/formValidation"
-import priorityColor from "@mixins/priorityColor"
-import ChipLarge from "@comp/Common/ChipLarge"
-import Note from "@comp/Common/Note"
-import { warn, success } from "@utils/helpers"
+import formValidation from "mixins/formValidation"
+import priorityColor from "mixins/priorityColor"
+import ChipLarge from "comp/Common/ChipLarge"
+import Note from "comp/Common/Note"
+import { warn, success } from "utils/helpers"
 
 export default {
   name: "DialogDetalleRequerimiento",

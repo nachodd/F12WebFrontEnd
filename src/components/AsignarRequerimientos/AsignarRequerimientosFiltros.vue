@@ -135,7 +135,7 @@
   </div>
 </template>
 <script>
-import SelectCustom from "@comp/Requerimientos/SelectCustom"
+import SelectCustom from "comp/Requerimientos/SelectCustom"
 import { mapState, mapGetters } from "vuex"
 export default {
   name: "MisRequerimientosMenuFiltros",

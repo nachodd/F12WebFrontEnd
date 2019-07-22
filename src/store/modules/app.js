@@ -3,8 +3,8 @@ import {
   getDashboardData,
   checkNotificaciones,
   readNotificaciones,
-} from "@api/user"
-import Notificacion from "@models/notificacion"
+} from "api/user"
+import Notificacion from "models/notificacion"
 import { date } from "quasar"
 
 const LIMIT_NOTIFICACIONES_SHOWED = 5

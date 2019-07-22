@@ -77,8 +77,8 @@
 </template>
 
 <script>
-// import { warn, success } from "@utils/helpers
-import CrearEditarRequerimiento from "@comp/Requerimientos/CrearEditarRequerimiento"
+// import { warn, success } from "utils/helpers
+import CrearEditarRequerimiento from "comp/Requerimientos/CrearEditarRequerimiento"
 import { mapState } from "vuex"
 
 export default {

@@ -1,8 +1,8 @@
 /* eslint-disable require-atomic-updates */
 import axios from "axios"
-import store from "@store"
-import router from "@router"
-import { warn, warnDialogParse } from "@utils/helpers"
+import store from "store"
+import router from "router"
+import { warn, warnDialogParse } from "utils/helpers"
 
 // import jwt_decode from "jwt-decode"
 

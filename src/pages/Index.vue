@@ -72,8 +72,8 @@
 </template>
 
 <script>
-import PageHeader from "@comp/Common/PageHeader"
-import WidgetSimple from "@comp/Inicio/WidgetSimple"
+import PageHeader from "comp/Common/PageHeader"
+import WidgetSimple from "comp/Inicio/WidgetSimple"
 import { mapGetters, mapState } from "vuex"
 
 export default {

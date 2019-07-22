@@ -65,10 +65,10 @@
 <script>
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag } from "@utils/helpers"
-import ListRequerimientos from "@comp/Common/ListRequerimientos"
-import AsignarRequerimientosItem from "@comp/AsignarRequerimientos/AsignarRequerimientosItem"
-import { success, warn } from "@utils/helpers"
+import { applyDrag } from "utils/helpers"
+import ListRequerimientos from "comp/Common/ListRequerimientos"
+import AsignarRequerimientosItem from "comp/AsignarRequerimientos/AsignarRequerimientosItem"
+import { success, warn } from "utils/helpers"
 
 export default {
   name: "AsignarRequerimientosList",

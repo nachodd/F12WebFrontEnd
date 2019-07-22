@@ -52,12 +52,12 @@
 
 <script>
 import { mapGetters, mapState } from "vuex"
-import PageHeader from "@comp/Common/PageHeader"
-import pageLoading from "@mixins/pageLoading"
-import DraggableList from "@comp/PriorizarRequerimientos/DraggableList"
-import DialogConfirmOperation from "@comp/PriorizarRequerimientos/DialogConfirmOperation"
-import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
-import PriorizarRequerimientosFiltros from "@comp/PriorizarRequerimientos/PriorizarRequerimientosFiltros"
+import PageHeader from "comp/Common/PageHeader"
+import pageLoading from "mixins/pageLoading"
+import DraggableList from "comp/PriorizarRequerimientos/DraggableList"
+import DialogConfirmOperation from "comp/PriorizarRequerimientos/DialogConfirmOperation"
+import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
+import PriorizarRequerimientosFiltros from "comp/PriorizarRequerimientos/PriorizarRequerimientosFiltros"
 
 export default {
   name: "PriorizarRequerimientos",

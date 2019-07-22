@@ -1,5 +1,5 @@
-import { getToken } from "@utils/auth"
-// import { checkPermission } from "@utils/permission"
+import { getToken } from "utils/auth"
+// import { checkPermission } from "utils/permission"
 // NOTE: tal vez, si es necesario mas adelanet, se podria armar una funcion similar a la checkPermission pero qeu chequee si tiene o no determinada responsabilidad
 
 const whiteList = ["/login", "/login-horus", "/refresh", "/register"] // no redirect whitelist
