@@ -12,7 +12,7 @@
 import { mapState } from "vuex"
 import pageLoading from "mixins/pageLoading"
 import RequerimientoForm from "comp/Requerimientos/RequerimientosForm"
-import Requerimiento from "models/Requerimiento"
+import Requerimiento from "models/requerimiento"
 import { warn, success, warnDialog } from "utils/helpers"
 import Bus from "utils/bus"
 import { getRequerimiento } from "api/requerimientos"

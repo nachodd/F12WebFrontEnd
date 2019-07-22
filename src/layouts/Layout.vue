@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import F12Header from "comp/Header"
-import F12Sidebar from "comp/Sidebar"
+import F12Header from "comp/Header/Index"
+import F12Sidebar from "comp/Sidebar/Index"
 import FabCrudModal from "comp/Requerimientos/FabCrudModal"
 
 export default {

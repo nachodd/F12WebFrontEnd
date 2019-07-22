@@ -1,5 +1,5 @@
-import RequerimientosPriorizarList from "models/RequerimientosPriorizarList"
-// import Requerimiento from "models/Requerimiento"
+import RequerimientosPriorizarList from "models/requerimientosPriorizarList"
+// import Requerimiento from "models/requerimiento"
 
 import {
   getRequerimientosByUserAndEstado,
