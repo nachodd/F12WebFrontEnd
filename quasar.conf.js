@@ -3,6 +3,7 @@ const path = require("path")
 // eslint-disable-next-line no-undef
 const webpack = require("webpack")
 // eslint-disable-next-line no-undef
+const CopyWebpackPlugin = require("copy-webpack-plugin")
 
 // var envparser = require("./envparser")
 
@@ -126,6 +127,8 @@ module.exports = function(ctx) {
             _: "lodash",
           }),
         )
+
+        cfg.plugins.push(new CopyWebpackPlugin([{ from: "src-pwa/.htaccess" }]))
 
         cfg.resolve.alias = {
           ...cfg.resolve.alias, // This adds the existing alias
