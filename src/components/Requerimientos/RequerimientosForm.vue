@@ -49,6 +49,12 @@
       @filesRemoved="handleFilesRemoved"
     />
 
+    <!-- <div v-if="esDeSistemasOProcesos" class="row">
+      <div class="col-12">
+        test
+      </div>
+    </div> -->
+
     <div>
       <q-list link>
         <q-item v-ripple tag="label" class="list-item--narrow">
@@ -124,7 +130,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import SelectCustom from "comp/Requerimientos/SelectCustom"
 import InputDateCustom from "comp/Common/InputDateCustom"
 import UploaderCustom from "comp/Requerimientos/UploaderCustom"
@@ -238,6 +244,7 @@ export default {
       loadingOptions: state => state.loadingOptions,
       loadingRequerimiento: state => state.loadingRequerimiento,
     }),
+    ...mapGetters("auth", ["esDeSistemasOProcesos"]),
     submitText() {
       return this.id ? "Editar Requerimiento" : "Cargar Requerimiento"
     },

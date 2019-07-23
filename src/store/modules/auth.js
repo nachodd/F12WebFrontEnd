@@ -81,6 +81,8 @@ const getters = {
     _.filter([8, 16, 36, 37, 48], id => id == state.userArea.id).length > 0,
   userEsResponsableDeProcesos: state =>
     _.find(state.userSistemas, { id: 13 }) !== undefined,
+  esDeSistemasOProcesos: state =>
+    _.filter([36, 48], id => id == state.userArea.id).length > 0,
 }
 
 // mutations
