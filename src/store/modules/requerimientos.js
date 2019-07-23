@@ -4,6 +4,7 @@ import {
   listRequerimientos,
   getRequerimiento,
   updateRequerimiento,
+  getGerentes,
 } from "api/requerimientos"
 
 import Requerimiento from "models/requerimiento"
@@ -101,21 +102,26 @@ const mutations = {
 }
 
 const actions = {
-  createRequerimiento({ commit, state }) {
+  createRequerimiento({ commit, rootGetters, state, rootState }) {
     return new Promise(async (resolve, reject) => {
       try {
         const { sistemas, requerimientosTipos } = state.options
         commit("SET_LOADING_OPTS", true)
         commit("SET_LOADING_REQ", true)
         commit("app/LOADING_INC", null, { root: true })
-        if (sistemas.length && requerimientosTipos.length) {
-          resolve()
-        } else {
+
+        if (sistemas.length === 0 && requerimientosTipos.length === 0) {
           // destructuring value: https://medium.com/@pyrolistical/destructuring-nested-objects-9dabdd01a3b8
           const { data } = await createRequerimiento()
           commit("SET_OPTIONS", data)
-          resolve()
         }
+
+        const isSisOProc = rootGetters["auth/esDeSistemasOProcesos"]
+        if (isSisOProc && rootState.auth.gerentes.length === 0) {
+          const gerentes = await getGerentes()
+          commit("auth/SET_GERENTES", gerentes, { root: true })
+        }
+        resolve()
       } catch (error) {
         reject(error)
       } finally {

@@ -45,6 +45,7 @@ export default class Requerimiento {
     this.requerimientoProcesos = req.requerimiento_procesos
       ? req.requerimiento_procesos
       : null
+    this.usuarioCadena = req.usuario_cadena ? req.usuario_cadena : null
   }
 
   // get name() {

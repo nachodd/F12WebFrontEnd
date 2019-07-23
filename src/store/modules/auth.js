@@ -24,6 +24,7 @@ const state = {
     pares: [],
   },
   userSistemas: [],
+  gerentes: [],
   // roles: [],
 }
 
@@ -83,6 +84,10 @@ const getters = {
     _.find(state.userSistemas, { id: 13 }) !== undefined,
   esDeSistemasOProcesos: state =>
     _.filter([36, 48], id => id == state.userArea.id).length > 0,
+  gerentesOrderByArea: state => {
+    // return _.groupBy(state.gerentes, "area.descripcion")
+    return _.orderBy(state.gerentes, ["area.descripcion", "razon_social"])
+  },
 }
 
 // mutations
@@ -126,6 +131,9 @@ const mutations = {
       state.userVinculacion.reportantes = keysToCamel(userData.reportantes)
       state.userVinculacion.pares = keysToCamel(userData.pares)
     }
+  },
+  SET_GERENTES: (state, data) => {
+    state.gerentes = data
   },
   // SET_ROLES: (state, roles) => {
   //   state.roles = roles
