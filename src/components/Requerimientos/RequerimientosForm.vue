@@ -31,6 +31,7 @@
       outlined
       :loading="requerimientosTipos.length === 0"
       :apply-validation="true"
+      @input="handleTipoChange"
     />
 
     <q-input
@@ -49,12 +50,26 @@
       @filesRemoved="handleFilesRemoved"
     />
 
+    <!-- usuario cadena -->
     <div v-if="esDeSistemasOProcesos">
       <q-list link>
-        <q-item v-ripple tag="label" class="list-item--narrow">
+        <q-item
+          v-ripple
+          tag="label"
+          class="list-item--narrow"
+          :disable="llevaUsuarioCadenaDisabled"
+        >
+          <q-tooltip
+            v-if="llevaUsuarioCadenaDisabled"
+            content-class="text-caption"
+          >
+            Solo aplicable cuando el Tipo de Requerimiento es "Desarrllos /
+            Modificaciones / Implementaciones"
+          </q-tooltip>
           <q-item-section avatar>
             <q-checkbox
               v-model="__llevaUsuarioCadena"
+              :disable="llevaUsuarioCadenaDisabled"
               left-label
               color="accent"
             />
@@ -83,7 +98,8 @@
                         {{ scope.opt.razon_social }}
                       </q-item-label>
                       <q-item-label caption>
-                        Area: {{ scope.opt.area.descripcion }}
+                        Area: {{ scope.opt.area.descripcion }} -
+                        {{ scope.opt.nivel }}
                       </q-item-label>
                     </q-item-section>
                   </q-item>
@@ -95,6 +111,7 @@
       </q-list>
     </div>
 
+    <!-- fecha limite -->
     <div>
       <q-list link>
         <q-item v-ripple tag="label" class="list-item--narrow">
@@ -306,6 +323,9 @@ export default {
         }
       },
     },
+    llevaUsuarioCadenaDisabled() {
+      return this.__tipo === null || (this.__tipo && this.__tipo.id !== 2)
+    },
     ...mapState("requerimientos", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
@@ -330,10 +350,21 @@ export default {
         this.__llevaFechaLimite = true
       }
     },
+    __tipo(tipo) {
+      if (tipo === null || (tipo && tipo.id !== 2)) {
+        this.__llevaUsuarioCadena = false
+      }
+    },
     // llevaFechaLimite(val) {
     // },
   },
   methods: {
+    handleTipoChange() {
+      // if (this.llevaUsuarioCadenaDisabled) {
+      //   debugger
+      //   this.__llevaUsuarioCadena = false
+      // }
+    },
     handleFilesAdded(files) {
       files.forEach(file => {
         const isInArray = _.find(this.adjuntos, { name: file.name })

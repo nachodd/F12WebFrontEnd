@@ -10,7 +10,7 @@
     :option-label="descriptionKey"
     :options="filteredOptions"
     :loading="loading"
-    :disable="loading"
+    :disable="disable || loading"
     :dense="dense"
     :rules="rules"
     :color="color"
@@ -63,6 +63,10 @@ export default {
     loading: {
       type: Boolean,
       default: true,
+    },
+    disable: {
+      type: Boolean,
+      default: false,
     },
     dense: {
       type: Boolean,

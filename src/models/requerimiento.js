@@ -83,7 +83,7 @@ export default class Requerimiento {
       )
     }
 
-    return {
+    const payload = {
       asunto: this.asunto,
       descripcion: this.descripcion,
       // area: this.area ? this.area.id : null,
@@ -91,10 +91,13 @@ export default class Requerimiento {
       requerimiento_tipo: this.tipo ? this.tipo.id : null,
       fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
-      // importante: +this.importante, // + to Parse Boolean to Number
       prioridad: this.prioridad,
       adjuntos: filesBase64,
     }
+    if (this.usuarioCadena !== null) {
+      payload.usuario_cadena = this.usuarioCadena
+    }
+    return payload
   }
 
   async toUpdatePayload() {
@@ -110,6 +113,9 @@ export default class Requerimiento {
       fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
       prioridad: this.prioridad,
+    }
+    if (this.usuarioCadena !== null) {
+      payload.usuario_cadena = this.usuarioCadena
     }
 
     // Cheuqeo si hubo cambios en los archivos:
