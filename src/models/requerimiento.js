@@ -42,8 +42,8 @@ export default class Requerimiento {
     this.usuario = req.usuario ? req.usuario : null
     this.comentario = req.comentario ? req.comentario : null
     this.movimientos = req.movimientos ? req.movimientos : []
-    this.requerimientoProcesos = req.requerimiento_procesos
-      ? req.requerimiento_procesos
+    this.requerimientoAsociado = req.requerimiento_asociado
+      ? req.requerimiento_asociado
       : null
     this.usuarioCadena = req.usuario_cadena ? req.usuario_cadena : null
   }
@@ -68,7 +68,7 @@ export default class Requerimiento {
   }
 
   get fueEnviadoAProcesos() {
-    return this.requerimientoProcesos !== null
+    return this.requerimientoAsociado !== null
   }
 
   async toCreatePayload() {
@@ -180,6 +180,22 @@ export default class Requerimiento {
       TEST: 10,
     }
     return arrEstados[codigo] || null
+  }
+
+  static getEstadoCodigo(id) {
+    const arrIds = {
+      1: "PEND",
+      2: "APRV",
+      3: "NOAS",
+      4: "ASSI",
+      5: "EXEC",
+      6: "RESC",
+      7: "REJC",
+      8: "INGR",
+      9: "STPR",
+      10: "TEST",
+    }
+    return arrIds[id] || null
   }
 
   // Vuelidate validations

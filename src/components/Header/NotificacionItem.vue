@@ -30,6 +30,9 @@ export default {
         case "Asignar Requerimiento":
           return "fas fa-mouse-pointer"
 
+        case "Asignar Requerimiento Externo":
+          return "fas fa-mouse-pointer"
+
         case "Cambio Tipo Requerimiento":
           return "fas fa-random"
 
@@ -58,6 +61,9 @@ export default {
     to() {
       switch (this.notif.type) {
         case "Asignar Requerimiento":
+          return "asignar-requerimientos"
+
+        case "Asignar Requerimiento Externo":
           return "asignar-requerimientos"
 
         case "Cambio Tipo Requerimiento":
