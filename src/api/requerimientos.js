@@ -174,6 +174,14 @@ export function enviarATestingRequerimiento(requerimientoId, data) {
   })
 }
 
+export function cancelarTestingRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/cancelartesting`,
+    method: "put",
+    data,
+  })
+}
+
 export function pausarRequerimiento(requerimientoId, data) {
   return request({
     url: `v1/f12/requerimientos/${requerimientoId}/pausar`,
