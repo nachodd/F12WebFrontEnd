@@ -1,5 +1,6 @@
 <template>
   <q-select
+    ref="select"
     v-model="localValue"
     :outlined="outlined"
     :standout="standout"
@@ -9,7 +10,7 @@
     :option-label="descriptionKey"
     :options="filteredOptions"
     :loading="loading"
-    :disable="loading"
+    :disable="disable || loading"
     :dense="dense"
     :rules="rules"
     :color="color"
@@ -25,6 +26,16 @@
         @click.stop="$emit('input', null)"
       />
     </template>
+
+    <!-- override only "option" v-scoped-slot: -->
+    <template v-if="$scopedSlots.option" v-slot:option="scope">
+      <slot name="option" v-bind="scope" />
+    </template>
+
+    <!-- override ALL v-scoped-slot's -->
+    <!-- <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+      <slot :name="slot" v-bind="scope" />
+    </template> -->
   </q-select>
 </template>
 <script>
@@ -52,6 +63,10 @@ export default {
     loading: {
       type: Boolean,
       default: true,
+    },
+    disable: {
+      type: Boolean,
+      default: false,
     },
     dense: {
       type: Boolean,
@@ -118,6 +133,9 @@ export default {
     // },
   },
   methods: {
+    resetValidation() {
+      this.$refs.select.resetValidation()
+    },
     filterFunction(val, update) {
       if (val === "") {
         update(() => {

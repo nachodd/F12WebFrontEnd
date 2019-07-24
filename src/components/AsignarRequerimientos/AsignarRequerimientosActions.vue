@@ -485,7 +485,18 @@ export default {
           comentario: this.comment,
         })
         .then(message => {
-          if (message) success({ message })
+          if (message) {
+            success({ message })
+          } else {
+            // TODO: implementar el resto de los mensajes de success aca en el front
+            let msg = ""
+            switch (this.operation) {
+              case "aProcesos":
+                msg = `Requerimiento #${this.req.id} enviado A PROCESOS`
+                break
+            }
+            if (msg) success({ message: msg })
+          }
           this.operation = null
           this.usuarioAsignado = null
           this.fechaFinalizacion = null

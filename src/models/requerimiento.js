@@ -42,9 +42,10 @@ export default class Requerimiento {
     this.usuario = req.usuario ? req.usuario : null
     this.comentario = req.comentario ? req.comentario : null
     this.movimientos = req.movimientos ? req.movimientos : []
-    this.requerimientoProcesos = req.requerimiento_procesos
-      ? req.requerimiento_procesos
+    this.requerimientoAsociado = req.requerimiento_asociado
+      ? req.requerimiento_asociado
       : null
+    this.usuarioCadena = req.usuario_cadena ? req.usuario_cadena : null
   }
 
   // get name() {
@@ -67,7 +68,7 @@ export default class Requerimiento {
   }
 
   get fueEnviadoAProcesos() {
-    return this.requerimientoProcesos !== null
+    return this.requerimientoAsociado !== null
   }
 
   async toCreatePayload() {
@@ -82,7 +83,7 @@ export default class Requerimiento {
       )
     }
 
-    return {
+    const payload = {
       asunto: this.asunto,
       descripcion: this.descripcion,
       // area: this.area ? this.area.id : null,
@@ -90,10 +91,13 @@ export default class Requerimiento {
       requerimiento_tipo: this.tipo ? this.tipo.id : null,
       fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
-      // importante: +this.importante, // + to Parse Boolean to Number
       prioridad: this.prioridad,
       adjuntos: filesBase64,
     }
+    if (this.usuarioCadena !== null) {
+      payload.usuario_cadena = this.usuarioCadena
+    }
+    return payload
   }
 
   async toUpdatePayload() {
@@ -109,6 +113,9 @@ export default class Requerimiento {
       fecha_limite: fechaLimite,
       motivo_limite: this.motivoLimite,
       prioridad: this.prioridad,
+    }
+    if (this.usuarioCadena !== null) {
+      payload.usuario_cadena = this.usuarioCadena
     }
 
     // Cheuqeo si hubo cambios en los archivos:
@@ -173,6 +180,22 @@ export default class Requerimiento {
       TEST: 10,
     }
     return arrEstados[codigo] || null
+  }
+
+  static getEstadoCodigo(id) {
+    const arrIds = {
+      1: "PEND",
+      2: "APRV",
+      3: "NOAS",
+      4: "ASSI",
+      5: "EXEC",
+      6: "RESC",
+      7: "REJC",
+      8: "INGR",
+      9: "STPR",
+      10: "TEST",
+    }
+    return arrIds[id] || null
   }
 
   // Vuelidate validations

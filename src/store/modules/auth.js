@@ -18,12 +18,14 @@ const state = {
   refreshToken: getRefreshToken(),
   user: null,
   userArea: {},
+  userNivel: "",
   userVinculacion: {
     jefes: [],
     reportantes: [],
     pares: [],
   },
   userSistemas: [],
+  gerentes: [],
   // roles: [],
 }
 
@@ -69,6 +71,15 @@ const getters = {
     const users = [...getters.userReportantes, ...getters.userPares]
     return _.orderBy(users, ["label"], ["asc"])
   },
+  userYoParesYReportantes: (state, getters) => {
+    const users = [...getters.userParesYReportantes]
+    const currentUser = state.user || {}
+    users.push({
+      label: currentUser.razonSocial,
+      value: currentUser.id,
+    })
+    return _.orderBy(users, ["label"], ["asc"])
+  },
   hasJefes: (state, getters) =>
     getters.userJefes && getters.userJefes.length > 0,
   hasReportantes: (state, getters) =>
@@ -77,12 +88,26 @@ const getters = {
   esElUltimoDeLaCadenaDeMando: (state, getters) => !getters.hasReportantes,
   userSistemas: state => state.userSistemas,
   userEsResponsable: state => state.userSistemas.length > 0,
-  puedeVerRequerimientosAsignados: state =>
-    _.filter([8, 16, 36, 37, 48], id => id == state.userArea.id).length > 0,
+  puedeVerRequerimientosAsignados: state => {
+    // valiamos que el area a la que pertece el usuario sea una de las areas a las cuales se les pueden asignar requerimientos
+    const userPerteneceAreaConReqsAsignables =
+      _.filter([8, 16, 36, 37, 48], id => id == state.userArea.id).length > 0
+    // y que ademas el usuario en cuestion no sea gerente ni presidente:
+    return (
+      userPerteneceAreaConReqsAsignables &&
+      state.userNivel !== "Gerente" &&
+      state.userNivel !== "Presidente"
+    )
+  },
+
   userEsResponsableDeProcesos: state =>
     _.find(state.userSistemas, { id: 13 }) !== undefined,
   esDeSistemasOProcesos: state =>
     _.filter([36, 48], id => id == state.userArea.id).length > 0,
+  gerentesOrderByArea: state => {
+    // return _.groupBy(state.gerentes, "area.descripcion")
+    return _.orderBy(state.gerentes, ["area.descripcion", "razon_social"])
+  },
 }
 
 // mutations
@@ -107,6 +132,7 @@ const mutations = {
       state.userVinculacion.reportantes = []
       state.userVinculacion.pares = []
       state.userSistemas = []
+      state.userNivel = ""
     } else {
       const user = {}
       {
@@ -125,7 +151,11 @@ const mutations = {
       state.userVinculacion.jefes = keysToCamel(userData.jefes)
       state.userVinculacion.reportantes = keysToCamel(userData.reportantes)
       state.userVinculacion.pares = keysToCamel(userData.pares)
+      state.userNivel = userData.nivel
     }
+  },
+  SET_GERENTES: (state, data) => {
+    state.gerentes = data
   },
   // SET_ROLES: (state, roles) => {
   //   state.roles = roles

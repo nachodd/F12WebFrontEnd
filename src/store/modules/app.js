@@ -45,13 +45,13 @@ const getters = {
   notificacionesRead: state =>
     _(state.notificaciones)
       .filter({ leida: true })
-      .orderBy(["_read_at"], ["desc"])
+      .orderBy(["_created_at"], ["desc"])
       .take(state.limitRead)
       .value(),
   notificacionesUnread: state =>
     _(state.notificaciones)
       .filter({ leida: false })
-      .orderBy(["_read_at"], ["desc"])
+      .orderBy(["_created_at"], ["desc"])
       .take(state.limitUnread)
       .value(),
   notificacionesUnreadCount: state =>
@@ -123,7 +123,7 @@ const mutations = {
     state.loadingDashboard = value
   },
   FLUSH_NOTIFICACIONES: state => {
-    state.notificacion = []
+    state.notificaciones = []
   },
   SET_NOTIFICACIONES: (state, notificaciones) => {
     _.each(notificaciones, n => {

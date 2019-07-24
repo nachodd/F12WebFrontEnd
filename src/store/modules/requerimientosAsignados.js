@@ -4,6 +4,7 @@ import {
   cancelaEjecucionRequerimiento,
   finalizarRequerimiento,
   enviarATestingRequerimiento,
+  cancelarTestingRequerimiento,
   pausarRequerimiento,
   reanudarRequerimiento,
 } from "api/requerimientos"
@@ -248,13 +249,13 @@ const mutations = {
   },
   UPDATE_REQ_ESTADO_ASSIGNED: (state, reqId) => {
     const req = state.requerimientos.find(r => r.id === reqId)
-    req.estado = { id: 4, descripcion: "Asignado" }
+    req.estado = { ...req.estado, id: 4, descripcion: "Asignado" }
     req.estado.asignacion_testing = null
     req.estado.pausado = false
   },
   UPDATE_REQ_ESTADO_INEXCEC: (state, reqId) => {
     const req = state.requerimientos.find(r => r.id === reqId)
-    req.estado = { id: 5, descripcion: "En ejecución" }
+    req.estado = { ...req.estado, id: 5, descripcion: "En ejecución" }
     req.estado.asignacion_testing = null
     req.estado.pausado = false
   },
@@ -264,7 +265,7 @@ const mutations = {
   },
   UPDATE_REQ_ESTADO_TESTING: (state, { reqId, usuarioTesting }) => {
     const req = state.requerimientos.find(r => r.id === reqId)
-    req.estado = { id: 10, descripcion: "Testing" }
+    req.estado = { ...req.estado, id: 10, descripcion: "Testing" }
     req.estado.asignacion_testing = {
       usuario_id: usuarioTesting.value,
       usuario_nombre: usuarioTesting.label,
@@ -273,7 +274,6 @@ const mutations = {
   UPDATE_REQ_ESTADO_FINISH: (state, reqId) => {
     const index = _.findIndex(state.requerimientos, { id: reqId })
     state.requerimientos.splice(index, 1)
-    // _.remove(state.requerimientos, )
   },
 
   SET_FILTROS: (state, { filter, value }) => {
@@ -376,7 +376,7 @@ const actions = {
   },
 
   processManualChanges(
-    { commit, dispatch, rootState },
+    { commit, dispatch, rootState, rootGetters },
     { operation, comment, horasEstimadas, usuarioTesting },
   ) {
     return new Promise(async (resolve, reject) => {
@@ -454,20 +454,22 @@ const actions = {
             break
           }
           case "devolverADesarrollo": {
-            // FIXME: el endpoint de asignacion no estaria sirviendo,
-            // TODO: si yo NO soy el asignado al req, deberia BORRARLO del array de requerimientos, sino va a ir a parar a mi panel
-            //const dataAsignar = {
-            //  usuario: requerimientoItem.usuario.id,
-            //  usuario_asignado: requerimientoItem.estado.asignacion.usuario_id,
-            //  comentario: comment,
-            //  orden: requerimientoItem.estado.asignacion.orden
-            //}
-            //const res = await asignarRequerimiento(
-            //  requerimientoItem.id,
-            //  dataAsignar,
-            //)
-            // commit("UPDATE_REQ_ESTADO_ASSIGNED", requerimientoItem.id)
+            await cancelarTestingRequerimiento(requerimientoItem.id, {
+              comentario: comment,
+            })
+            // si yo SI soy el asignado al req, debo cambiar el estado y sacar el usuario_testing
+            const currentUserId = rootGetters["auth/userId"]
+            const reqUsuarioId = requerimientoItem.estado.asignacion.usuario_id
+            if (currentUserId === reqUsuarioId) {
+              commit("UPDATE_REQ_ESTADO_ASSIGNED", requerimientoItem.id)
+            }
+            // si yo NO soy el asignado al req, debo BORRARLO del array de requerimientos, sino va a ir a parar a mi panel
+            else {
+              commit("UPDATE_REQ_ESTADO_FINISH", requerimientoItem.id)
+            }
             dispatch("app/getDashboardData", null, { root: true })
+            resolve()
+            break
           }
         }
       } catch (e) {

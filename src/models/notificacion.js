@@ -7,6 +7,9 @@ export default class Notificacion {
     this._read_at = notif.notification_read_at
       ? notif.notification_read_at
       : null
+    // this.read_at_date = notif.notification_read_at
+    //   ? new Date(notif.notification_read_at)
+    //   : null
     this.read_at =
       notif.notification_read_at && date.isValid(notif.notification_read_at)
         ? date.formatDate(notif.notification_read_at, "HH:mm DD/MM")
@@ -15,6 +18,9 @@ export default class Notificacion {
     this._created_at = notif.notification_created_at
       ? notif.notification_created_at
       : null
+    // this.created_at_date = notif.notification_created_at
+    //   ? new Date(notif.notification_created_at)
+    //   : null
     this.created_at =
       notif.notification_created_at &&
       date.isValid(notif.notification_created_at)

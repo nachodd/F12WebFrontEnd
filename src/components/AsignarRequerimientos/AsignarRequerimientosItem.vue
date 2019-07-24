@@ -7,7 +7,7 @@
     }"
     :style="{ background: bgCardColor }"
   >
-    <div v-if="estadoEnProcesos" class="row card__process-row">
+    <!-- <div v-if="reqFueEnviadoAProcesos" class="row card__process-row">
       <div class="col-12 text-right">
         <template v-if="estadoProcesos.codigo === 'NOAS'">
           <div class="card__process-ind">&nbsp;</div>
@@ -36,7 +36,7 @@
         Estado Procesos:
         <strong>{{ estadoProcesos.descripcion }}</strong>
       </q-tooltip>
-    </div>
+    </div> -->
 
     <div class="row">
       <div class="col-12">
@@ -92,15 +92,20 @@
         <q-item-label v-if="req.fueEnviadoAProcesos">
           <span class="card__text-body">
             <q-icon name="fas fa-cogs" class="vertical-top q-mr-xs q-pl-xs" />
-            Req. Procesos
-            <strong>#{{ reqProcesosId }}</strong>
-            ({{ reqProcesosEstado }})
-            <q-tooltip>
-              - Requerimiento Asociado en Procesos:
-              <strong>#{{ reqProcesosId }}</strong>
+            Req. Asociado
+            <strong>#{{ reqAsociadoId }}</strong>
+            ({{ reqAsociadoEstadoDescripcion }})
+            <q-tooltip content-class="text-caption">
+              - Requerimiento Asociado Nro:
+              <strong>#{{ reqAsociadoId }}</strong>
               <br />
               - Estado:
-              <strong>{{ reqProcesosEstado }}</strong>
+              <strong>{{ reqAsociadoEstadoDescripcion }}</strong>
+              <span v-if="reqAsociadoUsuario !== null">
+                <br />
+                - Usuario Asignado:
+                <strong>{{ reqAsociadoUsuario }}</strong>
+              </span>
             </q-tooltip>
           </span>
         </q-item-label>
@@ -157,13 +162,10 @@
           #{{ req.id }}
         </q-badge>
       </div>
-      <div
-        v-if="!esArregloRapido && (estadoNoAsignado || estadoEnProcesos)"
-        class="col-9 text-right"
-      >
-        <q-badge v-if="estadoEnProcesos" color="green-7" text-color="white">
+      <div v-if="!esArregloRapido && estadoNoAsignado" class="col-9 text-right">
+        <!-- <q-badge v-if="estadoEnProcesos" color="green-7" text-color="white">
           EN PROCESOS
-        </q-badge>
+        </q-badge> -->
         <q-badge
           v-if="estadoNoAsignado"
           :style="{
@@ -204,7 +206,7 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
-    ...mapGetters("requerimientos", ["getEstadoByCodigo", "getEstadoById"]),
+    ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
     esArregloRapido() {
       return this.req.tipo.id === 1
     },
@@ -221,10 +223,10 @@ export default {
     tieneComentario() {
       return this.req.comentario && this.req.comentario.length > 0
     },
-    estadoEnProcesos() {
-      const estEnProcesos = this.getEstadoByCodigo("STPR")
-      return this.req.estado.id === estEnProcesos.id
-    },
+    // estadoEnProcesos() {
+    //   const estEnProcesos = this.getEstadoByCodigo("STPR")
+    //   return this.req.estado.id === estEnProcesos.id
+    // },
     estadoNoAsignado() {
       const estNoAsig = this.getEstadoByCodigo("NOAS")
       return this.req.estado.id === estNoAsig.id
@@ -232,24 +234,6 @@ export default {
     estadoAsignado() {
       const estAsig = this.getEstadoByCodigo("ASSI")
       return this.req.estado.id === estAsig.id
-    },
-    estadoProcesos() {
-      const estNoAsig = this.getEstadoByCodigo("NOAS")
-      const estAsig = this.getEstadoByCodigo("ASSI")
-      const estEnEjec = this.getEstadoByCodigo("EXEC")
-      const estResCerrado = this.getEstadoByCodigo("RESC")
-      const estadoProcesosId = _.get(
-        this,
-        "req.estado.estado_procesos.id",
-        null,
-      )
-      if (estadoProcesosId) {
-        if (estadoProcesosId === estNoAsig.id) return estNoAsig
-        if (estadoProcesosId === estAsig.id) return estAsig
-        if (estadoProcesosId === estEnEjec.id) return estEnEjec
-        if (estadoProcesosId === estResCerrado.id) return estResCerrado
-      }
-      return {}
     },
     bgCardColor() {
       const blanco = "#FFFFFF"
@@ -270,18 +254,28 @@ export default {
     isDevelopment() {
       return process.env.DEV && false
     },
-    reqProcesosId() {
-      return _.get(this.req, "requerimientoProcesos.IdRequerimiento", null)
+    // reqFueEnviadoAProcesos() {
+    //   return (
+    //     this.req.requerimientoAsociado &&
+    //     this.req.requerimientoAsociado.fuente === "Sistemas"
+    //   )
+    // },
+    // estadoProcesos() {
+    //   const estadoProcesosId = _.get(
+    //     this.req,
+    //     "requerimientoAsociado.estado.id",
+    //     null,
+    //   )
+    //   return estadoProcesosId ? Requerimiento.getEstadoCodigo(estadoProcesosId) : null
+    // },
+    reqAsociadoId() {
+      return _.get(this.req, "requerimientoAsociado.id", null)
     },
-    reqProcesosEstado() {
-      // FIXME: aca deberia devolver el objeto estado (y ojo con la KEY, IdRequerimientoEstadoSistemas)
-      const estadoId = _.get(
-        this.req,
-        "requerimientoProcesos.IdRequerimientoEstadoSistemas",
-        null,
-      )
-      const estado = this.getEstadoById(estadoId)
-      return estado.descripcion
+    reqAsociadoEstadoDescripcion() {
+      return _.get(this.req, "requerimientoAsociado.estado.descripcion", null)
+    },
+    reqAsociadoUsuario() {
+      return _.get(this.req, "requerimientoAsociado.usuario_asignado", null)
     },
     estaEnTesting() {
       const estadoTestingId = Requerimiento.getEstadoId("TEST")
