@@ -4,6 +4,7 @@
       ref="form"
       v-bind.sync="form"
       :lleva-fecha-limite.sync="llevaFechaLimite"
+      :lleva-usuario-cadena.sync="llevaUsuarioCadena"
       @submit="handleSubmit"
     />
   </div>
@@ -25,6 +26,7 @@ export default {
     return {
       form: new Requerimiento(),
       llevaFechaLimite: false,
+      llevaUsuarioCadena: false,
       isEdit: false,
     }
   },

@@ -31,6 +31,7 @@
       outlined
       :loading="requerimientosTipos.length === 0"
       :apply-validation="true"
+      @input="handleTipoChange"
     />
 
     <q-input
@@ -49,12 +50,68 @@
       @filesRemoved="handleFilesRemoved"
     />
 
-    <!-- <div v-if="esDeSistemasOProcesos" class="row">
-      <div class="col-12">
-        test
-      </div>
-    </div> -->
+    <!-- usuario cadena -->
+    <div v-if="esDeSistemasOProcesos">
+      <q-list link>
+        <q-item
+          v-ripple
+          tag="label"
+          class="list-item--narrow"
+          :disable="llevaUsuarioCadenaDisabled"
+        >
+          <q-tooltip
+            v-if="llevaUsuarioCadenaDisabled"
+            content-class="text-caption"
+          >
+            Solo aplicable cuando el Tipo de Requerimiento es "Desarrllos /
+            Modificaciones / Implementaciones"
+          </q-tooltip>
+          <q-item-section avatar>
+            <q-checkbox
+              v-model="__llevaUsuarioCadena"
+              :disable="llevaUsuarioCadenaDisabled"
+              left-label
+              color="accent"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>¿Desea saletear la Cadena de Mando?</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-slide-transition>
+          <div v-show="__llevaUsuarioCadena" class="row q-mt-sm">
+            <div class="col-12">
+              <select-custom
+                ref="usuarioCadena"
+                v-model="__usuarioCadena"
+                :options="gerentesOrderByArea"
+                label="Usuario Destino"
+                outlined
+                :loading="requerimientosTipos.length === 0"
+                :apply-validation="true"
+                description-key="razon_social"
+              >
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+                    <q-item-section>
+                      <q-item-label>
+                        {{ scope.opt.razon_social }}
+                      </q-item-label>
+                      <q-item-label caption>
+                        Area: {{ scope.opt.area.descripcion }} -
+                        {{ scope.opt.nivel }}
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </select-custom>
+            </div>
+          </div>
+        </q-slide-transition>
+      </q-list>
+    </div>
 
+    <!-- fecha limite -->
     <div>
       <q-list link>
         <q-item v-ripple tag="label" class="list-item--narrow">
@@ -181,9 +238,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    llevaUsuarioCadena: {
+      type: Boolean,
+      default: false,
+    },
     procesandoArchivosCargados: {
       type: Boolean,
       default: false,
+    },
+    usuarioCadena: {
+      type: Object,
+      default: null,
     },
   },
   computed: {
@@ -219,6 +284,14 @@ export default {
         this.$emit("update:fechaLimite", newVal)
       },
     },
+    __usuarioCadena: {
+      get() {
+        return this.usuarioCadena
+      },
+      set(newVal) {
+        this.$emit("update:usuarioCadena", newVal)
+      },
+    },
     __llevaFechaLimite: {
       get() {
         return this.llevaFechaLimite
@@ -237,6 +310,22 @@ export default {
         }
       },
     },
+    __llevaUsuarioCadena: {
+      get() {
+        return this.llevaUsuarioCadena
+      },
+      set(value) {
+        this.$refs.usuarioCadena.resetValidation()
+        this.$emit("update:llevaUsuarioCadena", value)
+        if (!value) {
+          this.__usuarioCadena = null
+          this.$emit("update:usuarioCadena", null)
+        }
+      },
+    },
+    llevaUsuarioCadenaDisabled() {
+      return this.__tipo === null || (this.__tipo && this.__tipo.id !== 2)
+    },
     ...mapState("requerimientos", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
@@ -244,7 +333,7 @@ export default {
       loadingOptions: state => state.loadingOptions,
       loadingRequerimiento: state => state.loadingRequerimiento,
     }),
-    ...mapGetters("auth", ["esDeSistemasOProcesos"]),
+    ...mapGetters("auth", ["esDeSistemasOProcesos", "gerentesOrderByArea"]),
     submitText() {
       return this.id ? "Editar Requerimiento" : "Cargar Requerimiento"
     },
@@ -261,10 +350,21 @@ export default {
         this.__llevaFechaLimite = true
       }
     },
+    __tipo(tipo) {
+      if (tipo === null || (tipo && tipo.id !== 2)) {
+        this.__llevaUsuarioCadena = false
+      }
+    },
     // llevaFechaLimite(val) {
     // },
   },
   methods: {
+    handleTipoChange() {
+      // if (this.llevaUsuarioCadenaDisabled) {
+      //   debugger
+      //   this.__llevaUsuarioCadena = false
+      // }
+    },
     handleFilesAdded(files) {
       files.forEach(file => {
         const isInArray = _.find(this.adjuntos, { name: file.name })
