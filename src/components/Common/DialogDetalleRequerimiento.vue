@@ -124,10 +124,13 @@
               <div v-if="req.fueEnviadoAProcesos" class="row">
                 <div class="col">
                   <div class="text-grey-6">
-                    Requerimiento Asociado en Procesos:
-                    <strong>#{{ reqProcesosId }}</strong>
+                    Requerimiento Asociado:
+                    <strong>#{{ reqAsociadoId }}</strong>
                   </div>
-                  <div>Estado req. en Procesos: {{ reqProcesosEstado }}</div>
+                  <div>Estado: {{ reqAsociadoEstadoDescripcion }}</div>
+                  <div v-if="reqAsociadoUsuario !== null">
+                    Usuario Asignado: {{ reqAsociadoUsuario }}
+                  </div>
                 </div>
               </div>
 
@@ -342,18 +345,14 @@ export default {
     diasVencimiento() {
       return this.req.diasToVencimiento
     },
-    reqProcesosId() {
-      return _.get(this.req, "requerimientoProcesos.IdRequerimiento", null)
+    reqAsociadoId() {
+      return _.get(this.req, "requerimientoAsociado.id", null)
     },
-    reqProcesosEstado() {
-      // FIXME: aca deberia devolver el objeto estado (y ojo con la KEY, IdRequerimientoEstadoSistemas)
-      const estadoId = _.get(
-        this.req,
-        "requerimientoProcesos.IdRequerimientoEstadoSistemas",
-        null,
-      )
-      const estado = this.getEstadoById(estadoId)
-      return estado.descripcion
+    reqAsociadoEstadoDescripcion() {
+      return _.get(this.req, "requerimientoAsociado.estado.descripcion", null)
+    },
+    reqAsociadoUsuario() {
+      return _.get(this.req, "requerimientoAsociado.usuario_asignado", null)
     },
   },
   created() {
