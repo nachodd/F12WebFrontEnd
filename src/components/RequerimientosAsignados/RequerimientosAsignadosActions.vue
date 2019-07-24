@@ -224,7 +224,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters("auth", ["userParesYReportantes"]),
+    ...mapGetters("auth", ["userYoParesYReportantes"]),
     ...mapState("requerimientos", {
       detalleRequerimientoItem: state => state.detalleRequerimientoItem,
     }),
@@ -285,7 +285,7 @@ export default {
           label: "Seleccione un usuario...",
           value: null,
         },
-        ..._.orderBy(this.userParesYReportantes, "label"),
+        ..._.orderBy(this.userYoParesYReportantes, "label"),
       ]
     },
   },
@@ -370,6 +370,10 @@ export default {
             message = `Requerimiento #${
               this.detalleRequerimientoItem.id
             } en REANUDADO.`
+          } else if (this.operation === "devolverADesarrollo") {
+            message = `Requerimiento #${
+              this.detalleRequerimientoItem.id
+            } en DEVUELTO A DESARROLLO.`
           }
 
           success({ message })
