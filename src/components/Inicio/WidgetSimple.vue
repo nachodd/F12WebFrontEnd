@@ -1,6 +1,6 @@
 <template>
   <div
-    class="row rounded-borders shadow-4 items-stretch widget widget--size widget--center"
+    class="row rounded-borders shadow-4 items-stretch widget widget--size widget--center text-unselectable"
     :class="{ 'shadow-4': !hover, 'shadow-9': hover }"
     @mouseover="hover = true"
     @mouseleave="hover = false"

@@ -2,7 +2,22 @@
   <!-- bordered content-class="bg-grey-2" -->
   <q-drawer v-model="sidebarOpened" bordered content-class="bg-grey-2">
     <q-scroll-area class="fit">
-      <q-list padding class="menu-list">
+      <q-list padding class="menu-list text-unselectable">
+        <q-item :clickable="false">
+          <q-item-section class="text-center">
+            <q-item-label caption>
+              <div class="q-mt-md">
+                <span class="f">F</span>
+                <span class="twelve">12</span>
+              </div>
+              <div class="q-mt-md">
+                Bienvenido,
+                <strong>{{ userRazonSocial }}</strong>
+              </div>
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
         <q-item
           v-ripple
           clickable
@@ -120,6 +135,7 @@ export default {
     ...mapGetters("auth", [
       "userEsResponsable",
       "puedeVerRequerimientosAsignados",
+      "userRazonSocial",
     ]),
     ...mapGetters("app", ["dashboardAsignadosYEjecutando"]),
     ...mapState("app", {
@@ -148,57 +164,24 @@ export default {
   methods: {},
 }
 </script>
-<style lang="scss" scoped>
-@import "src/css/variables.scss";
-.menu-list .q-item {
-  border-radius: 0 32px 32px 0;
-}
-.menu-items--active {
-  color: $accent-light;
-  font-weight: 500;
-  background: rgba(73, 65, 214, 0.15);
-}
+<style lang="stylus" scoped>
+.f
+  font-size 2.4rem
+  font-weight 800
+  letter-spacing -5px
+  color $accent-light
 
-/* .button {
-  position: relative;
-  -moz-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-  .icons {
-    position: relative;
+.twelve
+  font-size 1.9rem
+  letter-spacing -5px
+  font-weight 500
+  color $accent-light
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.menu-list .q-item
+  border-radius 0 32px 32px 0
 
-    i {
-      position: absolute;
-      top: 0;
-      left: 0;
-
-      display: block;
-    }
-    .icon-default {
-      transition: opacity 0.3s, transform 0.3s;
-    }
-
-    .icon-hover {
-      transition: opacity 0.3s, transform 0.3s;
-      transform: rotate(-180deg) scale(1);
-      opacity: 0;
-    }
-  }
-
-  &:hover {
-    transform: scale(1.2);
-    box-shadow: 20px 15px rgba(0, 0, 0, 0.15);
-    .icon-hover {
-      transform: rotate(0deg) scale(1.5);
-      opacity: 1;
-    }
-    .icon-default {
-      transform: rotate(180deg) scale(1);
-      opacity: 0;
-    }
-  }
-} */
+.menu-items--active
+  color $accent-light
+  font-weight 500
+  background rgba(73, 65, 214, 0.15)
 </style>

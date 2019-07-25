@@ -5,8 +5,8 @@ import { getToken } from "utils/auth"
 const whiteList = ["/login", "/login-horus", "/refresh", "/register"] // no redirect whitelist
 
 const checkAndSetTitle = meta => {
-  if (meta && meta.title && meta.title.length > 0) {
-    document.title = meta.title
+  if (meta && meta.pageTitle && meta.pageTitle.length > 0) {
+    document.title = meta.pageTitle
   } else {
     document.title = "F12"
   }

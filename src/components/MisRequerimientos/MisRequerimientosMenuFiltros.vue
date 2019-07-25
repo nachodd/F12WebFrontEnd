@@ -1,5 +1,5 @@
 <template>
-  <div class="q-py-md">
+  <div class="q-pb-md">
     <q-resize-observer @resize="onResize" />
     <div class="q-mb-sm">
       <q-input

@@ -1,5 +1,5 @@
 <template>
-  <div class="q-py-md">
+  <div class="q-pb-md">
     <q-resize-observer @resize="onResize" />
     <div class="q-mb-sm">
       <q-input
@@ -32,7 +32,9 @@
       >
         <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
           <div class="row q-pt-sm q-col-gutter-xs">
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
+            <div
+              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+            >
               Sistema
             </div>
             <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
@@ -46,7 +48,9 @@
               />
             </div>
 
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
+            <div
+              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+            >
               Tipo de Requerimiento
             </div>
             <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
@@ -60,30 +64,26 @@
               />
             </div>
           </div>
-          <!-- <div class="row q-pt-sm q-col-gutter-xs">
-            <div class="col-12 text-caption q-pt-md text-caption">
-              Para las columans de "Requerimientos Asignados" y "Requerimientos
-              en Ejecución"
-            </div>
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
-              Usuarios Asignados
+
+          <div v-if="hasReportantesNoOperativos" class="row q-mt-lg">
+            <div
+              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+            >
+              Ver listado como:
             </div>
             <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
               <q-select
-                v-model="__usuariosAsignados"
-                :options="usuariosAsignadosOptionsFiltered"
-                clearable
-                dense
-                :hide-bottom-space="true"
-                label="Usuarios Asignados"
-                use-input
-                use-chips
-                multiple
+                v-model="usuarioVerComo"
                 color="deep-purple-10"
-                @filter="filterUsuariosAsignados"
+                dense
+                :options="optionsUsersReportantes"
+                emit-value
+                map-options
+                @input="changeUsuarioVerComo"
               />
             </div>
-          </div>-->
+          </div>
+
           <div class="row q-pt-md justify-end q-col-gutter-x-md">
             <div class="col-auto">
               <q-btn
@@ -150,6 +150,7 @@ export default {
       widthInputDescripcion: 0,
       popupOpened: false,
       usuariosAsignadosOptionsFiltered: null,
+      usuarioVerComo: null,
     }
   },
   computed: {
@@ -158,7 +159,24 @@ export default {
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
-    ...mapGetters("auth", ["userSistemas", "userReportantes"]),
+    ...mapGetters("auth", [
+      "userSistemas",
+      "userReportantesNoOperativos",
+      "hasReportantesNoOperativos",
+    ]),
+    optionsUsersReportantes() {
+      const label =
+        this.usuarioVerComo === null
+          ? "Ver listado como..."
+          : `<strong>VOLVER A MI LISTADO</strong>`
+      return [
+        {
+          label,
+          value: null,
+        },
+        ..._.orderBy(this.userReportantesNoOperativos, "label"),
+      ]
+    },
     // Filtro solo los sistemas que tiene el usuario logueado
     sistemasUsuarioOptions() {
       return _.filter(this.sistemas, s => {
@@ -236,6 +254,9 @@ export default {
       return this.__usuariosAsignados && this.__usuariosAsignados.length > 0
     },
   },
+  async created() {
+    this.changeUsuarioVerComo(null)
+  },
   methods: {
     onResize(size) {
       this.widthInputDescripcion = size.width
@@ -252,16 +273,23 @@ export default {
     closeFilters() {
       this.popupOpened = false
     },
+    async changeUsuarioVerComo(userId) {
+      await this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
+      this.$store.dispatch(
+        "priorizarRequerimientos/inicializarPriorizarRequerimientos",
+        { userId },
+      )
+    },
     filterUsuariosAsignados(val, update) {
       if (val === "") {
         update(() => {
-          this.usuariosAsignadosOptionsFiltered = this.userReportantes
+          this.usuariosAsignadosOptionsFiltered = this.userReportantesNoOperativos
         })
         return
       }
       update(() => {
         const needle = val.toLowerCase()
-        this.usuariosAsignadosOptionsFiltered = this.userReportantes.filter(
+        this.usuariosAsignadosOptionsFiltered = this.userReportantesNoOperativos.filter(
           v => v.label.toLowerCase().indexOf(needle) > -1,
         )
       })

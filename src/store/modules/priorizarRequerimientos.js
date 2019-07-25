@@ -527,10 +527,13 @@ const actions = {
       const esElUltimoDeLaCadenaDeMando =
         rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
       const listType = "pending"
+      debugger
       // Si es el ultimo de la cadena de mando, los cambios en el orden (prioridad) se deben persistir
       if (esElUltimoDeLaCadenaDeMando) {
         // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
         if (getters.differentPositionsSource) {
+          // FIXME: arreglar este metodo que no funciona actualmente.
+
           const sourceBackup = [...state.reqsPendientesAprobacion.list]
           // Actualizo con los cambios en la lista del store local
           commit("SET_REQS_LIST", {
