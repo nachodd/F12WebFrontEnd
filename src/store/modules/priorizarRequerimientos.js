@@ -561,10 +561,7 @@ const actions = {
   async confirmOperation({ commit, getters, state, dispatch }, comment) {
     return new Promise(async resolve => {
       const backup = JSON.parse(JSON.stringify(state.changesRequerimientos))
-      // const backup = state.changesRequerimientos
-
       const reqId = getters.requerimientoIdToChange
-
       const estAprobadosId = Requerimiento.getEstadoId("APRV")
       const { orden } = getters.getNewOrder
 
@@ -574,7 +571,6 @@ const actions = {
         reqId,
         comment,
       })
-
       // Calcula prioridad
       commit("UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS", {
         estadoTargetId: estAprobadosId,
