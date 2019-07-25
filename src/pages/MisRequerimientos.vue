@@ -1,6 +1,5 @@
 <template>
-  <q-page padding>
-    <page-header title="Mis Requerimientos" no-margin />
+  <q-page padding class="q-pt-lg">
     <mis-requerimientos-menu-filtros
       v-bind.sync="filtros"
       @buscar="getListRequerimientos"
@@ -24,7 +23,6 @@
 <script>
 import { mapState } from "vuex"
 import { warn } from "utils/helpers"
-import PageHeader from "comp/Common/PageHeader"
 import MisRequerimientosListado from "comp/MisRequerimientos/MisRequerimientosListado"
 import MisRequerimientosMenuFiltros from "comp/MisRequerimientos/MisRequerimientosMenuFiltros"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
@@ -32,7 +30,6 @@ import Bus from "utils/bus"
 
 export default {
   components: {
-    PageHeader,
     MisRequerimientosListado,
     DialogDetalleRequerimiento,
     MisRequerimientosMenuFiltros,
@@ -81,6 +78,7 @@ export default {
           seccion_id: null,
           sistema_id: _.get(this, "filtros.sistemaId.id", null),
           requerimiento_tipo: _.get(this, "filtros.requerimientoTipo.id", null),
+          requerimiento_id: null,
           requerimiento_estado: null,
           fecha_desde: null,
           fecha_hasta: null,

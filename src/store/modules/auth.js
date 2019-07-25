@@ -36,6 +36,7 @@ const getters = {
   refreshToken: state => state.refreshToken,
   user: state => state.user,
   userId: state => (state.user ? state.user.id : null),
+  userRazonSocial: state => (state.user ? state.user.razonSocial : "Usuario"),
   // roles: state => state.roles,
   check: state => state.user !== null,
   // userTreeLoaded: state => !_.isEmpty(state.userVinculacion),
@@ -48,6 +49,16 @@ const getters = {
         value: ur.usuarioId,
       }
     })
+  },
+  userReportantesNoOperativos: state => {
+    const userReps = _.get(state, "userVinculacion.reportantes", [])
+    return _(userReps)
+      .filter(ur => ur.nivel !== "Operativo")
+      .map(ur => ({
+        label: ur.razonSocial,
+        value: ur.usuarioId,
+      }))
+      .value()
   },
   userYoYReportantes: (state, getters) => {
     const ur = [...getters.userReportantes]
@@ -84,8 +95,15 @@ const getters = {
     getters.userJefes && getters.userJefes.length > 0,
   hasReportantes: (state, getters) =>
     getters.userReportantes && getters.userReportantes.length > 0,
+  hasReportantesNoOperativos: (state, getters) => {
+    const userReps = _.get(state, "userVinculacion.reportantes", [])
+    return (
+      getters.hasReportantes && _.some(userReps, ur => ur.nivel !== "Operativo")
+    )
+  },
+
   // Si no tiene reportantes, será el ultimo eslabon de la cadena de mando
-  esElUltimoDeLaCadenaDeMando: (state, getters) => !getters.hasReportantes,
+  esElUltimoDeLaCadenaDeMando: state => state.userNivel === "Operativo",
   userSistemas: state => state.userSistemas,
   userEsResponsable: state => state.userSistemas.length > 0,
   puedeVerRequerimientosAsignados: state => {

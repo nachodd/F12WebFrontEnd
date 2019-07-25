@@ -1,7 +1,5 @@
 <template>
-  <q-page padding>
-    <page-header title="Inicio" />
-
+  <q-page padding class="q-pt-lg">
     <div
       v-if="!esElUltimoDeLaCadenaDeMando"
       class="row justify-around q-col-gutter-md"
@@ -72,13 +70,12 @@
 </template>
 
 <script>
-import PageHeader from "comp/Common/PageHeader"
 import WidgetSimple from "comp/Inicio/WidgetSimple"
 import { mapGetters, mapState } from "vuex"
 
 export default {
   name: "Index",
-  components: { PageHeader, WidgetSimple },
+  components: { WidgetSimple },
   data() {
     return {}
   },
