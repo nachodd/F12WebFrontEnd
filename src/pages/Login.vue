@@ -6,7 +6,7 @@
           class="card__header card-header-offset rounded-borders-8"
         >
           <div class="text-h3 text-center">
-            <span class="text-h2 f twelve">F</span>
+            <span class="text-h2 f">F</span>
             <span class="text-h2 twelve">12</span>
           </div>
         </q-card-section>
@@ -114,12 +114,15 @@ export default {
   padding 20px
   background-color #fff
 
-.f.twelve
-  font-size 4.7rem
+
+.f
+  font-size 4.75rem
+  font-weight bold
+  letter-spacing -10px
 
 .twelve
   letter-spacing -10px
-  font-weight bold
+  font-weight 400
 
 .card__header
   background linear-gradient(to top right, $deep-purple-7, $blue-9 )

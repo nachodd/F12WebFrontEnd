@@ -1,11 +1,13 @@
 <template>
   <q-header elevated class="headerBackground">
-    <q-toolbar :class="{ wide: hasSpace }">
+    <q-toolbar class="text-unselectable" :class="{ wide: hasSpace }">
       <q-btn flat dense round class="q-mx-sm" @click="toggleSidebar">
         <q-icon name="menu" />
       </q-btn>
 
-      <q-toolbar-title>F12</q-toolbar-title>
+      <q-toolbar-title>
+        {{ title }}
+      </q-toolbar-title>
 
       <q-btn
         stretch
@@ -154,7 +156,7 @@ export default {
       limitUnread: state => state.limitUnread,
       limitRead: state => state.limitRead,
     }),
-    ...mapGetters("auth", ["user"]),
+    ...mapGetters("auth", ["userRazonSocial"]),
     ...mapGetters("app", [
       "notificacionesRead",
       "notificacionesReadCount",
@@ -166,14 +168,8 @@ export default {
     hasSpace() {
       return this.$q.screen.gt.xs && !this.mini
     },
-    razonSocial() {
-      if (this.user && this.user.razonSocial) {
-        return this.user.razonSocial
-      }
-      return "Usuario"
-    },
     userName() {
-      return this.razonSocial.replace(/ .*/, "")
+      return this.userRazonSocial.replace(/ .*/, "")
     },
     textUser() {
       return this.$q.screen.gt.xs ? this.userName : undefined
@@ -191,6 +187,10 @@ export default {
       return (
         this.notificacionesReadCount > 0 && this.notificacionesUnreadCount > 0
       )
+    },
+    title() {
+      const { headerTitle = "F12" } = this.$route.meta
+      return headerTitle
     },
   },
   mounted() {
