@@ -47,8 +47,8 @@ export default {
       required: true,
     },
     value: {
-      type: [String, Number, null],
-      required: true,
+      type: [String, Number],
+      default: 0,
     },
     description: {
       type: String,

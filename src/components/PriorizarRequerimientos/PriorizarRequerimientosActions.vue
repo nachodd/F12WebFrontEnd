@@ -209,7 +209,9 @@ export default {
       }
     },
     updateOrdenTooltip() {
-      this.reqsPossibleNewOrder = [...this.requerimientosFiltered("APRV")]
+      const reqState = this.esElUltimoDeLaCadenaDeMando ? "PEND" : "APRV"
+
+      this.reqsPossibleNewOrder = [...this.requerimientosFiltered(reqState)]
       let startIndex = 1
       const realIndex = this.approvedPriority - 1
       let currReq, pre3Req, pre2Req, pre1Req, pos1Req, pos2Req, pos3Req

@@ -16,6 +16,7 @@ import {
   UpdatePendingPayloadPriorizarReq,
 } from "utils/requerimientos"
 import { warn, success, pipeWith } from "utils/helpers"
+import Requerimiento from "models/requerimiento"
 // import vuelidate from "src/boot/vuelidate"
 // import { runInNewContext } from "vm"
 
@@ -58,7 +59,7 @@ const getters = {
   requerimientoIdToChange: state =>
     _.get(state.possibleChanges.payload, "id", ""),
   // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
-  // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
+  // o si fue seteado el target Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
   possibleChangesSetted: (state, getters, rootState, rootGetters) => {
     const esElUltimoDeLaCadenaDeMando =
       rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
@@ -67,7 +68,7 @@ const getters = {
         state.possibleChanges.targetChanges.changesSetted &&
         state.possibleChanges.payload.id &&
         !esElUltimoDeLaCadenaDeMando) ||
-      (state.possibleChanges.sourceChanges.changesSetted &&
+      (state.possibleChanges.targetChanges.changesSetted &&
         state.possibleChanges.payload.id &&
         esElUltimoDeLaCadenaDeMando)
     )
@@ -223,15 +224,14 @@ const getters = {
     return pipeWith(reqs, ...filtersToApply)
   },
 
-  getNewOrder: (state, getters) => {
+  getNewOrder: (state, getters, rootState, rootGetters) => {
     // Busca el requerimiento a actualizar en el listado que está en pantalla
-    // const reqsAsignadosOnScreen = state.possibleChanges.targetList
-    const reqsAsignadosOnScreen = state.possibleChanges.targetList
-    const index = _.findIndex(reqsAsignadosOnScreen, {
+    const reqsAprobadosPriorizadosOnScreen = state.possibleChanges.targetList
+    const index = _.findIndex(reqsAprobadosPriorizadosOnScreen, {
       id: getters.requerimientoIdToChange,
     })
     // De estos, busco el siguiente en pantalla
-    const nextReq = reqsAsignadosOnScreen[index + 1]
+    const nextReq = reqsAprobadosPriorizadosOnScreen[index + 1]
 
     if (nextReq) {
       // Si lo encuentra, devuelve su orden e indico que NO es el ultimo
@@ -240,19 +240,19 @@ const getters = {
         ultimo: false,
       }
     } else {
+      // Si es el ultimo de la cadena, la lista será la pendientes de aprob. Caso contrario, la de aprobados
+      const listToUse = rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
+        ? getters.getPendientesAprobacion
+        : getters.getAprobadosPriorizados
+
       // Caso contario, determino el orden REAL
       let orden
       // Si no hay otros reqs asignados, orden = 1
-      if (getters.getAprobadosPriorizados.length === 0) {
+      if (listToUse.length === 0) {
         orden = 1
       } else {
         // Busco el último reqs de los asignados, tomo su orden y le aumento 1
-
-        const lastReq =
-          getters.getAprobadosPriorizados[
-            getters.getAprobadosPriorizados.length - 1
-          ]
-
+        const lastReq = listToUse[listToUse.length - 1]
         orden = lastReq.prioridad + 1
       }
       // Será el ultimo (ya sea porque se filtro el listado y no hay nada o porque efectivametne no habia otro asignado)
@@ -263,20 +263,18 @@ const getters = {
     }
   },
 
-  getPendientesAprobacion: (state, getters, rootState, rootGetters) => {
-    const estPendienteAprobacion = rootGetters[
-      "requerimientos/getEstadoByCodigo"
-    ]("PEND")
+  getPendientesAprobacion: state => {
+    const estPendienteAprobacionId = Requerimiento.getEstadoId("PEND")
     const reqsResult = _.filter(state.requerimientos, {
-      estado_priorizacion: { id: estPendienteAprobacion.id },
+      estado_priorizacion: { id: estPendienteAprobacionId },
     })
     return _.orderBy(reqsResult, "[prioridad]", "asc")
   },
 
-  getAprobadosPriorizados: (state, getters, rootState, rootGetters) => {
-    const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"]("APRV")
+  getAprobadosPriorizados: state => {
+    const estAprobadosId = Requerimiento.getEstadoId("APRV")
     const reqsResult = _.filter(state.requerimientos, {
-      estado_priorizacion: { id: estAprobados.id },
+      estado_priorizacion: { id: estAprobadosId },
     })
     return _.orderBy(reqsResult, "[prioridad]", "asc")
   },
@@ -393,7 +391,7 @@ const mutations = {
   UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS: (
     state,
     {
-      estadoAsignadoId,
+      estadoTargetId,
       orderStart,
       reqIdToAvoid,
       updateOrderToCurrentRequerimiento = false,
@@ -401,7 +399,7 @@ const mutations = {
   ) => {
     // Actualiza todos los requerimientos aprobados priorizados
     state.changesRequerimientos = state.changesRequerimientos.map(ra => {
-      if (ra.estado_priorizacion.id === estadoAsignadoId) {
+      if (ra.estado_priorizacion.id === estadoTargetId) {
         // Que tengan prioridad mayor o igual a orderStart y NO sea el reqerumiento priorizado
         const tieneOrdenMayorOIgual = ra.prioridad >= orderStart
         if (tieneOrdenMayorOIgual && ra.id !== reqIdToAvoid) {
@@ -423,7 +421,7 @@ const mutations = {
     // re indexa la prioridades de los aprobados
     let prioridad = 1
     state.changesRequerimientos = state.changesRequerimientos.map(rq => {
-      if (rq.estado_priorizacion.id == estadoAsignadoId) {
+      if (rq.estado_priorizacion.id == estadoTargetId) {
         rq.prioridad = prioridad
         prioridad++
       }
@@ -508,9 +506,9 @@ const actions = {
       }
 
       switch (getters.operationType) {
-        case "reorder-pending":
-          dispatch("saveReorderPending")
-          break
+        // case "reorder-pending":
+        //   dispatch("saveReorderPending")
+        //   break
         case "reorder-approved":
           dispatch("saveReorderApproved")
           break
@@ -522,67 +520,23 @@ const actions = {
       resolve()
     })
   },
-  saveReorderPending({ commit, state, getters, rootGetters, dispatch }) {
-    return new Promise(async resolve => {
-      const esElUltimoDeLaCadenaDeMando =
-        rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
-      const listType = "pending"
-      debugger
-      // Si es el ultimo de la cadena de mando, los cambios en el orden (prioridad) se deben persistir
-      if (esElUltimoDeLaCadenaDeMando) {
-        // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
-        if (getters.differentPositionsSource) {
-          // FIXME: arreglar este metodo que no funciona actualmente.
-
-          const sourceBackup = [...state.reqsPendientesAprobacion.list]
-          // Actualizo con los cambios en la lista del store local
-          commit("SET_REQS_LIST", {
-            listType,
-            listData: state.possibleChanges.sourceList,
-          })
-
-          // commit("UPDATE_LIST_PRIORITY", listType)
-
-          // commit("UPDATE_LIST_ESTADO", listType)
-          // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
-          const res = await dispatch(
-            "persistChanges",
-            state.reqsPendientesAprobacion.toUpdatePendingPayload(),
-          )
-          if (!res) {
-            commit("SET_REQS_LIST", {
-              listType,
-              listData: sourceBackup,
-            })
-            // commit("UPDATE_LIST_ESTADO", listType)
-          }
-        }
-      } else {
-        // actualizo localmente, aunque el cambio no es persistido
-        commit("SET_REQS_LIST", {
-          listType,
-          listData: state.possibleChanges.sourceList,
-        })
-        // commit("UPDATE_LIST_ESTADO", listType)
-      }
-      commit("CLEAR_OPERATIONS")
-      resolve()
-    })
-  },
   saveReorderApproved({ commit, state, getters, dispatch, rootGetters }) {
     return new Promise(async resolve => {
       // valido si efecivamente si hizo un cambio: Si el addedIndex y removedIndex son iguales, no se movio nada en la lista
       if (getters.differentPositionsTarget) {
         const backup = JSON.parse(JSON.stringify(state.changesRequerimientos))
 
-        const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"](
-          "APRV",
-        )
+        const esElUltimoDeLaCadenaDeMando =
+          rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
+
+        const estadoTargetId = esElUltimoDeLaCadenaDeMando
+          ? Requerimiento.getEstadoId("PEND")
+          : Requerimiento.getEstadoId("APRV")
 
         const { orden } = getters.getNewOrder
 
         commit("UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS", {
-          estadoAsignadoId: estAprobados.id,
+          estadoTargetId: estadoTargetId,
           orderStart: orden,
           reqIdToAvoid: getters.requerimientoIdToChange,
           updateOrderToCurrentRequerimiento: true,
@@ -597,33 +551,25 @@ const actions = {
         if (!res) {
           commit("SET_REQS_LIST", backup)
         } else {
-          let newList = [...state.changesRequerimientos]
-          commit("SET_REQS_LIST", newList)
+          commit("SET_REQS_LIST", [...state.changesRequerimientos])
         }
       }
       commit("CLEAR_OPERATIONS")
       resolve()
     })
   },
-  async confirmOperation(
-    { commit, getters, state, dispatch, rootGetters },
-    comment,
-  ) {
+  async confirmOperation({ commit, getters, state, dispatch }, comment) {
     return new Promise(async resolve => {
       const backup = JSON.parse(JSON.stringify(state.changesRequerimientos))
       // const backup = state.changesRequerimientos
 
       const reqId = getters.requerimientoIdToChange
 
-      const estAprobados = rootGetters["requerimientos/getEstadoByCodigo"](
-        "APRV",
-      )
+      const estAprobadosId = Requerimiento.getEstadoId("APRV")
       const { orden } = getters.getNewOrder
 
-      // Actualiza estado
+      // Actualiza estado y Actualiza el comentario
       commit("UPDATE_ESTADO", reqId)
-
-      // Actualiza el comentario
       commit("UPDATE_COMMENT_IN_REQ", {
         reqId,
         comment,
@@ -631,7 +577,7 @@ const actions = {
 
       // Calcula prioridad
       commit("UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS", {
-        estadoAsignadoId: estAprobados.id,
+        estadoTargetId: estAprobadosId,
         orderStart: orden,
         reqIdToAvoid: getters.requerimientoIdToChange,
         updateOrderToCurrentRequerimiento: true,
@@ -642,14 +588,13 @@ const actions = {
         ...state.changesRequerimientos,
       ])
 
-      // // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
+      // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
       const res = await dispatch("persistChanges", tempReqs)
 
       if (!res) {
         commit("SET_REQS_LIST", backup)
       } else {
-        let newList = [...state.changesRequerimientos]
-        commit("SET_REQS_LIST", newList)
+        commit("SET_REQS_LIST", [...state.changesRequerimientos])
       }
 
       resolve()
@@ -814,58 +759,32 @@ const actions = {
           break
         }
         case "seleccionarPrioridad": {
-          // o podría preguntar por el getters.operationType
-          if (listName === "source" && esElUltimoDeLaCadenaDeMando) {
-            const removedIndexSource = _.findIndex(
-              // state.reqsPendientesAprobacion.list,
-              getters.requerimientosFiltered("PEND"),
-              { id: requerimientoItem.id },
-            )
-            const addedIndexSource = priority - 1
-            // lista source, se saca el item del listado y luego lo pongo en la nueva pos
-            // let listResultSource = [...state.reqsPendientesAprobacion.list]
-            let listResultSource = [getters.requerimientosFiltered("PEND")]
-            const payload = listResultSource.splice(removedIndexSource, 1)[0]
-            listResultSource.splice(addedIndexSource, 0, payload)
-
-            updatedListData = {
-              listName: "source",
-              listResult: listResultSource,
-              dropResult: {
-                removedIndex: removedIndexSource,
-                addedIndex: addedIndexSource,
-                payload,
-              },
-            }
-            commit("PROCESS_UPDATE_LISTS", updatedListData)
-            await dispatch("saveReorderPending")
-            commit("CLEAR_OPERATIONS")
-            resolve()
-          } else if (listName === "target" && !esElUltimoDeLaCadenaDeMando) {
-            const removedIndexTarget = _.findIndex(
-              getters.requerimientosFiltered("APRV"),
-              { id: requerimientoItem.id },
-            )
-            const addedIndexTarget = priority - 1
-            // lista source, se saca el item del listado y luego lo pongo en la nueva pos
-            let listResultTarget = [...getters.requerimientosFiltered("APRV")]
-            const payload = listResultTarget.splice(removedIndexTarget, 1)[0]
-            listResultTarget.splice(addedIndexTarget, 0, payload)
-
-            updatedListData = {
-              listName: "target",
-              listResult: listResultTarget,
-              dropResult: {
-                removedIndex: removedIndexTarget,
-                addedIndex: addedIndexTarget,
-                payload,
-              },
-            }
-            commit("PROCESS_UPDATE_LISTS", updatedListData)
-            await dispatch("saveReorderApproved")
-            commit("CLEAR_OPERATIONS")
-            resolve()
+          // dependiendo del si es el ultimo de la cadena, tengo que buscar los reqs en el listado general del estado aporpiado
+          const reqState = esElUltimoDeLaCadenaDeMando ? "PEND" : "APRV"
+          // "Genero" los listados de possibleChanges como si hubiese arrastrado
+          const removedIndex = _.findIndex(
+            getters.requerimientosFiltered(reqState),
+            { id: requerimientoItem.id },
+          )
+          const addedIndex = priority - 1
+          // JSON.parse(JSON.stringify(getters.requerimientosFiltered(reqState)))
+          let listResult = [...getters.requerimientosFiltered(reqState)]
+          const payload = listResult.splice(removedIndex, 1)[0]
+          listResult.splice(addedIndex, 0, payload)
+          updatedListData = {
+            listName: "target",
+            listResult: listResult,
+            dropResult: {
+              removedIndex: removedIndex,
+              addedIndex: addedIndex,
+              payload,
+            },
           }
+          commit("PROCESS_UPDATE_LISTS", updatedListData)
+          // mando a guardar los cambios como si hubiese arrastrado
+          await dispatch("saveReorderApproved")
+          commit("CLEAR_OPERATIONS")
+          resolve()
           break
         }
         case "descartar": {
@@ -874,17 +793,13 @@ const actions = {
           // Rechazo o elimino el requerimiento el requerimiento:
           try {
             let res
+            dispatch("app/loadingInc", null, { root: true })
             if (getters.esAutor) {
-              dispatch("app/loadingInc", null, { root: true })
-
               res = await deleteRequerimiento(requerimientoItem.id)
-              // console.log(res)
             } else {
-              dispatch("app/loadingInc", null, { root: true })
               res = await refuseRequerimiento(requerimientoItem.id, {
                 comentario: comment,
               })
-              // console.log(res)
             }
 
             // Lo elimino del listado correspondiente: busco el indice y lo quito y commiteo el cambio
