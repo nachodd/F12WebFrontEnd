@@ -1,29 +1,11 @@
 <template>
-  <q-page padding>
-    <page-header title="Requerimientos Asignados" no-margin>
-      <div>
-        <div
-          class="d-ib cursor-pointer"
-          @click="aplicarFiltroRapidoTipoReq('Arreglo')"
-        >
-          <div class="square d-ib bg-red-7">&nbsp;</div>
-          Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
-        </div>
-        <div
-          class="d-ib cursor-pointer"
-          @click="aplicarFiltroRapidoTipoReq('Desarrollo')"
-        >
-          <div class="square d-ib bg-light-blue-7">&nbsp;</div>
-          Desarrollo / Mejora &nbsp;&nbsp;
-        </div>
-      </div>
-    </page-header>
+  <q-page padding class="q-pt-lg">
     <div class="row">
       <div class="col">
         <requerimientos-asignados-filtros />
       </div>
     </div>
-    <div class="row q-pt-md q-px-xs q-col-gutter-sm">
+    <div class="row q-pt-md q-px-xs q-col-gutter-sm req-container--filter">
       <div class="col-sm-4 col-xs-12">
         <draggable-list
           title="Pendientes"
@@ -35,7 +17,10 @@
         <!-- requerimientosFiltered('ASSI') -->
       </div>
 
-      <div class="col-sm-4 col-xs-12">
+      <div
+        class="col-sm-4 col-xs-12"
+        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
+      >
         <draggable-list
           title="En Ejecución"
           group-name="requerimientos"
@@ -45,7 +30,10 @@
         />
       </div>
 
-      <div class="col-sm-4 col-xs-12">
+      <div
+        class="col-sm-4 col-xs-12"
+        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
+      >
         <draggable-list
           title="Testing"
           group-name="requerimientos"
@@ -63,7 +51,6 @@
 
 <script>
 import { mapState, mapGetters } from "vuex"
-import PageHeader from "comp/Common/PageHeader"
 import pageLoading from "mixins/pageLoading"
 import DraggableList from "comp/RequerimientosAsignados/DraggableList"
 import DialogConfirmOperation from "comp/RequerimientosAsignados/DialogConfirmOperation"
@@ -73,7 +60,6 @@ import RequerimientosAsignadosFiltros from "comp/RequerimientosAsignados/Requeri
 export default {
   name: "RequerimientosAsigandos",
   components: {
-    PageHeader,
     DraggableList,
     DialogConfirmOperation,
     DialogDetalleRequerimiento,
@@ -92,52 +78,6 @@ export default {
       "requerimientosAsignados/inicializarRequerimientosAsignados",
     )
   },
-  methods: {
-    aplicarFiltroRapidoTipoReq(filtroRapido) {
-      let value = null
-      if (filtroRapido === "Arreglo") {
-        value = {
-          descripcion: "Arreglo rápido",
-          id: 1,
-        }
-      } else if (filtroRapido === "Desarrollo") {
-        value = {
-          descripcion: "Desarrollos / Modificaciones / Implementaciones",
-          id: 2,
-        }
-      }
-      this.$store.dispatch("requerimientosAsignados/setFilter", {
-        filter: "requerimientoTipo",
-        value,
-      })
-    },
-  },
 }
 </script>
-<style lang="scss" scoped>
-.scrolling-wrapper {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding-top: 20px;
-  top: -20px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.scrolling-wrapper__card {
-  flex: 0 0 auto;
-  min-width: 400px;
-  margin-right: 1em;
-}
-
-.d-ib {
-  display: inline-block;
-}
-
-.square {
-  width: 4px;
-  height: 18px;
-  vertical-align: middle;
-}
-</style>
+<style lang="scss" scoped></style>

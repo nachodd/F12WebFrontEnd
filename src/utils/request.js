@@ -122,6 +122,7 @@ service.interceptors.response.use(
       isRefreshOrLogout ||
       (status === 401 && !error.config.__isRetryRequest)
     ) {
+      debugger
       await store.dispatch("auth/refresh")
       error.config.__isRetryRequest = true
       return service.request(error.config)
@@ -144,7 +145,7 @@ async function getAuthToken() {
   // if the current token expires soon
   const expiresIn = store.getters["auth/expiresIn"]
   const expiresMinus15Minutes = new Date(+expiresIn)
-  const minutesBefore = 60 * 15
+  const minutesBefore = 60 * 0
   expiresMinus15Minutes.setSeconds(
     expiresMinus15Minutes.getSeconds() - minutesBefore,
   ) // returns unix ts

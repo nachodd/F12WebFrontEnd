@@ -1,8 +1,9 @@
 <template>
   <list-container :loading="loading">
     <mis-requerimientos-item
-      v-for="req in requerimientos"
+      v-for="(req, i) in requerimientos"
       :key="`req_${req.id}`"
+      :item-class="getItemClass(i)"
       :req="req"
       @click.native="
         abrirDetalleRequerimiento({
@@ -41,6 +42,12 @@ export default {
     ...mapActions({
       abrirDetalleRequerimiento: "requerimientos/abrirDetalleRequerimiento",
     }),
+    getItemClass(index) {
+      if (index === 0) return "rounded-borders-12-top"
+      if (index === this.requerimientos.length)
+        return "rounded-borders-12-bottom"
+      return ""
+    },
   },
 }
 </script>
