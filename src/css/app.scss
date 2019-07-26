@@ -1,5 +1,13 @@
 @import "variables.scss";
 
+/*
+Disables pull-to-refresh and overscroll glow effect. Still keeps swipe navigations.
+https://developers.google.com/web/updates/2017/11/overscroll-behavior
+*/
+body {
+  overscroll-behavior-y: none;
+}
+
 .card-header-offset {
   position: relative;
   top: -50px;
@@ -96,6 +104,15 @@
 }
 .rounded-borders-12 {
   border-radius: 12px !important;
+}
+
+.rounded-borders-12-top {
+  border-top-right-radius: 12px;
+  border-top-left-radius: 12px;
+}
+.rounded-borders-12-bottom {
+  border-bottom-right-radius: 12px;
+  border-bottom-left-radius: 12px;
 }
 
 .text-underline {
@@ -260,3 +277,4 @@ body.q-body--loading #q-app {
 .q-pt-xlg {
   padding-top: 32px
 }
+
