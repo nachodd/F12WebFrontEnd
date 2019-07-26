@@ -1,19 +1,21 @@
 <template functional>
   <div class="relative-position list-container">
-    <transition
+    <!-- <transition
       appear
       enter-active-class="animated fadeIn"
       leave-active-class="animated fadeOut"
-    >
+    > -->
+    <q-slide-transition>
       <q-list
         v-show="!props.loading"
         bordered
         separator
-        class="rounded-borders q-mb-md shadow-2"
+        class="rounded-borders-12 q-mb-md shadow-2 bg-white"
       >
         <slot />
       </q-list>
-    </transition>
+    </q-slide-transition>
+    <!-- </transition> -->
     <q-inner-loading :showing="props.loading">
       <q-spinner-gears size="50px" color="accent" />
     </q-inner-loading>

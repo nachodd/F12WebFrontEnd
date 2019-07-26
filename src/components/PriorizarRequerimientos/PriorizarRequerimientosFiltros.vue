@@ -6,11 +6,13 @@
         ref="inputDescripcion"
         v-model.trim="__descripcion"
         class="filter"
-        :class="{ popupOpened: popupOpened }"
+        :class="{ popupOpened: popupOpened, aclarado: inputAclarado }"
         dense
         standout="bg-white text-black"
         placeholder="Buscar por Asunto, Descripcion, Usuario Asignado..."
         @keyup.enter="closeFilters"
+        @focus="inputAclarado = true"
+        @blur="inputAclarado = false"
       >
         <template v-slot:prepend>
           <q-icon name="search" />
@@ -147,6 +149,7 @@ export default {
   data() {
     return {
       input: "",
+      inputAclarado: false,
       widthInputDescripcion: 0,
       popupOpened: false,
       usuariosAsignadosOptionsFiltered: null,

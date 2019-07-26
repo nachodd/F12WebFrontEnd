@@ -14,7 +14,6 @@ const state = {
     ? !!+Cookies.get("sidebarStatus")
     : true,
   device: "desktop",
-  size: Cookies.get("size") || "medium",
   loadingLevel: 0,
   dashboard: {
     asignados_ejecucion: 0,
@@ -33,7 +32,6 @@ const state = {
 const getters = {
   sidebarOpen: state => state.sidebarOpen,
   device: state => state.device,
-  size: state => state.size,
   isPageLoading: state => state.loadingLevel !== 0,
   dashboardAsignadosYEjecutando: state => {
     return (
@@ -83,10 +81,6 @@ const mutations = {
   },
   TOGGLE_DEVICE: (state, device) => {
     state.device = device
-  },
-  SET_SIZE: (state, size) => {
-    state.size = size
-    Cookies.set("size", size)
   },
   LOADING_INC: state => {
     state.loadingLevel += 1
@@ -179,9 +173,6 @@ const actions = {
   },
   toggleDevice({ commit }, device) {
     commit("TOGGLE_DEVICE", device)
-  },
-  setSize({ commit }, size) {
-    commit("SET_SIZE", size)
   },
   loadingInc({ commit }) {
     return new Promise(async resolve => {

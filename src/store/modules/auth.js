@@ -220,7 +220,6 @@ const actions = {
 
         resolve()
       } catch (error) {
-        debugger
         // TODO: cuando falla al cargar la info del usuario, devolver un error que especifique qu ehayproblemas con el servidor y que vuelva a intentar mas tarde
         reject(error)
       }

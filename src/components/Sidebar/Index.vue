@@ -1,6 +1,6 @@
 <template>
   <!-- bordered content-class="bg-grey-2" -->
-  <q-drawer v-model="sidebarOpened" bordered content-class="bg-grey-2">
+  <q-drawer v-model="sidebarOpened" bordered content-class="bg-white">
     <q-scroll-area class="fit">
       <q-list padding class="menu-list text-unselectable">
         <q-item :clickable="false">

@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh Lpr lFf" @scroll="handleScroll">
+  <q-layout view="hHh Lpr lFf" class="bg-page" @scroll="handleScroll">
     <f12-header :mini="mini" />
 
     <f12-sidebar />

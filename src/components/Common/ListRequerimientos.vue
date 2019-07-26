@@ -1,5 +1,5 @@
 <template functional>
-  <div class="shadow-3 bg-grey-2 rounded-borders">
+  <div class="shadow-3 bg-grey-2 rounded-borders req-container__col">
     <div class="bg-deep-purple-10 card-header rounded-borders-8">
       {{ props.title }}
     </div>
@@ -51,5 +51,6 @@ export default {
 .req-container {
   position: relative;
   top: -10px;
+  height: 95%;
 }
 </style>

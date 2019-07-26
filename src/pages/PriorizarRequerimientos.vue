@@ -5,8 +5,13 @@
         <priorizar-requerimientos-filtros />
       </div>
     </div>
-    <div class="row q-pt-md q-px-xs q-col-gutter-sm">
-      <div class="col-sm-6 col-xs-12">
+    <div
+      class="row q-pt-md q-px-xs q-col-gutter-sm justify-center req-container--nofilter"
+    >
+      <div
+        v-if="esElUltimoDeLaCadenaDeMando === false"
+        class="col-sm-6 col-xs-12"
+      >
         <draggable-list
           title="Pendientes de Aprobación"
           group-name="requerimientos"
@@ -16,11 +21,14 @@
         />
       </div>
 
-      <div v-if="!esElUltimoDeLaCadenaDeMando" class="col-sm-6 col-xs-12">
+      <div
+        class="col-sm-6 col-xs-12"
+        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
+      >
         <draggable-list
-          :requerimientos-list="requerimientosFiltered('APRV')"
+          :requerimientos-list="targetList"
           :loading-list="loadingReqsAprobadosPriorizados"
-          title="Aprobados"
+          :title="titleTargetList"
           group-name="requerimientos"
           list-name="target"
         />
@@ -61,6 +69,16 @@ export default {
       loadingReqsAprobadosPriorizados: state =>
         state.loadingReqsAprobadosPriorizados,
     }),
+    targetList() {
+      return this.esElUltimoDeLaCadenaDeMando
+        ? this.requerimientosFiltered("PEND")
+        : this.requerimientosFiltered("APRV")
+    },
+    titleTargetList() {
+      return this.esElUltimoDeLaCadenaDeMando
+        ? "Pendientes de Aprobación"
+        : "Aprobados"
+    },
   },
   beforeCreate() {
     this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")

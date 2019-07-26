@@ -1,10 +1,13 @@
 <template>
   <q-page padding class="q-pt-lg">
-    <div
-      v-if="!esElUltimoDeLaCadenaDeMando"
-      class="row justify-around q-col-gutter-md"
-    >
-      <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
+    <div class="row justify-around q-col-gutter-md">
+      <!-- <q-btn @click="refresh">
+        test
+      </q-btn> -->
+      <div
+        v-if="!esElUltimoDeLaCadenaDeMando"
+        class="col-md-4 col-sm-4 col-xs-12 q-mb-lg"
+      >
         <router-link :to="{ name: 'priorizar-requerimientos' }" class="no-dec">
           <widget-simple
             icon="fas fa-sort-amount-down"
@@ -94,6 +97,11 @@ export default {
   },
   mounted() {
     this.$store.dispatch("app/getDashboardData", this.userId)
+  },
+  methods: {
+    // async refresh() {
+    //   await this.$store.dispatch("auth/refresh")
+    // },
   },
 }
 </script>
