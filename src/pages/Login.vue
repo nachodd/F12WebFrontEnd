@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf" class="flex flex-center items-center bg-grey-3">
+  <q-layout view="lHh Lpr lFf" class="flex flex-center items-center bg-page">
     <q-page-container class="row">
       <q-card class="col-12 card shadow-5 rounded-borders-8">
         <q-card-section

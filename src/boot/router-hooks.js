@@ -19,7 +19,15 @@ export default async ({ router, store }) => {
     if (hasToken) {
       // Si tiene el token y no tiene seteado el usuario, lo traigo
       if (store.getters["auth/user"] === null) {
-        await store.dispatch("auth/getUserInfo")
+        try {
+          await store.dispatch("auth/getUserInfo")
+        } catch (e) {
+          // console.log(e)
+          // debugger
+          store.dispatch("auth/logout")
+          next(`/login?redirect=${to.path}`)
+          return
+        }
       }
 
       if (to.path === "/login") {

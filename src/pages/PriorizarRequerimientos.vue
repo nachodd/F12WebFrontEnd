@@ -5,7 +5,9 @@
         <priorizar-requerimientos-filtros />
       </div>
     </div>
-    <div class="row q-pt-md q-px-xs q-col-gutter-sm justify-center">
+    <div
+      class="row q-pt-md q-px-xs q-col-gutter-sm justify-center req-container--nofilter"
+    >
       <div
         v-if="esElUltimoDeLaCadenaDeMando === false"
         class="col-sm-6 col-xs-12"
@@ -19,7 +21,10 @@
         />
       </div>
 
-      <div class="col-sm-6 col-xs-12">
+      <div
+        class="col-sm-6 col-xs-12"
+        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
+      >
         <draggable-list
           :requerimientos-list="targetList"
           :loading-list="loadingReqsAprobadosPriorizados"

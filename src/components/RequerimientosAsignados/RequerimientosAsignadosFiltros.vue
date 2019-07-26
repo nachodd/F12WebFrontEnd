@@ -1,15 +1,18 @@
 <template>
-  <div class="q-py-md">
+  <div class="q-pb-md">
+    <q-resize-observer @resize="onResize" />
     <div class="q-mb-sm">
       <q-input
         ref="inputDescripcion"
         v-model.trim="__descripcion"
         class="filter"
-        :class="{ popupOpened: popupOpened }"
+        :class="{ popupOpened: popupOpened, aclarado: inputAclarado }"
         dense
         standout="bg-white text-black"
         placeholder="Buscar por Asunto, Descripcion..."
         @keyup.enter="closeFilters"
+        @focus="inputAclarado = true"
+        @blur="inputAclarado = false"
       >
         <template v-slot:prepend>
           <q-icon name="search" />
@@ -21,14 +24,12 @@
             @click="popupOpened = !popupOpened"
           ></q-icon>
         </template>
-        <q-resize-observer @resize="onResize" />
       </q-input>
 
       <q-menu
         v-model="popupOpened"
         no-parent-event
-        content-class="q-menu-fix"
-        :content-style="{ maxWidth: widthInputDescripcion + 'px !important' }"
+        content-class="test q-menu-fix"
         :offset="[0, -4]"
       >
         <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
@@ -80,26 +81,49 @@
       </q-menu>
     </div>
 
-    <div class="q-mt-sm">
-      <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
-      <span v-if="sistemaSetted" class="q-mx-xs">
-        <q-chip removable @remove="removeFilter('sistema')">
-          <q-avatar color="red" text-color="white" class="filter-label">
-            Sist:
-          </q-avatar>
-          {{ sistemaDescripcion }}
-          <q-tooltip>Sistema</q-tooltip>
-        </q-chip>
-      </span>
-      <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
-        <q-chip removable @remove="removeFilter('requerimientoTipo')">
-          <q-avatar color="blue" text-color="white" class="filter-label">
-            Tipo:
-          </q-avatar>
-          {{ tipoRequerimientoDescripcion }}
-          <q-tooltip>Tipo de Requerimiento</q-tooltip>
-        </q-chip>
-      </span>
+    <div class="row justify-between items-center filters-row">
+      <div class="col">
+        <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
+        <span v-if="sistemaSetted" class="q-mx-xs">
+          <q-chip removable @remove="removeFilter('sistema')">
+            <q-avatar color="red" text-color="white" class="filter-label">
+              Sist:
+            </q-avatar>
+            {{ sistemaDescripcion }}
+            <q-tooltip>Sistema</q-tooltip>
+          </q-chip>
+        </span>
+        <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
+          <q-chip removable @remove="removeFilter('requerimientoTipo')">
+            <q-avatar color="blue" text-color="white" class="filter-label">
+              Tipo:
+            </q-avatar>
+            {{ tipoRequerimientoDescripcion }}
+            <q-tooltip>Tipo de Requerimiento</q-tooltip>
+          </q-chip>
+        </span>
+      </div>
+      <div class="col-xs-4 col-md-auto col-sm-auto col-xs-auto text-right">
+        <q-tooltip>
+          Click aquí para aplicar este filtro
+        </q-tooltip>
+        <span>
+          <div
+            class="d-ib cursor-pointer"
+            @click="aplicarFiltroRapidoTipoReq('Arreglo')"
+          >
+            <div class="square d-ib bg-red-7">&nbsp;</div>
+            Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
+          </div>
+          <div
+            class="d-ib cursor-pointer"
+            @click="aplicarFiltroRapidoTipoReq('Desarrollo')"
+          >
+            <div class="square d-ib bg-light-blue-7">&nbsp;</div>
+            Desarrollo / Mejora &nbsp;&nbsp;
+          </div>
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -113,6 +137,7 @@ export default {
   data() {
     return {
       input: "",
+      inputAclarado: false,
       widthInputDescripcion: 0,
       popupOpened: false,
     }
@@ -182,7 +207,7 @@ export default {
   },
   methods: {
     onResize(size) {
-      this.widthInputDescripcion = size.width + 60 + 30
+      this.widthInputDescripcion = size.width
     },
     removeFilter(filter) {
       this.$store.dispatch("requerimientosAsignados/setFilter", {
@@ -196,10 +221,32 @@ export default {
     closeFilters() {
       this.popupOpened = false
     },
+    aplicarFiltroRapidoTipoReq(filtroRapido) {
+      let value = null
+      if (filtroRapido === "Arreglo") {
+        value = {
+          descripcion: "Arreglo rápido",
+          id: 1,
+        }
+      } else if (filtroRapido === "Desarrollo") {
+        value = {
+          descripcion: "Desarrollos / Modificaciones / Implementaciones",
+          id: 2,
+        }
+      }
+      this.$store.dispatch("requerimientosAsignados/setFilter", {
+        filter: "requerimientoTipo",
+        value,
+      })
+    },
   },
 }
 </script>
-<style lang="stylus">
-// FIXME: implementar este filtro, que funcione
-// FIXME: re-implementar la store con 1 solo listado base y getters, como esta haciendo ari en priorizar reqs
+<style lang="stylus" scoped>
+.square
+  width 4px
+  height 18px
+  vertical-align middle
+.filters-row
+  min-height 40px
 </style>

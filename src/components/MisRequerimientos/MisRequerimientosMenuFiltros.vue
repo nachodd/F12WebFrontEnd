@@ -5,12 +5,14 @@
       <q-input
         ref="inputDescripcion"
         v-model.trim="__descripcion"
-        class="standout-custom"
-        :class="{ popupOpened: popupOpened }"
+        class="filter"
+        :class="{ popupOpened: popupOpened, aclarado: inputAclarado }"
         dense
         standout="bg-white text-black"
         placeholder="Buscar"
         @keyup.enter="filtrar"
+        @focus="inputAclarado = true"
+        @blur="inputAclarado = false"
       >
         <template v-slot:prepend>
           <q-icon name="search" />
@@ -122,6 +124,7 @@ export default {
       input: "",
       widthInputDescripcion: 0,
       popupOpened: false,
+      inputAclarado: false,
     }
   },
   computed: {
