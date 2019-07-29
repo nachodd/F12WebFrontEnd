@@ -32,11 +32,43 @@
         no-parent-event
       >
         <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
-          <div class="row q-pt-sm q-col-gutter-xs">
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
+          <div class="row q-pt-sm q-col-gutter-sm">
+            <div
+              class="col-xs-3 col-sm-2 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+            >
+              Req. Nro
+            </div>
+            <div class="col-xs-9 col-sm-4 col-md-4 col-lg-5">
+              <q-input v-model="__reqId" type="number" min="0" />
+            </div>
+
+            <div
+              class="col-xs-3 col-sm-2 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+            >
+              Estado
+            </div>
+            <div class="col-xs-9 col-sm-4 col-md-4 col-lg-5">
+              <q-select
+                v-model="__estados"
+                :options="estadosOptionsFiltered"
+                clearable
+                dense
+                use-input
+                use-chips
+                multiple
+                color="deep-purple-10"
+                @filter="filterEstadosAsignados"
+              />
+            </div>
+          </div>
+
+          <div class="row q-pt-sm q-col-gutter-sm">
+            <div
+              class="col-xs-3 col-sm-2 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+            >
               Sistema
             </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
+            <div class="col-xs-9 col-sm-4 col-md-4 col-lg-5">
               <select-custom
                 v-model="__sistema"
                 :options="sistemas"
@@ -48,10 +80,12 @@
               />
             </div>
 
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
-              Tipo de Requerimiento
+            <div
+              class="col-xs-3 col-sm-2 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+            >
+              Tipo Requerimiento
             </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
+            <div class="col-xs-9 col-sm-4 col-md-4 col-lg-5">
               <select-custom
                 v-model="__tipo"
                 :options="requerimientosTipos"
@@ -97,11 +131,19 @@
 </template>
 <script>
 import SelectCustom from "comp/Requerimientos/SelectCustom"
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 export default {
   name: "MisRequerimientosMenuFiltros",
   components: { SelectCustom },
   props: {
+    reqId: {
+      type: String,
+      default: null,
+    },
+    estados: {
+      type: Array,
+      default: null,
+    },
     sistemaId: {
       type: Object,
       default: null,
@@ -125,6 +167,7 @@ export default {
       widthInputDescripcion: 0,
       popupOpened: false,
       inputAclarado: false,
+      estadosOptionsFiltered: null,
     }
   },
   computed: {
@@ -133,7 +176,7 @@ export default {
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
-
+    ...mapGetters("requerimientos", ["optionsEstados"]),
     sistemaSetted() {
       return this.__sistema && Boolean(this.__sistema.id)
     },
@@ -164,6 +207,22 @@ export default {
         this.$emit("update:descripcion", value)
       },
     },
+    __reqId: {
+      get() {
+        return this.reqId
+      },
+      set(value) {
+        this.$emit("update:reqId", value)
+      },
+    },
+    __estados: {
+      get() {
+        return this.estados
+      },
+      set(value) {
+        this.$emit("update:estados", value)
+      },
+    },
     sistemaDescripcion() {
       return _.get(this, "__sistema.descripcion", null)
     },
@@ -183,12 +242,21 @@ export default {
       this.popupOpened = false
       this.$emit("buscar")
     },
+    filterEstadosAsignados(val, update) {
+      if (val === "") {
+        update(() => {
+          this.estadosOptionsFiltered = this.optionsEstados
+        })
+        return
+      }
+      update(() => {
+        const needle = val.toLowerCase()
+        this.estadosOptionsFiltered = this.optionsEstados.filter(
+          v => v.label.toLowerCase().indexOf(needle) > -1,
+        )
+      })
+    },
     removeFilter(filter) {
-      // this.$store.dispatch("asignacionRequerimientos/setFilter", {
-      //   filter,
-      //   value: null,
-      // })
-
       if (filter == "requerimientoTipo") {
         this.__tipo = null
       }

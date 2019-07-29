@@ -53,7 +53,7 @@
             <div
               class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
             >
-              Tipo de Requerimiento
+              Tipo Requerimiento
             </div>
             <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
               <select-custom

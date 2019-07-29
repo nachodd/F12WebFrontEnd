@@ -34,7 +34,9 @@
       >
         <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
           <div class="row q-pt-sm q-col-gutter-xs">
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
+            <div
+              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+            >
               Sistema
             </div>
             <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
@@ -49,8 +51,10 @@
               />
             </div>
 
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
-              Tipo de Requerimiento
+            <div
+              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+            >
+              Tipo Requerimiento
             </div>
             <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
               <select-custom

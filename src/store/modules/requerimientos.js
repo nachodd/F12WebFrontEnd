@@ -27,7 +27,7 @@ const state = {
     { codigo: "EXEC", descripcion: "En ejecución", id: 5 },
     { codigo: "RESC", descripcion: "Resuelto cerrado", id: 6 },
     { codigo: "REJC", descripcion: "Rechazado", id: 7 },
-    { codigo: "INGR", descripcion: "Ingresado", id: 8 },
+    // { codigo: "INGR", descripcion: "Ingresado", id: 8 },
     { codigo: "STPR", descripcion: "Pasado a procesos", id: 9 }, // sent to process
     { codigo: "TEST", descripcion: "Testing", id: 10 },
   ],
@@ -59,6 +59,14 @@ const getters = {
   detalleRequerimientoId: state => {
     return _.get(state, "detalleRequerimientoItem.id", null)
   },
+  optionsEstados: state =>
+    _(state.estados)
+      .map(estado => ({
+        label: estado.descripcion,
+        value: estado.id,
+      }))
+      .orderBy("label")
+      .value(),
 }
 
 const mutations = {
