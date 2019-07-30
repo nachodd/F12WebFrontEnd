@@ -1,4 +1,5 @@
 <template>
+  <!-- style="width: 100%; max-width:600px; margin:0 auto;" -->
   <div class="q-pb-md">
     <q-resize-observer @resize="onResize" />
     <div class="q-mb-sm">
@@ -7,6 +8,7 @@
         v-model.trim="__descripcion"
         class="filter"
         :class="{ popupOpened: popupOpened, aclarado: inputAclarado }"
+        :style="{ width: widthInputDescripcion + 'px important' }"
         dense
         standout="bg-white text-black"
         placeholder="Buscar"
@@ -31,98 +33,117 @@
         content-class="q-menu-fix"
         no-parent-event
       >
-        <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
-          <div class="row q-pt-sm q-col-gutter-sm">
-            <div
-              class="col-xs-3 col-sm-2 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
-            >
-              Req. Nro
-            </div>
-            <div class="col-xs-9 col-sm-4 col-md-4 col-lg-5">
-              <q-input v-model="__reqId" type="number" min="0" />
+        <div
+          class="q-pa-md row"
+          :style="{ width: widthInputDescripcion + 'px' }"
+        >
+          <div class="col-md-6 offset-md-3 col-sm-8 offset-sm-2 col-xs-12">
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Req. Nro
+              </div>
+              <div class="col-xs-9">
+                <q-input
+                  v-model.number="__reqId"
+                  dense
+                  type="number"
+                  min="0"
+                  color="deep-purple-10"
+                />
+              </div>
+
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Estados
+              </div>
+              <div class="col-xs-9">
+                <q-select
+                  v-model="__estados"
+                  :options="estadosOptionsFiltered"
+                  clearable
+                  dense
+                  use-input
+                  use-chips
+                  multiple
+                  color="deep-purple-10"
+                  @filter="filterEstadosAsignados"
+                />
+              </div>
             </div>
 
-            <div
-              class="col-xs-3 col-sm-2 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
-            >
-              Estado
-            </div>
-            <div class="col-xs-9 col-sm-4 col-md-4 col-lg-5">
-              <q-select
-                v-model="__estados"
-                :options="estadosOptionsFiltered"
-                clearable
-                dense
-                use-input
-                use-chips
-                multiple
-                color="deep-purple-10"
-                @filter="filterEstadosAsignados"
-              />
-            </div>
-          </div>
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Sistema
+              </div>
+              <div class="col-xs-9">
+                <select-custom
+                  v-model="__sistema"
+                  :options="sistemas"
+                  dense
+                  color="accent"
+                  :use-filter="false"
+                  :loading="sistemas.length === 0"
+                />
+              </div>
 
-          <div class="row q-pt-sm q-col-gutter-sm">
-            <div
-              class="col-xs-3 col-sm-2 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
-            >
-              Sistema
-            </div>
-            <div class="col-xs-9 col-sm-4 col-md-4 col-lg-5">
-              <select-custom
-                v-model="__sistema"
-                :options="sistemas"
-                dense
-                label="Sistema"
-                color="accent"
-                :use-filter="false"
-                :loading="sistemas.length === 0"
-              />
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Tipo Req.
+              </div>
+              <div class="col-xs-9">
+                <select-custom
+                  v-model="__tipo"
+                  :options="requerimientosTipos"
+                  dense
+                  color="accent"
+                  :use-filter="false"
+                  :loading="requerimientosTipos.length === 0"
+                />
+              </div>
             </div>
 
-            <div
-              class="col-xs-3 col-sm-2 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
-            >
-              Tipo Requerimiento
+            <div class="row q-pt-sm justify-end">
+              <q-btn size="md" color="deep-purple-10" @click.native="filtrar">
+                Filtrar
+              </q-btn>
             </div>
-            <div class="col-xs-9 col-sm-4 col-md-4 col-lg-5">
-              <select-custom
-                v-model="__tipo"
-                :options="requerimientosTipos"
-                dense
-                label="Tipo de Requerimiento"
-                color="accent"
-                :use-filter="false"
-                :loading="requerimientosTipos.length === 0"
-              />
-            </div>
-          </div>
-
-          <div class="row q-pt-sm justify-end">
-            <q-btn size="md" color="deep-purple-10" @click.native="filtrar">
-              Filtrar
-            </q-btn>
           </div>
         </div>
       </q-menu>
     </div>
     <div class="q-mt-sm">
-      <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
-      <span v-if="sistemaSetted" class="q-mx-xs">
+      <span v-if="someFilterIsSetted">Filtros:</span>
+      <span v-if="reqIdSetted && filterPhoto.reqId" class="q-mx-xs">
+        <q-chip removable @remove="removeFilter('reqId')">
+          <q-avatar color="green" text-color="white" class="filter-label">
+            Id:
+          </q-avatar>
+          {{ filterPhoto.reqId }}
+          <q-tooltip>Requerimiento Nro</q-tooltip>
+        </q-chip>
+      </span>
+      <span v-if="estadosSetted && filterPhoto.estados" class="q-mx-xs">
+        <q-chip removable @remove="removeFilter('estados')">
+          <q-avatar color="orange" text-color="white" class="filter-label">
+            Est.:
+          </q-avatar>
+          {{ filterPhoto.estados }}
+          <q-tooltip>Estdos de los Requerimientos</q-tooltip>
+        </q-chip>
+      </span>
+      <span v-if="sistemaSetted && filterPhoto.sistema" class="q-mx-xs">
         <q-chip removable @remove="removeFilter('sistema')">
           <q-avatar color="red" text-color="white" class="filter-label">
             Sist:
           </q-avatar>
-          {{ sistemaDescripcion }}
+          {{ filterPhoto.sistema }}
           <q-tooltip>Sistema</q-tooltip>
         </q-chip>
       </span>
-      <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
+      <span v-if="tipoRequerimientoSetted && filterPhoto.tipo" class="q-mx-xs">
         <q-chip removable @remove="removeFilter('requerimientoTipo')">
           <q-avatar color="blue" text-color="white" class="filter-label">
             Tipo:
           </q-avatar>
-          {{ tipoRequerimientoDescripcion }}
+          {{ filterPhoto.tipo }}
           <q-tooltip>Tipo de Requerimiento</q-tooltip>
         </q-chip>
       </span>
@@ -132,6 +153,7 @@
 <script>
 import SelectCustom from "comp/Requerimientos/SelectCustom"
 import { mapState, mapGetters } from "vuex"
+
 export default {
   name: "MisRequerimientosMenuFiltros",
   components: { SelectCustom },
@@ -168,6 +190,13 @@ export default {
       popupOpened: false,
       inputAclarado: false,
       estadosOptionsFiltered: null,
+      filterPhoto: {
+        reqId: null,
+        estados: null,
+        sistema: null,
+        tipo: null,
+      },
+      someFilterIsSetted: false,
     }
   },
   computed: {
@@ -183,6 +212,26 @@ export default {
     tipoRequerimientoSetted() {
       return this.__tipo && Boolean(this.__tipo.id)
     },
+    reqIdSetted() {
+      return this.__reqId && Boolean(this.__reqId)
+    },
+    estadosSetted() {
+      return (
+        this.estados && Array.isArray(this.estados) && this.estados.length > 0
+      )
+    },
+    // someFilterIsSetted() {
+    //   debugger
+    //   const res = _.some([
+    //     this.__reqId,
+    //     this.__estados,
+    //     this.__sistema,
+    //     this.__tipo,
+    //   ])
+    //   debugger
+    //
+    //   return res
+    // },
     __sistema: {
       get() {
         return this.sistemaId
@@ -223,6 +272,11 @@ export default {
         this.$emit("update:estados", value)
       },
     },
+    estadosDescripcion() {
+      return this.estadosSetted
+        ? this.__estados.map(st => st.label).join(", ")
+        : ""
+    },
     sistemaDescripcion() {
       return _.get(this, "__sistema.descripcion", null)
     },
@@ -239,8 +293,26 @@ export default {
       this.widthInputDescripcion = size.width
     },
     filtrar() {
+      this.someFilterIsSetted = _.some([
+        this.__reqId,
+        this.__estados,
+        this.__sistema,
+        this.__tipo,
+      ])
+      this.updateFilterPhoto()
       this.popupOpened = false
       this.$emit("buscar")
+    },
+    updateFilterPhoto() {
+      this.filterPhoto.reqId = this.reqIdSetted ? this.reqId : null
+      this.filterPhoto.estados =
+        this.__estados !== null ? this.estadosDescripcion : null
+      this.filterPhoto.sistema = this.sistemaSetted
+        ? this.sistemaDescripcion
+        : null
+      this.filterPhoto.tipo = this.tipoRequerimientoSetted
+        ? this.tipoRequerimientoDescripcion
+        : null
     },
     filterEstadosAsignados(val, update) {
       if (val === "") {
@@ -256,18 +328,38 @@ export default {
         )
       })
     },
-    removeFilter(filter) {
+    async removeFilter(filter) {
+      // NOTE: directamente llamamos $emit("update:...", null) porque setear el campo directamente (ej: __reqId = null) no funcionaba
+      // Ademas lo ponemos con un await asi esperamos que el evento se propage arriba y actualice
+      if (filter == "reqId") {
+        this.__reqId = null
+        // await this.$emit("update:reqId", null)
+      }
+      if (filter == "estados") {
+        debugger
+        this.__estados = null
+        this.filterPhoto.estados = null
+        debugger
+        // await this.$emit("update:estados", null)
+      }
       if (filter == "requerimientoTipo") {
         this.__tipo = null
+        // await this.$emit("update:requerimientoTipo", null)
       }
-
       if (filter == "sistema") {
         this.__sistema = null
+        // await this.$emit("update:sistemaId", null)
       }
-
+      this.someFilterIsSetted = _.some([
+        this.__reqId,
+        this.__estados,
+        this.__sistema,
+        this.__tipo,
+      ])
+      this.updateFilterPhoto()
       this.filtrar()
     },
   },
 }
 </script>
-<style lang="stylus"></style>
+<style lang="stylus" scoped></style>

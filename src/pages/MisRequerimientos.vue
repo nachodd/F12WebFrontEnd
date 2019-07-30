@@ -76,14 +76,16 @@ export default {
   methods: {
     async getListRequerimientos() {
       try {
-        // FIXME Ver porque no andan los estados aca
-        console.log(this.estados)
+        const reqEstados =
+          this.filtros.estados === null
+            ? null
+            : this.filtros.estados.map(e => e.value)
         const filtros = {
           seccion_id: null,
           sistema_id: _.get(this, "filtros.sistemaId.id", null),
           requerimiento_tipo: _.get(this, "filtros.requerimientoTipo.id", null),
           requerimiento_id: _.get(this, "filtros.reqId", null),
-          requerimiento_estado: null,
+          requerimiento_estado: reqEstados,
           fecha_desde: null,
           fecha_hasta: null,
           descripcion: this.filtros.descripcion,

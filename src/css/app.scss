@@ -167,6 +167,9 @@ body {
 }
 
 /** CSS PARA FILTROS */
+.q-menu-fix .q-field__control {
+  // height: 40px;
+}
 .q-menu-fix {
   z-index: 1 !important;
   border-radius: 0px 0px 4px 4px !important;
@@ -215,6 +218,9 @@ body {
   opacity: 0.5;
   background-color: rgba(255,255,255, 0.5) !important;
 } */
+.filter {
+  // max-width: 600px;
+}
 .filter.q-field--standout .q-field__control:before {
   background-color: rgba(255,255,255, 0.5);
 }

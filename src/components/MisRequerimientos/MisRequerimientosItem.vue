@@ -5,13 +5,13 @@
     </td>
 
     <td class="text-weight-medium mw-150">
-      <span class="ellipsis-2-lines">
+      <span class="ellipsis-2-lines ws-normal">
         {{ req.asunto }}
       </span>
     </td>
 
     <td class="gt-sm mw-150">
-      <span class="ellipsis-3-lines text-caption">
+      <span class="ellipsis-3-lines text-caption ws-normal">
         {{ req.descripcion }}
       </span>
     </td>
@@ -26,7 +26,9 @@
       <div class="text-weight-medium ellipsis">
         {{ req.usuario.nombre }}
       </div>
-      <div class="text-caption">{{ req.fecha_alta | formatearFecha }}</div>
+      <div class="text-caption ellipsis">
+        {{ req.fecha_alta | formatearFecha }}
+      </div>
     </td>
 
     <td class="mw-100 gt-xs">
@@ -45,7 +47,7 @@
     </td>
 
     <td class="gt-xs text-right">
-      <div class="text-grey-6 test">
+      <div class="text-grey-6">
         <q-btn
           size="10px"
           flat
