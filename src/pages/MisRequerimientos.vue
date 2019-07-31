@@ -1,9 +1,6 @@
 <template>
   <q-page padding class="q-pt-lg">
-    <mis-requerimientos-menu-filtros
-      v-bind.sync="filtros"
-      @buscar="getListRequerimientos"
-    />
+    <mis-requerimientos-menu-filtros @buscar="getListRequerimientos" />
     <mis-requerimientos-listado
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
@@ -40,13 +37,15 @@ export default {
       page: 1,
       perPage: 10,
       lastPage: 0,
-      filtros: {
-        sistemaId: null,
-        requerimientoTipo: null,
+      filtroLastValues: {
         descripcion: null,
+        reqId: null,
+        estados: null,
+        sistema: null,
+        tipo: null,
         // seccionId:null
       },
-      crudModalOpen: false,
+      // crudModalOpen: false,
     }
   },
   computed: {
@@ -59,36 +58,51 @@ export default {
     current() {
       this.getListRequerimientos()
     },
-    "$route.meta"({ showCrudModal = false }) {
-      this.crudModalOpen = showCrudModal
-    },
+    // "$route.meta"({ showCrudModal = false }) {
+    //   this.crudModalOpen = showCrudModal
+    // },
   },
   async mounted() {
-    this.getListRequerimientos()
-    await this.$store.dispatch("requerimientos/createRequerimiento")
+    // this.getListRequerimientos() // Se paso al componente filtro
     Bus.$on("load-list-requerimientos", this.getListRequerimientos)
   },
   unmounted() {
     Bus.$off("load-list-requerimientos", this.getListRequerimientos)
   },
   methods: {
-    async getListRequerimientos() {
+    async getListRequerimientos(filtrosValues) {
       try {
-        const filtros = {
-          seccion_id: null,
-          sistema_id: _.get(this, "filtros.sistemaId.id", null),
-          requerimiento_tipo: _.get(this, "filtros.requerimientoTipo.id", null),
-          requerimiento_id: null,
-          requerimiento_estado: null,
-          fecha_desde: null,
-          fecha_hasta: null,
-          descripcion: this.filtros.descripcion,
-          page: this.current,
-          perPage: 10,
+        // Si el filtro fue enviado como parametro, lo guardo localmente.
+        // Cuando se llama al paginador, no tengo el valor del filtro. Por eso lo guardo previamente
+        if (filtrosValues) {
+          this.filtroLastValues.descripcion = filtrosValues.descripcion
+          this.filtroLastValues.reqId = filtrosValues.reqId
+          this.filtroLastValues.estados = filtrosValues.estados
+          this.filtroLastValues.sistema = filtrosValues.sistema
+          this.filtroLastValues.tipo = filtrosValues.tipo
         }
+
+        const reqEstados =
+          (this.filtroLastValues.estados &&
+            this.filtroLastValues.estados.map(e => e.value)) ||
+          null
+
         const res = await this.$store.dispatch(
           "requerimientos/listRequerimientos",
-          { filtros },
+          {
+            filtros: {
+              seccion_id: null,
+              sistema_id: _.get(this, "filtroLastValues.sistema.id", null),
+              requerimiento_tipo: _.get(this, "filtroLastValues.tipo.id", null),
+              requerimiento_id: _.get(this, "filtroLastValues.reqId", null),
+              requerimiento_estado: reqEstados,
+              fecha_desde: null,
+              fecha_hasta: null,
+              descripcion: this.filtroLastValues.descripcion,
+              page: this.current,
+              perPage: 10,
+            },
+          },
         )
 
         this.lastPage = res.last_page

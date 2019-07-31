@@ -26,10 +26,14 @@ export function updateRequerimiento(data, requerimientoId) {
 }
 
 export function listRequerimientos(userId, filtros) {
+  let query = { ...filtros }
+  query.requerimiento_estado = query.requerimiento_estado
+    ? JSON.stringify(query.requerimiento_estado)
+    : null
   return request({
     url: `/v1/f12/${userId}/requerimientos`,
     method: "get",
-    params: filtros,
+    params: query,
   })
 }
 

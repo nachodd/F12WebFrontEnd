@@ -1,58 +1,67 @@
 <template>
-  <tr class="items-center">
-    <td class="q-px-sm">
+  <q-item
+    :active="esImportante"
+    active-class="text-black"
+    class="cursor-pointer row"
+    :class="itemClass"
+  >
+    <q-item-section avatar class="q-px-sm col-md-auto">
       <q-badge color="grey">#{{ req.id }}</q-badge>
-    </td>
+    </q-item-section>
 
-    <td class="text-weight-medium mw-150">
-      <span class="ellipsis-2-lines ws-normal">
+    <q-item-section class="col-md-2 col-xs-6">
+      <q-item-label class="text-left text-weight-medium">
         {{ req.asunto }}
-      </span>
-    </td>
+      </q-item-label>
+    </q-item-section>
 
-    <td class="gt-sm mw-150">
-      <span class="ellipsis-3-lines text-caption ws-normal">
-        {{ req.descripcion }}
-      </span>
-    </td>
+    <q-item-section class="col-md-2 col-xs-6 gt-xs">
+      <q-item-label caption lines="3">{{ req.descripcion }}</q-item-label>
+    </q-item-section>
 
-    <td class="text-center mw-75">
-      <q-badge :color="estadoColor" text-color="white" class="estado">
-        {{ req.estado.descripcion }}
-      </q-badge>
-    </td>
+    <q-item-section class="col-md-2 col-xs-6">
+      <q-item-label lines="1" class="text-weight-medium text-left">
+        <q-badge :color="estadoColor" text-color="white">
+          {{ req.estado.descripcion }}
+        </q-badge>
+      </q-item-label>
+    </q-item-section>
 
-    <td class="mw-100">
-      <div class="text-weight-medium ellipsis">
-        {{ req.usuario.nombre }}
-      </div>
-      <div class="text-caption ellipsis">
-        {{ req.fecha_alta | formatearFecha }}
-      </div>
-    </td>
+    <q-item-section class="col-md-2 col-xs-6">
+      <q-item-label lines="1" class="q-mt-sm text-left text-center elipsis">
+        <span class="text-weight-medium">{{ req.usuario.nombre }}</span>
+      </q-item-label>
+      <q-item-label caption>{{ req.fecha_alta | formatearFecha }}</q-item-label>
+    </q-item-section>
 
-    <td class="mw-100 gt-xs">
-      <div class="ellipsis">
+    <q-item-section top class="col-md-2 col-xs-12 q-my-xs">
+      <q-item-label class="q-mt-sm" lines="1">
         <span class="text-weight-medium">Area:</span>
         {{ req.area.descripcion }}
-      </div>
-      <div class="ellipsis">
-        <span class="text-weight-medium">Sist.:</span>
+      </q-item-label>
+      <q-item-label lines="1">
+        <span class="text-weight-medium">Sistema:</span>
         {{ req.sistema.descripcion }}
-      </div>
-      <div class="ellipsis">
+      </q-item-label>
+      <q-item-label lines="1">
         <span class="text-weight-medium">Tipo:</span>
         {{ req.tipo.descripcion }}
-      </div>
-    </td>
+      </q-item-label>
+    </q-item-section>
 
-    <td class="gt-xs text-right">
-      <div class="text-grey-6">
+    <q-item-section
+      v-show="$q.screen.gt.xs"
+      top
+      side
+      class="padding-none col-1"
+    >
+      <div class="text-grey-8 q-gutter-xs">
         <q-btn
-          size="10px"
+          size="12px"
           flat
+          dense
           round
-          icon="fas fa-edit"
+          icon="more_vert"
           :to="{ query: { ver: 'editarRequerimiento', id: req.id } }"
         >
           <q-tooltip>
@@ -60,8 +69,8 @@
           </q-tooltip>
         </q-btn>
       </div>
-    </td>
-  </tr>
+    </q-item-section>
+  </q-item>
 </template>
 <style scope>
 .avatar--lg {
@@ -81,7 +90,7 @@ export default {
   name: "MisRequerimientosItem",
   filters: {
     formatearFecha: function(value) {
-      return date.formatDate(value, "DD/MM HH:mm")
+      return date.formatDate(value, "DD/MM/YYYY HH:mm")
     },
   },
   props: {
@@ -127,9 +136,3 @@ export default {
   },
 }
 </script>
-<style lang="stylus" scoped>
-.text-caption
-  color: $grey-7
-.estado
-  white-space normal
-</style>
