@@ -5,7 +5,7 @@
     <div class="q-mb-sm">
       <q-input
         ref="inputDescripcion"
-        v-model.trim="__descripcion"
+        v-model.trim="filterValues.descripcion"
         class="filter"
         :class="{ popupOpened: popupOpened, aclarado: inputAclarado }"
         :style="{ width: widthInputDescripcion + 'px important' }"
@@ -34,17 +34,20 @@
         no-parent-event
       >
         <div
-          class="q-pa-md row"
-          :style="{ width: widthInputDescripcion + 'px' }"
+          class="q-pa-md row justify-center"
+          :style="{
+            width: widthInputDescripcion + 'px',
+            'padding-top': '0',
+          }"
         >
-          <div class="col-md-6 offset-md-3 col-sm-8 offset-sm-2 col-xs-12">
+          <div class="col-md-8 col-sm-8 col-xs-12">
             <div class="row q-mt-sm q-col-gutter-sm items-center">
               <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
-                Req. Nro
+                Nro Requerimiento
               </div>
               <div class="col-xs-9">
                 <q-input
-                  v-model.number="__reqId"
+                  v-model.number="filterValues.reqId"
                   dense
                   type="number"
                   min="0"
@@ -57,7 +60,7 @@
               </div>
               <div class="col-xs-9">
                 <q-select
-                  v-model="__estados"
+                  v-model="filterValues.estados"
                   :options="estadosOptionsFiltered"
                   clearable
                   dense
@@ -76,7 +79,7 @@
               </div>
               <div class="col-xs-9">
                 <select-custom
-                  v-model="__sistema"
+                  v-model="filterValues.sistema"
                   :options="sistemas"
                   dense
                   color="accent"
@@ -86,11 +89,11 @@
               </div>
 
               <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
-                Tipo Req.
+                Tipo Requerimiento
               </div>
               <div class="col-xs-9">
                 <select-custom
-                  v-model="__tipo"
+                  v-model="filterValues.tipo"
                   :options="requerimientosTipos"
                   dense
                   color="accent"
@@ -100,8 +103,11 @@
               </div>
             </div>
 
-            <div class="row q-pt-sm justify-end">
-              <q-btn size="md" color="deep-purple-10" @click.native="filtrar">
+            <div class="row q-mt-md justify-end">
+              <q-btn color="negative" flat size="md" @click="borrarFiltros">
+                Limpiar Filtro
+              </q-btn>
+              <q-btn size="md" color="deep-purple-10" @click="filtrar">
                 Filtrar
               </q-btn>
             </div>
@@ -158,38 +164,24 @@ export default {
   name: "MisRequerimientosMenuFiltros",
   components: { SelectCustom },
   props: {
-    reqId: {
-      type: String,
-      default: null,
-    },
-    estados: {
-      type: Array,
-      default: null,
-    },
-    sistemaId: {
+    filtros: {
       type: Object,
-      default: null,
-    },
-    seccionId: {
-      type: Object,
-      default: null,
-    },
-    requerimientoTipo: {
-      type: Object,
-      default: null,
-    },
-    descripcion: {
-      type: String,
-      default: null,
+      default: () => ({}),
     },
   },
   data() {
     return {
-      input: "",
       widthInputDescripcion: 0,
       popupOpened: false,
       inputAclarado: false,
       estadosOptionsFiltered: null,
+      filterValues: {
+        descripcion: null,
+        reqId: null,
+        estados: null,
+        sistema: null,
+        tipo: null,
+      },
       filterPhoto: {
         reqId: null,
         estados: null,
@@ -207,112 +199,77 @@ export default {
     }),
     ...mapGetters("requerimientos", ["optionsEstados"]),
     sistemaSetted() {
-      return this.__sistema && Boolean(this.__sistema.id)
+      return this.filterValues.sistema && Boolean(this.filterValues.sistema.id)
     },
     tipoRequerimientoSetted() {
-      return this.__tipo && Boolean(this.__tipo.id)
+      return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
     },
     reqIdSetted() {
-      return this.__reqId && Boolean(this.__reqId)
+      return this.filterValues.reqId && Boolean(this.filterValues.reqId)
     },
     estadosSetted() {
       return (
-        this.estados && Array.isArray(this.estados) && this.estados.length > 0
+        this.filterValues.estados &&
+        Array.isArray(this.filterValues.estados) &&
+        this.filterValues.estados.length > 0
       )
-    },
-    // someFilterIsSetted() {
-    //   debugger
-    //   const res = _.some([
-    //     this.__reqId,
-    //     this.__estados,
-    //     this.__sistema,
-    //     this.__tipo,
-    //   ])
-    //   debugger
-    //
-    //   return res
-    // },
-    __sistema: {
-      get() {
-        return this.sistemaId
-      },
-      set(value) {
-        this.$emit("update:sistemaId", value)
-      },
-    },
-    __tipo: {
-      get() {
-        return this.requerimientoTipo
-      },
-      set(value) {
-        this.$emit("update:requerimientoTipo", value)
-      },
-    },
-    __descripcion: {
-      get() {
-        return this.descripcion
-      },
-      set(value) {
-        this.$emit("update:descripcion", value)
-      },
-    },
-    __reqId: {
-      get() {
-        return this.reqId
-      },
-      set(value) {
-        this.$emit("update:reqId", value)
-      },
-    },
-    __estados: {
-      get() {
-        return this.estados
-      },
-      set(value) {
-        this.$emit("update:estados", value)
-      },
     },
     estadosDescripcion() {
       return this.estadosSetted
-        ? this.__estados.map(st => st.label).join(", ")
+        ? this.filterValues.estados.map(st => st.label).join(", ")
         : ""
     },
     sistemaDescripcion() {
-      return _.get(this, "__sistema.descripcion", null)
+      return _.get(this, "filterValues.sistema.descripcion", null)
     },
     tipoRequerimientoDescripcion() {
-      return _.get(this, "__tipo.descripcion", null)
+      return _.get(this, "filterValues.tipo.descripcion", null)
     },
     iconOpenFilter() {
       return this.popupOpened ? "arrow_drop_up" : "arrow_drop_down"
     },
   },
-  mounted() {},
+  async mounted() {
+    await this.$store.dispatch("requerimientos/createRequerimiento")
+    const { descripcion, reqId, estados, sistema, tipo } = this.filtros
+    if (descripcion) this.filterValues.descripcion = descripcion
+    if (reqId) this.filterValues.reqId = reqId
+    if (estados) this.filterValues.estados = estados
+    if (sistema) this.filterValues.sistema = sistema
+    if (tipo) this.filterValues.tipo = tipo
+    this.filtrar()
+  },
   methods: {
     onResize(size) {
       this.widthInputDescripcion = size.width
     },
     filtrar() {
-      this.someFilterIsSetted = _.some([
-        this.__reqId,
-        this.__estados,
-        this.__sistema,
-        this.__tipo,
-      ])
       this.updateFilterPhoto()
+      this.getSomeFilterIsSetted()
       this.popupOpened = false
-      this.$emit("buscar")
+      this.$emit("buscar", this.filterValues)
+    },
+    borrarFiltros() {
+      this.filterValues.descripcion = null
+      this.filterValues.reqId = null
+      this.filterValues.estados = null
+      this.filterValues.tipo = null
+      this.filterValues.sistema = null
+      this.filtrar()
+    },
+    getSomeFilterIsSetted() {
+      this.someFilterIsSetted = _.some([
+        this.filterValues.reqId !== null,
+        this.estadosSetted,
+        this.filterValues.sistema !== null,
+        this.filterValues.tipo !== null,
+      ])
     },
     updateFilterPhoto() {
-      this.filterPhoto.reqId = this.reqIdSetted ? this.reqId : null
-      this.filterPhoto.estados =
-        this.__estados !== null ? this.estadosDescripcion : null
-      this.filterPhoto.sistema = this.sistemaSetted
-        ? this.sistemaDescripcion
-        : null
-      this.filterPhoto.tipo = this.tipoRequerimientoSetted
-        ? this.tipoRequerimientoDescripcion
-        : null
+      this.filterPhoto.reqId = this.filterValues.reqId
+      this.filterPhoto.estados = this.estadosDescripcion || null
+      this.filterPhoto.sistema = this.sistemaDescripcion || null
+      this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
     },
     filterEstadosAsignados(val, update) {
       if (val === "") {
@@ -329,34 +286,18 @@ export default {
       })
     },
     async removeFilter(filter) {
-      // NOTE: directamente llamamos $emit("update:...", null) porque setear el campo directamente (ej: __reqId = null) no funcionaba
-      // Ademas lo ponemos con un await asi esperamos que el evento se propage arriba y actualice
       if (filter == "reqId") {
-        this.__reqId = null
-        // await this.$emit("update:reqId", null)
+        this.filterValues.reqId = null
       }
       if (filter == "estados") {
-        debugger
-        this.__estados = null
-        this.filterPhoto.estados = null
-        debugger
-        // await this.$emit("update:estados", null)
+        this.filterValues.estados = null
       }
       if (filter == "requerimientoTipo") {
-        this.__tipo = null
-        // await this.$emit("update:requerimientoTipo", null)
+        this.filterValues.tipo = null
       }
       if (filter == "sistema") {
-        this.__sistema = null
-        // await this.$emit("update:sistemaId", null)
+        this.filterValues.sistema = null
       }
-      this.someFilterIsSetted = _.some([
-        this.__reqId,
-        this.__estados,
-        this.__sistema,
-        this.__tipo,
-      ])
-      this.updateFilterPhoto()
       this.filtrar()
     },
   },
