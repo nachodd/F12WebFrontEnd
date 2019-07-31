@@ -8,7 +8,9 @@
       }"
       class="chip-large"
     >
-      {{ props.avatarText }}
+      <div class="chip-large__text">
+        {{ props.avatarText }}
+      </div>
     </q-avatar>
     {{ props.text }}
   </q-chip>
@@ -43,5 +45,9 @@ export default {
   border-radius: 16px;
   padding: 0 5px;
   font-weight: 600;
+}
+.chip-large__text {
+  max-width: 200px;
+  text-overflow: ellipsis;
 }
 </style>

@@ -6,6 +6,7 @@ https://developers.google.com/web/updates/2017/11/overscroll-behavior
 */
 body {
   overscroll-behavior-y: none;
+  min-width: 375px;
 }
 
 .card-header-offset {
@@ -167,6 +168,9 @@ body {
 }
 
 /** CSS PARA FILTROS */
+.q-menu-fix .q-field__control {
+  // height: 40px;
+}
 .q-menu-fix {
   z-index: 1 !important;
   border-radius: 0px 0px 4px 4px !important;
@@ -198,6 +202,12 @@ body {
 .filter-label .q-avatar__content {
   font-size: 0.4em;
 }
+.filter-chip__text {
+  text-overflow: ellipsis;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+}
 .filter__icon {
   border-radius: 50%;
   width: 30px;
@@ -215,6 +225,9 @@ body {
   opacity: 0.5;
   background-color: rgba(255,255,255, 0.5) !important;
 } */
+.filter {
+  // max-width: 600px;
+}
 .filter.q-field--standout .q-field__control:before {
   background-color: rgba(255,255,255, 0.5);
 }
@@ -278,3 +291,22 @@ body.q-body--loading #q-app {
   padding-top: 32px
 }
 
+
+.mw-50 {
+  max-width: 50px;
+}
+.mw-75 {
+  max-width: 75px;
+}
+.mw-100 {
+  max-width: 100px;
+}
+.mw-150 {
+  max-width: 150px;
+}
+.mw-200 {
+  max-width: 200px;
+}
+.ws-normal {
+  white-space: normal !important;
+}

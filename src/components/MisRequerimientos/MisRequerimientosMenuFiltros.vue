@@ -4,7 +4,7 @@
     <div class="q-mb-sm">
       <q-input
         ref="inputDescripcion"
-        v-model.trim="__descripcion"
+        v-model.trim="filterValues.descripcion"
         class="filter"
         :class="{ popupOpened: popupOpened, aclarado: inputAclarado }"
         dense
@@ -31,64 +31,133 @@
         content-class="q-menu-fix"
         no-parent-event
       >
-        <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
-          <div class="row q-pt-sm q-col-gutter-xs">
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
-              Sistema
+        <div
+          class="q-pa-md row justify-center"
+          :style="{
+            width: widthInputDescripcion + 'px',
+            'padding-top': '0',
+          }"
+        >
+          <div class="col-md-8 col-sm-8 col-xs-12">
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Nro Requerimiento
+              </div>
+              <div class="col-xs-9">
+                <q-input
+                  v-model.number="filterValues.reqId"
+                  dense
+                  type="number"
+                  min="0"
+                  color="deep-purple-10"
+                />
+              </div>
             </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-              <select-custom
-                v-model="__sistema"
-                :options="sistemas"
-                dense
-                label="Sistema"
-                color="accent"
-                :use-filter="false"
-                :loading="sistemas.length === 0"
-              />
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Estados
+              </div>
+              <div class="col-xs-9">
+                <q-select
+                  v-model="filterValues.estados"
+                  :options="estadosOptionsFiltered"
+                  clearable
+                  dense
+                  use-input
+                  use-chips
+                  multiple
+                  color="deep-purple-10"
+                  @filter="filterEstadosAsignados"
+                />
+              </div>
             </div>
 
-            <div class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md">
-              Tipo de Requerimiento
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Sistema
+              </div>
+              <div class="col-xs-9">
+                <select-custom
+                  v-model="filterValues.sistema"
+                  :options="sistemas"
+                  dense
+                  color="accent"
+                  :use-filter="false"
+                  :loading="sistemas.length === 0"
+                />
+              </div>
             </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-              <select-custom
-                v-model="__tipo"
-                :options="requerimientosTipos"
-                dense
-                label="Tipo de Requerimiento"
-                color="accent"
-                :use-filter="false"
-                :loading="requerimientosTipos.length === 0"
-              />
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Tipo Requerimiento
+              </div>
+              <div class="col-xs-9">
+                <select-custom
+                  v-model="filterValues.tipo"
+                  :options="requerimientosTipos"
+                  dense
+                  color="accent"
+                  :use-filter="false"
+                  :loading="requerimientosTipos.length === 0"
+                />
+              </div>
             </div>
-          </div>
 
-          <div class="row q-pt-sm justify-end">
-            <q-btn size="md" color="deep-purple-10" @click.native="filtrar">
-              Filtrar
-            </q-btn>
+            <div class="row q-mt-md justify-end">
+              <q-btn color="negative" flat size="md" @click="limpiarFiltros">
+                Limpiar Filtro
+              </q-btn>
+              <q-btn size="md" color="deep-purple-10" @click="filtrar">
+                Filtrar
+              </q-btn>
+            </div>
           </div>
         </div>
       </q-menu>
     </div>
     <div class="q-mt-sm">
-      <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
-      <span v-if="sistemaSetted" class="q-mx-xs">
+      <span v-if="someFilterIsSetted">Filtros:</span>
+      <span v-if="reqIdSetted && filterPhoto.reqId" class="q-mx-xs">
+        <q-chip removable @remove="removeFilter('reqId')">
+          <q-avatar color="green" text-color="white" class="filter-label">
+            Id:
+          </q-avatar>
+          <div class="filter-chip__text">
+            {{ filterPhoto.reqId }}
+          </div>
+          <q-tooltip>Requerimiento Nro</q-tooltip>
+        </q-chip>
+      </span>
+      <span v-if="estadosSetted && filterPhoto.estados" class="q-mx-xs">
+        <q-chip removable @remove="removeFilter('estados')">
+          <q-avatar color="orange" text-color="white" class="filter-label">
+            Est.:
+          </q-avatar>
+          <div class="filter-chip__text">
+            {{ filterPhoto.estados }}
+          </div>
+          <q-tooltip>Estdos de los Requerimientos</q-tooltip>
+        </q-chip>
+      </span>
+      <span v-if="sistemaSetted && filterPhoto.sistema" class="q-mx-xs">
         <q-chip removable @remove="removeFilter('sistema')">
           <q-avatar color="red" text-color="white" class="filter-label">
             Sist:
           </q-avatar>
-          {{ sistemaDescripcion }}
+          <div class="filter-chip__text">
+            {{ filterPhoto.sistema }}
+          </div>
           <q-tooltip>Sistema</q-tooltip>
         </q-chip>
       </span>
-      <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
+      <span v-if="tipoRequerimientoSetted && filterPhoto.tipo" class="q-mx-xs">
         <q-chip removable @remove="removeFilter('requerimientoTipo')">
           <q-avatar color="blue" text-color="white" class="filter-label">
             Tipo:
           </q-avatar>
-          {{ tipoRequerimientoDescripcion }}
+          <div class="filter-chip__text">
+            {{ filterPhoto.tipo }}
+          </div>
           <q-tooltip>Tipo de Requerimiento</q-tooltip>
         </q-chip>
       </span>
@@ -97,34 +166,37 @@
 </template>
 <script>
 import SelectCustom from "comp/Requerimientos/SelectCustom"
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
+
 export default {
   name: "MisRequerimientosMenuFiltros",
   components: { SelectCustom },
   props: {
-    sistemaId: {
+    filtros: {
       type: Object,
-      default: null,
-    },
-    seccionId: {
-      type: Object,
-      default: null,
-    },
-    requerimientoTipo: {
-      type: Object,
-      default: null,
-    },
-    descripcion: {
-      type: String,
-      default: null,
+      default: () => ({}),
     },
   },
   data() {
     return {
-      input: "",
       widthInputDescripcion: 0,
       popupOpened: false,
       inputAclarado: false,
+      estadosOptionsFiltered: null,
+      filterValues: {
+        descripcion: null,
+        reqId: null,
+        estados: null,
+        sistema: null,
+        tipo: null,
+      },
+      filterPhoto: {
+        reqId: null,
+        estados: null,
+        sistema: null,
+        tipo: null,
+      },
+      someFilterIsSetted: false,
     }
   },
   computed: {
@@ -133,73 +205,110 @@ export default {
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
-
+    ...mapGetters("requerimientos", ["optionsEstados"]),
     sistemaSetted() {
-      return this.__sistema && Boolean(this.__sistema.id)
+      return this.filterValues.sistema && Boolean(this.filterValues.sistema.id)
     },
     tipoRequerimientoSetted() {
-      return this.__tipo && Boolean(this.__tipo.id)
+      return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
     },
-    __sistema: {
-      get() {
-        return this.sistemaId
-      },
-      set(value) {
-        this.$emit("update:sistemaId", value)
-      },
+    reqIdSetted() {
+      return this.filterValues.reqId && Boolean(this.filterValues.reqId)
     },
-    __tipo: {
-      get() {
-        return this.requerimientoTipo
-      },
-      set(value) {
-        this.$emit("update:requerimientoTipo", value)
-      },
+    estadosSetted() {
+      return (
+        this.filterValues.estados &&
+        Array.isArray(this.filterValues.estados) &&
+        this.filterValues.estados.length > 0
+      )
     },
-    __descripcion: {
-      get() {
-        return this.descripcion
-      },
-      set(value) {
-        this.$emit("update:descripcion", value)
-      },
+    estadosDescripcion() {
+      return this.estadosSetted
+        ? this.filterValues.estados.map(st => st.label).join(", ")
+        : ""
     },
     sistemaDescripcion() {
-      return _.get(this, "__sistema.descripcion", null)
+      return _.get(this, "filterValues.sistema.descripcion", null)
     },
     tipoRequerimientoDescripcion() {
-      return _.get(this, "__tipo.descripcion", null)
+      return _.get(this, "filterValues.tipo.descripcion", null)
     },
     iconOpenFilter() {
       return this.popupOpened ? "arrow_drop_up" : "arrow_drop_down"
     },
   },
-  mounted() {},
+  async mounted() {
+    await this.$store.dispatch("requerimientos/createRequerimiento")
+    const { descripcion, reqId, estados, sistema, tipo } = this.filtros
+    if (descripcion) this.filterValues.descripcion = descripcion
+    if (reqId) this.filterValues.reqId = reqId
+    if (estados) this.filterValues.estados = estados
+    if (sistema) this.filterValues.sistema = sistema
+    if (tipo) this.filterValues.tipo = tipo
+    this.filtrar()
+  },
   methods: {
     onResize(size) {
       this.widthInputDescripcion = size.width
     },
     filtrar() {
+      this.updateFilterPhoto()
+      this.getSomeFilterIsSetted()
       this.popupOpened = false
-      this.$emit("buscar")
+      this.$emit("buscar", this.filterValues)
     },
-    removeFilter(filter) {
-      // this.$store.dispatch("asignacionRequerimientos/setFilter", {
-      //   filter,
-      //   value: null,
-      // })
-
+    limpiarFiltros() {
+      this.filterValues.descripcion = null
+      this.filterValues.reqId = null
+      this.filterValues.estados = null
+      this.filterValues.tipo = null
+      this.filterValues.sistema = null
+      this.filtrar()
+    },
+    getSomeFilterIsSetted() {
+      this.someFilterIsSetted = _.some([
+        this.filterValues.reqId !== null,
+        this.estadosSetted,
+        this.filterValues.sistema !== null,
+        this.filterValues.tipo !== null,
+      ])
+    },
+    updateFilterPhoto() {
+      this.filterPhoto.reqId = this.filterValues.reqId
+      this.filterPhoto.estados = this.estadosDescripcion || null
+      this.filterPhoto.sistema = this.sistemaDescripcion || null
+      this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
+    },
+    filterEstadosAsignados(val, update) {
+      if (val === "") {
+        update(() => {
+          this.estadosOptionsFiltered = this.optionsEstados
+        })
+        return
+      }
+      update(() => {
+        const needle = val.toLowerCase()
+        this.estadosOptionsFiltered = this.optionsEstados.filter(
+          v => v.label.toLowerCase().indexOf(needle) > -1,
+        )
+      })
+    },
+    async removeFilter(filter) {
+      if (filter == "reqId") {
+        this.filterValues.reqId = null
+      }
+      if (filter == "estados") {
+        this.filterValues.estados = null
+      }
       if (filter == "requerimientoTipo") {
-        this.__tipo = null
+        this.filterValues.tipo = null
       }
-
       if (filter == "sistema") {
-        this.__sistema = null
+        this.filterValues.sistema = null
       }
-
       this.filtrar()
     },
   },
 }
 </script>
-<style lang="stylus"></style>
+<style lang="stylus" scoped></style>

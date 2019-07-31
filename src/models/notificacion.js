@@ -10,6 +10,7 @@ export default class Notificacion {
     // this.read_at_date = notif.notification_read_at
     //   ? new Date(notif.notification_read_at)
     //   : null
+
     this.read_at =
       notif.notification_read_at && date.isValid(notif.notification_read_at)
         ? date.formatDate(notif.notification_read_at, "HH:mm DD/MM")

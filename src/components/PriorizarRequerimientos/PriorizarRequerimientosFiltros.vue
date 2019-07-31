@@ -32,72 +32,69 @@
         content-class="q-menu-fix"
         :offset="[0, -4]"
       >
-        <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
-          <div class="row q-pt-sm q-col-gutter-xs">
-            <div
-              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
-            >
-              Sistema
+        <div
+          class="q-pa-md row justify-center"
+          :style="{
+            width: widthInputDescripcion + 'px',
+            'padding-top': '0',
+          }"
+        >
+          <div class="col-md-8 col-sm-8 col-xs-12">
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 q-pt-md ellipsis">
+                Sistema
+              </div>
+              <div class="col-xs-9">
+                <select-custom
+                  v-model="__sistema"
+                  :options="sistemasUsuarioOptions"
+                  dense
+                  color="deep-purple-10"
+                  :loading="sistemas.length === 0"
+                />
+              </div>
             </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-              <select-custom
-                v-model="__sistema"
-                :options="sistemasUsuarioOptions"
-                dense
-                label="Sistema"
-                color="deep-purple-10"
-                :loading="sistemas.length === 0"
-              />
+
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 q-pt-md ellipsis">
+                Tipo Requerimiento
+              </div>
+              <div class="col-xs-9">
+                <select-custom
+                  v-model="__tipo"
+                  :options="requerimientosTipos"
+                  dense
+                  color="deep-purple-10"
+                  :loading="requerimientosTipos.length === 0"
+                />
+              </div>
             </div>
 
             <div
-              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
+              v-if="hasReportantesNoOperativos"
+              class="row q-mt-sm q-col-gutter-sm items-center"
             >
-              Tipo de Requerimiento
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Ver listado como:
+              </div>
+              <div class="col-xs-9">
+                <q-select
+                  v-model="usuarioVerComo"
+                  color="deep-purple-10"
+                  dense
+                  :options="optionsUsersReportantes"
+                  emit-value
+                  map-options
+                  @input="changeUsuarioVerComo"
+                />
+              </div>
             </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-              <select-custom
-                v-model="__tipo"
-                :options="requerimientosTipos"
-                dense
-                label="Tipo de Requerimiento"
-                color="deep-purple-10"
-                :loading="requerimientosTipos.length === 0"
-              />
-            </div>
-          </div>
 
-          <div v-if="hasReportantesNoOperativos" class="row q-mt-lg">
-            <div
-              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
-            >
-              Ver listado como:
-            </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-              <q-select
-                v-model="usuarioVerComo"
-                color="deep-purple-10"
-                dense
-                :options="optionsUsersReportantes"
-                emit-value
-                map-options
-                @input="changeUsuarioVerComo"
-              />
-            </div>
-          </div>
-
-          <div class="row q-pt-md justify-end q-col-gutter-x-md">
-            <div class="col-auto">
-              <q-btn
-                color="deep-purple-10"
-                flat
-                size="md"
-                @click="clearFilters"
-              >
+            <div class="row q-mt-md justify-end">
+              <q-btn color="negative" flat size="md" @click="limpiarFiltros">
                 Limpiar Filtros
               </q-btn>
-            </div>
-            <div class="col-auto">
+
               <q-btn color="deep-purple-10" size="md" @click="closeFilters">
                 FILTRAR
               </q-btn>
@@ -114,7 +111,9 @@
           <q-avatar color="red" text-color="white" class="filter-label">
             Sist:
           </q-avatar>
-          {{ sistemaDescripcion }}
+          <div class="filter-chip__text">
+            {{ sistemaDescripcion }}
+          </div>
           <q-tooltip>Sistema</q-tooltip>
         </q-chip>
       </span>
@@ -123,7 +122,9 @@
           <q-avatar color="blue" text-color="white" class="filter-label">
             Tipo:
           </q-avatar>
-          {{ tipoRequerimientoDescripcion }}
+          <div class="filter-chip__text">
+            {{ tipoRequerimientoDescripcion }}
+          </div>
           <q-tooltip>Tipo de Requerimiento</q-tooltip>
         </q-chip>
       </span>
@@ -132,7 +133,9 @@
           <q-avatar color="green" text-color="white" class="filter-label">
             U.A.:
           </q-avatar>
-          {{ usuariosAsignadosDescripcion }}
+          <div class="filter-chip__text">
+            {{ usuariosAsignadosDescripcion }}
+          </div>
           <q-tooltip>Usuarios Asignados</q-tooltip>
         </q-chip>
       </span>
@@ -270,7 +273,7 @@ export default {
         value: null,
       })
     },
-    clearFilters() {
+    limpiarFiltros() {
       this.$store.dispatch("priorizarRequerimientos/clearFilters")
     },
     closeFilters() {
@@ -301,28 +304,18 @@ export default {
 }
 </script>
 <style lang="stylus">
-.q-menu-fix {
-  z-index: 1 !important;
-  border-radius: 0px 0px 4px 4px !important;
-  // box-shadow: 0px 4px 6px -3px grey !important;
-  box-shadow: 0px 4px 5px 0px grey !important;
-  overflow-x: hidden;
-}
-
+/*
 .q-field--standout .q-field__control:before {
   opacity: 1;
   transition: none !important;
 }
-
 .q-field--standout .q-field__control:hover {
   opacity: 1;
 }
-
 .popupOpened .q-field__control {
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
-
 .popupOpened .q-field__control:before {
   background: white !important;
   opacity: 1;
@@ -348,5 +341,5 @@ export default {
 
 .filter__icon:hover {
   background-color: $grey-4;
-}
+} */
 </style>
