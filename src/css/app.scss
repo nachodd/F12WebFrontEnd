@@ -6,6 +6,7 @@ https://developers.google.com/web/updates/2017/11/overscroll-behavior
 */
 body {
   overscroll-behavior-y: none;
+  min-width: 375px;
 }
 
 .card-header-offset {
@@ -200,6 +201,12 @@ body {
 }
 .filter-label .q-avatar__content {
   font-size: 0.4em;
+}
+.filter-chip__text {
+  text-overflow: ellipsis;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .filter__icon {
   border-radius: 50%;

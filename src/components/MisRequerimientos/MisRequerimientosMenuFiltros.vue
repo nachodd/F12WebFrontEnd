@@ -1,5 +1,4 @@
 <template>
-  <!-- style="width: 100%; max-width:600px; margin:0 auto;" -->
   <div class="q-pb-md">
     <q-resize-observer @resize="onResize" />
     <div class="q-mb-sm">
@@ -8,7 +7,6 @@
         v-model.trim="filterValues.descripcion"
         class="filter"
         :class="{ popupOpened: popupOpened, aclarado: inputAclarado }"
-        :style="{ width: widthInputDescripcion + 'px important' }"
         dense
         standout="bg-white text-black"
         placeholder="Buscar"
@@ -54,7 +52,8 @@
                   color="deep-purple-10"
                 />
               </div>
-
+            </div>
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
               <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
                 Estados
               </div>
@@ -87,7 +86,8 @@
                   :loading="sistemas.length === 0"
                 />
               </div>
-
+            </div>
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
               <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
                 Tipo Requerimiento
               </div>
@@ -104,7 +104,7 @@
             </div>
 
             <div class="row q-mt-md justify-end">
-              <q-btn color="negative" flat size="md" @click="borrarFiltros">
+              <q-btn color="negative" flat size="md" @click="limpiarFiltros">
                 Limpiar Filtro
               </q-btn>
               <q-btn size="md" color="deep-purple-10" @click="filtrar">
@@ -122,7 +122,9 @@
           <q-avatar color="green" text-color="white" class="filter-label">
             Id:
           </q-avatar>
-          {{ filterPhoto.reqId }}
+          <div class="filter-chip__text">
+            {{ filterPhoto.reqId }}
+          </div>
           <q-tooltip>Requerimiento Nro</q-tooltip>
         </q-chip>
       </span>
@@ -131,7 +133,9 @@
           <q-avatar color="orange" text-color="white" class="filter-label">
             Est.:
           </q-avatar>
-          {{ filterPhoto.estados }}
+          <div class="filter-chip__text">
+            {{ filterPhoto.estados }}
+          </div>
           <q-tooltip>Estdos de los Requerimientos</q-tooltip>
         </q-chip>
       </span>
@@ -140,7 +144,9 @@
           <q-avatar color="red" text-color="white" class="filter-label">
             Sist:
           </q-avatar>
-          {{ filterPhoto.sistema }}
+          <div class="filter-chip__text">
+            {{ filterPhoto.sistema }}
+          </div>
           <q-tooltip>Sistema</q-tooltip>
         </q-chip>
       </span>
@@ -149,7 +155,9 @@
           <q-avatar color="blue" text-color="white" class="filter-label">
             Tipo:
           </q-avatar>
-          {{ filterPhoto.tipo }}
+          <div class="filter-chip__text">
+            {{ filterPhoto.tipo }}
+          </div>
           <q-tooltip>Tipo de Requerimiento</q-tooltip>
         </q-chip>
       </span>
@@ -249,7 +257,7 @@ export default {
       this.popupOpened = false
       this.$emit("buscar", this.filterValues)
     },
-    borrarFiltros() {
+    limpiarFiltros() {
       this.filterValues.descripcion = null
       this.filterValues.reqId = null
       this.filterValues.estados = null

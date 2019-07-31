@@ -32,50 +32,51 @@
         content-class="test q-menu-fix"
         :offset="[0, -4]"
       >
-        <div class="q-pa-md" :style="{ width: widthInputDescripcion + 'px' }">
-          <div class="row q-pt-sm q-col-gutter-xs">
-            <div
-              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
-            >
-              Sistema
-            </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-              <select-custom
-                v-model="__sistema"
-                :options="sistemasUsuarioOptions"
-                dense
-                label="Sistema"
-                color="deep-purple-10"
-                :use-filter="false"
-                :loading="sistemas.length === 0"
-              />
+        <div
+          class="q-pa-md row justify-center"
+          :style="{
+            width: widthInputDescripcion + 'px',
+            'padding-top': '0',
+          }"
+        >
+          <div class="col-md-8 col-sm-8 col-xs-12">
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Sistema
+              </div>
+              <div class="col-xs-9">
+                <select-custom
+                  v-model="__sistema"
+                  :options="sistemasUsuarioOptions"
+                  dense
+                  color="deep-purple-10"
+                  :use-filter="false"
+                  :loading="sistemas.length === 0"
+                />
+              </div>
             </div>
 
-            <div
-              class="col-xs-3 col-sm-3 col-md-2 col-lg-1 text-body2 q-pt-md ellipsis"
-            >
-              Tipo Requerimiento
+            <div class="row q-mt-sm q-col-gutter-sm items-center">
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Tipo Requerimiento
+              </div>
+              <div class="col-xs-9">
+                <select-custom
+                  v-model="__tipo"
+                  :options="requerimientosTipos"
+                  dense
+                  color="deep-purple-10"
+                  :use-filter="false"
+                  :loading="requerimientosTipos.length === 0"
+                />
+              </div>
             </div>
-            <div class="col-xs-9 col-sm-9 col-md-10 col-lg-11">
-              <select-custom
-                v-model="__tipo"
-                :options="requerimientosTipos"
-                dense
-                label="Tipo de Requerimiento"
-                color="deep-purple-10"
-                :use-filter="false"
-                :loading="requerimientosTipos.length === 0"
-              />
-            </div>
-          </div>
 
-          <div class="row q-pt-md justify-end q-col-gutter-x-md">
-            <div class="col-auto">
-              <q-btn color="negative" flat size="md" @click="clearFilters">
+            <div class="row q-mt-md justify-end">
+              <q-btn color="negative" flat size="md" @click="limpiarFiltros">
                 Limpiar Filtros
               </q-btn>
-            </div>
-            <div class="col-auto">
+
               <q-btn color="deep-purple-10" size="md" @click="closeFilters">
                 FILTRAR
               </q-btn>
@@ -85,15 +86,17 @@
       </q-menu>
     </div>
 
-    <div class="row justify-between items-center filters-row">
-      <div class="col">
+    <div class="row items-center filters-row">
+      <div class="col-xs-12 col-md-8 col-sm-7">
         <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
         <span v-if="sistemaSetted" class="q-mx-xs">
           <q-chip removable @remove="removeFilter('sistema')">
             <q-avatar color="red" text-color="white" class="filter-label">
               Sist:
             </q-avatar>
-            {{ sistemaDescripcion }}
+            <div class="filter-chip__text">
+              {{ sistemaDescripcion }}
+            </div>
             <q-tooltip>Sistema</q-tooltip>
           </q-chip>
         </span>
@@ -102,12 +105,14 @@
             <q-avatar color="blue" text-color="white" class="filter-label">
               Tipo:
             </q-avatar>
-            {{ tipoRequerimientoDescripcion }}
+            <div class="filter-chip__text">
+              {{ tipoRequerimientoDescripcion }}
+            </div>
             <q-tooltip>Tipo de Requerimiento</q-tooltip>
           </q-chip>
         </span>
       </div>
-      <div class="col-xs-4 col-md-auto col-sm-auto col-xs-auto text-right">
+      <div class="col-xs-12 col-md-4 col-sm-5 text-right">
         <q-tooltip>
           Click aquí para aplicar este filtro
         </q-tooltip>
@@ -219,7 +224,7 @@ export default {
         value: null,
       })
     },
-    clearFilters() {
+    limpiarFiltros() {
       this.$store.dispatch("requerimientosAsignados/clearFilters")
     },
     closeFilters() {
