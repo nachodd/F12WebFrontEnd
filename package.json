@@ -19,6 +19,7 @@
     "jwt-decode": "https://github.com/auth0/jwt-decode.git",
     "lodash": "^4.17.11",
     "quasar": "^1.0.5",
+    "vue-pusher": "^1.0.0",
     "vue-smooth-dnd": "^0.8.0",
     "vuelidate": "^0.7.4"
   },
