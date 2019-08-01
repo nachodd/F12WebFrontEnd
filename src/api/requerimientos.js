@@ -2,7 +2,7 @@ import request from "utils/request"
 
 export function createRequerimiento() {
   return request({
-    url: "/v1/f12/requerimientos/create",
+    url: "v1/f12/requerimientos/create",
     method: "get",
   })
 }
@@ -10,7 +10,7 @@ export function createRequerimiento() {
 export function storeRequerimiento(data) {
   // const __handleErrorsInResponse = false
   return request({
-    url: "/v1/f12/requerimientos",
+    url: "v1/f12/requerimientos",
     method: "post",
     data,
     // __handleErrorsInResponse,
@@ -19,7 +19,7 @@ export function storeRequerimiento(data) {
 
 export function updateRequerimiento(data, requerimientoId) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}`,
+    url: `v1/f12/requerimientos/${requerimientoId}`,
     method: "put",
     data,
   })
@@ -31,7 +31,7 @@ export function listRequerimientos(userId, filtros) {
     ? JSON.stringify(query.requerimiento_estado)
     : null
   return request({
-    url: `/v1/f12/${userId}/requerimientos`,
+    url: `v1/f12/${userId}/requerimientos`,
     method: "get",
     params: query,
   })
@@ -39,14 +39,14 @@ export function listRequerimientos(userId, filtros) {
 
 export function getRequerimiento(requerimientoId) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}`,
+    url: `v1/f12/requerimientos/${requerimientoId}`,
     method: "get",
   })
 }
 
 export function refuseRequerimiento(requerimientoId, data) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}/rechazo`,
+    url: `v1/f12/requerimientos/${requerimientoId}/rechazo`,
     method: "put",
     data,
   })
@@ -54,21 +54,21 @@ export function refuseRequerimiento(requerimientoId, data) {
 
 export function deleteRequerimiento(requerimientoId) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}`,
+    url: `v1/f12/requerimientos/${requerimientoId}`,
     method: "DELETE",
   })
 }
 
 export function getRequerimientosByUserAndEstado(userId, estadoId) {
   return request({
-    url: `/v1/f12/${userId}/requerimientos/estados/${estadoId}`,
+    url: `v1/f12/${userId}/requerimientos/estados/${estadoId}`,
     method: "get",
   })
 }
 
 export function updateRequerimientosEstados(userId, data) {
   return request({
-    url: `/v1/f12/${userId}/requerimientos/proceso`,
+    url: `v1/f12/${userId}/requerimientos/proceso`,
     method: "put",
     data,
   })
@@ -112,14 +112,14 @@ export function getRequerimientosAsignadosByUser(userId) {
 
 export function ejecutarRequerimiento($requerimientoId) {
   return request({
-    url: `/v1/f12/requerimientos/${$requerimientoId}/ejecucion`,
+    url: `v1/f12/requerimientos/${$requerimientoId}/ejecucion`,
     method: "put",
   })
 }
 
 export function cancelaEjecucionRequerimiento(requerimientoId, data) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}/cancelaejecucion`,
+    url: `v1/f12/requerimientos/${requerimientoId}/cancelaejecucion`,
     method: "put",
     data,
   })
@@ -127,7 +127,7 @@ export function cancelaEjecucionRequerimiento(requerimientoId, data) {
 
 export function finalizarRequerimiento(requerimientoId, data) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}/finalizacion`,
+    url: `v1/f12/requerimientos/${requerimientoId}/finalizacion`,
     method: "put",
     data,
   })

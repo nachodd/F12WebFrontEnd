@@ -18,6 +18,7 @@ import { pipeWith } from "utils/helpers"
 const state = {
   requerimientos: [],
   loadingRequerimientos: false,
+  requerimientosLoaded: false,
   dialogConfirmOpen: false,
   possibleChanges: {
     sourceList: [],
@@ -228,6 +229,7 @@ const getters = {
 const mutations = {
   SET_REQUERIMIENTOS: (state, requerimientos) => {
     state.requerimientos = _.map(requerimientos, req => new Requerimiento(req))
+    state.requerimientosLoaded = true
   },
   SET_LOADING_REQUERIMIENTOS: (state, loadingRequerimientos) => {
     state.loadingRequerimientos = loadingRequerimientos
@@ -304,6 +306,29 @@ const mutations = {
       }
       return ra
     })
+  },
+  PUSHER_UPDATE_REQUERIMIENTO: (state, { operation, req }) => {
+    switch (operation) {
+      case "add": {
+        debugger
+        state.requerimientos.push(new Requerimiento(req))
+        break
+      }
+      case "update": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        break
+      }
+      case "delete": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        state.requerimientos.splice(removedIndex, 1)
+        break
+      }
+    }
   },
 }
 

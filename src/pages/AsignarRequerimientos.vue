@@ -70,30 +70,17 @@ export default {
     ...mapState("asignacionRequerimientos", {
       reqs: state => state.requerimientos,
       loadingList: state => state.loadingRequerimientos,
+      requerimientosLoaded: state => state.requerimientosLoaded,
     }),
     ...mapGetters("asignacionRequerimientos", ["requerimientosFiltered"]),
   },
   created() {
     this.$store.dispatch("requerimientos/createRequerimiento")
-    this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
+    if (!this.requerimientosLoaded) {
+      this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
+    }
   },
 }
 </script>
 
-<style lang="scss" scoped>
-/* .scrolling-wrapper {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding-top: 20px;
-  top: -20px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.scrolling-wrapper__card {
-  flex: 0 0 auto;
-  min-width: 400px;
-  margin-right: 1em;
-} */
-</style>
+<style lang="scss" scoped></style>
