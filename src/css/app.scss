@@ -312,16 +312,15 @@ body.q-body--loading #q-app {
 }
 
 
-.swing {
-  opacity: 0;
-  transform: rotateX(-90deg);
-  transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
-  height: 0;
+// transiciones para los items:
+.q-transition--flip-right-enter-active,
+.q-transition--flip-left-enter-active,
+.q-transition--flip-right-leave-active,
+.q-transition--flip-left-leave-active {
+  transition: transform 0.75s !important
 }
-
-.swing .show {
-  opacity: 1;
-  transform: none;
-  transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
-  height: 2em;
+.item-test {
+  animation-duration: 7s;
+  animation-iteration-count: infinite;
+  transition: all 2s !important
 }

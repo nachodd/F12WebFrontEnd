@@ -18,21 +18,31 @@
           </div>
         </template>
         <template v-else>
-          <Draggable
-            v-for="(req, index) in requerimientosList"
-            :key="`req_${req.id}`"
+          <transition-group
+            name="flip"
+            tag="div"
+            appear
+            enter-active-class="animated flipInY"
+            leave-active-class="animated flipOutY"
           >
-            <asignar-requerimientos-item
-              :req="req"
-              :index="index"
-              @click.native="
-                abrirDetalleRequerimiento({
-                  reqId: req.id,
-                  listName: 'asignar-requerimientos',
-                })
-              "
-            />
-          </Draggable>
+            <Draggable
+              v-for="(req, index) in requerimientosList"
+              :key="`req_${req.id}`"
+              class=""
+              style="transition-duration: 60s;"
+            >
+              <asignar-requerimientos-item
+                :req="req"
+                :index="index"
+                @click.native="
+                  abrirDetalleRequerimiento({
+                    reqId: req.id,
+                    listName: 'asignar-requerimientos',
+                  })
+                "
+              />
+            </Draggable>
+          </transition-group>
         </template>
       </Container>
     </template>
@@ -45,18 +55,26 @@
         </div>
       </template>
       <template v-else>
-        <asignar-requerimientos-item
-          v-for="(req, index) in requerimientosList"
-          :key="`req_${req.id}`"
-          :req="req"
-          :index="index"
-          @click.native="
-            abrirDetalleRequerimiento({
-              reqId: req.id,
-              listName: 'asignar-requerimientos',
-            })
-          "
-        />
+        <transition-group
+          name="flip"
+          tag="div"
+          appear
+          enter-active-class="animated flipInY"
+          leave-active-class="animated flipOutY"
+        >
+          <asignar-requerimientos-item
+            v-for="(req, index) in requerimientosList"
+            :key="`req_${req.id}`"
+            :req="req"
+            :index="index"
+            @click.native="
+              abrirDetalleRequerimiento({
+                reqId: req.id,
+                listName: 'asignar-requerimientos',
+              })
+            "
+          />
+        </transition-group>
       </template>
     </template>
   </list-requerimientos>
@@ -144,4 +162,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.slo {
+  transition-duration: 6s;
+}
+</style>

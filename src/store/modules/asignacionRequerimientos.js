@@ -310,7 +310,6 @@ const mutations = {
   PUSHER_UPDATE_REQUERIMIENTO: (state, { operation, req }) => {
     switch (operation) {
       case "add": {
-        debugger
         state.requerimientos.push(new Requerimiento(req))
         break
       }

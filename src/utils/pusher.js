@@ -36,21 +36,47 @@ const destroyPusherChannel = channelName => {
   }
 }
 
-const processAsignarRequerimiento = (ctx, data) => {
+// Helpers para opraciones de commit en los stores
+const root = { root: true }
+const getOperationPayload = (operation, data) => {
+  return {
+    operation,
+    req: data,
+  }
+}
+
+// Operaciones a ejecutar cuando actualiza
+const processAsignarRequerimiento = async (ctx, data) => {
+  // Actualiza notificaciones y sidebar (dashboard)
   ctx.dispatch("checkNotificacionesYDashboard")
 
-  const commitData = {
-    operation: "add",
-    req: data.requerimiento,
-  }
-  const root = { root: true }
-  ctx.commit(
+  // Agrega a
+  await ctx.commit(
     "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-    commitData,
+    getOperationPayload("add", data.requerimiento),
     root,
   )
 
   // TODO: setear una bandera en el store de "mis requerimientos" que indique que "hay requerimientos nuevos / actualizados disponibles"
 }
+/*
+const processRequerimientoAsignado = (ctx, data) => {
+  // Actualiza notificaciones y sidebar (dashboard)
+  ctx.dispatch("checkNotificacionesYDashboard")
 
-export { getPusherChannel, destroyPusherChannel, processAsignarRequerimiento }
+  // Agrega a
+  ctx.commit(
+    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    getOperationPayload("add", data.requerimiento),
+    root,
+  )
+
+  // TODO: setear una bandera en el store de "mis requerimientos" que indique que "hay requerimientos nuevos / actualizados disponibles"
+} */
+
+export {
+  getPusherChannel,
+  destroyPusherChannel,
+  processAsignarRequerimiento,
+  // processRequerimientoAsignado,
+}
