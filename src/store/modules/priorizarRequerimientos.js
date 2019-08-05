@@ -444,6 +444,32 @@ const mutations = {
       return req
     })
   },
+
+  PUSHER_UPDATE_REQUERIMIENTO: (state, { operation, req }) => {
+    switch (operation) {
+      case "addOrUpdate": {
+        // Chequeo si lo encuentra en el listdo. Si lo encuentra, actualiza. Si no, lo agrega
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        } else {
+          state.requerimientos.push(new Requerimiento(req))
+        }
+        break
+      }
+      case "delete": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1)
+        }
+        break
+      }
+    }
+  },
 }
 
 const actions = {

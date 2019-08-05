@@ -309,22 +309,25 @@ const mutations = {
   },
   PUSHER_UPDATE_REQUERIMIENTO: (state, { operation, req }) => {
     switch (operation) {
-      case "add": {
-        state.requerimientos.push(new Requerimiento(req))
-        break
-      }
-      case "update": {
+      case "addOrUpdate": {
+        // Chequeo si lo encuentra en el listdo. Si lo encuentra, actualiza. Si no, lo agrega
         const removedIndex = _.findIndex(state.requerimientos, {
           id: req.id,
         })
-        state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        } else {
+          state.requerimientos.push(new Requerimiento(req))
+        }
         break
       }
       case "delete": {
         const removedIndex = _.findIndex(state.requerimientos, {
           id: req.id,
         })
-        state.requerimientos.splice(removedIndex, 1)
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1)
+        }
         break
       }
     }

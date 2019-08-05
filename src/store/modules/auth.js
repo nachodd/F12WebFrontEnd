@@ -9,6 +9,7 @@ import {
 } from "utils/auth"
 import { keysToCamel } from "utils/helpers"
 import { resetRouter } from "router"
+import router from "router/index"
 // import * as types from "../mutation-types";
 
 // state
@@ -217,7 +218,12 @@ const actions = {
 
         resolve()
       } catch (error) {
-        // TODO: cuando falla al cargar la info del usuario, devolver un error que especifique qu ehayproblemas con el servidor y que vuelva a intentar mas tarde
+        // Si esta en el login y falló al obtener el usuario (porque por ejemplo, esta caido f12), reseteo el token
+        const isInLogin = router.currentRoute.name === "login"
+        if (isInLogin) {
+          await dispatch("resetToken")
+        }
+        // TODO: Si estamos en loginHorus y falla al cargar la info del usuario, deberiamos devolver un error que especifique que hay problemas con el servidor y que vuelva a intentar mas tarde
         reject(error)
       }
     })

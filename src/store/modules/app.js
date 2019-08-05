@@ -10,6 +10,12 @@ import {
   getPusherChannel,
   destroyPusherChannel,
   processAsignarRequerimiento,
+  processRequerimientoAsignado,
+  processCambioTipoRequerimiento,
+  processRequerimientoFinalizado,
+  processPriorizarRequerimiento,
+  processRequerimientoAprobado,
+  processRequerimientoRechazado,
 } from "utils/pusher"
 
 const LIMIT_NOTIFICACIONES_SHOWED = 5
@@ -275,10 +281,31 @@ const actions = {
       pc.bind("asignar_requerimiento", data => {
         processAsignarRequerimiento(ctx, data)
       })
-
-      // pc.bind("asignar_requerimiento", data => {
-      //   processAsignarRequerimiento(ctx, data)
-      // })
+      // usamos el mismo process para requerimiento externo (ya que basicamente, el comportamiento es el mismo)
+      pc.bind("asignar_requerimiento_externo", data => {
+        processAsignarRequerimiento(ctx, data)
+      })
+      pc.bind("requerimiento_asignado", data => {
+        processRequerimientoAsignado(ctx, data)
+      })
+      pc.bind("requerimiento_asignado_testing", data => {
+        processRequerimientoAsignado(ctx, data)
+      })
+      pc.bind("cambio_tipo_requerimiento", data => {
+        processCambioTipoRequerimiento(ctx, data)
+      })
+      pc.bind("requerimiento_finalizado", data => {
+        processRequerimientoFinalizado(ctx, data)
+      })
+      pc.bind("priorizar_requerimiento", data => {
+        processPriorizarRequerimiento(ctx, data)
+      })
+      pc.bind("requerimiento_aprobado", data => {
+        processRequerimientoAprobado(ctx, data)
+      })
+      pc.bind("requerimiento_rechazado", data => {
+        processRequerimientoRechazado(ctx, data)
+      })
 
       resolve()
     })
