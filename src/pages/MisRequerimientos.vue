@@ -19,7 +19,7 @@
 </template>
 <script>
 import { mapState } from "vuex"
-import { warn } from "utils/helpers"
+import { warn, info } from "utils/helpers"
 import MisRequerimientosListado from "comp/MisRequerimientos/MisRequerimientosListado"
 import MisRequerimientosMenuFiltros from "comp/MisRequerimientos/MisRequerimientosMenuFiltros"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
@@ -52,15 +52,22 @@ export default {
     ...mapState("requerimientos", {
       loadingRequerimiento: state => state.loadingRequerimiento,
       misRequerimientos: state => state.misRequerimientos,
+      misRequerimientosHuboCambio: state => state.misRequerimientosHuboCambio,
     }),
   },
   watch: {
     current() {
       this.getListRequerimientos()
     },
-    // "$route.meta"({ showCrudModal = false }) {
-    //   this.crudModalOpen = showCrudModal
-    // },
+    misRequerimientosHuboCambio(huboCambios) {
+      if (huboCambios) {
+        info({ message: "Hubo requerimientos actualizados" })
+        this.$store.dispatch(
+          "requerimientos/setMisRequerimientosHuboCambios",
+          false,
+        )
+      }
+    },
   },
   async mounted() {
     // this.getListRequerimientos() // Se paso al componente filtro

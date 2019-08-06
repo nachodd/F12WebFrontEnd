@@ -16,6 +16,7 @@ import {
   // UpdatePendingPayloadPriorizarReq,
 } from "utils/requerimientos"
 import { pipeWith } from "utils/helpers"
+import Requerimiento from "models/requerimiento"
 
 const state = {
   requerimientos: [],
@@ -220,7 +221,8 @@ const getters = {
 
 const mutations = {
   SET_REQS_LIST: (state, listData) => {
-    state.requerimientos = [...listData]
+    // state.requerimientos = [...listData]
+    state.requerimientos = _.map(listData, req => new Requerimiento(req))
   },
   PROCESS_UPDATE_LISTS: (state, { listName, listResult, dropResult }) => {
     const { removedIndex, addedIndex, payload } = dropResult
@@ -273,7 +275,9 @@ const mutations = {
   },
   UPDATE_REQ_ESTADO_FINISH: (state, reqId) => {
     const index = _.findIndex(state.requerimientos, { id: reqId })
-    state.requerimientos.splice(index, 1)
+    if (index !== -1) {
+      state.requerimientos.splice(index, 1)
+    }
   },
 
   SET_FILTROS: (state, { filter, value }) => {
@@ -287,20 +291,41 @@ const mutations = {
   SET_LOADING_REQUERIMIENTOS: (state, value) => {
     state.loadingRequerimientos = value
   },
+  PUSHER_UPDATE_REQUERIMIENTO: (state, { operation, req }) => {
+    switch (operation) {
+      case "addOrUpdate": {
+        // Chequeo si lo encuentra en el listdo. Si lo encuentra, actualiza. Si no, lo agrega
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        } else {
+          state.requerimientos.push(new Requerimiento(req))
+        }
+        break
+      }
+      case "delete": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1)
+        }
+        break
+      }
+    }
+  },
 }
 
 const actions = {
-  inicializarRequerimientosAsignados({ dispatch, rootGetters }) {
+  inicializarRequerimientosAsignados({ commit, rootGetters }) {
     const currentUserId = rootGetters["auth/userId"]
-
-    dispatch("getRequerimientosAsignadosByUser", {
-      userId: currentUserId,
-    })
-  },
-
-  getRequerimientosAsignadosByUser({ commit }, { userId }) {
+    // dispatch("getRequerimientosAsignadosByUser", {
+    //   userId: currentUserId,
+    // })
     commit("SET_LOADING_REQUERIMIENTOS", true)
-    return getRequerimientosAsignadosByUser(userId)
+    return getRequerimientosAsignadosByUser(currentUserId)
       .then(data => {
         commit("SET_REQS_LIST", data)
       })
@@ -309,7 +334,9 @@ const actions = {
         commit("SET_LOADING_REQUERIMIENTOS", false)
       })
   },
-
+  // getRequerimientosAsignadosByUser({ commit }, { userId }) {
+  //
+  // },
   processUpdateList({ commit, getters, dispatch }, updatedListData) {
     // console.log(getters.operationType)
     return new Promise(async (resolve, reject) => {

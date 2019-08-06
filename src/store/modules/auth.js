@@ -9,6 +9,7 @@ import {
 } from "utils/auth"
 import { keysToCamel } from "utils/helpers"
 import { resetRouter } from "router"
+import router from "router/index"
 // import * as types from "../mutation-types";
 
 // state
@@ -126,6 +127,9 @@ const getters = {
     // return _.groupBy(state.gerentes, "area.descripcion")
     return _.orderBy(state.gerentes, ["area.descripcion", "razon_social"])
   },
+  pusherChannelName: (state, getters) => {
+    return `${process.env.PUSHER_CHANNEL_PREXIF}${getters.userId}`
+  },
 }
 
 // mutations
@@ -175,21 +179,12 @@ const mutations = {
   SET_GERENTES: (state, data) => {
     state.gerentes = data
   },
-  // SET_ROLES: (state, roles) => {
-  //   state.roles = roles
-  // },
-  // SET_VINCULACION: (state, vinculacion) => {
-  //   state.vinculacion = vinculacion
-  // },
-  // SET_RESPONSABILIDADES: (state, responsabilidades) => {
-  //   state.responsabilidades = responsabilidades
-  // },
 }
 
 // actions
 const actions = {
   // user login
-  login({ commit }, userInfo) {
+  login({ commit, dispatch }, userInfo) {
     return new Promise(async (resolve, reject) => {
       try {
         const { data } = await login(userInfo)
@@ -203,8 +198,7 @@ const actions = {
         setToken(data.access_token, expires, data.refresh_token)
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
 
-        const userData = await getUsuarioGestion()
-        commit("SET_USER", userData)
+        await dispatch("getUserInfo")
 
         resolve()
       } catch (e) {
@@ -212,20 +206,32 @@ const actions = {
       }
     })
   },
-  getUserInfo({ commit }) {
+  getUserInfo({ commit, getters, dispatch }) {
     return new Promise(async (resolve, reject) => {
       try {
         const userData = await getUsuarioGestion()
         commit("SET_USER", userData)
 
+        await dispatch("app/initPusher", getters.pusherChannelName, {
+          root: true,
+        })
+
         resolve()
       } catch (error) {
-        // TODO: cuando falla al cargar la info del usuario, devolver un error que especifique qu ehayproblemas con el servidor y que vuelva a intentar mas tarde
+        // Si esta en el login y falló al obtener el usuario (porque por ejemplo, esta caido f12), reseteo el token
+        const isInLogin = router.currentRoute.name === "login"
+        if (isInLogin) {
+          await dispatch("resetToken")
+        }
+        // TODO: Si estamos en loginHorus y falla al cargar la info del usuario, deberiamos devolver un error que especifique que hay problemas con el servidor y que vuelva a intentar mas tarde
         reject(error)
       }
     })
   },
-  loginHorus({ commit }, { access_token, expires_in, refresh_token }) {
+  loginHorus(
+    { commit, dispatch },
+    { access_token, expires_in, refresh_token },
+  ) {
     return new Promise(async (resolve, reject) => {
       try {
         const expires = expiresToUnixTS(expires_in)
@@ -237,8 +243,7 @@ const actions = {
         setToken(access_token, expires, refresh_token)
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
 
-        const userData = await getUsuarioGestion()
-        commit("SET_USER", userData)
+        await dispatch("getUserInfo")
 
         resolve()
       } catch (e) {

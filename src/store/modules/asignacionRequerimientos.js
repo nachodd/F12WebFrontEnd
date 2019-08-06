@@ -18,6 +18,7 @@ import { pipeWith } from "utils/helpers"
 const state = {
   requerimientos: [],
   loadingRequerimientos: false,
+  requerimientosLoaded: false,
   dialogConfirmOpen: false,
   possibleChanges: {
     sourceList: [],
@@ -49,7 +50,11 @@ const getters = {
     let reqsResult = _.filter(state.requerimientos, req => {
       return _.includes([estSinAsig.id, estEnProceso.id], req.estado.id)
     })
-    return _.orderBy(reqsResult, ["tipo.id", "prioridad"], "asc")
+    return _.orderBy(
+      reqsResult,
+      ["tipo.id", "prioridad", "id"],
+      ["asc", "asc", "desc"],
+    )
   },
   requerimientosAsignados: (state, getters, rootState, rootGetters) => {
     const estAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
@@ -228,6 +233,15 @@ const getters = {
 const mutations = {
   SET_REQUERIMIENTOS: (state, requerimientos) => {
     state.requerimientos = _.map(requerimientos, req => new Requerimiento(req))
+    state.requerimientosLoaded = true
+  },
+  REMOVE_REQUERIMIENTO: (state, reqId) => {
+    const removedIndex = _.findIndex(state.requerimientos, {
+      id: reqId,
+    })
+    if (removedIndex !== -1) {
+      state.requerimientos.splice(removedIndex, 1)
+    }
   },
   SET_LOADING_REQUERIMIENTOS: (state, loadingRequerimientos) => {
     state.loadingRequerimientos = loadingRequerimientos
@@ -305,6 +319,32 @@ const mutations = {
       return ra
     })
   },
+  PUSHER_UPDATE_REQUERIMIENTO: (state, { operation, req }) => {
+    switch (operation) {
+      case "addOrUpdate": {
+        // Chequeo si lo encuentra en el listdo. Si lo encuentra, actualiza. Si no, lo agrega
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        } else {
+          state.requerimientos.push(new Requerimiento(req))
+        }
+        break
+      }
+      case "delete": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        debugger
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1)
+        }
+        break
+      }
+    }
+  },
 }
 
 const actions = {
@@ -331,7 +371,7 @@ const actions = {
     })
   },
   updateRequerimientoState(
-    { commit, dispatch, rootGetters, getters, state },
+    { commit, dispatch, rootGetters, getters },
     { operation, requerimientoId, comentario, ...data },
   ) {
     return new Promise(async (resolve, reject) => {
@@ -423,17 +463,9 @@ const actions = {
                 comentario,
               })
             }
-
             message = _.get(res, "data.message", null)
-
             // Quitamos el requerimiento del listado:
-            const removedIndex = _.findIndex(state.requerimientos, {
-              id: requerimientoId,
-            })
-            let listResult = [...state.requerimientos]
-            listResult.splice(removedIndex, 1)
-
-            commit("SET_REQUERIMIENTOS", listResult)
+            commit("REMOVE_REQUERIMIENTO", requerimientoId)
             break
           }
         }

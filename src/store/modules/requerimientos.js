@@ -8,6 +8,7 @@ import {
 } from "api/requerimientos"
 
 import Requerimiento from "models/requerimiento"
+import router from "router/index"
 
 const state = {
   // Create
@@ -32,6 +33,7 @@ const state = {
     { codigo: "TEST", descripcion: "Testing", id: 10 },
   ],
   misRequerimientos: [],
+  misRequerimientosHuboCambio: false,
   detalleRequerimientoOpen: false,
   detalleRequerimientoItem: {},
   procesandoArchivosCargados: false,
@@ -87,7 +89,7 @@ const mutations = {
   },
 
   SET_MIS_REQUERIMIENTOS: (state, newState) => {
-    state.misRequerimientos = newState
+    state.misRequerimientos = _.map(newState, req => req)
   },
 
   SET_DETALLE_REQUERIMIENTO_ITEM: (state, requerimiento) => {
@@ -106,6 +108,22 @@ const mutations = {
   },
   SET_PROCESANDO_ARCHIVOS_CARGADOS: (state, value) => {
     state.procesandoArchivosCargados = value
+  },
+  SET_MIS_REQUERIMIENTOS_HUBO_CAMBIOS(state, value) {
+    state.misRequerimientosHuboCambio = value
+  },
+  PUSHER_PROCESS_UPDATE: (
+    state,
+    { showHuboCambioMsg, reqInCurrentList, requerimiento },
+  ) => {
+    state.misRequerimientosHuboCambio = showHuboCambioMsg
+    // state.misRequerimientosHuboCambio = true
+    if (reqInCurrentList) {
+      const removedIndex = _.findIndex(state.misRequerimientos, {
+        id: requerimiento.id,
+      })
+      state.misRequerimientos.splice(removedIndex, 1, requerimiento)
+    }
   },
 }
 
@@ -282,6 +300,45 @@ const actions = {
   setProcesandoArchivosCargados({ commit }, value) {
     return new Promise(resolve => {
       commit("SET_PROCESANDO_ARCHIVOS_CARGADOS", value)
+      resolve()
+    })
+  },
+
+  setMisRequerimientosHuboCambios({ commit }, value) {
+    return new Promise(resolve => {
+      commit("SET_MIS_REQUERIMIENTOS_HUBO_CAMBIOS", value)
+      resolve()
+    })
+  },
+  pusherUpdateMisRequerimientos(
+    { commit, state },
+    { requerimiento, showMessage = true },
+  ) {
+    return new Promise(resolve => {
+      // chequeo si se debe mostrar el mensaje de "algo cambio" (solo si esta en la pagina)
+      // se mostrará si showMessage===true y la pagina es "mis-requerimientos"
+      const showHuboCambioMsg =
+        showMessage && router.currentRoute.name === "mis-requerimientos"
+      // chequeo si el req en cuestion está en la vista actual de mis reqs, para saber si lo tengo que actualizar
+      const reqInCurrentList = _.find(state.misRequerimientos, {
+        id: requerimiento.id,
+      })
+      commit("PUSHER_PROCESS_UPDATE", {
+        showHuboCambioMsg,
+        reqInCurrentList,
+        requerimiento,
+      })
+      resolve()
+    })
+  },
+  pusherUpdateDetalleRequerimientoItem({ commit, state }, requerimiento) {
+    return new Promise(resolve => {
+      // chequeo si el detalle está abierto y si es así, lo actualizo
+      const currentReqOpened = _.get(state.detalleRequerimientoItem, "id", null)
+      debugger
+      if (currentReqOpened === requerimiento.id) {
+        commit("SET_DETALLE_REQUERIMIENTO_ITEM", requerimiento)
+      }
       resolve()
     })
   },

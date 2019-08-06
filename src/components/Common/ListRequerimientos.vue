@@ -3,13 +3,13 @@
     <div class="bg-deep-purple-10 card-header rounded-borders-8">
       {{ props.title }}
     </div>
-    <q-slide-transition>
-      <template v-if="!props.loadingList">
-        <div class="req-container">
-          <slot />
-        </div>
-      </template>
-    </q-slide-transition>
+    <!-- <q-slide-transition> -->
+    <template v-if="!props.loadingList">
+      <div class="req-container">
+        <slot />
+      </div>
+    </template>
+    <!-- </q-slide-transition> -->
     <div v-if="props.loadingList" class="row text-center loading-container">
       <div class="col self-center">
         <q-spinner-gears size="50px" color="accent" />

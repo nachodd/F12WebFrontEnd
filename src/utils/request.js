@@ -122,7 +122,6 @@ service.interceptors.response.use(
       isRefreshOrLogout ||
       (status === 401 && !error.config.__isRetryRequest)
     ) {
-      debugger
       await store.dispatch("auth/refresh")
       error.config.__isRetryRequest = true
       return service.request(error.config)

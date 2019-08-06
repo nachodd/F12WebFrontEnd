@@ -21,16 +21,24 @@
           v-for="(req, index) in requerimientosList"
           :key="`req_${req.id}`"
         >
-          <requerimientos-asignados-Item
-            :req="req"
-            :index="index"
-            @click.native="
-              abrirDetalleRequerimiento({
-                reqId: req.id,
-                listName: 'requerimientos-asignados',
-              })
-            "
-          />
+          <transition
+            appear
+            name="flip"
+            mode="out-in"
+            enter-active-class="animated slow flipInY"
+            leave-active-class="animated slow flipOutY"
+          >
+            <requerimientos-asignados-Item
+              :req="req"
+              :index="index"
+              @click.native="
+                abrirDetalleRequerimiento({
+                  reqId: req.id,
+                  listName: 'requerimientos-asignados',
+                })
+              "
+            />
+          </transition>
         </Draggable>
       </template>
     </Container>

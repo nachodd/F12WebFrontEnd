@@ -22,16 +22,24 @@
             v-for="(req, index) in requerimientosList"
             :key="`req_${req.id}`"
           >
-            <asignar-requerimientos-item
-              :req="req"
-              :index="index"
-              @click.native="
-                abrirDetalleRequerimiento({
-                  reqId: req.id,
-                  listName: 'asignar-requerimientos',
-                })
-              "
-            />
+            <transition
+              appear
+              name="flip"
+              mode="out-in"
+              enter-active-class="animated slow flipInY"
+              leave-active-class="animated slow flipOutY"
+            >
+              <asignar-requerimientos-item
+                :req="req"
+                :index="index"
+                @click.native="
+                  abrirDetalleRequerimiento({
+                    reqId: req.id,
+                    listName: 'asignar-requerimientos',
+                  })
+                "
+              />
+            </transition>
           </Draggable>
         </template>
       </Container>
@@ -45,18 +53,26 @@
         </div>
       </template>
       <template v-else>
-        <asignar-requerimientos-item
-          v-for="(req, index) in requerimientosList"
-          :key="`req_${req.id}`"
-          :req="req"
-          :index="index"
-          @click.native="
-            abrirDetalleRequerimiento({
-              reqId: req.id,
-              listName: 'asignar-requerimientos',
-            })
-          "
-        />
+        <transition-group
+          name="flip"
+          tag="div"
+          appear
+          enter-active-class="animated slow flipInY"
+          leave-active-class="animated slow flipOutY"
+        >
+          <asignar-requerimientos-item
+            v-for="(req, index) in requerimientosList"
+            :key="`req_${req.id}`"
+            :req="req"
+            :index="index"
+            @click.native="
+              abrirDetalleRequerimiento({
+                reqId: req.id,
+                listName: 'asignar-requerimientos',
+              })
+            "
+          />
+        </transition-group>
       </template>
     </template>
   </list-requerimientos>
@@ -144,4 +160,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss"></style>
