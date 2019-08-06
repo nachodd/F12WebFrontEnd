@@ -19,10 +19,7 @@
     </div>
     <div v-if="noResults" class="q-pa-lg text-body2">
       <div class="row justify-center">
-        <img
-          src="~assets/empty_search.svg"
-          style="width:40vw;max-width:250px;"
-        />
+        <img src="~assets/empty_box.svg" style="width:40vw;max-width:250px;" />
       </div>
       <div class="row justify-center">
         No hay requerimientos para mostrar
@@ -63,7 +60,6 @@ export default {
         tipo: null,
         // seccionId:null
       },
-      // crudModalOpen: false,
     }
   },
   computed: {
