@@ -33,6 +33,7 @@ const state = {
     { codigo: "TEST", descripcion: "Testing", id: 10 },
   ],
   misRequerimientos: [],
+  misRequerimientosSearchMeta: {},
   misRequerimientosHuboCambio: false,
   detalleRequerimientoOpen: false,
   detalleRequerimientoItem: {},
@@ -88,8 +89,9 @@ const mutations = {
     state.loadingOptions = newState
   },
 
-  SET_MIS_REQUERIMIENTOS: (state, newState) => {
-    state.misRequerimientos = _.map(newState, req => req)
+  SET_MIS_REQUERIMIENTOS: (state, { requerimientos, meta }) => {
+    state.misRequerimientos = _.map(requerimientos, req => req)
+    state.misRequerimientosSearchMeta = meta
   },
 
   SET_DETALLE_REQUERIMIENTO_ITEM: (state, requerimiento) => {
@@ -192,9 +194,11 @@ const actions = {
           data: { data, meta },
         } = await listRequerimientos(userRequerimientos, filtros)
 
-        commit("SET_MIS_REQUERIMIENTOS", data)
-
-        resolve(meta)
+        commit("SET_MIS_REQUERIMIENTOS", {
+          requerimientos: data,
+          meta,
+        })
+        resolve()
       } catch (error) {
         reject(error)
       } finally {

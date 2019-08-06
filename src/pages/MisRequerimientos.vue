@@ -1,18 +1,36 @@
 <template>
   <q-page padding class="q-pt-lg">
-    <mis-requerimientos-menu-filtros @buscar="getListRequerimientos" />
+    <mis-requerimientos-menu-filtros
+      ref="filtros"
+      @buscar="getListRequerimientos"
+    />
     <mis-requerimientos-listado
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
     />
-    <div v-if="misRequerimientos.length > 10" class="q-pa-lg flex flex-center">
+    <div v-if="searchMeta.total > 10" class="q-pa-lg flex flex-center">
       <q-pagination
         v-model="current"
         color="deep-purple-10"
-        :max="lastPage"
+        :max="searchMeta.last_page"
         :max-pages="8"
         :boundary-numbers="true"
       ></q-pagination>
+    </div>
+    <div v-if="noResults" class="q-pa-lg text-body2">
+      <div class="row justify-center">
+        <img
+          src="~assets/empty_search.svg"
+          style="width:40vw;max-width:250px;"
+        />
+      </div>
+      <div class="row justify-center">
+        No hay requerimientos para mostrar
+      </div>
+      <div v-if="hayFiltros" class="row justify-center">
+        <!-- eslint-disable-next-line -->
+        Pruebe&nbsp;<a href="javascript:void(0);" class="text-purple-9" @click="$refs.filtros.limpiarFiltros()">borrando los filtros</a>
+      </div>
     </div>
     <dialog-detalle-requerimiento />
   </q-page>
@@ -34,9 +52,9 @@ export default {
   data() {
     return {
       current: 1,
-      page: 1,
-      perPage: 10,
-      lastPage: 0,
+      // page: 1,
+      // perPage: 10,
+      // lastPage: 0,
       filtroLastValues: {
         descripcion: null,
         reqId: null,
@@ -53,7 +71,15 @@ export default {
       loadingRequerimiento: state => state.loadingRequerimiento,
       misRequerimientos: state => state.misRequerimientos,
       misRequerimientosHuboCambio: state => state.misRequerimientosHuboCambio,
+      searchMeta: state => state.misRequerimientosSearchMeta,
     }),
+    hayFiltros() {
+      const f = this.filtroLastValues
+      return _.some([f.descripcion, f.reqId, f.estados, f.sistema, f.tipo])
+    },
+    noResults() {
+      return !this.searchMeta.total || this.searchMeta.total === 0
+    },
   },
   watch: {
     current() {
@@ -94,26 +120,20 @@ export default {
             this.filtroLastValues.estados.map(e => e.value)) ||
           null
 
-        const res = await this.$store.dispatch(
-          "requerimientos/listRequerimientos",
-          {
-            filtros: {
-              seccion_id: null,
-              sistema_id: _.get(this, "filtroLastValues.sistema.id", null),
-              requerimiento_tipo: _.get(this, "filtroLastValues.tipo.id", null),
-              requerimiento_id: _.get(this, "filtroLastValues.reqId", null),
-              requerimiento_estado: reqEstados,
-              fecha_desde: null,
-              fecha_hasta: null,
-              descripcion: this.filtroLastValues.descripcion,
-              page: this.current,
-              perPage: 10,
-            },
+        await this.$store.dispatch("requerimientos/listRequerimientos", {
+          filtros: {
+            seccion_id: null,
+            sistema_id: _.get(this, "filtroLastValues.sistema.id", null),
+            requerimiento_tipo: _.get(this, "filtroLastValues.tipo.id", null),
+            requerimiento_id: _.get(this, "filtroLastValues.reqId", null),
+            requerimiento_estado: reqEstados,
+            fecha_desde: null,
+            fecha_hasta: null,
+            descripcion: this.filtroLastValues.descripcion,
+            page: this.current,
+            perPage: 10,
           },
-        )
-
-        this.lastPage = res.last_page
-        // this.current = a.current_page
+        })
       } catch (e) {
         const message =
           e.message ||
