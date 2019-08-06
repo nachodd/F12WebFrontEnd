@@ -250,6 +250,9 @@ export default {
       return value.usuario + " @ " + fechaFormatiada
     },
     formatearEstado(value, objMovimiento) {
+      if (objMovimiento.tipo === "Modificación estado en proceso") {
+        return objMovimiento.tipo + " - " + value
+      }
       return objMovimiento.tipo === "Alta" ? "Alta" : value
     },
   },

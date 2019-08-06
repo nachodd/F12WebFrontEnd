@@ -266,17 +266,6 @@ const actions = {
   initPusher(ctx, pusherChannelName) {
     return new Promise(resolve => {
       const pc = getPusherChannel(pusherChannelName)
-      // [
-      //   "asignar_requerimiento_externo",
-      //   "asignar_requerimiento",
-      //   "requerimiento_asignado",
-      //   "requerimiento_asignado_testing",
-      //   "cambio_tipo_requerimiento",
-      //   "requerimiento_finalizado",
-      //   "priorizar_requerimiento",
-      //   "requerimiento_aprobado",
-      //   "requerimiento_rechazado",
-      // ]
 
       pc.bind("asignar_requerimiento", data => {
         processAsignarRequerimiento(ctx, data)

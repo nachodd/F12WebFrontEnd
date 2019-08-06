@@ -453,9 +453,9 @@ const mutations = {
           id: req.id,
         })
         if (removedIndex !== -1) {
-          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+          state.requerimientos.splice(removedIndex, 1, req)
         } else {
-          state.requerimientos.push(new Requerimiento(req))
+          state.requerimientos.push(req)
         }
         break
       }
@@ -810,7 +810,7 @@ const actions = {
           break
         }
         case "descartar": {
-          const listType = listName === "source" ? "pending" : "approved"
+          // const listType = listName === "source" ? "pending" : "approved"
 
           // Rechazo o elimino el requerimiento el requerimiento:
           try {
@@ -832,19 +832,20 @@ const actions = {
                 state.changesRequerimientos,
                 { id: requerimientoItem.id },
               )
-              let listResult = [...state.changesRequerimientos]
-              listResult.splice(removedIndex, 1)
-
-              commit("SET_REQS_LIST", listResult)
+              if (removedIndex !== -1) {
+                let listResult = [...state.changesRequerimientos]
+                listResult.splice(removedIndex, 1)
+                commit("SET_REQS_LIST", listResult)
+              }
             } else if (listName === "target") {
-              const removedIndex = _.findIndex(
-                state.reqsAprobadosPriorizados.list,
-                { id: requerimientoItem.id },
-              )
-              let listResult = [...state.reqsAprobadosPriorizados.list]
-              listResult.splice(removedIndex, 1)
-
-              commit("SET_REQS_LIST", { listType, listData: listResult })
+              const removedIndex = _.findIndex(state.changesRequerimientos, {
+                id: requerimientoItem.id,
+              })
+              if (removedIndex !== -1) {
+                let listResult = [...state.changesRequerimientos]
+                listResult.splice(removedIndex, 1)
+                commit("SET_REQS_LIST", listResult)
+              }
             }
 
             commit("CLEAR_OPERATIONS")

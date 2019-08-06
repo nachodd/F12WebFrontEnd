@@ -76,9 +76,9 @@ export default {
   },
   created() {
     this.$store.dispatch("requerimientos/createRequerimiento")
-    if (!this.requerimientosLoaded) {
-      this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
-    }
+    // if (!this.requerimientosLoaded) {
+    this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
+    // }
   },
 }
 </script>

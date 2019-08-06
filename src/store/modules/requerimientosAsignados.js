@@ -275,7 +275,9 @@ const mutations = {
   },
   UPDATE_REQ_ESTADO_FINISH: (state, reqId) => {
     const index = _.findIndex(state.requerimientos, { id: reqId })
-    state.requerimientos.splice(index, 1)
+    if (index !== -1) {
+      state.requerimientos.splice(index, 1)
+    }
   },
 
   SET_FILTROS: (state, { filter, value }) => {

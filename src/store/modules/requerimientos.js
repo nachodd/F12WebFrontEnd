@@ -89,7 +89,7 @@ const mutations = {
   },
 
   SET_MIS_REQUERIMIENTOS: (state, newState) => {
-    state.misRequerimientos = newState
+    state.misRequerimientos = _.map(newState, req => req)
   },
 
   SET_DETALLE_REQUERIMIENTO_ITEM: (state, requerimiento) => {
