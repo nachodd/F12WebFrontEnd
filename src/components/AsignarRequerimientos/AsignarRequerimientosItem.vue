@@ -1,4 +1,7 @@
 <template>
+  <!-- transition-show="flip-left"
+  v-show="showed"
+    transition-hide="flip-right" -->
   <q-item
     class="q-ma-sm shadow-2 rounded-borders-8 cursor-pointer card-row"
     :class="{
@@ -204,6 +207,11 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      showed: false,
+    }
+  },
   computed: {
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
     ...mapGetters("requerimientos", ["getEstadoByCodigo"]),
@@ -284,6 +292,9 @@ export default {
     usuarioTesting() {
       return this.req.estado.asignacion_testing.usuario_nombre
     },
+  },
+  mounted() {
+    this.showed = true
   },
   methods: {
     getColorVencimiento() {

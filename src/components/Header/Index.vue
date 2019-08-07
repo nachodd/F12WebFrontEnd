@@ -140,6 +140,7 @@ export default {
   components: {
     NotificacionItem,
   },
+  // inject: ["getPusherChannel"],
   props: {
     mini: {
       type: Boolean,
@@ -148,7 +149,8 @@ export default {
   },
   data() {
     return {
-      notificacionesInterval: null,
+      // notificacionesInterval: null,
+      // pc: null,
     }
   },
   computed: {
@@ -197,14 +199,22 @@ export default {
     this.toggleDevice(this.$q.platform.is)
   },
   created() {
+    // this.pc = this.getPusherChannel()
+    // this.channels.forEach(ch => {
+    //   if (this.pc) {
+    //     this.pc.bind(ch, data => {
+    //       console.log(data)
+    //       debugger
+    //       this.checkNotificaciones()
+    //     })
+    //   }
+    // })
     this.checkNotificaciones()
-    this.notificacionesInterval = setInterval(
-      this.checkNotificaciones,
-      30 * 1000,
-    )
   },
   beforeDestroy() {
-    clearInterval(this.notificacionesInterval)
+    // this.channels.forEach(ch => {
+    //   this.pc && this.pc.unbind(ch)
+    // })
   },
   methods: {
     ...mapActions({

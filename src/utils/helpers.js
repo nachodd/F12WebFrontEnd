@@ -35,6 +35,26 @@ export function warn({
   })
 }
 
+export function info({
+  message = "Hubo requerimientos actualizados",
+  timeout = 5000,
+  color = "blue-8",
+  textColor = "white",
+  icon = "info",
+  actions = [{ label: "CERRAR", color: "white" }],
+}) {
+  Notify.create({
+    color,
+    textColor,
+    message,
+    icon,
+    position: "top-right",
+    timeout,
+    multiline: true,
+    actions,
+  })
+}
+
 export function success({
   message = "Su petición fue procesada correctamente!",
   timeout = 5000,

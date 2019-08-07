@@ -12,6 +12,7 @@
       :rules="[notEmpty]"
       :hide-bottom-space="true"
       :value="asunto"
+      color="deep-purple-10"
       @input="$emit('update:asunto', $event)"
     />
 
@@ -20,6 +21,7 @@
       :options="sistemas"
       label="Sistema"
       outlined
+      color="deep-purple-10"
       :loading="sistemas.length === 0"
       :apply-validation="true"
     />
@@ -29,6 +31,7 @@
       :options="requerimientosTipos"
       label="Tipo de Requerimiento"
       outlined
+      color="deep-purple-10"
       :loading="requerimientosTipos.length === 0"
       :apply-validation="true"
       @input="handleTipoChange"
@@ -41,6 +44,7 @@
       :rules="[notEmpty]"
       :hide-bottom-space="true"
       :value="descripcion"
+      color="deep-purple-10"
       @input="$emit('update:descripcion', $event)"
     />
 
@@ -71,7 +75,7 @@
               v-model="__llevaUsuarioCadena"
               :disable="llevaUsuarioCadenaDisabled"
               left-label
-              color="accent"
+              color="deep-purple-10"
             />
           </q-item-section>
           <q-item-section>
@@ -87,6 +91,7 @@
                 :options="gerentesOrderByArea"
                 label="Usuario Destino"
                 outlined
+                color="deep-purple-10"
                 :loading="requerimientosTipos.length === 0"
                 :apply-validation="true"
                 description-key="razon_social"
@@ -119,7 +124,7 @@
             <q-checkbox
               v-model="__llevaFechaLimite"
               left-label
-              color="accent"
+              color="deep-purple-10"
             />
           </q-item-section>
           <q-item-section>
@@ -146,6 +151,7 @@
                     v-model="__fechaLimite"
                     label="Fecha Límite"
                     past-disabled
+                    color="deep-purple-10"
                     :apply-validation="__llevaFechaLimite"
                   />
                 </div>
@@ -158,6 +164,7 @@
                     :rules="motivoLimiteRules"
                     :hide-bottom-space="true"
                     :value="motivoLimite"
+                    color="deep-purple-10"
                     @input="$emit('update:motivoLimite', $event)"
                   />
                 </div>
