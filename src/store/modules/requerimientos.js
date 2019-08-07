@@ -77,7 +77,10 @@ const mutations = {
     // state.options.areas = Vue.set(state.options, "areas", areas)
     // state.options.areas = areas
     state.options.sistemas = sistemas
-    state.options.requerimientosTipos = requerimientos_tipos
+    const reqTiposFiltered = _.filter(requerimientos_tipos, rt => {
+      return rt.id === 1 || rt.id === 2
+    })
+    state.options.requerimientosTipos = reqTiposFiltered
   },
   SET_LOADING_REQ: (state, newState) => {
     state.loadingRequerimiento = newState
