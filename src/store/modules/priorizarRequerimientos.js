@@ -285,13 +285,20 @@ const mutations = {
     // state.requerimientos = [listData]
     // state.changesRequerimientos = [...listData]
 
-    state.requerimientos = [...listData]
-    state.changesRequerimientos = [...listData]
+    // state.requerimientos = [...listData]
+    // state.changesRequerimientos = [...listData]
+    state.requerimientos = _.map(listData, req => new Requerimiento(req))
+    state.changesRequerimientos = _.map(listData, req => new Requerimiento(req))
   },
 
   PUSH_REQS_LIST: (state, { listData }) => {
-    state.requerimientos.push(...listData)
-    state.changesRequerimientos.push(...listData)
+    // state.requerimientos.push(...listData)
+    // state.changesRequerimientos.push(...listData)
+    // FIXME: testear que nada rompa aca, cambie esto recien
+    state.requerimientos.push(..._.map(listData, req => new Requerimiento(req)))
+    state.changesRequerimientos.push(
+      ..._.map(listData, req => new Requerimiento(req)),
+    )
   },
   SORT_REQUERIMIENTOS_BY_PRIORITY: state => {
     // Obtengo la lista

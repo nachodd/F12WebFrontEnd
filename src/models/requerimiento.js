@@ -30,7 +30,12 @@ export default class Requerimiento {
     // el estado puede estar setiado en estado o estado_general por eso va este ternario
     this.estado = req.estado
       ? req.estado
-      : req.estado_priorizacion
+      : req.estado_general
+      ? req.estado_general
+      : null
+    //this.estado = req.estado ? req.estado : null
+
+    this.estado_priorizacion = req.estado_priorizacion
       ? req.estado_priorizacion
       : null
     // Consevervamos la original

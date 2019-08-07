@@ -163,12 +163,10 @@
 </template>
 <script>
 import { mapGetters } from "vuex"
-import priorityColor from "mixins/priorityColor"
 import Requerimiento from "models/requerimiento"
 
 export default {
   name: "RequerimientoCard",
-  mixins: [priorityColor],
   props: {
     req: {
       type: [Requerimiento, Object],

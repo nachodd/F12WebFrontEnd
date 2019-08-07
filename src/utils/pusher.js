@@ -74,7 +74,6 @@ const updateNotificacionesDashboardMisReqs = (ctx, requerimiento) => {
 }
 
 const processPriorizarRequerimiento = async (ctx, data) => {
-  debugger
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
   await ctx.commit(
     "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
