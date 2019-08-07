@@ -228,6 +228,16 @@ body {
 .filter.q-field--standout .q-field__control:before {
   background-color: transparent !important;
 }
+.filter .q-field__control:after {
+  content: 'Más filtros 🠊';
+  text-align: right;
+  margin-right: 40px;
+  margin-top: 10px;
+  color: #b7b7b7;
+}
+.filter.popupOpened .q-field__control:after {
+  content: '';
+}
 /** FIN */
 
 
