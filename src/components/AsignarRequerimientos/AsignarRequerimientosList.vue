@@ -72,6 +72,7 @@
           leave-active-class="animated slow flipOutY"
         >
           <requerimiento-card
+            v-for="(req, index) in requerimientosList"
             :key="`req_${req.id}`"
             :req="req"
             :index="index"

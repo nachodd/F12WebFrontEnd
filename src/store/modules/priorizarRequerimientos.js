@@ -294,7 +294,6 @@ const mutations = {
   PUSH_REQS_LIST: (state, { listData }) => {
     // state.requerimientos.push(...listData)
     // state.changesRequerimientos.push(...listData)
-    // FIXME: testear que nada rompa aca, cambie esto recien
     state.requerimientos.push(..._.map(listData, req => new Requerimiento(req)))
     state.changesRequerimientos.push(
       ..._.map(listData, req => new Requerimiento(req)),

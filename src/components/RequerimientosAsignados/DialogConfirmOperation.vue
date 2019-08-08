@@ -17,7 +17,7 @@
         <span class="text-h6">
           Confirmación -
           <q-chip dense color="accent-light" text-color="white">
-            Req #{{ detalleRequerimientoId }}
+            Req #{{ req.id }}
           </q-chip>
         </span>
       </q-card-section>
@@ -62,7 +62,10 @@ export default {
       dialogConfirmOpenState: state => state.dialogConfirmOpen,
     }),
     ...mapGetters("requerimientosAsignados", ["operationType"]),
-    ...mapGetters("requerimientos", ["detalleRequerimientoId"]),
+    // ...mapGetters("requerimientos", ["detalleRequerimientoId"]),
+    ...mapState("requerimientos", {
+      req: state => state.detalleRequerimientoItem,
+    }),
 
     dialogConfirmOpen: {
       get() {
@@ -84,31 +87,6 @@ export default {
     confirmOperation() {
       // se llama al save del children (del componente RequerimientosAsignadosActions)
       this.$refs.actions.saveChanges()
-      /* const comment = this.operationReject ? this.comment : null
-
-      this.$store
-        .dispatch("requerimientosAsignados/confirmOperation", comment)
-        .then(() => {
-          this.dialogConfirmOpen = false
-          this.comment = ""
-        })
-        .then(() => {
-          //
-          let message = `Requerimiento #${
-            this.detalleRequerimientoId
-          } en EJECUCIÓN.`
-
-          if (this.operationReject) {
-            message = `Requerimiento #${
-              this.detalleRequerimientoId
-            } volvió a PENDIENTE.`
-          }
-
-          success({ message })
-        })
-        .catch(e => {
-          warn({ message: e.message })
-        }) */
     },
   },
 }

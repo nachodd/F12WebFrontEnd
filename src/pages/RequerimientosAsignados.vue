@@ -7,7 +7,7 @@
     </div>
     <div class="row q-pt-md q-px-xs q-col-gutter-sm req-container--filter">
       <div class="col-sm-4 col-xs-12">
-        <draggable-list
+        <requerimientos-asignados-list
           title="Pendientes"
           group-name="requerimientos"
           list-name="source"
@@ -21,7 +21,7 @@
         class="col-sm-4 col-xs-12"
         :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
       >
-        <draggable-list
+        <requerimientos-asignados-list
           title="En Ejecución"
           group-name="requerimientos"
           list-name="target"
@@ -34,7 +34,7 @@
         class="col-sm-4 col-xs-12"
         :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
       >
-        <draggable-list
+        <requerimientos-asignados-list
           title="Testing"
           group-name="requerimientos"
           list-name="testing"
@@ -52,7 +52,7 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import pageLoading from "mixins/pageLoading"
-import DraggableList from "comp/RequerimientosAsignados/DraggableList"
+import RequerimientosAsignadosList from "comp/RequerimientosAsignados/RequerimientosAsignadosList"
 import DialogConfirmOperation from "comp/RequerimientosAsignados/DialogConfirmOperation"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import RequerimientosAsignadosFiltros from "comp/RequerimientosAsignados/RequerimientosAsignadosFiltros"
@@ -60,7 +60,7 @@ import RequerimientosAsignadosFiltros from "comp/RequerimientosAsignados/Requeri
 export default {
   name: "RequerimientosAsigandos",
   components: {
-    DraggableList,
+    RequerimientosAsignadosList,
     DialogConfirmOperation,
     DialogDetalleRequerimiento,
     RequerimientosAsignadosFiltros,

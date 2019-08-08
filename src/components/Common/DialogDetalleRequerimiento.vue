@@ -278,13 +278,10 @@ export default {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
-    ...mapGetters("requerimientos", [
-      "detalleRequerimientoState",
-      "getEstadoById",
-    ]),
+    ...mapGetters("requerimientos", ["getEstadoById"]),
     // ...mapGetters("auth", ["userReportantes"]),
     stateSentToProcess() {
-      return this.detalleRequerimientoState === "STPR"
+      return this.req.tieneEstado("STPR")
     },
     requerimientoSetted() {
       return !_.isEmpty(this.req)

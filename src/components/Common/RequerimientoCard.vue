@@ -2,11 +2,19 @@
   <q-item
     class="q-ma-sm shadow-2 rounded-borders-8 cursor-pointer card-row"
     :class="{
-      'card--default': !req.esArregloRapido,
+      'card--default': req.esDesarrollo,
       'card--qf': req.esArregloRapido,
+      'card--paused': estaEnPausa,
     }"
     :style="{ background: req.colorVencimientoBg }"
   >
+    <q-tooltip v-if="estaEnPausa">
+      Este requerimiento esta EN PAUSA
+    </q-tooltip>
+    <q-tooltip v-if="yoDeboTestearla" content-class="bg-red">
+      USTED DEBE TESTEAR ESTE REQUERIMIENTO
+    </q-tooltip>
+
     <div class="row">
       <div class="col-12">
         <!-- ASUNTO -->
@@ -30,6 +38,21 @@
           {{ req.descripcion }}
         </q-item-label>
         -->
+        <!-- FECHA DE CARGA -->
+        <q-item-label>
+          <span class="card__text-body">
+            <q-icon
+              name="far fa-calendar"
+              class="vertical-top q-mr-xs q-pl-xs"
+            />
+            {{ req.fechaAlta }}
+            <q-tooltip content-class="text-caption">
+              Fecha de Carga:
+              <strong>{{ req.fechaAlta }}</strong>
+            </q-tooltip>
+          </span>
+        </q-item-label>
+
         <!-- VENCIMIENTO -->
         <q-item-label v-if="req.vence">
           <span class="card__text-body card__text-red">
@@ -88,14 +111,14 @@
         </q-item-label>
 
         <!-- USUARIO ASIGNADO -->
-        <q-item-label v-if="req.estaAsignado">
+        <q-item-label v-if="muestraUsuarioAsignado">
           <span class="card__text-user">
             <q-icon
               name="fas fa-user-check"
               class="vertical-top q-mr-xs q-pl-sm"
             />
             {{ req.usuarioAsignado }}
-            <q-tooltip>
+            <q-tooltip content-class="text-caption">
               Usuario Asignado:
               <strong>{{ req.usuarioAsignado }}</strong>
             </q-tooltip>
@@ -103,14 +126,14 @@
         </q-item-label>
 
         <!-- USUARIO TESTING -->
-        <q-item-label v-if="req.estaEnTesting">
+        <q-item-label v-if="req.tieneEstado('TEST')">
           <span class="card__text-user">
             <q-icon
               name="fas fas fa-flask"
               class="vertical-top q-mr-xs q-pl-xs"
             />
             {{ req.usuarioTesting }}
-            <q-tooltip>
+            <q-tooltip content-class="text-caption">
               Usuario Tester:
               <strong>{{ req.usuarioTesting }}</strong>
             </q-tooltip>
@@ -119,7 +142,7 @@
       </div>
     </div>
 
-    <div class="row justify-between">
+    <div class="row justify-between q-mt-xs">
       <div class="text-left col-3">
         <q-badge
           :class="{
@@ -130,23 +153,20 @@
           #{{ req.id }}
         </q-badge>
       </div>
-      <div
-        v-if="!req.esArregloRapido && req.tieneEstado('NOAS')"
-        class="col-9 text-right"
-      >
-        <!--
-        <q-badge v-if="estadoEnProcesos" color="green-7" text-color="white">
-          EN PROCESOS
-        </q-badge>
-        -->
+
+      <!-- v-if="!req.esArregloRapido && req.tieneEstado('NOAS')" -->
+      <div v-if="muestraPrioridad" class="col-9 text-right">
         <q-badge
-          v-if="req.tieneEstado('NOAS')"
           :style="{
             color: req.colorPrioridad.text,
             backgroundColor: req.colorPrioridad.bg,
           }"
         >
           PR: {{ req.prioridad }}
+          <q-tooltip content-class="text-caption">
+            Prioridad:
+            <strong>{{ req.prioridad }}</strong>
+          </q-tooltip>
         </q-badge>
       </div>
 
@@ -162,7 +182,6 @@
   </q-item>
 </template>
 <script>
-import { mapGetters } from "vuex"
 import Requerimiento from "models/requerimiento"
 
 export default {
@@ -182,11 +201,25 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
-
-    tieneComentario() {
-      return this.req.comentario && this.req.comentario.length > 0
+    yoDeboTestearla() {
+      return (
+        this.req.tieneEstado("TEST") &&
+        Number(this.req.estado.asignacion_testing.usuario_id) === this.userId
+      )
     },
+
+    muestraPrioridad() {
+      return (
+        this.req.esDesarrollo &&
+        ["priorizar", "asignar"].includes(this.cardType) &&
+        this.req.tieneEstado("NOAS") // Solo se muestra para la columna de "Por asignar"
+      )
+    },
+
+    muestraUsuarioAsignado() {
+      return this.req.estaAsignado && this.cardType === "asignar"
+    },
+
     isDevelopment() {
       return process.env.DEV && false
     },

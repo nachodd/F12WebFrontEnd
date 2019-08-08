@@ -78,9 +78,10 @@ export default class Requerimiento {
     return this.requerimientoAsociado !== null
   }
 
-  get esArregloRapido() {
-    return _.get(this, "tipo.id", null) === Requerimiento.getTipoId("AR")
+  get estaEnPausa() {
+    return _.get(this, "estado.pausado", null) === true
   }
+
   get estaAsignado() {
     const estaAsignado = _.get(this, "estado.asignacion", null)
     return estaAsignado !== null
@@ -88,9 +89,9 @@ export default class Requerimiento {
   get usuarioAsignado() {
     return _.get(this, "estado.asignacion.usuario_nombre", null)
   }
-  get estaEnTesting() {
-    return _.get(this, "estado.id", null) === Requerimiento.getEstadoId("TEST")
-  }
+  // get estaEnTesting() {
+  //   return _.get(this, "estado.id", null) === Requerimiento.getEstadoId("TEST")
+  // }
   get usuarioTesting() {
     return _.get(this, "estado.asignacion_testing.usuario_nombre", null)
   }
@@ -193,9 +194,29 @@ export default class Requerimiento {
     return res
   }
 
+  get esArregloRapido() {
+    return _.get(this, "tipo.id", null) === Requerimiento.getTipoId("AR")
+  }
+  get esDesarrollo() {
+    return _.get(this, "tipo.id", null) === Requerimiento.getTipoId("DMI")
+  }
+  esTipo(tipoCod) {
+    return _.get(this, "tipo.id", null) === Requerimiento.tipoId(tipoCod)
+  }
+  get tipoCodigo() {
+    return Requerimiento.getTipoCodigo(this.estado.id)
+  }
+
+  get estadoCodigo() {
+    return Requerimiento.getEstadoCodigo(this.estado.id)
+  }
   tieneEstado(estadoCod) {
     // eslint-disable-next-line
     return _.get(this, "estado.id", null) === Requerimiento.getEstadoId(estadoCod)
+  }
+  tieneEstadoPriorizacion(estadoCod) {
+    // eslint-disable-next-line
+    return _.get(this, "estado_priorizacion.id", null) === Requerimiento.getEstadoId(estadoCod)
   }
 
   async toCreatePayload() {
@@ -332,6 +353,14 @@ export default class Requerimiento {
       RP: 3, // "Revision procesos"
     }
     return arrTipos[codigo] || null
+  }
+  static getTipoCodigo(id) {
+    const arrTipos = {
+      1: "AR",
+      2: "DMI",
+      3: "RP",
+    }
+    return arrTipos[id] || null
   }
 
   // Vuelidate validations

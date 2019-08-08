@@ -28,13 +28,14 @@
             enter-active-class="animated slow flipInY"
             leave-active-class="animated slow flipOutY"
           >
-            <requerimientos-asignados-Item
+            <requerimiento-card
               :req="req"
               :index="index"
+              card-type="priorizar"
               @click.native="
                 abrirDetalleRequerimiento({
                   reqId: req.id,
-                  listName: 'requerimientos-asignados',
+                  listName: 'priorizar-requerimientos',
                 })
               "
             />
@@ -48,15 +49,16 @@
 <script>
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag, warn } from "utils/helpers"
-import RequerimientosAsignadosItem from "comp/RequerimientosAsignados/RequerimientosAsignadosItem"
+import { applyDrag } from "utils/helpers"
+// import PriorizarRequerimientosItem from "comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
+import RequerimientoCard from "comp/Common/RequerimientoCard"
 import ListRequerimientos from "comp/Common/ListRequerimientos"
 
 export default {
   name: "DraggableList",
   components: {
     ListRequerimientos,
-    RequerimientosAsignadosItem,
+    RequerimientoCard,
     Container,
     Draggable,
   },
@@ -107,14 +109,22 @@ export default {
     },
     onDrop(listName, dropResult) {
       const listResult = applyDrag(this.requerimientosList, dropResult)
+
       const updatedListData = { listName, listResult, dropResult }
 
-      this.$store
-        .dispatch("requerimientosAsignados/processUpdateList", updatedListData)
-        .catch(({ message }) => {
-          warn({ message })
-        })
+      this.$store.dispatch(
+        "priorizarRequerimientos/processUpdateList",
+        updatedListData,
+      )
+
+      // this.$emit("list-updated")
     },
+    // abrirDetalleRequerimiento(reqId) {
+    //   this.$store.dispatch(
+    //     "priorizarRequerimientos/abrirDetalleRequerimiento",
+    //     reqId,
+    //   )
+    // },
   },
 }
 </script>

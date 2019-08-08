@@ -255,7 +255,6 @@ export default {
       "userYoYReportantes",
       "userEsResponsableDeProcesos",
     ]),
-    ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
@@ -264,20 +263,20 @@ export default {
       "requerimientosFilteredLength",
       1,
     ]),
-    esArregloRapido() {
-      return this.req.tipo.id === 1
-    },
+    // esArregloRapido() {
+    //   return this.req.tipo.id === 1
+    // },
     stateNotAssigned() {
-      return this.detalleRequerimientoState === "NOAS"
+      return this.req.tieneEstado("NOAS")
     },
     stateAssigned() {
-      return this.detalleRequerimientoState === "ASSI"
+      return this.req.tieneEstado("ASSI")
     },
     stateInExcecution() {
-      return this.detalleRequerimientoState === "EXEC"
+      return this.req.tieneEstado("EXEC")
     },
     stateSentToProcess() {
-      return this.detalleRequerimientoState === "STPR"
+      return this.req.tieneEstado("STPR")
     },
     optionsAsignar() {
       const opt = []
@@ -290,7 +289,7 @@ export default {
           label: "Asignar",
           value: "asignar",
         })
-        if (this.esArregloRapido) {
+        if (this.req.esArregloRapido) {
           opt.push({
             label: "No es un Arreglo Rapido (Enviar a Priorizar)",
             value: "aPriorizar",
