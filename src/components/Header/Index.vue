@@ -102,21 +102,21 @@
               <strong class="text-small">{{ userName }}</strong>
             </div>
           </q-item-label>
-          <q-item v-close-popup clickable tabindex="0">
-            <!-- <q-item-section avatar>
-                <q-avatar
-                  icon="fas fa-user-circle"
-                  color="accent"
-                  text-color="white"
-                />
-						</q-item-section>-->
+          <!-- <q-item v-close-popup clickable tabindex="0">
+            <q-item-section avatar>
+              <q-avatar
+                icon="fas fa-user-circle"
+                color="accent"
+                text-color="white"
+              />
+            </q-item-section>
             <q-item-section>
               <q-item-label>Perfil</q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-icon name="fas fa-user-circle" />
             </q-item-section>
-          </q-item>
+          </q-item> -->
           <q-separator inset spaced />
           <q-item v-close-popup clickable tabindex="1" @click="onLogOut">
             <q-item-section>
