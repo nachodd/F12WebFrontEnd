@@ -48,20 +48,23 @@ const getters = {
   getEstadoById(state) {
     return id => _.find(state.estados, { id })
   },
-  detalleRequerimientoState: state => {
-    if (
-      state.detalleRequerimientoItem &&
-      state.detalleRequerimientoItem.estado
-    ) {
-      return _.find(state.estados, {
-        id: state.detalleRequerimientoItem.estado.id,
-      }).codigo
-    }
-    return null
-  },
-  detalleRequerimientoId: state => {
-    return _.get(state, "detalleRequerimientoItem.id", null)
-  },
+  // detalleRequerimientoEstado: state => {
+  //   const idEstado = _.get(state, "detalleRequerimientoItem.estado.id", false)
+  //   return idEstado ? Requerimiento.getEstadoCodigo(idEstado) : null
+  // },
+  // detalleRequerimientoEstadoPriorizacion: state => {
+  //   const idEstadoPriorizacion = _.get(
+  //     state,
+  //     "detalleRequerimientoItem.estado_priorizacion.id",
+  //     false,
+  //   )
+  //   return idEstadoPriorizacion
+  //     ? Requerimiento.getEstadoCodigo(idEstadoPriorizacion)
+  //     : null
+  // },
+  // detalleRequerimientoId: state => {
+  //   return _.get(state, "detalleRequerimientoItem.id", null)
+  // },
   optionsEstados: state =>
     _(state.estados)
       .map(estado => ({

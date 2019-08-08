@@ -272,7 +272,7 @@ body {
 }
 
 body.q-body--loading #q-app {
-  // filter: blur(2px);
+  filter: blur(2px);
   touch-action: none;
 }
 

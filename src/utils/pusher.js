@@ -73,46 +73,6 @@ const updateNotificacionesDashboardMisReqs = (ctx, requerimiento) => {
   )
 }
 
-const processAsignarRequerimiento = async (ctx, data) => {
-  // Actualiza notificaciones, sidebar (dashboard) y la seccion "Mis Requerimientos"
-  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  // Agrega (o updatea si existe) el req a "Asignar Requerimientos"
-  await ctx.commit(
-    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-    getPayload("addOrUpdate", data.requerimiento),
-    root,
-  )
-}
-
-const processRequerimientoAsignado = async (ctx, data) => {
-  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  await ctx.commit(
-    "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
-    getPayload("addOrUpdate", data.requerimiento),
-    root,
-  )
-}
-
-const processCambioTipoRequerimiento = async (ctx, data) => {
-  // updatea solo notificaciones, en el dashboard nada va a haber cambiado
-  await ctx.dispatch("checkNotificaciones")
-  ctx.dispatch(
-    "requerimientos/pusherUpdateMisRequerimientos",
-    { requerimiento: data.requerimiento },
-    root,
-  )
-}
-
-const processRequerimientoFinalizado = async (ctx, data) => {
-  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  // FIXME: aca no estaría notificando a andres, solo al que creo el req original, por lo que no tiene mucho sentido que updatee: asignacionRequerimientos
-  await ctx.commit(
-    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-    getPayload("delete", data.requerimiento),
-    root,
-  )
-}
-
 const processPriorizarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
   await ctx.commit(
@@ -132,6 +92,46 @@ const processRequerimientoAprobado = async (ctx, data) => {
   )
 
   info({ message: `El requerimiento #${data.requerimiento.id} fue APROBADO` })
+}
+
+const processAsignarRequerimiento = async (ctx, data) => {
+  // Actualiza notificaciones, sidebar (dashboard) y la seccion "Mis Requerimientos"
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+  // Agrega (o updatea si existe) el req a "Asignar Requerimientos"
+  await ctx.commit(
+    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("addOrUpdate", data.requerimiento),
+    root,
+  )
+}
+
+const processCambioTipoRequerimiento = async (ctx, data) => {
+  // updatea solo notificaciones, en el dashboard nada va a haber cambiado
+  await ctx.dispatch("checkNotificaciones")
+  ctx.dispatch(
+    "requerimientos/pusherUpdateMisRequerimientos",
+    { requerimiento: data.requerimiento },
+    root,
+  )
+}
+
+const processRequerimientoAsignado = async (ctx, data) => {
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+  await ctx.commit(
+    "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("addOrUpdate", data.requerimiento),
+    root,
+  )
+}
+
+const processRequerimientoFinalizado = async (ctx, data) => {
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+  // FIXME: aca no estaría notificando a andres, solo al que creo el req original, por lo que no tiene mucho sentido que updatee: asignacionRequerimientos
+  await ctx.commit(
+    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("delete", data.requerimiento),
+    root,
+  )
 }
 
 const processRequerimientoRechazado = async (ctx, data) => {

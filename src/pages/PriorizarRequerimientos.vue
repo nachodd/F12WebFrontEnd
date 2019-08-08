@@ -12,7 +12,7 @@
         v-if="esElUltimoDeLaCadenaDeMando === false"
         class="col-sm-6 col-xs-12"
       >
-        <draggable-list
+        <priorizar-requerimientos-list
           title="Pendientes de Aprobación"
           group-name="requerimientos"
           list-name="source"
@@ -25,7 +25,7 @@
         class="col-sm-6 col-xs-12"
         :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
       >
-        <draggable-list
+        <priorizar-requerimientos-list
           :requerimientos-list="targetList"
           :loading-list="loadingReqsAprobadosPriorizados"
           :title="titleTargetList"
@@ -43,7 +43,7 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import pageLoading from "mixins/pageLoading"
-import DraggableList from "comp/PriorizarRequerimientos/DraggableList"
+import PriorizarRequerimientosList from "comp/PriorizarRequerimientos/PriorizarRequerimientosList"
 import DialogConfirmOperation from "comp/PriorizarRequerimientos/DialogConfirmOperation"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import PriorizarRequerimientosFiltros from "comp/PriorizarRequerimientos/PriorizarRequerimientosFiltros"
@@ -51,7 +51,7 @@ import PriorizarRequerimientosFiltros from "comp/PriorizarRequerimientos/Prioriz
 export default {
   name: "PriorizarRequerimientos",
   components: {
-    DraggableList,
+    PriorizarRequerimientosList,
     DialogConfirmOperation,
     DialogDetalleRequerimiento,
     PriorizarRequerimientosFiltros,
