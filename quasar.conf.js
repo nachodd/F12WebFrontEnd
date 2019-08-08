@@ -166,12 +166,15 @@ module.exports = function(ctx) {
     },
 
     pwa: {
-      workboxPluginMode: "InjectManifest",
-      // workboxOptions: {},
+      // workboxPluginMode: "InjectManifest",
+      workboxOptions: {
+        skipWaiting: true,
+        clientsClaim: true,
+      },
       manifest: {
-        // name: 'Quasar App',
-        // short_name: 'Quasar-PWA',
-        // description: 'Best PWA App in town!',
+        name: "F12",
+        short_name: "F12",
+        description: "F12 - BLD s.a.",
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",
