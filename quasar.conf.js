@@ -166,7 +166,7 @@ module.exports = function(ctx) {
     },
 
     pwa: {
-      // workboxPluginMode: 'InjectManifest',
+      workboxPluginMode: "InjectManifest",
       // workboxOptions: {},
       manifest: {
         // name: 'Quasar App',
