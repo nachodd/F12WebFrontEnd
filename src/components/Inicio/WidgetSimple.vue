@@ -28,7 +28,7 @@
         </template>
         <template v-else>
           <div class="text-h3">{{ Number(value) }}</div>
-          <div class="text-subtitle">{{ description }}</div>
+          <div class="text-subtitle text-bold">{{ description }}</div>
         </template>
       </div>
     </div>
