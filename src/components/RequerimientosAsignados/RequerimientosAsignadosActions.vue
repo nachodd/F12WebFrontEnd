@@ -226,9 +226,8 @@ export default {
   computed: {
     ...mapGetters("auth", ["userYoParesYReportantes"]),
     ...mapState("requerimientos", {
-      detalleRequerimientoItem: state => state.detalleRequerimientoItem,
+      req: state => state.detalleRequerimientoItem,
     }),
-    ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     optionsReqsAsignados() {
       const opt = []
       opt.push({
@@ -236,14 +235,14 @@ export default {
         value: null,
       })
 
-      if (this.detalleRequerimientoState === "ASSI") {
+      if (this.req.tieneEstado("ASSI")) {
         opt.push({
           label: "Pasar a Ejecución",
           value: "ejecucion",
         })
       }
-      if (this.detalleRequerimientoState === "EXEC") {
-        if (this.detalleRequerimientoItem.estado.pausado === false) {
+      if (this.req.tieneEstado("EXEC")) {
+        if (this.req.estado.pausado === false) {
           opt.push({
             label: "Volver a Pendiente",
             value: "volverPendiente",
@@ -267,7 +266,7 @@ export default {
           })
         }
       }
-      if (this.detalleRequerimientoState === "TEST") {
+      if (this.req.tieneEstado("TEST")) {
         opt.push({
           label: "Devolver a Desarrollo",
           value: "devolverADesarrollo",
@@ -347,33 +346,19 @@ export default {
           let message = ""
 
           if (this.operation === "finalizar") {
-            message = `Requerimiento #${
-              this.detalleRequerimientoItem.id
-            } se FINALIZO.`
+            message = `Requerimiento #${this.req.id} se FINALIZO.`
           } else if (this.operation === "volverPendiente") {
-            message = `Requerimiento #${
-              this.detalleRequerimientoItem.id
-            } volvió a PENDIENTE.`
+            message = `Requerimiento #${this.req.id} volvió a PENDIENTE.`
           } else if (this.operation === "testing") {
-            message = `Requerimiento #${
-              this.detalleRequerimientoItem.id
-            } enviado a TESTING.`
+            message = `Requerimiento #${this.req.id} enviado a TESTING.`
           } else if (this.operation === "ejecucion") {
-            message = `Requerimiento #${
-              this.detalleRequerimientoItem.id
-            } en EJECUCIÓN.`
+            message = `Requerimiento #${this.req.id} en EJECUCIÓN.`
           } else if (this.operation === "pausar") {
-            message = `Requerimiento #${
-              this.detalleRequerimientoItem.id
-            } en PAUSA.`
+            message = `Requerimiento #${this.req.id} en PAUSA.`
           } else if (this.operation === "reanudar") {
-            message = `Requerimiento #${
-              this.detalleRequerimientoItem.id
-            } en REANUDADO.`
+            message = `Requerimiento #${this.req.id} en REANUDADO.`
           } else if (this.operation === "devolverADesarrollo") {
-            message = `Requerimiento #${
-              this.detalleRequerimientoItem.id
-            } en DEVUELTO A DESARROLLO.`
+            message = `Requerimiento #${this.req.id} en DEVUELTO A DESARROLLO.`
           }
 
           success({ message })

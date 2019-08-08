@@ -29,7 +29,18 @@
               enter-active-class="animated slow flipInY"
               leave-active-class="animated slow flipOutY"
             >
-              <asignar-requerimientos-item
+              <requerimiento-card
+                :req="req"
+                :index="index"
+                card-type="asignar"
+                @click.native="
+                  abrirDetalleRequerimiento({
+                    reqId: req.id,
+                    listName: 'asignar-requerimientos',
+                  })
+                "
+              />
+              <!-- <asignar-requerimientos-item
                 :req="req"
                 :index="index"
                 @click.native="
@@ -38,7 +49,7 @@
                     listName: 'asignar-requerimientos',
                   })
                 "
-              />
+              /> -->
             </transition>
           </Draggable>
         </template>
@@ -60,7 +71,20 @@
           enter-active-class="animated slow flipInY"
           leave-active-class="animated slow flipOutY"
         >
-          <asignar-requerimientos-item
+          <requerimiento-card
+            v-for="(req, index) in requerimientosList"
+            :key="`req_${req.id}`"
+            :req="req"
+            :index="index"
+            card-type="asignar"
+            @click.native="
+              abrirDetalleRequerimiento({
+                reqId: req.id,
+                listName: 'asignar-requerimientos',
+              })
+            "
+          />
+          <!-- <asignar-requerimientos-item
             v-for="(req, index) in requerimientosList"
             :key="`req_${req.id}`"
             :req="req"
@@ -71,7 +95,7 @@
                 listName: 'asignar-requerimientos',
               })
             "
-          />
+          /> -->
         </transition-group>
       </template>
     </template>
@@ -83,14 +107,16 @@ import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag } from "utils/helpers"
 import ListRequerimientos from "comp/Common/ListRequerimientos"
-import AsignarRequerimientosItem from "comp/AsignarRequerimientos/AsignarRequerimientosItem"
+import RequerimientoCard from "comp/Common/RequerimientoCard"
+// import AsignarRequerimientosItem from "comp/AsignarRequerimientos/AsignarRequerimientosItem"
 import { success, warn } from "utils/helpers"
 
 export default {
   name: "AsignarRequerimientosList",
   components: {
     ListRequerimientos,
-    AsignarRequerimientosItem,
+    // AsignarRequerimientosItem,
+    RequerimientoCard,
     Container,
     Draggable,
   },

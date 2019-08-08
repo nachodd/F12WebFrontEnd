@@ -17,7 +17,7 @@
         <span class="text-h6">
           Confirmación -
           <q-chip dense color="accent-light" text-color="white">
-            Req #{{ detalleRequerimientoId }}
+            Req #{{ req.id }}
           </q-chip>
         </span>
       </q-card-section>
@@ -51,17 +51,15 @@ export default {
   components: {
     AsignarRequerimientosActions,
   },
-  // data() {
-  //   return {
-  //     approveComment: "",
-  //   }
-  // },
   computed: {
     ...mapState("asignacionRequerimientos", {
       dialogConfirmOpenState: state => state.dialogConfirmOpen,
     }),
     ...mapGetters("asignacionRequerimientos", ["operationType"]),
-    ...mapGetters("requerimientos", ["detalleRequerimientoId"]),
+    // ...mapGetters("requerimientos", ["detalleRequerimientoId"]),
+    ...mapState("requerimientos", {
+      req: state => state.detalleRequerimientoItem,
+    }),
     dialogConfirmOpen: {
       get() {
         return this.dialogConfirmOpenState

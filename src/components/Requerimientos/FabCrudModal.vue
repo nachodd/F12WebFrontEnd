@@ -19,10 +19,10 @@
       </q-btn>
     </q-page-sticky>
 
+    <!-- full-height -->
     <q-dialog
       v-model="crudModalOpen"
       persistent
-      full-height
       transition-show="scale"
       transition-hide="scale"
       @hide="removeQueryParams"
@@ -156,9 +156,13 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .modal-fabcrud-body {
   min-height: 100px;
   height: calc(100vh - 121px - 44px);
+  // max-height: 700px;
 }
+// .q-dialog__inner--minimized > div {
+//   max-height: 700px;
+// }
 </style>

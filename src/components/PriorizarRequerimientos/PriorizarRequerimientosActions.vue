@@ -114,7 +114,6 @@ export default {
       "esAutor",
       "requerimientosFiltered",
     ]),
-    ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
@@ -138,14 +137,17 @@ export default {
         return opt
       }
 
-      if (this.statePending && !this.esElUltimoDeLaCadenaDeMando) {
+      if (
+        this.req.tieneEstadoPriorizacion("PEND") &&
+        !this.esElUltimoDeLaCadenaDeMando
+      ) {
         opt.push({
           label: "Aprobar",
           value: "aprobar",
         })
       }
 
-      if (this.stateApproved) {
+      if (this.req.tieneEstadoPriorizacion("APRV")) {
         if (this.seleccionarPrioridadShown) {
           opt.push({
             label: "Seleccionar Prioridad",
@@ -165,12 +167,12 @@ export default {
 
       return opt
     },
-    statePending() {
-      return this.detalleRequerimientoState === "PEND"
-    },
-    stateApproved() {
-      return this.detalleRequerimientoState === "APRV"
-    },
+    // statePending() {
+    //   return this.estadoPriorizacion === "PEND"
+    // },
+    // stateApproved() {
+    //   return this.estadoPriorizacion === "APRV"
+    // },
     isApprovingOrReordering() {
       return (
         this.operation === "aprobar" ||
@@ -180,11 +182,13 @@ export default {
     seleccionarPrioridadShown() {
       if (this.esElUltimoDeLaCadenaDeMando) {
         return (
-          this.statePending && this.requerimientosFiltered("PEND").length > 1
+          this.req.tieneEstadoPriorizacion("PEND") &&
+          this.requerimientosFiltered("PEND").length > 1
         )
       } else {
         return (
-          this.stateApproved && this.requerimientosFiltered("APRV").length > 1
+          this.req.tieneEstadoPriorizacion("APRV") &&
+          this.requerimientosFiltered("APRV").length > 1
         )
       }
     },
@@ -305,7 +309,9 @@ export default {
           operation: this.operation,
           priority: this.approvedPriority,
           comment: this.comment,
-          listName: this.statePending ? "source" : "target",
+          listName: this.req.tieneEstadoPriorizacion("PEND")
+            ? "source"
+            : "target",
         })
         .then(message => {
           if (message) success({ message })
