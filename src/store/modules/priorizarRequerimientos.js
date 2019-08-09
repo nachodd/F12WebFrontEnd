@@ -285,10 +285,8 @@ const mutations = {
     // state.requerimientos = [listData]
     // state.changesRequerimientos = [...listData]
 
-    // state.requerimientos = [...listData]
-    // state.changesRequerimientos = [...listData]
-    state.requerimientos = _.map(listData, req => new Requerimiento(req))
-    state.changesRequerimientos = _.map(listData, req => new Requerimiento(req))
+    state.requerimientos = [...listData]
+    state.changesRequerimientos = [...listData]
   },
 
   PUSH_REQS_LIST: (state, { listData }) => {
@@ -308,42 +306,6 @@ const mutations = {
       "prioridad",
     ])
   },
-  // UPDATE_LIST_PRIORITY: (state, listType) => {
-  //   // Obtengo la lista
-  //   let list =
-  //     listType === "pending"
-  //       ? [...state.reqsPendientesAprobacion.list]
-  //       : [...state.reqsAprobadosPriorizados.list]
-  //   // Actualizo la prioridad por indice (orden)
-  //   list = list.map((req, index) => {
-  //     req.prioridad = index + 1
-  //     return req
-  //   })
-  //   // Persisto los cambios localmente
-  //   listType === "pending"
-  //     ? (state.reqsPendientesAprobacion.list = list)
-  //     : (state.reqsAprobadosPriorizados.list = list)
-  // },
-  // UPDATE_LIST_ESTADO: (state, listType) => {
-  //   let list =
-  //     listType === "pending"
-  //       ? [...state.reqsPendientesAprobacion.list]
-  //       : [...state.reqsAprobadosPriorizados.list]
-  //   // Mapeo el valor del estado aca, porque si se produce un cambio de estado local
-  //   // (de pendiente a aprobado y vicerversa) el nuevo listado va a tener el valor correcto en el campo estado
-  //   list = list.map(req => {
-  //     if (listType === "approved") {
-  //       req.estado = { id: 2, descripcion: "Aprobado" }
-  //     } else {
-  //       req.estado = { id: 1, descripcion: "Pendiente aprobación" }
-  //     }
-  //     return req
-  //   })
-  //   // Persisto los cambios localmente
-  //   listType === "pending"
-  //     ? (state.reqsPendientesAprobacion.list = list)
-  //     : (state.reqsAprobadosPriorizados.list = list)
-  // },
   SET_LOADING_STATE_REQS_LISTS: (state, { listType, loadingState }) => {
     listType === "pending"
       ? (state.loadingReqsPendientesAprobacion = loadingState)

@@ -1,4 +1,10 @@
-import { login, logout, refresh, getUsuarioGestion } from "api/user"
+import {
+  login,
+  logout,
+  refresh,
+  getUsuarioGestion,
+  getUsuariosFiltro,
+} from "api/user"
 import {
   getToken,
   getExpiresIn,
@@ -27,6 +33,7 @@ const state = {
   },
   userSistemas: [],
   gerentes: [],
+  usuariosFiltro: [],
   // roles: [],
 }
 
@@ -130,6 +137,15 @@ const getters = {
   pusherChannelName: (state, getters) => {
     return `${process.env.PUSHER_CHANNEL_PREXIF}${getters.userId}`
   },
+  usuariosFiltro: state => {
+    return _(state.usuariosFiltro)
+      .map(uf => ({
+        id: uf.id,
+        descripcion: uf.nombre,
+      }))
+      .orderBy("label")
+      .value()
+  },
 }
 
 // mutations
@@ -178,6 +194,9 @@ const mutations = {
   },
   SET_GERENTES: (state, data) => {
     state.gerentes = data
+  },
+  SET_USUARIOS_FILTRO: (state, data) => {
+    state.usuariosFiltro = keysToCamel(data)
   },
 }
 
@@ -315,6 +334,27 @@ const actions = {
           await dispatch("resetToken")
           reject()
         }
+      }
+    })
+  },
+
+  getUsuariosFiltro({ commit, state, getters }, userId = null) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // solo traera los usuarios para el filtro si no es el ultimo de la cadena (no tiene nadie abajo)
+        // y si no los cargó aun
+        if (
+          !getters.esElUltimoDeLaCadenaDeMando &&
+          state.usuariosFiltro.length === 0
+        ) {
+          // Los usuarios para el filtro seran los que estan abajo de mi, o todos si el usuario es de sistemas (gerentes, responsables) / procesos
+          const userIdForFilter = userId || getters.userId
+          const usuariosFiltro = await getUsuariosFiltro(userIdForFilter)
+          commit("SET_USUARIOS_FILTRO", usuariosFiltro)
+        }
+        resolve()
+      } catch (e) {
+        reject(e)
       }
     })
   },

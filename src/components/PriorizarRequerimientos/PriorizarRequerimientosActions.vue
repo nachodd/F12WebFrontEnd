@@ -17,7 +17,7 @@
       <!-- seleccion de prioridad y motivo para cuando aprueba o reordena-->
       <q-slide-transition>
         <div v-show="isApprovingOrReordering" class="q-mt-md">
-          <q-tooltip
+          <tooltip
             anchor="top middle"
             self="center middle"
             :offset="[0, 100]"
@@ -25,7 +25,7 @@
           >
             <!-- eslint-disable-next-line vue/no-v-html -->
             <div v-html="ordenTooltip"></div>
-          </q-tooltip>
+          </tooltip>
           <div class="row">
             <div class="col">
               <div>Seleccione una Prioridad para este Requerimiento:</div>
@@ -92,9 +92,13 @@
 import { mapGetters, mapState } from "vuex"
 import formValidation from "mixins/formValidation"
 import { warn, success } from "utils/helpers"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "PriorizarRequerimientosActions",
+  components: {
+    Tooltip,
+  },
   mixins: [formValidation],
   data() {
     return {

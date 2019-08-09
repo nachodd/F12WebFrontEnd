@@ -4,16 +4,16 @@
     :class="{
       'card--default': req.esDesarrollo,
       'card--qf': req.esArregloRapido,
-      'card--paused': estaEnPausa,
+      'card--paused': req.estaEnPausa,
     }"
     :style="{ background: req.colorVencimientoBg }"
   >
-    <q-tooltip v-if="estaEnPausa">
+    <tooltip v-if="req.estaEnPausa">
       Este requerimiento esta EN PAUSA
-    </q-tooltip>
-    <q-tooltip v-if="yoDeboTestearla" content-class="bg-red">
+    </tooltip>
+    <tooltip v-if="yoDeboTestearla" content-class="bg-red">
       USTED DEBE TESTEAR ESTE REQUERIMIENTO
-    </q-tooltip>
+    </tooltip>
 
     <div class="row">
       <div class="col-12">
@@ -27,10 +27,10 @@
           <span class="text-weight-regular card__text-body">
             <span class="avatar-letter">A</span>
             {{ req.area.descripcion }}
-            <q-tooltip content-class="text-caption">
+            <tooltip content-class="text-caption">
               Area:
               <strong>{{ req.area.descripcion }}</strong>
-            </q-tooltip>
+            </tooltip>
           </span>
         </q-item-label>
         <!--
@@ -46,10 +46,25 @@
               class="vertical-top q-mr-xs q-pl-xs"
             />
             {{ req.fechaAlta }}
-            <q-tooltip content-class="text-caption">
+            <tooltip content-class="text-caption">
               Fecha de Carga:
               <strong>{{ req.fechaAlta }}</strong>
-            </q-tooltip>
+            </tooltip>
+          </span>
+        </q-item-label>
+
+        <!-- USUARIO DE CARGA -->
+        <q-item-label>
+          <span class="card__text-body">
+            <q-icon
+              name="fas fa-user-tie"
+              class="vertical-top q-mr-xs q-pl-xs"
+            />
+            {{ req.usuario.nombre }}
+            <tooltip content-class="text-caption">
+              Usuario Alta:
+              <strong>{{ req.usuario.nombre }}</strong>
+            </tooltip>
           </span>
         </q-item-label>
 
@@ -67,7 +82,7 @@
               name="fas fa-exclamation-triangle"
               class="vertical-top q-mr-xs q-pl-xs"
             />
-            <q-tooltip content-class="bg-red text-caption">
+            <tooltip content-class="bg-red text-caption">
               Vencimiento:
               <strong>{{ req.fechaLimite }}</strong>
               <template v-if="req.diasToVencimiento !== null">
@@ -84,7 +99,7 @@
                   vencido)
                 </strong>
               </template>
-            </q-tooltip>
+            </tooltip>
           </span>
         </q-item-label>
 
@@ -95,7 +110,7 @@
             Req. Asociado
             <strong>#{{ req.asociadoId }}</strong>
             ({{ reqAsociadoEstadoDescripcion }})
-            <q-tooltip content-class="text-caption">
+            <tooltip content-class="text-caption">
               - Requerimiento Asociado Nro:
               <strong>#{{ req.asociadoId }}</strong>
               <br />
@@ -106,7 +121,7 @@
                 - Usuario Asignado:
                 <strong>{{ req.asociadoUsuario }}</strong>
               </span>
-            </q-tooltip>
+            </tooltip>
           </span>
         </q-item-label>
 
@@ -118,10 +133,10 @@
               class="vertical-top q-mr-xs q-pl-sm"
             />
             {{ req.usuarioAsignado }}
-            <q-tooltip content-class="text-caption">
+            <tooltip content-class="text-caption">
               Usuario Asignado:
               <strong>{{ req.usuarioAsignado }}</strong>
-            </q-tooltip>
+            </tooltip>
           </span>
         </q-item-label>
 
@@ -133,10 +148,10 @@
               class="vertical-top q-mr-xs q-pl-xs"
             />
             {{ req.usuarioTesting }}
-            <q-tooltip content-class="text-caption">
+            <tooltip content-class="text-caption">
               Usuario Tester:
               <strong>{{ req.usuarioTesting }}</strong>
-            </q-tooltip>
+            </tooltip>
           </span>
         </q-item-label>
       </div>
@@ -163,10 +178,10 @@
           }"
         >
           PR: {{ req.prioridad }}
-          <q-tooltip content-class="text-caption">
+          <tooltip content-class="text-caption">
             Prioridad:
             <strong>{{ req.prioridad }}</strong>
-          </q-tooltip>
+          </tooltip>
         </q-badge>
       </div>
 
@@ -183,9 +198,13 @@
 </template>
 <script>
 import Requerimiento from "models/requerimiento"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "RequerimientoCard",
+  components: {
+    Tooltip,
+  },
   props: {
     req: {
       type: [Requerimiento, Object],
@@ -209,10 +228,14 @@ export default {
     },
 
     muestraPrioridad() {
+      // En priorizar, se muestra para cualquier estado
+      const condicionesEnPriorizar = this.cardType === "priorizar"
+      // En asignar, Solo se muestra para la columna de "Por asignar"
+      const condicionesEnAsignar =
+        this.cardType === "asignar" && this.req.tieneEstado("NOAS")
       return (
         this.req.esDesarrollo &&
-        ["priorizar", "asignar"].includes(this.cardType) &&
-        this.req.tieneEstado("NOAS") // Solo se muestra para la columna de "Por asignar"
+        (condicionesEnPriorizar || condicionesEnAsignar)
       )
     },
 

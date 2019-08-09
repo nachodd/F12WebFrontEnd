@@ -19,7 +19,7 @@
           flat
           @click="scope.removeQueuedFiles"
         >
-          <q-tooltip>Eliminar todos</q-tooltip>
+          <tooltip content-class="text-caption">Eliminar todos</tooltip>
         </q-btn>
         <q-btn
           v-if="scope.uploadedFiles.length > 0"
@@ -29,7 +29,9 @@
           flat
           @click="scope.removeUploadedFiles"
         >
-          <q-tooltip>Eliminr Archivos Subidos</q-tooltip>
+          <tooltip content-class="text-caption">
+            Eliminr Archivos Subidos
+          </tooltip>
         </q-btn>
         <q-spinner v-if="scope.isUploading" class="q-uploader__spinner" />
         <div class="col">
@@ -40,7 +42,9 @@
         </div>
         <q-btn v-if="scope.editable" icon="add_box" round dense flat>
           <q-uploader-add-trigger ref="addButton" />
-          <q-tooltip>Seleccionar Archivos...</q-tooltip>
+          <tooltip content-class="text-caption">
+            Seleccionar Archivos...
+          </tooltip>
         </q-btn>
       </div>
     </template>
@@ -121,9 +125,10 @@
 </template>
 <script>
 import AdjuntoCard from "comp/Common/AdjuntoCard"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
-  components: { AdjuntoCard },
+  components: { AdjuntoCard, Tooltip },
   props: {
     filesUploaded: {
       type: Array,

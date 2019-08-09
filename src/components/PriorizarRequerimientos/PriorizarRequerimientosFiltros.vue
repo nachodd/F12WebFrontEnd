@@ -112,7 +112,7 @@
           <div class="filter-chip__text">
             {{ sistemaDescripcion }}
           </div>
-          <q-tooltip>Sistema</q-tooltip>
+          <tooltip content-class="text-caption">Sistema</tooltip>
         </q-chip>
       </span>
       <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
@@ -123,7 +123,7 @@
           <div class="filter-chip__text">
             {{ tipoRequerimientoDescripcion }}
           </div>
-          <q-tooltip>Tipo de Requerimiento</q-tooltip>
+          <tooltip content-class="text-caption">Tipo de Requerimiento</tooltip>
         </q-chip>
       </span>
       <span v-if="usuariosAsignadosSetted" class="q-mx-xs">
@@ -134,7 +134,7 @@
           <div class="filter-chip__text">
             {{ usuariosAsignadosDescripcion }}
           </div>
-          <q-tooltip>Usuarios Asignados</q-tooltip>
+          <tooltip content-class="text-caption">Usuarios Asignados</tooltip>
         </q-chip>
       </span>
     </div>
@@ -142,10 +142,11 @@
 </template>
 <script>
 import SelectCustom from "comp/Requerimientos/SelectCustom"
+import Tooltip from "comp/Common/Tooltip"
 import { mapState, mapGetters } from "vuex"
 export default {
   name: "PriorizarRequerimientosFiltros",
-  components: { SelectCustom },
+  components: { SelectCustom, Tooltip },
   props: {},
   data() {
     return {

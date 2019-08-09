@@ -8,14 +8,14 @@
         class="bg-gradient"
         :to="{ query: { ver: 'crearRequerimiento' } }"
       >
-        <q-tooltip
+        <tooltip
           anchor="center left"
           self="center right"
           content-class="bg-accent"
           content-style="font-size: 14px"
         >
           Nuevo Requerimiento
-        </q-tooltip>
+        </tooltip>
       </q-btn>
     </q-page-sticky>
 
@@ -80,11 +80,13 @@
 // import { warn, success } from "utils/helpers
 import CrearEditarRequerimiento from "comp/Requerimientos/CrearEditarRequerimiento"
 import { mapState } from "vuex"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "FabCrudModal",
   components: {
     CrearEditarRequerimiento,
+    Tooltip,
   },
   data() {
     return {

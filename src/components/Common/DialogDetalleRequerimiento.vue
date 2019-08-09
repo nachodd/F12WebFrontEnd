@@ -73,7 +73,9 @@
                   <div class="text-grey-6">Tipo</div>
                   <q-item-label lines="1">
                     {{ req.tipo.descripcion }}
-                    <q-tooltip>{{ req.tipo.descripcion }}</q-tooltip>
+                    <tooltip content-class="text-caption">
+                      {{ req.tipo.descripcion }}
+                    </tooltip>
                   </q-item-label>
                 </div>
               </div>
@@ -205,7 +207,19 @@
                     text-color="grey"
                     class="timeline-entry-custom"
                   >
-                    <div>{{ movimiento.comentario }}</div>
+                    <!-- <template
+                      v-if="
+                        movimiento.tipo === 'Modificación estado en proceso'
+                      "
+                    >
+                      <div
+                        v-if="movimiento.estado === 'Aprobado'"
+                        class="text-italic"
+                      >
+                        Aprobado por: {{ movimiento.usuario }}
+                      </div>
+                    </template> -->
+                    <div class="text-italic">{{ movimiento.comentario }}</div>
                   </q-timeline-entry>
                 </q-timeline>
               </div>
@@ -238,6 +252,7 @@ import AsignarRequerimientosActions from "comp/AsignarRequerimientos/AsignarRequ
 import RequerimientosAsignadosActions from "comp/RequerimientosAsignados/RequerimientosAsignadosActions"
 import Note from "comp/Common/Note"
 import AdjuntoCard from "comp/Common/AdjuntoCard"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "DialogDetalleRequerimiento",
@@ -251,7 +266,7 @@ export default {
     },
     formatearEstado(value, objMovimiento) {
       if (objMovimiento.tipo === "Modificación estado en proceso") {
-        return objMovimiento.tipo + " - " + value
+        return "Cadena - " + value
       }
       return objMovimiento.tipo === "Alta" ? "Alta" : value
     },
@@ -262,6 +277,7 @@ export default {
     RequerimientosAsignadosActions,
     Note,
     AdjuntoCard,
+    Tooltip,
   },
   mixins: [formValidation],
   data() {
