@@ -95,7 +95,7 @@
             <div class="filter-chip__text">
               {{ sistemaDescripcion }}
             </div>
-            <q-tooltip>Sistema</q-tooltip>
+            <tooltip content-class="text-caption">Sistema</tooltip>
           </q-chip>
         </span>
         <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
@@ -106,14 +106,16 @@
             <div class="filter-chip__text">
               {{ tipoRequerimientoDescripcion }}
             </div>
-            <q-tooltip>Tipo de Requerimiento</q-tooltip>
+            <tooltip content-class="text-caption">
+              Tipo de Requerimiento
+            </tooltip>
           </q-chip>
         </span>
       </div>
       <div class="col-xs-12 col-md-4 col-sm-5 text-right">
-        <q-tooltip>
+        <tooltip content-class="text-caption">
           Click aquí para aplicar este filtro
-        </q-tooltip>
+        </tooltip>
         <span>
           <div
             class="d-ib cursor-pointer"
@@ -136,10 +138,11 @@
 </template>
 <script>
 import SelectCustom from "comp/Requerimientos/SelectCustom"
+import Tooltip from "comp/Common/Tooltip"
 import { mapState, mapGetters } from "vuex"
 export default {
   name: "MisRequerimientosMenuFiltros",
-  components: { SelectCustom },
+  components: { SelectCustom, Tooltip },
   props: {},
   data() {
     return {

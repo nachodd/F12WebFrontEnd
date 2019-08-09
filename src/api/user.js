@@ -103,6 +103,24 @@ export function getUsuarioGestion() {
   })
 }
 
+export function getUsuariosFiltro(userId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/${userId}/usuariosFiltro`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener los Usuarios Para el Filtro")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
 export function getDashboardData(userId) {
   return new Promise(async (resolve, reject) => {
     try {

@@ -58,6 +58,7 @@ export default {
         estados: null,
         sistema: null,
         tipo: null,
+        usuarioAlta: null,
         // seccionId:null
       },
     }
@@ -109,6 +110,7 @@ export default {
           this.filtroLastValues.estados = filtrosValues.estados
           this.filtroLastValues.sistema = filtrosValues.sistema
           this.filtroLastValues.tipo = filtrosValues.tipo
+          this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
         }
 
         const reqEstados =
@@ -128,6 +130,11 @@ export default {
             descripcion: this.filtroLastValues.descripcion,
             page: this.current,
             perPage: 10,
+            requerimiento_usuario_alta_id: _.get(
+              this,
+              "filtroLastValues.usuarioAlta.id",
+              null,
+            ),
           },
         })
       } catch (e) {

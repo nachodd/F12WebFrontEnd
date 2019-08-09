@@ -10,14 +10,14 @@
         <q-btn dense flat icon="fas fa-exclamation-triangle" />
         <q-space />
         <q-btn dense flat icon="close" @click="cancelOperation">
-          <q-tooltip content-class="bg-white text-primary">Cancelar</q-tooltip>
+          <tooltip content-class="bg-white text-primary">Cancelar</tooltip>
         </q-btn>
       </q-bar>
       <q-card-section>
         <span class="text-h6">
           Confirmación -
           <q-chip dense color="accent-light" text-color="white">
-            Req #{{ req.id }}
+            Req #{{ reqId }}
           </q-chip>
         </span>
       </q-card-section>
@@ -46,10 +46,13 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import AsignarRequerimientosActions from "comp/AsignarRequerimientos/AsignarRequerimientosActions"
+import Tooltip from "comp/Common/Tooltip"
+
 export default {
   name: "AsignarRequerimientosDialogConfirmOperation",
   components: {
     AsignarRequerimientosActions,
+    Tooltip,
   },
   computed: {
     ...mapState("asignacionRequerimientos", {
@@ -60,6 +63,9 @@ export default {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
+    reqId() {
+      return this.req && this.req.id ? this.req.id : ""
+    },
     dialogConfirmOpen: {
       get() {
         return this.dialogConfirmOpenState

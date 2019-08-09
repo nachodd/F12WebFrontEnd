@@ -63,13 +63,13 @@
           class="list-item--narrow"
           :disable="llevaUsuarioCadenaDisabled"
         >
-          <q-tooltip
+          <tooltip
             v-if="llevaUsuarioCadenaDisabled"
             content-class="text-caption"
           >
             Solo aplicable cuando el Tipo de Requerimiento es "Desarrllos /
             Modificaciones / Implementaciones"
-          </q-tooltip>
+          </tooltip>
           <q-item-section avatar>
             <q-checkbox
               v-model="__llevaUsuarioCadena"
@@ -199,10 +199,11 @@ import SelectCustom from "comp/Requerimientos/SelectCustom"
 import InputDateCustom from "comp/Common/InputDateCustom"
 import UploaderCustom from "comp/Requerimientos/UploaderCustom"
 import formValidation from "mixins/formValidation"
+import Tooltip from "comp/Common/Tooltip"
 import { warn } from "utils/helpers"
 
 export default {
-  components: { SelectCustom, InputDateCustom, UploaderCustom },
+  components: { SelectCustom, InputDateCustom, UploaderCustom, Tooltip },
   mixins: [formValidation],
   props: {
     id: {

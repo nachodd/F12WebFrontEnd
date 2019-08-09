@@ -55,9 +55,9 @@
           icon="fas fa-edit"
           :to="{ query: { ver: 'editarRequerimiento', id: req.id } }"
         >
-          <q-tooltip>
+          <tooltip content-class="text-caption">
             Editar Requerimiento
-          </q-tooltip>
+          </tooltip>
         </q-btn>
       </div>
     </td>
@@ -76,9 +76,13 @@
 
 <script>
 import { date } from "quasar"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "MisRequerimientosItem",
+  components: {
+    Tooltip,
+  },
   filters: {
     formatearFecha: function(value) {
       return date.formatDate(value, "DD/MM HH:mm")
