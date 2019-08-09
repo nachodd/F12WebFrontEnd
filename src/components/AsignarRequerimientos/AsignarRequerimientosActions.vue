@@ -77,7 +77,7 @@
               id="ordenContainer"
               class="col-12"
             >
-              <q-tooltip
+              <tooltip
                 anchor="top middle"
                 self="center middle"
                 :offset="[0, 100]"
@@ -85,7 +85,7 @@
               >
                 <!-- eslint-disable-next-line vue/no-v-html -->
                 <div v-html="ordenTooltip"></div>
-              </q-tooltip>
+              </tooltip>
               <div class="row q-mt-xs q-mb-md">
                 <div class="col-12 text-grey-7">
                   Orden
@@ -179,7 +179,7 @@
               <strong>Último</strong>
             </div>
           </div>
-          <q-tooltip
+          <tooltip
             anchor="top middle"
             self="center middle"
             :offset="[0, 100]"
@@ -187,7 +187,7 @@
           >
             <!-- eslint-disable-next-line vue/no-v-html -->
             <div v-html="ordenTooltip"></div>
-          </q-tooltip>
+          </tooltip>
         </div>
       </q-slide-transition>
     </div>
@@ -207,11 +207,13 @@ import { mapGetters, mapState } from "vuex"
 import formValidation from "mixins/formValidation"
 import { warn, success } from "utils/helpers"
 import InputDateCustom from "comp/Common/InputDateCustom"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "AsignarRequerimientosActions",
   components: {
     InputDateCustom,
+    Tooltip,
   },
   mixins: [formValidation],
   props: {

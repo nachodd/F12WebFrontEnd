@@ -35,7 +35,7 @@
       </div>
     </div>
 
-    <dialog-confirm-operation />
+    <priorizar-requerimientos-dialog-confirm-operation />
     <dialog-detalle-requerimiento />
   </q-page>
 </template>
@@ -44,7 +44,7 @@
 import { mapGetters, mapState } from "vuex"
 import pageLoading from "mixins/pageLoading"
 import PriorizarRequerimientosList from "comp/PriorizarRequerimientos/PriorizarRequerimientosList"
-import DialogConfirmOperation from "comp/PriorizarRequerimientos/DialogConfirmOperation"
+import PriorizarRequerimientosDialogConfirmOperation from "comp/PriorizarRequerimientos/PriorizarRequerimientosDialogConfirmOperation"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import PriorizarRequerimientosFiltros from "comp/PriorizarRequerimientos/PriorizarRequerimientosFiltros"
 
@@ -52,7 +52,7 @@ export default {
   name: "PriorizarRequerimientos",
   components: {
     PriorizarRequerimientosList,
-    DialogConfirmOperation,
+    PriorizarRequerimientosDialogConfirmOperation,
     DialogDetalleRequerimiento,
     PriorizarRequerimientosFiltros,
   },

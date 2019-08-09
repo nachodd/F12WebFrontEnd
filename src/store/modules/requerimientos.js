@@ -13,7 +13,7 @@ import router from "router/index"
 const state = {
   // Create
   options: {
-    // areas: [],
+    areas: [],
     sistemas: [],
     requerimientosTipos: [],
   },
@@ -320,6 +320,17 @@ const actions = {
       resolve()
     })
   },
+
+  initFiltrosMisRequerimientos({ commit, dispatch }) {
+    return new Promise(async resolve => {
+      commit("app/LOADING_INC", null, { root: true })
+      await dispatch("createRequerimiento")
+      await dispatch("auth/getUsuariosFiltro", null, { root: true })
+      commit("app/LOADING_DEC", null, { root: true })
+      resolve()
+    })
+  },
+
   pusherUpdateMisRequerimientos(
     { commit, state },
     { requerimiento, showMessage = true },

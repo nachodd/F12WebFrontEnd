@@ -101,6 +101,24 @@
               </div>
             </div>
 
+            <div
+              v-if="!esElUltimoDeLaCadenaDeMando"
+              class="row q-mt-sm q-col-gutter-sm items-center"
+            >
+              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
+                Usuario Alta
+              </div>
+              <div class="col-xs-9">
+                <select-custom
+                  v-model="filterValues.usuarioAlta"
+                  :options="optionsUsuariosFiltro"
+                  dense
+                  color="accent"
+                  :loading="optionsUsuariosFiltro.length === 0"
+                />
+              </div>
+            </div>
+
             <div class="row q-mt-md justify-end">
               <q-btn color="negative" flat size="md" @click="limpiarFiltros">
                 Limpiar Filtro
@@ -123,7 +141,7 @@
           <div class="filter-chip__text">
             {{ filterPhoto.reqId }}
           </div>
-          <q-tooltip>Requerimiento Nro</q-tooltip>
+          <tooltip content-class="text-caption">Requerimiento Nro</tooltip>
         </q-chip>
       </span>
       <span v-if="estadosSetted && filterPhoto.estados" class="q-mx-xs">
@@ -134,7 +152,9 @@
           <div class="filter-chip__text">
             {{ filterPhoto.estados }}
           </div>
-          <q-tooltip>Estdos de los Requerimientos</q-tooltip>
+          <tooltip content-class="text-caption">
+            Estdos de los Requerimientos
+          </tooltip>
         </q-chip>
       </span>
       <span v-if="sistemaSetted && filterPhoto.sistema" class="q-mx-xs">
@@ -145,7 +165,7 @@
           <div class="filter-chip__text">
             {{ filterPhoto.sistema }}
           </div>
-          <q-tooltip>Sistema</q-tooltip>
+          <tooltip content-class="text-caption">Sistema</tooltip>
         </q-chip>
       </span>
       <span v-if="tipoRequerimientoSetted && filterPhoto.tipo" class="q-mx-xs">
@@ -156,7 +176,18 @@
           <div class="filter-chip__text">
             {{ filterPhoto.tipo }}
           </div>
-          <q-tooltip>Tipo de Requerimiento</q-tooltip>
+          <tooltip content-class="text-caption">Tipo de Requerimiento</tooltip>
+        </q-chip>
+      </span>
+      <span v-if="usuarioAltaSetted && filterPhoto.usuarioAlta" class="q-mx-xs">
+        <q-chip removable @remove="removeFilter('usuarioAlta')">
+          <q-avatar color="purple" text-color="white" class="filter-label">
+            U.A.:
+          </q-avatar>
+          <div class="filter-chip__text">
+            {{ filterPhoto.usuarioAlta }}
+          </div>
+          <tooltip content-class="text-caption">Usuario Asignado</tooltip>
         </q-chip>
       </span>
     </div>
@@ -165,10 +196,11 @@
 <script>
 import SelectCustom from "comp/Requerimientos/SelectCustom"
 import { mapState, mapGetters } from "vuex"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "MisRequerimientosMenuFiltros",
-  components: { SelectCustom },
+  components: { SelectCustom, Tooltip },
   props: {
     filtros: {
       type: Object,
@@ -186,12 +218,14 @@ export default {
         estados: null,
         sistema: null,
         tipo: null,
+        usuarioAlta: null,
       },
       filterPhoto: {
         reqId: null,
         estados: null,
         sistema: null,
         tipo: null,
+        usuarioAlta: null,
       },
       someFilterIsSetted: false,
     }
@@ -203,6 +237,11 @@ export default {
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
     ...mapGetters("requerimientos", ["optionsEstados"]),
+    ...mapGetters({
+      optionsUsuariosFiltro: "auth/usuariosFiltro",
+      esElUltimoDeLaCadenaDeMando: "auth/esElUltimoDeLaCadenaDeMando",
+    }),
+
     sistemaSetted() {
       return this.filterValues.sistema && Boolean(this.filterValues.sistema.id)
     },
@@ -219,6 +258,12 @@ export default {
         this.filterValues.estados.length > 0
       )
     },
+    usuarioAltaSetted() {
+      return (
+        this.filterValues.usuarioAlta &&
+        Boolean(this.filterValues.usuarioAlta.id)
+      )
+    },
     estadosDescripcion() {
       return this.estadosSetted
         ? this.filterValues.estados.map(st => st.label).join(", ")
@@ -230,18 +275,31 @@ export default {
     tipoRequerimientoDescripcion() {
       return _.get(this, "filterValues.tipo.descripcion", null)
     },
+    usuarioAltaDescripcion() {
+      return _.get(this, "filterValues.usuarioAlta.descripcion", null)
+    },
     iconOpenFilter() {
       return this.popupOpened ? "arrow_drop_up" : "arrow_drop_down"
     },
   },
   async mounted() {
-    await this.$store.dispatch("requerimientos/createRequerimiento")
-    const { descripcion, reqId, estados, sistema, tipo } = this.filtros
+    await this.$store.dispatch("requerimientos/initFiltrosMisRequerimientos")
+    const {
+      descripcion,
+      reqId,
+      estados,
+      sistema,
+      tipo,
+      usuarioAlta,
+    } = this.filtros
+
     if (descripcion) this.filterValues.descripcion = descripcion
     if (reqId) this.filterValues.reqId = reqId
     if (estados) this.filterValues.estados = estados
     if (sistema) this.filterValues.sistema = sistema
     if (tipo) this.filterValues.tipo = tipo
+    if (usuarioAlta) this.filterValues.usuarioAlta = usuarioAlta
+
     this.filtrar()
   },
   methods: {
@@ -260,6 +318,7 @@ export default {
       this.filterValues.estados = null
       this.filterValues.tipo = null
       this.filterValues.sistema = null
+      this.filterValues.usuarioAlta = null
       this.filtrar()
     },
     getSomeFilterIsSetted() {
@@ -268,6 +327,7 @@ export default {
         this.estadosSetted,
         this.filterValues.sistema !== null,
         this.filterValues.tipo !== null,
+        this.filterValues.usuarioAlta !== null,
       ])
     },
     updateFilterPhoto() {
@@ -275,6 +335,7 @@ export default {
       this.filterPhoto.estados = this.estadosDescripcion || null
       this.filterPhoto.sistema = this.sistemaDescripcion || null
       this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
+      this.filterPhoto.usuarioAlta = this.usuarioAltaDescripcion || null
     },
     filterEstadosAsignados(val, update) {
       if (val === "") {
@@ -302,6 +363,9 @@ export default {
       }
       if (filter == "sistema") {
         this.filterValues.sistema = null
+      }
+      if (filter == "usuarioAlta") {
+        this.filterValues.usuarioAlta = null
       }
       this.filtrar()
     },

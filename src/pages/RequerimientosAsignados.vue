@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <dialog-confirm-operation />
+    <requerimientos-asignados-dialog-confirm-operation />
     <dialog-detalle-requerimiento />
   </q-page>
 </template>
@@ -53,7 +53,7 @@
 import { mapState, mapGetters } from "vuex"
 import pageLoading from "mixins/pageLoading"
 import RequerimientosAsignadosList from "comp/RequerimientosAsignados/RequerimientosAsignadosList"
-import DialogConfirmOperation from "comp/RequerimientosAsignados/DialogConfirmOperation"
+import RequerimientosAsignadosDialogConfirmOperation from "comp/RequerimientosAsignados/RequerimientosAsignadosDialogConfirmOperation"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import RequerimientosAsignadosFiltros from "comp/RequerimientosAsignados/RequerimientosAsignadosFiltros"
 
@@ -61,7 +61,7 @@ export default {
   name: "RequerimientosAsigandos",
   components: {
     RequerimientosAsignadosList,
-    DialogConfirmOperation,
+    RequerimientosAsignadosDialogConfirmOperation,
     DialogDetalleRequerimiento,
     RequerimientosAsignadosFiltros,
   },
