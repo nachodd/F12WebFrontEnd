@@ -1,9 +1,6 @@
 <template>
   <q-page padding class="q-pt-lg">
-    <mis-requerimientos-menu-filtros
-      ref="filtros"
-      @buscar="getListRequerimientos"
-    />
+    <mis-requerimientos-filtros ref="filtros" @buscar="getListRequerimientos" />
     <mis-requerimientos-listado
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
@@ -36,7 +33,7 @@
 import { mapState } from "vuex"
 import { warn, info } from "utils/helpers"
 import MisRequerimientosListado from "comp/MisRequerimientos/MisRequerimientosListado"
-import MisRequerimientosMenuFiltros from "comp/MisRequerimientos/MisRequerimientosMenuFiltros"
+import MisRequerimientosFiltros from "comp/MisRequerimientos/MisRequerimientosFiltros"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import Bus from "utils/bus"
 
@@ -44,7 +41,7 @@ export default {
   components: {
     MisRequerimientosListado,
     DialogDetalleRequerimiento,
-    MisRequerimientosMenuFiltros,
+    MisRequerimientosFiltros,
   },
   data() {
     return {

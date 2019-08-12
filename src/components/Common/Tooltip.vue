@@ -1,7 +1,7 @@
 <template>
   <q-tooltip
     v-model="showed"
-    :content-class="contentClass"
+    :content-class="__contentClass"
     :anchor="anchor"
     :self="self"
     :offset="offset"
@@ -42,6 +42,13 @@ export default {
       showed: false,
       timeout: null,
     }
+  },
+  computed: {
+    __contentClass() {
+      return this.contentClass
+        ? `text-caption ${this.contentClass}`
+        : "text-caption"
+    },
   },
   methods: {
     handleShow() {

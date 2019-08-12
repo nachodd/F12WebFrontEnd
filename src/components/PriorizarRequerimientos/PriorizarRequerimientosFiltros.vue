@@ -112,7 +112,7 @@
           <div class="filter-chip__text">
             {{ sistemaDescripcion }}
           </div>
-          <tooltip content-class="text-caption">Sistema</tooltip>
+          <tooltip>Sistema</tooltip>
         </q-chip>
       </span>
       <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
@@ -123,7 +123,7 @@
           <div class="filter-chip__text">
             {{ tipoRequerimientoDescripcion }}
           </div>
-          <tooltip content-class="text-caption">Tipo de Requerimiento</tooltip>
+          <tooltip>Tipo de Requerimiento</tooltip>
         </q-chip>
       </span>
       <span v-if="usuariosAsignadosSetted" class="q-mx-xs">
@@ -134,7 +134,7 @@
           <div class="filter-chip__text">
             {{ usuariosAsignadosDescripcion }}
           </div>
-          <tooltip content-class="text-caption">Usuarios Asignados</tooltip>
+          <tooltip>Usuarios Asignados</tooltip>
         </q-chip>
       </span>
     </div>

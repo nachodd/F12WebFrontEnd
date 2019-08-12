@@ -76,9 +76,9 @@ const getters = {
 }
 
 const mutations = {
-  SET_OPTIONS: (state, { sistemas, requerimientos_tipos }) => {
+  SET_OPTIONS: (state, { areas, sistemas, requerimientos_tipos }) => {
     // state.options.areas = Vue.set(state.options, "areas", areas)
-    // state.options.areas = areas
+    state.options.areas = areas
     state.options.sistemas = sistemas
     const reqTiposFiltered = _.filter(requerimientos_tipos, rt => {
       return rt.id === 1 || rt.id === 2

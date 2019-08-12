@@ -84,7 +84,10 @@ export default {
     this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
   },
   async created() {
-    this.$store.dispatch("requerimientos/createRequerimiento")
+    // FIXME: conectar el filtro PriorizarRequerimientosFiltros2 con esta pagina (similar a lo que hace MisRequerimientos).
+    // Tener cuidado con usuarioVerComo, poruqe cuando ese cambia se hace un request al backend y se debe hacer un
+    //   this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
+    // this.$store.dispatch("requerimientos/createRequerimiento")
   },
   methods: {},
 }

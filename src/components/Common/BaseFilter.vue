@@ -38,10 +38,10 @@
           }"
         >
           <div class="col-md-8 col-sm-8 col-xs-12">
-            <slot name="filterBody" />
+            <slot name="body" />
 
             <div class="row q-mt-md justify-end">
-              <slot name="filterButtons" />
+              <slot name="buttons" />
             </div>
           </div>
         </div>
@@ -49,7 +49,7 @@
     </div>
     <div class="q-mt-sm">
       <span v-if="someFilterIsSetted">Filtros:</span>
-      <slot name="filterFooter" />
+      <slot name="footer" />
     </div>
   </div>
 </template>
@@ -84,6 +84,12 @@ export default {
   methods: {
     onResize(size) {
       this.widthInputDescripcion = size.width
+    },
+    closePopUp() {
+      this.popupOpened = false
+    },
+    setPopUpOpened(value) {
+      this.popupOpened = value
     },
   },
 }

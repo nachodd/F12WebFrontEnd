@@ -63,10 +63,7 @@
           class="list-item--narrow"
           :disable="llevaUsuarioCadenaDisabled"
         >
-          <tooltip
-            v-if="llevaUsuarioCadenaDisabled"
-            content-class="text-caption"
-          >
+          <tooltip v-if="llevaUsuarioCadenaDisabled">
             Solo aplicable cuando el Tipo de Requerimiento es "Desarrllos /
             Modificaciones / Implementaciones"
           </tooltip>

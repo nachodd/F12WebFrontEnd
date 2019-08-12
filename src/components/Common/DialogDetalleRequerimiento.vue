@@ -61,21 +61,21 @@
                   <div class="text-grey-6">Area</div>
                   <q-item-label lines="1">
                     {{ req.area.descripcion }}
+                    <tooltip>Tipo: {{ req.area.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
                 <div class="col-4">
                   <div class="text-grey-6">Sistema</div>
                   <q-item-label lines="1">
                     {{ req.sistema.descripcion }}
+                    <tooltip>Tipo: {{ req.sistema.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
                 <div class="col-4">
                   <div class="text-grey-6">Tipo</div>
                   <q-item-label lines="1">
                     {{ req.tipo.descripcion }}
-                    <tooltip content-class="text-caption">
-                      {{ req.tipo.descripcion }}
-                    </tooltip>
+                    <tooltip>Tipo: {{ req.tipo.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
               </div>

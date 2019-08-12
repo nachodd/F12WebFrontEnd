@@ -27,7 +27,7 @@
           <span class="text-weight-regular card__text-body">
             <span class="avatar-letter">A</span>
             {{ req.area.descripcion }}
-            <tooltip content-class="text-caption">
+            <tooltip>
               Area:
               <strong>{{ req.area.descripcion }}</strong>
             </tooltip>
@@ -46,7 +46,7 @@
               class="vertical-top q-mr-xs q-pl-xs"
             />
             {{ req.fechaAlta }}
-            <tooltip content-class="text-caption">
+            <tooltip>
               Fecha de Carga:
               <strong>{{ req.fechaAlta }}</strong>
             </tooltip>
@@ -61,7 +61,7 @@
               class="vertical-top q-mr-xs q-pl-xs"
             />
             {{ req.usuario.nombre }}
-            <tooltip content-class="text-caption">
+            <tooltip>
               Usuario Alta:
               <strong>{{ req.usuario.nombre }}</strong>
             </tooltip>
@@ -82,7 +82,7 @@
               name="fas fa-exclamation-triangle"
               class="vertical-top q-mr-xs q-pl-xs"
             />
-            <tooltip content-class="bg-red text-caption">
+            <tooltip content-class="bg-red">
               Vencimiento:
               <strong>{{ req.fechaLimite }}</strong>
               <template v-if="req.diasToVencimiento !== null">
@@ -110,7 +110,7 @@
             Req. Asociado
             <strong>#{{ req.asociadoId }}</strong>
             ({{ reqAsociadoEstadoDescripcion }})
-            <tooltip content-class="text-caption">
+            <tooltip>
               - Requerimiento Asociado Nro:
               <strong>#{{ req.asociadoId }}</strong>
               <br />
@@ -133,7 +133,7 @@
               class="vertical-top q-mr-xs q-pl-sm"
             />
             {{ req.usuarioAsignado }}
-            <tooltip content-class="text-caption">
+            <tooltip>
               Usuario Asignado:
               <strong>{{ req.usuarioAsignado }}</strong>
             </tooltip>
@@ -148,7 +148,7 @@
               class="vertical-top q-mr-xs q-pl-xs"
             />
             {{ req.usuarioTesting }}
-            <tooltip content-class="text-caption">
+            <tooltip>
               Usuario Tester:
               <strong>{{ req.usuarioTesting }}</strong>
             </tooltip>
@@ -178,7 +178,7 @@
           }"
         >
           PR: {{ req.prioridad }}
-          <tooltip content-class="text-caption">
+          <tooltip>
             Prioridad:
             <strong>{{ req.prioridad }}</strong>
           </tooltip>

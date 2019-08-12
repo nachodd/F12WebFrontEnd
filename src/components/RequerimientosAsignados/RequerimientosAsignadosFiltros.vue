@@ -95,7 +95,7 @@
             <div class="filter-chip__text">
               {{ sistemaDescripcion }}
             </div>
-            <tooltip content-class="text-caption">Sistema</tooltip>
+            <tooltip>Sistema</tooltip>
           </q-chip>
         </span>
         <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
@@ -106,14 +106,14 @@
             <div class="filter-chip__text">
               {{ tipoRequerimientoDescripcion }}
             </div>
-            <tooltip content-class="text-caption">
+            <tooltip>
               Tipo de Requerimiento
             </tooltip>
           </q-chip>
         </span>
       </div>
       <div class="col-xs-12 col-md-4 col-sm-5 text-right">
-        <tooltip content-class="text-caption">
+        <tooltip>
           Click aquí para aplicar este filtro
         </tooltip>
         <span>
