@@ -185,17 +185,12 @@ const actions = {
       }
     })
   },
-  listRequerimientos({ commit, rootState }, { userId = null, filtros }) {
+  listRequerimientos({ commit, rootGetters }, { userId = null, filtros }) {
     return new Promise(async (resolve, reject) => {
       commit("SET_LOADING_REQ", true)
       commit("app/LOADING_INC", null, { root: true })
       try {
-        let userRequerimientos = userId
-        const actualUserId = _.get(rootState, "auth.user.id", null)
-        if (!userRequerimientos && actualUserId) {
-          userRequerimientos = actualUserId
-        }
-
+        let userRequerimientos = userId ? userId : rootGetters["auth/userId"]
         const {
           data: { data, meta },
         } = await listRequerimientos(userRequerimientos, filtros)
