@@ -43,7 +43,7 @@ const getters = {
   expiresIn: state => state.expiresIn,
   refreshToken: state => state.refreshToken,
   user: state => state.user,
-  userId: state => (state.user ? state.user.id : null),
+  userId: state => (state.user ? state.user.usuarioId : null),
   userRazonSocial: state => (state.user ? state.user.razonSocial : "Usuario"),
   // roles: state => state.roles,
   check: state => state.user !== null,
@@ -73,7 +73,7 @@ const getters = {
     const currentUser = state.user || {}
     ur.push({
       label: currentUser.razonSocial,
-      value: currentUser.id,
+      value: currentUser.usuarioId,
     })
     return _.orderBy(ur, ["label"], ["asc"])
   },
@@ -95,7 +95,7 @@ const getters = {
     const currentUser = state.user || {}
     users.push({
       label: currentUser.razonSocial,
-      value: currentUser.id,
+      value: currentUser.usuarioId,
     })
     return _.orderBy(users, ["label"], ["asc"])
   },
@@ -140,8 +140,8 @@ const getters = {
   usuariosFiltro: state => {
     return _(state.usuariosFiltro)
       .map(uf => ({
-        id: uf.id,
-        descripcion: uf.nombre,
+        id: uf.usuarioId,
+        descripcion: uf.razonSocial,
       }))
       .orderBy("label")
       .value()
@@ -175,9 +175,9 @@ const mutations = {
       const user = {}
       {
         // Block assigment - next variables aren't valid outside this scope
-        let { id, usuario, razon_social, numero_documento } = userData
+        let { usuario_id, usuario, razon_social, numero_documento } = userData
         Object.assign(user, {
-          id,
+          usuarioId: usuario_id,
           usuario,
           razonSocial: razon_social,
           numeroDocumento: numero_documento,
