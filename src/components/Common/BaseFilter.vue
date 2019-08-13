@@ -47,15 +47,29 @@
         </div>
       </q-menu>
     </div>
-    <div class="q-mt-sm">
+    <div v-if="hasQuickFilterSlot" class="row items-center filters-row">
+      <div class="col-xs-12 col-md-8 col-sm-7">
+        <span v-if="someFilterIsSetted">Filtros:</span>
+        <slot name="footer" />
+      </div>
+      <div class="col-xs-12 col-md-4 col-sm-5 text-right">
+        <tooltip>
+          Click aquí para aplicar este filtro
+        </tooltip>
+        <slot name="quickFilter" />
+      </div>
+    </div>
+    <div v-else class="q-mt-sm">
       <span v-if="someFilterIsSetted">Filtros:</span>
       <slot name="footer" />
     </div>
   </div>
 </template>
 <script>
+import Tooltip from "comp/Common/Tooltip"
 export default {
   name: "BaseFilter",
+  components: { Tooltip },
   props: {
     searchPlaceholder: {
       type: String,
@@ -79,6 +93,9 @@ export default {
   computed: {
     iconOpenFilter() {
       return this.popupOpened ? "arrow_drop_up" : "arrow_drop_down"
+    },
+    hasQuickFilterSlot() {
+      return !!this.$slots.quickFilter
     },
   },
   methods: {

@@ -109,18 +109,19 @@
             <q-icon name="fas fa-cogs" class="vertical-top q-mr-xs q-pl-xs" />
             Req. Asociado
             <strong>#{{ req.asociadoId }}</strong>
-            ({{ reqAsociadoEstadoDescripcion }})
             <tooltip>
               - Requerimiento Asociado Nro:
               <strong>#{{ req.asociadoId }}</strong>
-              <br />
-              - Estado:
-              <strong>{{ req.asociadoEstadoDescripcion }}</strong>
-              <span v-if="req.asociadoUsuario !== null">
+              <!--
+                <br />
+                - Estado:
+                <strong>{{ req.asociadoEstadoDescripcion }}</strong>
+              -->
+              <!-- <span v-if="req.asociadoUsuario !== null">
                 <br />
                 - Usuario Asignado:
                 <strong>{{ req.asociadoUsuario }}</strong>
-              </span>
+              </span> -->
             </tooltip>
           </span>
         </q-item-label>

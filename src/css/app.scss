@@ -241,6 +241,15 @@ body {
 .filter.popupOpened .q-field__control:after {
   content: '';
 }
+
+.square {
+  width: 4px;
+  height: 18px;
+  vertical-align: middle;
+}
+.filters-row {
+  min-height: 40px
+}
 /** FIN */
 
 

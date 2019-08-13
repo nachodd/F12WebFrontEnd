@@ -59,7 +59,6 @@ export default {
   },
   mixins: [pageLoading],
   data: () => ({
-    usuarioVerComo: null,
     filtroLastValues: {
       descripcion: null,
       sistema: null,

@@ -12,6 +12,7 @@ import {
   filterBySistema,
   filterByTipoRequerimiento,
   filterByUsuariosAsignados,
+  filterByUsuarioAltaId,
 } from "utils/requerimientos"
 import { pipeWith } from "utils/helpers"
 
@@ -40,6 +41,7 @@ const state = {
     sistema: null,
     requerimientoTipo: null,
     descripcion: null,
+    usuarioAlta: null,
     usuariosAsignados: [],
   },
 }
@@ -106,6 +108,7 @@ const getters = {
       descripcion = null,
       sistema = null,
       requerimientoTipo = null,
+      usuarioAlta = null,
       usuariosAsignados = null,
     } = state.filtros
 
@@ -119,6 +122,9 @@ const getters = {
     }
     if (requerimientoTipo && requerimientoTipo.id) {
       filtersToApply.push(filterByTipoRequerimiento(requerimientoTipo.id))
+    }
+    if (usuarioAlta && usuarioAlta.id) {
+      filtersToApply.push(filterByUsuarioAltaId(usuarioAlta.id))
     }
     const isAssigOrInExec = reqEstado === "ASSI" || reqEstado === "EXEC"
     if (isAssigOrInExec && usuariosAsignados && usuariosAsignados.length) {
@@ -284,13 +290,21 @@ const mutations = {
     state.possibleChanges.newOrder = null
     state.dialogConfirmOpen = false
   },
-  SET_FILTROS: (state, { filter, value }) => {
+  SET_FILTRO: (state, { filter, value }) => {
     state.filtros[filter] = value
+  },
+  SET_FILTROS: (state, filters) => {
+    state.filtros["descripcion"] = filters.descripcion
+    state.filtros["sistema"] = filters.sistema
+    state.filtros["requerimientoTipo"] = filters.tipo
+    state.filtros["usuarioAlta"] = filters.usuarioAlta
+    state.filtros["usuariosAsignados"] = filters.usuariosAsignados
   },
   CLEAR_FILTROS: state => {
     state.filtros.sistema = null
     state.filtros.requerimientoTipo = null
     state.filtros.descripcion = null
+    state.filtros.usuarioAlta = null
     state.filtros.usuariosAsignados = []
   },
 
@@ -348,11 +362,12 @@ const mutations = {
 }
 
 const actions = {
-  fetchRequerimientos({ commit, rootGetters }, userId = null) {
+  fetchRequerimientos({ commit, dispatch, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {
         // commit("app/LOADING_INC", null, { root: true })
         commit("SET_LOADING_REQUERIMIENTOS", true)
+        await dispatch("auth/getUsuariosFiltro", null, { root: true })
         // Determino el userId para los requerimientos
         const userIdForRequerimientos = userId
           ? userId
@@ -582,7 +597,13 @@ const actions = {
   },
   setFilter({ commit }, { filter, value }) {
     return new Promise(resolve => {
-      commit("SET_FILTROS", { filter, value })
+      commit("SET_FILTRO", { filter, value })
+      resolve()
+    })
+  },
+  setFilters({ commit }, filters) {
+    return new Promise(resolve => {
+      commit("SET_FILTROS", filters)
       resolve()
     })
   },

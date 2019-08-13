@@ -1,7 +1,7 @@
 <template>
   <base-filter
     ref="baseFilter"
-    search-placeholder="Buscar en Asunto, Descripción..."
+    search-placeholder="Buscar en Asunto, Descripción, Usuario Asignado..."
     :descripcion.sync="filterValues.descripcion"
     :some-filter-is-setted="someFilterIsSetted"
     @filtrar="filtrar"
@@ -17,7 +17,7 @@
           :loading="sistemas.length === 0"
         />
       </base-filter-input>
-      <!-- <base-filter-input label="Tipo Requerimiento">
+      <base-filter-input label="Tipo Requerimiento">
         <select-custom
           v-model="filterValues.tipo"
           :options="requerimientosTipos"
@@ -26,12 +26,9 @@
           :use-filter="false"
           :loading="requerimientosTipos.length === 0"
         />
-      </base-filter-input> -->
+      </base-filter-input>
 
-      <base-filter-input
-        v-if="!esElUltimoDeLaCadenaDeMando"
-        label="Usuario Alta"
-      >
+      <base-filter-input label="Usuario Alta">
         <select-custom
           v-model="filterValues.usuarioAlta"
           :options="optionsUsuariosFiltro"
@@ -42,16 +39,21 @@
       </base-filter-input>
 
       <base-filter-input
-        v-if="hasReportantesNoOperativos"
-        label="Ver listado como"
+        label="Usuarios Asignados"
+        footer="Este filtro aplica para los 'Requerimientos Asignados' y 'Requerimientos en Ejecución'"
       >
         <q-select
-          v-model="filterValues.usuarioVerComo"
+          v-model="filterValues.usuariosAsignados"
           color="deep-purple-10"
+          clearable
           dense
-          :options="optionsUsersReportantes"
+          :options="usuariosAsignadosOptionsFiltered"
           emit-value
           map-options
+          use-input
+          use-chips
+          multiple
+          @filter="filterUsuariosAsignados"
         />
       </base-filter-input>
     </template>
@@ -83,14 +85,6 @@
         @remove="removeFilter('tipo')"
       />
       <base-filter-chip
-        :showed="usuarioVerComoSetted && Boolean(filterPhoto.usuarioVerComo)"
-        label="V.C.:"
-        :value="filterPhoto.usuarioAlta"
-        :tooltip="'Viendo Como: ' + filterPhoto.usuarioVerComo"
-        color="purple"
-        @remove="removeFilter('usuarioVerComo')"
-      />
-      <base-filter-chip
         :showed="usuarioAltaSetted && Boolean(filterPhoto.usuarioAlta)"
         label="U.Al:"
         :value="filterPhoto.usuarioAlta"
@@ -98,6 +92,41 @@
         color="purple"
         @remove="removeFilter('usuarioAlta')"
       />
+      <base-filter-chip
+        :showed="
+          usuariosAsignadosSetted && Boolean(filterPhoto.usuariosAsignados)
+        "
+        label="U.As:"
+        :value="filterPhoto.usuariosAsignados"
+        :tooltip="'Usuario Asignados: ' + filterPhoto.usuariosAsignados"
+        color="teal"
+        @remove="removeFilter('usuariosAsignados')"
+      />
+    </template>
+    <template #quickFilter>
+      <span>
+        <div
+          class="d-ib cursor-pointer text-caption"
+          @click="aplicarFiltroRapidoTipoReq('Arreglo')"
+        >
+          <div class="square d-ib bg-red-7">&nbsp;</div>
+          Arreglo Rápido &nbsp;&nbsp;
+        </div>
+        <div
+          class="d-ib cursor-pointer text-caption"
+          @click="aplicarFiltroRapidoTipoReq('Desarrollo')"
+        >
+          <div class="square d-ib bg-light-blue-7">&nbsp;</div>
+          Desarrollo &nbsp;&nbsp;
+        </div>
+        <div
+          class="d-ib cursor-pointer text-caption"
+          @click="aplicarFiltroRapidoTipoReq('Desarrollo')"
+        >
+          <div class="square d-ib bg-teal-7">&nbsp;</div>
+          Rev. Procesos &nbsp;&nbsp;
+        </div>
+      </span>
     </template>
   </base-filter>
 </template>
@@ -108,7 +137,7 @@ import BaseFilterInput from "comp/Common/BaseFilterInput"
 import BaseFilterChip from "comp/Common/BaseFilterChip"
 import { mapState, mapGetters } from "vuex"
 export default {
-  name: "PriorizarRequerimientosFiltros",
+  name: "AsignarRequerimientosFiltros",
   components: { SelectCustom, BaseFilter, BaseFilterInput, BaseFilterChip },
   props: {
     filtros: {
@@ -122,16 +151,17 @@ export default {
         descripcion: null,
         sistema: null,
         tipo: null,
-        usuarioVerComo: null,
+        usuariosAsignados: [],
         usuarioAlta: null,
       },
       filterPhoto: {
         sistema: null,
         tipo: null,
-        usuarioVerComo: null,
+        usuariosAsignados: null,
         usuarioAlta: null,
       },
       someFilterIsSetted: false,
+      usuariosAsignadosOptionsFiltered: null,
     }
   },
   computed: {
@@ -140,26 +170,21 @@ export default {
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
-    ...mapGetters("auth", [
-      "userSistemas",
-      "userReportantesNoOperativos",
-      "hasReportantesNoOperativos",
-    ]),
+    ...mapGetters("auth", ["userSistemas", "userYoYReportantes"]),
     ...mapGetters({
       optionsUsuariosFiltro: "auth/usuariosFiltro",
-      esElUltimoDeLaCadenaDeMando: "auth/esElUltimoDeLaCadenaDeMando",
     }),
+    // Filtro solo los sistemas que tiene el usuario logueado
+    sistemasUsuarioOptions() {
+      return _.filter(this.sistemas, s => {
+        return _.findIndex(this.userSistemas, { id: s.id }) !== -1
+      })
+    },
     sistemaSetted() {
       return this.filterValues.sistema && Boolean(this.filterValues.sistema.id)
     },
     tipoRequerimientoSetted() {
       return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
-    },
-    usuarioVerComoSetted() {
-      return (
-        this.filterValues.usuarioVerComo &&
-        Boolean(this.filterValues.usuarioVerComo.value)
-      )
     },
     usuarioAltaSetted() {
       return (
@@ -167,54 +192,47 @@ export default {
         Boolean(this.filterValues.usuarioAlta.id)
       )
     },
-    optionsUsersReportantes() {
-      const label =
-        this.filterValues.usuarioVerComo === null
-          ? "Ver listado como..."
-          : `<strong>VOLVER A MI LISTADO</strong>`
-      return [
-        {
-          label,
-          value: null,
-        },
-        ..._.orderBy(this.userReportantesNoOperativos, "label"),
-      ]
+    usuariosAsignadosSetted() {
+      return (
+        this.filterValues.usuariosAsignados &&
+        this.filterValues.usuariosAsignados.length > 0
+      )
     },
-    // Filtro solo los sistemas que tiene el usuario logueado
-    sistemasUsuarioOptions() {
-      return _.filter(this.sistemas, s => {
-        return _.findIndex(this.userSistemas, { id: s.id }) !== -1
-      })
-    },
+
     sistemaDescripcion() {
       return _.get(this, "filterValues.sistema.descripcion", null)
     },
     tipoRequerimientoDescripcion() {
       return _.get(this, "filterValues.tipo.descripcion", null)
     },
-    usuarioVerComoDescripcion() {
-      return _.get(this, "filterValues.usuarioVerComo.label", null)
-    },
     usuarioAltaDescripcion() {
       return _.get(this, "filterValues.usuarioAlta.descripcion", null)
     },
+    usuariosAsignadosDescripcion() {
+      if (this.usuariosAsignadosSetted) {
+        return this.filterValues.usuariosAsignados
+          .map(ua => ua.label)
+          .join(", ")
+      }
+      return ""
+    },
   },
   async mounted() {
-    // this.changeUsuarioVerComo(null)
     await this.$store.dispatch("requerimientos/createRequerimiento")
     const {
       descripcion,
       sistema,
       tipo,
-      usuarioVerComo,
+      usuariosAsignados,
       usuarioAlta,
     } = this.filtros
 
     if (descripcion) this.filterValues.descripcion = descripcion
     if (sistema) this.filterValues.sistema = sistema
     if (tipo) this.filterValues.tipo = tipo
-    if (usuarioVerComo) this.filterValues.usuarioVerComo = usuarioVerComo
     if (usuarioAlta) this.filterValues.usuarioAlta = usuarioAlta
+    if (usuariosAsignados)
+      this.filterValues.usuariosAsignados = usuariosAsignados
 
     this.filtrar()
   },
@@ -228,14 +246,15 @@ export default {
     updateFilterPhoto() {
       this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
       this.filterPhoto.sistema = this.sistemaDescripcion || null
-      this.filterPhoto.usuarioVerComo = this.usuarioVerComoDescripcion || null
+      this.filterPhoto.usuariosAsignados =
+        this.usuariosAsignadosDescripcion || null
       this.filterPhoto.usuarioAlta = this.usuarioAltaDescripcion || null
     },
     updateSomeFilterIsSetted() {
       this.someFilterIsSetted = _.some([
         this.sistemaSetted,
         this.tipoRequerimientoSetted,
-        this.usuarioVerComoSetted,
+        this.usuariosAsignadosSetted,
         this.usuarioAltaSetted,
       ])
     },
@@ -243,7 +262,7 @@ export default {
       this.filterValues.descripcion = null
       this.filterValues.tipo = null
       this.filterValues.sistema = null
-      this.filterValues.usuarioVerComo = null
+      this.filterValues.usuariosAsignados = []
       this.filterValues.usuarioAlta = null
       this.filtrar()
     },
@@ -254,15 +273,53 @@ export default {
       if (filter == "sistema") {
         this.filterValues.sistema = null
       }
-      if (filter == "usuarioVerComo") {
-        this.filterValues.usuarioVerComo = null
+      if (filter == "usuariosAsignados") {
+        this.filterValues.usuariosAsignados = []
       }
       if (filter == "usuarioAlta") {
         this.filterValues.usuarioAlta = null
       }
       this.filtrar()
     },
+
+    filterUsuariosAsignados(val, update) {
+      if (val === "") {
+        update(() => {
+          this.usuariosAsignadosOptionsFiltered = this.userYoYReportantes
+        })
+        return
+      }
+      update(() => {
+        const needle = val.toLowerCase()
+        this.usuariosAsignadosOptionsFiltered = this.userYoYReportantes.filter(
+          v => v.label.toLowerCase().indexOf(needle) > -1,
+        )
+      })
+    },
+    aplicarFiltroRapidoTipoReq(filtroRapido) {
+      switch (filtroRapido) {
+        case "Arreglo":
+          this.filterValues.tipo = {
+            descripcion: "Arreglo rápido",
+            id: 1,
+          }
+          break
+        case "Desarrollo":
+          this.filterValues.tipo = {
+            descripcion: "Desarrollos / Modificaciones / Implementaciones",
+            id: 2,
+          }
+          break
+        case "RevProcesos":
+          this.filterValues.tipo = {
+            descripcion: "Revisión Procesos",
+            id: 3,
+          }
+          break
+      }
+      this.filtrar()
+    },
   },
 }
 </script>
-<style lang="stylus"></style>
+<style lang="stylus" scoped></style>
