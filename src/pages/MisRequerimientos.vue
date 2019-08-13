@@ -69,7 +69,14 @@ export default {
     }),
     hayFiltros() {
       const f = this.filtroLastValues
-      return _.some([f.descripcion, f.reqId, f.estados, f.sistema, f.tipo])
+      return _.some([
+        f.descripcion,
+        f.reqId,
+        f.estados,
+        f.sistema,
+        f.tipo,
+        f.usuarioAlta,
+      ])
     },
     noResults() {
       return !this.searchMeta.total || this.searchMeta.total === 0

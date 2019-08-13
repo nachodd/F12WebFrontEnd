@@ -1,160 +1,138 @@
 <template>
-  <div class="q-pb-md">
-    <q-resize-observer @resize="onResize" />
-    <div class="q-mb-sm">
-      <q-input
-        ref="inputDescripcion"
-        v-model.trim="__descripcion"
-        class="filter"
-        :class="{ popupOpened: popupOpened }"
-        dense
-        standout="bg-white text-black"
-        placeholder="Buscar por Asunto, Descripcion..."
-        @keyup.enter="closeFilters"
+  <base-filter
+    ref="baseFilter"
+    search-placeholder="Buscar en Asunto, Descripción..."
+    :descripcion.sync="filterValues.descripcion"
+    :some-filter-is-setted="someFilterIsSetted"
+    @filtrar="filtrar"
+  >
+    <template #body>
+      <base-filter-input label="Sistema">
+        <select-custom
+          v-model="filterValues.sistema"
+          :options="sistemasUsuarioOptions"
+          dense
+          color="deep-purple-10"
+          :use-filter="false"
+          :loading="sistemas.length === 0"
+        />
+      </base-filter-input>
+      <!-- <base-filter-input label="Tipo Requerimiento">
+        <select-custom
+          v-model="filterValues.tipo"
+          :options="requerimientosTipos"
+          dense
+          color="deep-purple-10"
+          :use-filter="false"
+          :loading="requerimientosTipos.length === 0"
+        />
+      </base-filter-input> -->
+
+      <base-filter-input
+        v-if="!esElUltimoDeLaCadenaDeMando"
+        label="Usuario Alta"
       >
-        <template v-slot:prepend>
-          <q-icon name="search" />
-        </template>
-        <template v-slot:append>
-          <q-icon
-            :name="iconOpenFilter"
-            class="filter__icon cursor-pointer"
-            @click="popupOpened = !popupOpened"
-          ></q-icon>
-        </template>
-      </q-input>
+        <select-custom
+          v-model="filterValues.usuarioAlta"
+          :options="optionsUsuariosFiltro"
+          dense
+          color="deep-purple-10"
+          :loading="optionsUsuariosFiltro.length === 0"
+        />
+      </base-filter-input>
 
-      <q-menu
-        v-model="popupOpened"
-        no-parent-event
-        content-class="q-menu-fix"
-        :offset="[0, -4]"
+      <base-filter-input
+        v-if="hasReportantesNoOperativos"
+        label="Ver listado como"
       >
-        <div
-          class="q-pa-md row justify-center"
-          :style="{
-            width: widthInputDescripcion + 'px',
-            'padding-top': '0',
-          }"
-        >
-          <div class="col-md-8 col-sm-8 col-xs-12">
-            <div class="row q-mt-sm q-col-gutter-sm items-center">
-              <div class="col-xs-3 text-body2 q-pt-md ellipsis">
-                Sistema
-              </div>
-              <div class="col-xs-9">
-                <select-custom
-                  v-model="__sistema"
-                  :options="sistemasUsuarioOptions"
-                  dense
-                  color="deep-purple-10"
-                  :loading="sistemas.length === 0"
-                />
-              </div>
-            </div>
+        <q-select
+          v-model="filterValues.usuarioVerComo"
+          color="deep-purple-10"
+          dense
+          :options="optionsUsersReportantes"
+          emit-value
+          map-options
+        />
+      </base-filter-input>
+    </template>
 
-            <div class="row q-mt-sm q-col-gutter-sm items-center">
-              <div class="col-xs-3 text-body2 q-pt-md ellipsis">
-                Tipo Requerimiento
-              </div>
-              <div class="col-xs-9">
-                <select-custom
-                  v-model="__tipo"
-                  :options="requerimientosTipos"
-                  dense
-                  color="deep-purple-10"
-                  :loading="requerimientosTipos.length === 0"
-                />
-              </div>
-            </div>
+    <template v-slot:buttons>
+      <q-btn color="negative" flat size="md" @click="limpiarFiltros">
+        Limpiar Filtros
+      </q-btn>
+      <q-btn color="deep-purple-10" size="md" @click="filtrar">
+        FILTRAR
+      </q-btn>
+    </template>
 
-            <div
-              v-if="hasReportantesNoOperativos"
-              class="row q-mt-sm q-col-gutter-sm items-center"
-            >
-              <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
-                Ver listado como:
-              </div>
-              <div class="col-xs-9">
-                <q-select
-                  v-model="usuarioVerComo"
-                  color="deep-purple-10"
-                  dense
-                  :options="optionsUsersReportantes"
-                  emit-value
-                  map-options
-                  @input="changeUsuarioVerComo"
-                />
-              </div>
-            </div>
-
-            <div class="row q-mt-md justify-end">
-              <q-btn color="negative" flat size="md" @click="limpiarFiltros">
-                Limpiar Filtros
-              </q-btn>
-
-              <q-btn color="deep-purple-10" size="md" @click="closeFilters">
-                FILTRAR
-              </q-btn>
-            </div>
-          </div>
-        </div>
-      </q-menu>
-    </div>
-
-    <div class="q-mt-sm">
-      <span v-if="sistemaSetted || tipoRequerimientoSetted">Filtros:</span>
-      <span v-if="sistemaSetted" class="q-mx-xs">
-        <q-chip removable @remove="removeFilter('sistema')">
-          <q-avatar color="red" text-color="white" class="filter-label">
-            Sist:
-          </q-avatar>
-          <div class="filter-chip__text">
-            {{ sistemaDescripcion }}
-          </div>
-          <tooltip>Sistema</tooltip>
-        </q-chip>
-      </span>
-      <span v-if="tipoRequerimientoSetted" class="q-mx-xs">
-        <q-chip removable @remove="removeFilter('requerimientoTipo')">
-          <q-avatar color="blue" text-color="white" class="filter-label">
-            Tipo:
-          </q-avatar>
-          <div class="filter-chip__text">
-            {{ tipoRequerimientoDescripcion }}
-          </div>
-          <tooltip>Tipo de Requerimiento</tooltip>
-        </q-chip>
-      </span>
-      <span v-if="usuariosAsignadosSetted" class="q-mx-xs">
-        <q-chip removable @remove="removeFilter('usuariosAsignados')">
-          <q-avatar color="green" text-color="white" class="filter-label">
-            U.A.:
-          </q-avatar>
-          <div class="filter-chip__text">
-            {{ usuariosAsignadosDescripcion }}
-          </div>
-          <tooltip>Usuarios Asignados</tooltip>
-        </q-chip>
-      </span>
-    </div>
-  </div>
+    <template v-slot:footer>
+      <base-filter-chip
+        :showed="sistemaSetted && Boolean(filterPhoto.sistema)"
+        label="Sist:"
+        :value="filterPhoto.sistema"
+        :tooltip="'Sistema: ' + filterPhoto.sistema"
+        color="red"
+        @remove="removeFilter('sistema')"
+      />
+      <base-filter-chip
+        :showed="tipoRequerimientoSetted && Boolean(filterPhoto.tipo)"
+        label="Tipo:"
+        :value="filterPhoto.tipo"
+        :tooltip="'Tipo de Requerimiento: ' + filterPhoto.tipo"
+        color="blue"
+        @remove="removeFilter('tipo')"
+      />
+      <base-filter-chip
+        :showed="usuarioVerComoSetted && Boolean(filterPhoto.usuarioVerComo)"
+        label="V.C.:"
+        :value="filterPhoto.usuarioAlta"
+        :tooltip="'Viendo Como: ' + filterPhoto.usuarioVerComo"
+        color="purple"
+        @remove="removeFilter('usuarioVerComo')"
+      />
+      <base-filter-chip
+        :showed="usuarioAltaSetted && Boolean(filterPhoto.usuarioAlta)"
+        label="U.A.:"
+        :value="filterPhoto.usuarioAlta"
+        :tooltip="'Usuario Alta: ' + filterPhoto.usuarioAlta"
+        color="purple"
+        @remove="removeFilter('usuarioAlta')"
+      />
+    </template>
+  </base-filter>
 </template>
 <script>
 import SelectCustom from "comp/Requerimientos/SelectCustom"
-import Tooltip from "comp/Common/Tooltip"
+import BaseFilter from "comp/Common/BaseFilter"
+import BaseFilterInput from "comp/Common/BaseFilterInput"
+import BaseFilterChip from "comp/Common/BaseFilterChip"
 import { mapState, mapGetters } from "vuex"
 export default {
   name: "PriorizarRequerimientosFiltros",
-  components: { SelectCustom, Tooltip },
-  props: {},
+  components: { SelectCustom, BaseFilter, BaseFilterInput, BaseFilterChip },
+  props: {
+    filtros: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
   data() {
     return {
-      input: "",
-      widthInputDescripcion: 0,
-      popupOpened: false,
       usuariosAsignadosOptionsFiltered: null,
-      usuarioVerComo: null,
+      filterValues: {
+        descripcion: null,
+        sistema: null,
+        tipo: null,
+        usuarioVerComo: null,
+        usuarioAlta: null,
+      },
+      filterPhoto: {
+        sistema: null,
+        tipo: null,
+        usuarioVerComo: null,
+        usuarioAlta: null,
+      },
+      someFilterIsSetted: false,
     }
   },
   computed: {
@@ -168,9 +146,31 @@ export default {
       "userReportantesNoOperativos",
       "hasReportantesNoOperativos",
     ]),
+    ...mapGetters({
+      optionsUsuariosFiltro: "auth/usuariosFiltro",
+      esElUltimoDeLaCadenaDeMando: "auth/esElUltimoDeLaCadenaDeMando",
+    }),
+    sistemaSetted() {
+      return this.filterValues.sistema && Boolean(this.filterValues.sistema.id)
+    },
+    tipoRequerimientoSetted() {
+      return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
+    },
+    usuarioVerComoSetted() {
+      return (
+        this.filterValues.usuarioVerComo &&
+        Boolean(this.filterValues.usuarioVerComo.value)
+      )
+    },
+    usuarioAltaSetted() {
+      return (
+        this.filterValues.usuarioAlta &&
+        Boolean(this.filterValues.usuarioAlta.id)
+      )
+    },
     optionsUsersReportantes() {
       const label =
-        this.usuarioVerComo === null
+        this.filterValues.usuarioVerComo === null
           ? "Ver listado como..."
           : `<strong>VOLVER A MI LISTADO</strong>`
       return [
@@ -187,104 +187,91 @@ export default {
         return _.findIndex(this.userSistemas, { id: s.id }) !== -1
       })
     },
-    __descripcion: {
-      get() {
-        return this.$store.state.priorizarRequerimientos.filtros.descripcion
-      },
-      set(value) {
-        this.$store.dispatch("priorizarRequerimientos/setFilter", {
-          filter: "descripcion",
-          value,
-        })
-      },
-    },
-    __sistema: {
-      get() {
-        return this.$store.state.priorizarRequerimientos.filtros.sistema
-      },
-      set(value) {
-        this.$store.dispatch("priorizarRequerimientos/setFilter", {
-          filter: "sistema",
-          value,
-        })
-      },
-    },
-    __tipo: {
-      get() {
-        return this.$store.state.priorizarRequerimientos.filtros
-          .requerimientoTipo
-      },
-      set(value) {
-        this.$store.dispatch("priorizarRequerimientos/setFilter", {
-          filter: "requerimientoTipo",
-          value,
-        })
-      },
-    },
-    __usuariosAsignados: {
-      get() {
-        return this.$store.state.asignacionRequerimientos.filtros
-          .usuariosAsignados
-      },
-      set(value) {
-        this.$store.dispatch("asignacionRequerimientos/setFilter", {
-          filter: "usuariosAsignados",
-          value,
-        })
-      },
-    },
-    iconOpenFilter() {
-      return this.popupOpened ? "arrow_drop_up" : "arrow_drop_down"
-    },
     sistemaDescripcion() {
-      return _.get(this, "__sistema.descripcion", null)
-    },
-    sistemaSetted() {
-      return this.__sistema && Boolean(this.__sistema.id)
+      return _.get(this, "filterValues.sistema.descripcion", null)
     },
     tipoRequerimientoDescripcion() {
-      return _.get(this, "__tipo.descripcion", null)
+      return _.get(this, "filterValues.tipo.descripcion", null)
     },
-    tipoRequerimientoSetted() {
-      return this.__tipo && Boolean(this.__tipo.id)
+    usuarioVerComoDescripcion() {
+      return _.get(this, "filterValues.usuarioVerComo.label", null)
     },
-    usuariosAsignadosDescripcion() {
-      if (this.usuariosAsignadosSetted) {
-        return this.__usuariosAsignados.map(ua => ua.label).join(", ")
-      }
-      return ""
-    },
-    usuariosAsignadosSetted() {
-      return this.__usuariosAsignados && this.__usuariosAsignados.length > 0
+    usuarioAltaDescripcion() {
+      return _.get(this, "filterValues.usuarioAlta.descripcion", null)
     },
   },
-  async created() {
-    this.changeUsuarioVerComo(null)
+  async mounted() {
+    // this.changeUsuarioVerComo(null)
+    await this.$store.dispatch("requerimientos/createRequerimiento")
+    const {
+      descripcion,
+      sistema,
+      tipo,
+      usuarioVerComo,
+      usuarioAlta,
+    } = this.filtros
+
+    if (descripcion) this.filterValues.descripcion = descripcion
+    if (sistema) this.filterValues.sistema = sistema
+    if (tipo) this.filterValues.tipo = tipo
+    if (usuarioVerComo) this.filterValues.usuarioVerComo = usuarioVerComo
+    if (usuarioAlta) this.filterValues.usuarioAlta = usuarioAlta
+
+    this.filtrar()
   },
   methods: {
-    onResize(size) {
-      this.widthInputDescripcion = size.width
+    filtrar() {
+      this.updateFilterPhoto()
+      this.updateSomeFilterIsSetted()
+      this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
+      this.$emit("buscar", this.filterValues)
     },
-    removeFilter(filter) {
-      this.$store.dispatch("priorizarRequerimientos/setFilter", {
-        filter,
-        value: null,
-      })
+    updateFilterPhoto() {
+      this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
+      this.filterPhoto.sistema = this.sistemaDescripcion || null
+      this.filterPhoto.usuarioVerComo = this.usuarioVerComoDescripcion || null
+      this.filterPhoto.usuarioAlta = this.usuarioAltaDescripcion || null
+    },
+    updateSomeFilterIsSetted() {
+      this.someFilterIsSetted = _.some([
+        this.sistemaSetted,
+        this.tipoRequerimientoSetted,
+        this.usuarioVerComoSetted,
+        this.usuarioAltaSetted,
+      ])
     },
     limpiarFiltros() {
-      this.$store.dispatch("priorizarRequerimientos/clearFilters")
+      this.filterValues.descripcion = null
+      this.filterValues.tipo = null
+      this.filterValues.sistema = null
+      this.filterValues.usuarioVerComo = null
+      this.filterValues.usuarioAlta = null
+      this.filtrar()
     },
-    closeFilters() {
-      this.popupOpened = false
+    removeFilter(filter) {
+      if (filter == "tipo") {
+        this.filterValues.tipo = null
+      }
+      if (filter == "sistema") {
+        this.filterValues.sistema = null
+      }
+      if (filter == "usuarioVerComo") {
+        this.filterValues.usuarioVerComo = null
+      }
+      if (filter == "usuarioAlta") {
+        this.filterValues.usuarioAlta = null
+      }
+      this.filtrar()
     },
-    async changeUsuarioVerComo(userId) {
+
+    /* async changeUsuarioVerComo(userId) {
       await this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
       this.$store.dispatch(
         "priorizarRequerimientos/inicializarPriorizarRequerimientos",
         { userId },
       )
-    },
-    filterUsuariosAsignados(val, update) {
+    }, */
+    /* filterUsuariosAsignados(val, update) {
       if (val === "") {
         update(() => {
           this.usuariosAsignadosOptionsFiltered = this.userReportantesNoOperativos
@@ -297,47 +284,8 @@ export default {
           v => v.label.toLowerCase().indexOf(needle) > -1,
         )
       })
-    },
+    }, */
   },
 }
 </script>
-<style lang="stylus">
-/*
-.q-field--standout .q-field__control:before {
-  opacity: 1;
-  transition: none !important;
-}
-.q-field--standout .q-field__control:hover {
-  opacity: 1;
-}
-.popupOpened .q-field__control {
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-.popupOpened .q-field__control:before {
-  background: white !important;
-  opacity: 1;
-  transition: none !important;
-  box-shadow: 0px 1px 5px 0px grey !important;
-}
-
-.popupOpened .q-field__control:hover {
-  opacity: 1;
-  transition: none !important;
-}
-
-.filter-label .q-avatar__content {
-  font-size: 0.4em;
-}
-
-.filter__icon {
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  transition: background-color 200ms linear;
-}
-
-.filter__icon:hover {
-  background-color: $grey-4;
-} */
-</style>
+<style lang="stylus"></style>

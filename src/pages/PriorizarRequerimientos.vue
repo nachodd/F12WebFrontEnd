@@ -2,7 +2,7 @@
   <q-page padding class="q-pt-lg">
     <div class="row">
       <div class="col">
-        <priorizar-requerimientos-filtros />
+        <priorizar-requerimientos-filtros @buscar="filtrarRequerimientos" />
       </div>
     </div>
     <div
@@ -47,6 +47,7 @@ import PriorizarRequerimientosList from "comp/PriorizarRequerimientos/PriorizarR
 import PriorizarRequerimientosDialogConfirmOperation from "comp/PriorizarRequerimientos/PriorizarRequerimientosDialogConfirmOperation"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import PriorizarRequerimientosFiltros from "comp/PriorizarRequerimientos/PriorizarRequerimientosFiltros"
+import { warn } from "utils/helpers"
 
 export default {
   name: "PriorizarRequerimientos",
@@ -59,6 +60,13 @@ export default {
   mixins: [pageLoading],
   data: () => ({
     usuarioVerComo: null,
+    filtroLastValues: {
+      descripcion: null,
+      sistema: null,
+      tipo: null,
+      usuarioVerComo: null,
+      usuarioAlta: null,
+    },
   }),
   computed: {
     ...mapGetters("priorizarRequerimientos", ["requerimientosFiltered"]),
@@ -88,7 +96,44 @@ export default {
     // Tener cuidado con usuarioVerComo, poruqe cuando ese cambia se hace un request al backend y se debe hacer un
     //   this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
     // this.$store.dispatch("requerimientos/createRequerimiento")
+    await this.$store.dispatch(
+      "priorizarRequerimientos/inicializarPriorizarRequerimientos",
+      { userId: null },
+    )
   },
-  methods: {},
+  methods: {
+    async filtrarRequerimientos(filtrosValues) {
+      try {
+        // Si el filtro fue enviado como parametro, lo guardo localmente.
+        // Cuando se llama al paginador, no tengo el valor del filtro. Por eso lo guardo previamente
+        if (filtrosValues) {
+          this.filtroLastValues.descripcion = filtrosValues.descripcion
+          this.filtroLastValues.sistema = filtrosValues.sistema
+          this.filtroLastValues.tipo = filtrosValues.tipo
+          this.filtroLastValues.usuarioVerComo = filtrosValues.usuarioVerComo
+          this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
+        }
+
+        if (
+          this.filtroLastValues.usuarioVerComo !== filtrosValues.usuarioVerComo
+        ) {
+          await this.$store.dispatch(
+            "priorizarRequerimientos/inicializarPriorizarRequerimientos",
+            { userId: this.filtroLastValues.usuarioVerComo },
+          )
+        }
+
+        await this.$store.dispatch(
+          "priorizarRequerimientos/setFilters",
+          this.filtroLastValues,
+        )
+      } catch (e) {
+        const message =
+          e.message ||
+          "Hubo un problema al cargar el listado de sus Requerimientos. Intente nuevamente más tarde"
+        warn({ message })
+      }
+    },
+  },
 }
 </script>

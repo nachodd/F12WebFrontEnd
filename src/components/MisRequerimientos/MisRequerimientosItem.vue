@@ -1,5 +1,5 @@
 <template>
-  <tr class="items-center">
+  <tr class="items-center cursor-pointer text-unselectable">
     <td class="q-px-sm">
       <q-badge color="grey">#{{ req.id }}</q-badge>
     </td>

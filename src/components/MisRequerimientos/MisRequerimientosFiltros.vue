@@ -76,7 +76,7 @@
 
     <template v-slot:footer>
       <base-filter-chip
-        :showed="reqIdSetted && filterPhoto.reqId"
+        :showed="reqIdSetted && Boolean(filterPhoto.reqId)"
         label="Id:"
         :value="filterPhoto.reqId"
         :tooltip="'Requerimiento Nro: ' + filterPhoto.reqId"
@@ -84,7 +84,7 @@
         @remove="removeFilter('reqId')"
       />
       <base-filter-chip
-        :showed="estadosSetted && filterPhoto.estados"
+        :showed="estadosSetted && Boolean(filterPhoto.estados)"
         label="Est.:"
         :value="filterPhoto.estados"
         :tooltip="'Estdos de los Reqs.: ' + filterPhoto.estados"
@@ -92,7 +92,7 @@
         @remove="removeFilter('estados')"
       />
       <base-filter-chip
-        :showed="sistemaSetted && filterPhoto.sistema"
+        :showed="sistemaSetted && Boolean(filterPhoto.sistema)"
         label="Sist:"
         :value="filterPhoto.sistema"
         :tooltip="'Sistema: ' + filterPhoto.sistema"
@@ -100,7 +100,7 @@
         @remove="removeFilter('sistema')"
       />
       <base-filter-chip
-        :showed="tipoRequerimientoSetted && filterPhoto.tipo"
+        :showed="tipoRequerimientoSetted && Boolean(filterPhoto.tipo)"
         label="Tipo:"
         :value="filterPhoto.tipo"
         :tooltip="'Tipo de Requerimiento: ' + filterPhoto.tipo"
@@ -108,7 +108,7 @@
         @remove="removeFilter('tipo')"
       />
       <base-filter-chip
-        :showed="usuarioAltaSetted && filterPhoto.usuarioAlta"
+        :showed="usuarioAltaSetted && Boolean(filterPhoto.usuarioAlta)"
         label="U.A.:"
         :value="filterPhoto.usuarioAlta"
         :tooltip="'Usuario Alta: ' + filterPhoto.usuarioAlta"
