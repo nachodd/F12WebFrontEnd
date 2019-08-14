@@ -200,6 +200,9 @@ export default class Requerimiento {
   get esDesarrollo() {
     return _.get(this, "tipo.id", null) === Requerimiento.getTipoId("DMI")
   }
+  get esRevisionProcesos() {
+    return _.get(this, "tipo.id", null) === Requerimiento.getTipoId("RP")
+  }
   esTipo(tipoCod) {
     return _.get(this, "tipo.id", null) === Requerimiento.tipoId(tipoCod)
   }

@@ -38,7 +38,7 @@
                 :max="maximoSliderPrioridad"
                 label
                 label-always
-                color="accent"
+                color="deep-purple-10"
                 @input="updateOrdenTooltip"
               />
             </div>
@@ -47,7 +47,7 @@
             <div class="col">
               <q-input
                 v-model="comment"
-                color="accent"
+                color="deep-purple-10"
                 outlined
                 autogrow
                 label="Si desea, puede agregar un comentario: "
@@ -65,12 +65,28 @@
             <q-input
               ref="commentDescartar"
               v-model="comment"
-              color="accent"
+              color="deep-purple-10"
               outlined
               autogrow
               label="Agregar un motivo:"
               :hide-bottom-space="true"
               :rules="[notEmpty]"
+            />
+          </div>
+        </div>
+      </q-slide-transition>
+
+      <q-slide-transition>
+        <div v-show="operation === 'aProcesos'" class="row">
+          <div class="col">
+            <q-input
+              ref="commentDescartar"
+              v-model="comment"
+              color="deep-purple-10"
+              outlined
+              autogrow
+              label="Si desea, puede agregar un comentario: "
+              :hide-bottom-space="true"
             />
           </div>
         </div>
@@ -110,7 +126,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
+    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando", "esGerente"]),
     ...mapGetters("priorizarRequerimientos", [
       "cantidadRequerimientos",
       "reqsPendientesAprobacionLength",
@@ -168,6 +184,13 @@ export default {
         label: "Descartar",
         value: "descartar",
       })
+
+      if (this.esGerente) {
+        opt.push({
+          label: "Enviar a Procesos",
+          value: "aProcesos",
+        })
+      }
 
       return opt
     },
@@ -313,9 +336,9 @@ export default {
           operation: this.operation,
           priority: this.approvedPriority,
           comment: this.comment,
-          listName: this.req.tieneEstadoPriorizacion("PEND")
-            ? "source"
-            : "target",
+          // listName: this.req.tieneEstadoPriorizacion("PEND")
+          //   ? "source"
+          //   : "target",
         })
         .then(message => {
           if (message) success({ message })

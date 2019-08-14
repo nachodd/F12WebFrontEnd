@@ -6,6 +6,7 @@ import {
   updateRequerimientosEstados,
   refuseRequerimiento,
   deleteRequerimiento,
+  pasarAProcesosRequerimiento,
   // getRequerimiento,
 } from "api/requerimientos"
 import {
@@ -657,7 +658,7 @@ const actions = {
   },
   processManualChanges(
     { commit, state, dispatch, rootGetters, rootState, getters },
-    { operation, priority, comment, listName },
+    { operation, priority, comment },
   ) {
     return new Promise(async (resolve, reject) => {
       // Esta funcion arma manualmente los listados de requerimientos (como si hiciese un drag&drop) y emite los cambios
@@ -793,43 +794,38 @@ const actions = {
           resolve()
           break
         }
-        case "descartar": {
+        case "descartar":
+        case "aProcesos": {
           // const listType = listName === "source" ? "pending" : "approved"
 
           // Rechazo o elimino el requerimiento el requerimiento:
           try {
             let res
             dispatch("app/loadingInc", null, { root: true })
-            if (getters.esAutor) {
-              res = await deleteRequerimiento(requerimientoItem.id)
-            } else {
-              res = await refuseRequerimiento(requerimientoItem.id, {
+
+            if (this.operation === "descartar") {
+              if (getters.esAutor) {
+                res = await deleteRequerimiento(requerimientoItem.id)
+              } else {
+                res = await refuseRequerimiento(requerimientoItem.id, {
+                  comentario: comment,
+                })
+              }
+            } else if (this.operation === "aProcesos") {
+              // FIXME: no estaria funcionando, no devuelve error pero no genera ni ticken ni nada. ver que onda
+              res = await pasarAProcesosRequerimiento(requerimientoItem.id, {
                 comentario: comment,
               })
             }
 
-            // Lo elimino del listado correspondiente: busco el indice y lo quito y commiteo el cambio
-            if (listName === "source") {
-              const removedIndex = _.findIndex(
-                // state.reqsPendientesAprobacion.list,
-                // getters.requerimientosFiltered("PEND"),
-                state.changesRequerimientos,
-                { id: requerimientoItem.id },
-              )
-              if (removedIndex !== -1) {
-                let listResult = [...state.changesRequerimientos]
-                listResult.splice(removedIndex, 1)
-                commit("SET_REQS_LIST", listResult)
-              }
-            } else if (listName === "target") {
-              const removedIndex = _.findIndex(state.changesRequerimientos, {
-                id: requerimientoItem.id,
-              })
-              if (removedIndex !== -1) {
-                let listResult = [...state.changesRequerimientos]
-                listResult.splice(removedIndex, 1)
-                commit("SET_REQS_LIST", listResult)
-              }
+            // Lo elimino del listado: busco el indice y lo quito y commiteo el cambio
+            const removedIndex = _.findIndex(state.changesRequerimientos, {
+              id: requerimientoItem.id,
+            })
+            if (removedIndex !== -1) {
+              let listResult = [...state.changesRequerimientos]
+              listResult.splice(removedIndex, 1)
+              commit("SET_REQS_LIST", listResult)
             }
 
             commit("CLEAR_OPERATIONS")

@@ -112,6 +112,7 @@ const getters = {
 
   // Si no tiene reportantes, será el ultimo eslabon de la cadena de mando
   esElUltimoDeLaCadenaDeMando: state => state.userNivel === "Operativo",
+  esGerente: state => state.userNivel === "Gerente",
   userSistemas: state => state.userSistemas,
   userEsResponsable: state => state.userSistemas.length > 0,
   puedeVerRequerimientosAsignados: state => {

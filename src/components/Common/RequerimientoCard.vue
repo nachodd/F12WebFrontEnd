@@ -4,6 +4,7 @@
     :class="{
       'card--default': req.esDesarrollo,
       'card--qf': req.esArregloRapido,
+      'card--process': req.esRevisionProcesos,
       'card--paused': req.estaEnPausa,
     }"
     :style="{ background: req.colorVencimientoBg }"
@@ -110,7 +111,7 @@
             Req. Asociado
             <strong>#{{ req.asociadoId }}</strong>
             <tooltip>
-              - Requerimiento Asociado Nro:
+              Requerimiento Asociado Nro:
               <strong>#{{ req.asociadoId }}</strong>
               <!--
                 <br />
@@ -265,6 +266,8 @@ export default {
   border-left: 3px solid $light-blue-7
 .card--qf
   border-left: 3px solid $red-7
+.card--process
+  border-left: 3px solid $teal-7
 /* .card--inprocess
   border-right: 3px solid $green-7 */
 .card__text-body
