@@ -73,6 +73,10 @@ const getters = {
       }))
       .orderBy("label")
       .value(),
+  optionsReqTiposAlta: state =>
+    _.filter(state.options.requerimientosTipos, rt => {
+      return rt.id === 1 || rt.id === 2
+    }),
 }
 
 const mutations = {
@@ -80,10 +84,10 @@ const mutations = {
     // state.options.areas = Vue.set(state.options, "areas", areas)
     state.options.areas = areas
     state.options.sistemas = sistemas
-    const reqTiposFiltered = _.filter(requerimientos_tipos, rt => {
-      return rt.id === 1 || rt.id === 2
-    })
-    state.options.requerimientosTipos = reqTiposFiltered
+    // const reqTiposFiltered = _.filter(requerimientos_tipos, rt => {
+    //   return rt.id === 1 || rt.id === 2
+    // })
+    state.options.requerimientosTipos = requerimientos_tipos
   },
   SET_LOADING_REQ: (state, newState) => {
     state.loadingRequerimiento = newState

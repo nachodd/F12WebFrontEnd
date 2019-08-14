@@ -2,7 +2,7 @@
   <q-page padding class="q-pt-lg">
     <div class="row">
       <div class="col">
-        <asignar-requerimientos-filtros2 @buscar="filtrarRequerimientos" />
+        <asignar-requerimientos-filtros @buscar="filtrarRequerimientos" />
       </div>
     </div>
     <div class="row q-pt-md q-px-xs q-col-gutter-sm req-container--filter">
@@ -53,8 +53,7 @@ import pageLoading from "mixins/pageLoading"
 import AsignarRequerimientosList from "comp/AsignarRequerimientos/AsignarRequerimientosList"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import AsignarRequerimientosDialogConfirmOperation from "comp/AsignarRequerimientos/AsignarRequerimientosDialogConfirmOperation"
-import AsignarRequerimientosFiltros2 from "comp/AsignarRequerimientos/AsignarRequerimientosFiltros2"
-import { warn } from "utils/helpers"
+import AsignarRequerimientosFiltros from "comp/AsignarRequerimientos/AsignarRequerimientosFiltros"
 
 export default {
   name: "AsignarRequerimientos",
@@ -63,7 +62,7 @@ export default {
     AsignarRequerimientosList,
     DialogDetalleRequerimiento,
     AsignarRequerimientosDialogConfirmOperation,
-    AsignarRequerimientosFiltros2,
+    AsignarRequerimientosFiltros,
   },
   mixins: [pageLoading],
   data: () => ({
@@ -90,30 +89,20 @@ export default {
     // }
   },
   methods: {
-    async filtrarRequerimientos(filtrosValues) {
-      try {
-        // Si el filtro fue enviado como parametro, lo guardo localmente.
-        // Cuando se llama al paginador, no tengo el valor del filtro. Por eso lo guardo previamente
-        if (filtrosValues) {
-          this.filtroLastValues.descripcion = filtrosValues.descripcion
-          this.filtroLastValues.sistema = filtrosValues.sistema
-          this.filtroLastValues.tipo = filtrosValues.tipo
-          this.filtroLastValues.usuariosAsignados =
-            filtrosValues.usuariosAsignados
-          this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
-        }
-        // FIXME: no andan los usuarios asignados ni el tipo Rev procesos. (Falta en el combo)
-
-        await this.$store.dispatch(
-          "asignacionRequerimientos/setFilters",
-          this.filtroLastValues,
-        )
-      } catch (e) {
-        const message =
-          e.message ||
-          "Hubo un problema al cargar el listado de sus Requerimientos. Intente nuevamente más tarde"
-        warn({ message })
+    filtrarRequerimientos(filtrosValues) {
+      if (filtrosValues) {
+        this.filtroLastValues.descripcion = filtrosValues.descripcion
+        this.filtroLastValues.sistema = filtrosValues.sistema
+        this.filtroLastValues.tipo = filtrosValues.tipo
+        this.filtroLastValues.usuariosAsignados =
+          filtrosValues.usuariosAsignados
+        this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
       }
+
+      this.$store.dispatch(
+        "asignacionRequerimientos/setFilters",
+        this.filtroLastValues,
+      )
     },
   },
 }

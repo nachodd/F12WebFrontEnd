@@ -12,6 +12,7 @@
         :max="searchMeta.last_page"
         :max-pages="8"
         :boundary-numbers="true"
+        :direction-links="true"
       ></q-pagination>
     </div>
     <div v-if="noResults" class="q-pa-lg text-body2">

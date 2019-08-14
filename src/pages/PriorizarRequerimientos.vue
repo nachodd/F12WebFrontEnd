@@ -122,7 +122,7 @@ export default {
           )
         }
 
-        await this.$store.dispatch(
+        this.$store.dispatch(
           "priorizarRequerimientos/setFilters",
           this.filtroLastValues,
         )

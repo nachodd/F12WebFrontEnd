@@ -334,9 +334,12 @@ export default {
     ...mapState("requerimientos", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
-      requerimientosTipos: state => state.options.requerimientosTipos,
+      // requerimientosTipos: state => state.options.requerimientosTipos,
       loadingOptions: state => state.loadingOptions,
       loadingRequerimiento: state => state.loadingRequerimiento,
+    }),
+    ...mapGetters({
+      requerimientosTipos: "requerimientos/optionsReqTiposAlta",
     }),
     ...mapGetters("auth", ["esDeSistemasOProcesos", "gerentesOrderByArea"]),
     submitText() {

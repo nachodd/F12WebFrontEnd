@@ -126,7 +126,8 @@ const getters = {
     if (usuarioAlta && usuarioAlta.id) {
       filtersToApply.push(filterByUsuarioAltaId(usuarioAlta.id))
     }
-    const isAssigOrInExec = reqEstado === "ASSI" || reqEstado === "EXEC"
+    const isAssigOrInExec =
+      reqEstado === "ASSI" || reqEstado === "EXEC" || reqEstado === "EXEC/TEST"
     if (isAssigOrInExec && usuariosAsignados && usuariosAsignados.length) {
       filtersToApply.push(filterByUsuariosAsignados(usuariosAsignados))
     }
@@ -351,7 +352,6 @@ const mutations = {
         const removedIndex = _.findIndex(state.requerimientos, {
           id: req.id,
         })
-        debugger
         if (removedIndex !== -1) {
           state.requerimientos.splice(removedIndex, 1)
         }

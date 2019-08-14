@@ -170,6 +170,10 @@ body {
   cursor: not-allowed !important;
 }
 
+.text-pre-wrap {
+  white-space: pre-wrap;
+}
+
 /** CSS PARA FILTROS */
 .q-menu-fix .q-field__control {
   // height: 40px;
@@ -232,9 +236,9 @@ body {
   background-color: transparent !important;
 }
 .filter .q-field__control:after {
-  content: 'Más filtros 🠊';
+  content: 'Más filtros 🡒';
   text-align: right;
-  margin-right: 40px;
+  margin-right: 42px;
   margin-top: 10px;
   color: #b7b7b7;
 }
