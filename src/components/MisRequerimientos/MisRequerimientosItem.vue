@@ -1,5 +1,5 @@
 <template>
-  <tr class="items-center">
+  <tr class="items-center cursor-pointer text-unselectable">
     <td class="q-px-sm">
       <q-badge color="grey">#{{ req.id }}</q-badge>
     </td>
@@ -20,11 +20,13 @@
       <q-badge :color="estadoColor" text-color="white" class="estado">
         {{ req.estado.descripcion }}
       </q-badge>
+      <tooltip>Estado: {{ req.estado.descripcion }}</tooltip>
     </td>
 
     <td class="mw-100">
       <div class="text-weight-medium ellipsis">
         {{ req.usuario.nombre }}
+        <tooltip>Usuario alta: {{ req.usuario.nombre }}</tooltip>
       </div>
       <div class="text-caption ellipsis">
         {{ req.fecha_alta | formatearFecha }}
@@ -35,14 +37,17 @@
       <div class="ellipsis">
         <span class="text-weight-medium">Area:</span>
         {{ req.area.descripcion }}
+        <tooltip>Area: {{ req.area.descripcion }}</tooltip>
       </div>
       <div class="ellipsis">
         <span class="text-weight-medium">Sist.:</span>
         {{ req.sistema.descripcion }}
+        <tooltip>Sistema: {{ req.sistema.descripcion }}</tooltip>
       </div>
       <div class="ellipsis">
         <span class="text-weight-medium">Tipo:</span>
         {{ req.tipo.descripcion }}
+        <tooltip>Tipo: {{ req.tipo.descripcion }}</tooltip>
       </div>
     </td>
 
@@ -55,7 +60,7 @@
           icon="fas fa-edit"
           :to="{ query: { ver: 'editarRequerimiento', id: req.id } }"
         >
-          <tooltip content-class="text-caption">
+          <tooltip>
             Editar Requerimiento
           </tooltip>
         </q-btn>

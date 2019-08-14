@@ -6,18 +6,41 @@
     :some-filter-is-setted="someFilterIsSetted"
     @filtrar="filtrar"
   >
+    <!-- v-slot:body="data"  === #body="data" -->
     <template #body>
+      <base-filter-input label="Nro Requerimiento">
+        <q-input
+          v-model.number="filterValues.reqId"
+          dense
+          type="number"
+          min="0"
+          color="deep-purple-10"
+        />
+      </base-filter-input>
+      <base-filter-input label="Estados">
+        <q-select
+          v-model="filterValues.estados"
+          :options="estadosOptionsFiltered"
+          clearable
+          dense
+          use-input
+          use-chips
+          multiple
+          color="deep-purple-10"
+          @filter="filterEstadosAsignados"
+        />
+      </base-filter-input>
       <base-filter-input label="Sistema">
         <select-custom
           v-model="filterValues.sistema"
-          :options="sistemasUsuarioOptions"
+          :options="sistemas"
           dense
           color="deep-purple-10"
           :use-filter="false"
           :loading="sistemas.length === 0"
         />
       </base-filter-input>
-      <!-- <base-filter-input label="Tipo Requerimiento">
+      <base-filter-input label="Tipo Requerimiento">
         <select-custom
           v-model="filterValues.tipo"
           :options="requerimientosTipos"
@@ -26,7 +49,7 @@
           :use-filter="false"
           :loading="requerimientosTipos.length === 0"
         />
-      </base-filter-input> -->
+      </base-filter-input>
 
       <base-filter-input
         v-if="!esElUltimoDeLaCadenaDeMando"
@@ -40,32 +63,34 @@
           :loading="optionsUsuariosFiltro.length === 0"
         />
       </base-filter-input>
-
-      <base-filter-input
-        v-if="hasReportantesNoOperativos"
-        label="Ver listado como"
-      >
-        <q-select
-          v-model="filterValues.usuarioVerComo"
-          color="deep-purple-10"
-          dense
-          :options="optionsUsersReportantes"
-          emit-value
-          map-options
-        />
-      </base-filter-input>
     </template>
 
     <template v-slot:buttons>
       <q-btn color="negative" flat size="md" @click="limpiarFiltros">
-        Limpiar Filtros
+        Limpiar Filtro
       </q-btn>
-      <q-btn color="deep-purple-10" size="md" @click="filtrar">
-        FILTRAR
+      <q-btn size="md" color="deep-purple-10" @click="filtrar">
+        Filtrar
       </q-btn>
     </template>
 
     <template v-slot:footer>
+      <base-filter-chip
+        :showed="reqIdSetted && Boolean(filterPhoto.reqId)"
+        label="Id:"
+        :value="filterPhoto.reqId"
+        :tooltip="'Requerimiento Nro: ' + filterPhoto.reqId"
+        color="green"
+        @remove="removeFilter('reqId')"
+      />
+      <base-filter-chip
+        :showed="estadosSetted && Boolean(filterPhoto.estados)"
+        label="Est.:"
+        :value="filterPhoto.estados"
+        :tooltip="'Estdos de los Reqs.: ' + filterPhoto.estados"
+        color="orange"
+        @remove="removeFilter('estados')"
+      />
       <base-filter-chip
         :showed="sistemaSetted && Boolean(filterPhoto.sistema)"
         label="Sist:"
@@ -83,16 +108,8 @@
         @remove="removeFilter('tipo')"
       />
       <base-filter-chip
-        :showed="usuarioVerComoSetted && Boolean(filterPhoto.usuarioVerComo)"
-        label="V.C.:"
-        :value="filterPhoto.usuarioAlta"
-        :tooltip="'Viendo Como: ' + filterPhoto.usuarioVerComo"
-        color="purple"
-        @remove="removeFilter('usuarioVerComo')"
-      />
-      <base-filter-chip
         :showed="usuarioAltaSetted && Boolean(filterPhoto.usuarioAlta)"
-        label="U.Al:"
+        label="U.A.:"
         :value="filterPhoto.usuarioAlta"
         :tooltip="'Usuario Alta: ' + filterPhoto.usuarioAlta"
         color="purple"
@@ -103,13 +120,19 @@
 </template>
 <script>
 import SelectCustom from "comp/Requerimientos/SelectCustom"
+import { mapState, mapGetters } from "vuex"
 import BaseFilter from "comp/Common/BaseFilter"
 import BaseFilterInput from "comp/Common/BaseFilterInput"
 import BaseFilterChip from "comp/Common/BaseFilterChip"
-import { mapState, mapGetters } from "vuex"
+
 export default {
-  name: "PriorizarRequerimientosFiltros",
-  components: { SelectCustom, BaseFilter, BaseFilterInput, BaseFilterChip },
+  name: "MisRequerimientosMenuFiltros",
+  components: {
+    BaseFilter,
+    BaseFilterInput,
+    BaseFilterChip,
+    SelectCustom,
+  },
   props: {
     filtros: {
       type: Object,
@@ -118,17 +141,20 @@ export default {
   },
   data() {
     return {
+      estadosOptionsFiltered: null,
       filterValues: {
         descripcion: null,
+        reqId: null,
+        estados: null,
         sistema: null,
         tipo: null,
-        usuarioVerComo: null,
         usuarioAlta: null,
       },
       filterPhoto: {
+        reqId: null,
+        estados: null,
         sistema: null,
         tipo: null,
-        usuarioVerComo: null,
         usuarioAlta: null,
       },
       someFilterIsSetted: false,
@@ -140,25 +166,26 @@ export default {
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
-    ...mapGetters("auth", [
-      "userSistemas",
-      "userReportantesNoOperativos",
-      "hasReportantesNoOperativos",
-    ]),
+    ...mapGetters("requerimientos", ["optionsEstados"]),
     ...mapGetters({
       optionsUsuariosFiltro: "auth/usuariosFiltro",
       esElUltimoDeLaCadenaDeMando: "auth/esElUltimoDeLaCadenaDeMando",
     }),
+
     sistemaSetted() {
       return this.filterValues.sistema && Boolean(this.filterValues.sistema.id)
     },
     tipoRequerimientoSetted() {
       return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
     },
-    usuarioVerComoSetted() {
+    reqIdSetted() {
+      return this.filterValues.reqId && Boolean(this.filterValues.reqId)
+    },
+    estadosSetted() {
       return (
-        this.filterValues.usuarioVerComo &&
-        Boolean(this.filterValues.usuarioVerComo.value)
+        this.filterValues.estados &&
+        Array.isArray(this.filterValues.estados) &&
+        this.filterValues.estados.length > 0
       )
     },
     usuarioAltaSetted() {
@@ -167,24 +194,10 @@ export default {
         Boolean(this.filterValues.usuarioAlta.id)
       )
     },
-    optionsUsersReportantes() {
-      const label =
-        this.filterValues.usuarioVerComo === null
-          ? "Ver listado como..."
-          : `<strong>VOLVER A MI LISTADO</strong>`
-      return [
-        {
-          label,
-          value: null,
-        },
-        ..._.orderBy(this.userReportantesNoOperativos, "label"),
-      ]
-    },
-    // Filtro solo los sistemas que tiene el usuario logueado
-    sistemasUsuarioOptions() {
-      return _.filter(this.sistemas, s => {
-        return _.findIndex(this.userSistemas, { id: s.id }) !== -1
-      })
+    estadosDescripcion() {
+      return this.estadosSetted
+        ? this.filterValues.estados.map(st => st.label).join(", ")
+        : ""
     },
     sistemaDescripcion() {
       return _.get(this, "filterValues.sistema.descripcion", null)
@@ -192,28 +205,26 @@ export default {
     tipoRequerimientoDescripcion() {
       return _.get(this, "filterValues.tipo.descripcion", null)
     },
-    usuarioVerComoDescripcion() {
-      return _.get(this, "filterValues.usuarioVerComo.label", null)
-    },
     usuarioAltaDescripcion() {
       return _.get(this, "filterValues.usuarioAlta.descripcion", null)
     },
   },
   async mounted() {
-    // this.changeUsuarioVerComo(null)
-    await this.$store.dispatch("requerimientos/createRequerimiento")
+    await this.$store.dispatch("requerimientos/initFiltrosMisRequerimientos")
     const {
       descripcion,
+      reqId,
+      estados,
       sistema,
       tipo,
-      usuarioVerComo,
       usuarioAlta,
     } = this.filtros
 
     if (descripcion) this.filterValues.descripcion = descripcion
+    if (reqId) this.filterValues.reqId = reqId
+    if (estados) this.filterValues.estados = estados
     if (sistema) this.filterValues.sistema = sistema
     if (tipo) this.filterValues.tipo = tipo
-    if (usuarioVerComo) this.filterValues.usuarioVerComo = usuarioVerComo
     if (usuarioAlta) this.filterValues.usuarioAlta = usuarioAlta
 
     this.filtrar()
@@ -225,37 +236,57 @@ export default {
       this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
       this.$emit("buscar", this.filterValues)
     },
-    updateFilterPhoto() {
-      this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
-      this.filterPhoto.sistema = this.sistemaDescripcion || null
-      this.filterPhoto.usuarioVerComo = this.usuarioVerComoDescripcion || null
-      this.filterPhoto.usuarioAlta = this.usuarioAltaDescripcion || null
-    },
-    updateSomeFilterIsSetted() {
-      this.someFilterIsSetted = _.some([
-        this.sistemaSetted,
-        this.tipoRequerimientoSetted,
-        this.usuarioVerComoSetted,
-        this.usuarioAltaSetted,
-      ])
-    },
     limpiarFiltros() {
       this.filterValues.descripcion = null
+      this.filterValues.reqId = null
+      this.filterValues.estados = null
       this.filterValues.tipo = null
       this.filterValues.sistema = null
-      this.filterValues.usuarioVerComo = null
       this.filterValues.usuarioAlta = null
       this.filtrar()
     },
+    updateSomeFilterIsSetted() {
+      this.someFilterIsSetted = _.some([
+        this.filterValues.reqId !== null,
+        this.estadosSetted,
+        this.filterValues.sistema !== null,
+        this.filterValues.tipo !== null,
+        this.filterValues.usuarioAlta !== null,
+      ])
+    },
+    updateFilterPhoto() {
+      this.filterPhoto.reqId = this.filterValues.reqId
+      this.filterPhoto.estados = this.estadosDescripcion || null
+      this.filterPhoto.sistema = this.sistemaDescripcion || null
+      this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
+      this.filterPhoto.usuarioAlta = this.usuarioAltaDescripcion || null
+    },
+    filterEstadosAsignados(val, update) {
+      if (val === "") {
+        update(() => {
+          this.estadosOptionsFiltered = this.optionsEstados
+        })
+        return
+      }
+      update(() => {
+        const needle = val.toLowerCase()
+        this.estadosOptionsFiltered = this.optionsEstados.filter(
+          v => v.label.toLowerCase().indexOf(needle) > -1,
+        )
+      })
+    },
     removeFilter(filter) {
+      if (filter == "reqId") {
+        this.filterValues.reqId = null
+      }
+      if (filter == "estados") {
+        this.filterValues.estados = null
+      }
       if (filter == "tipo") {
         this.filterValues.tipo = null
       }
       if (filter == "sistema") {
         this.filterValues.sistema = null
-      }
-      if (filter == "usuarioVerComo") {
-        this.filterValues.usuarioVerComo = null
       }
       if (filter == "usuarioAlta") {
         this.filterValues.usuarioAlta = null
@@ -265,4 +296,4 @@ export default {
   },
 }
 </script>
-<style lang="stylus"></style>
+<style lang="stylus" scoped></style>

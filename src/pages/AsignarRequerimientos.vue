@@ -2,7 +2,7 @@
   <q-page padding class="q-pt-lg">
     <div class="row">
       <div class="col">
-        <asignar-requerimientos-filtros />
+        <asignar-requerimientos-filtros @buscar="filtrarRequerimientos" />
       </div>
     </div>
     <div class="row q-pt-md q-px-xs q-col-gutter-sm req-container--filter">
@@ -65,7 +65,15 @@ export default {
     AsignarRequerimientosFiltros,
   },
   mixins: [pageLoading],
-  // data: () => ({}),
+  data: () => ({
+    filtroLastValues: {
+      descripcion: null,
+      sistema: null,
+      tipo: null,
+      usuariosAsignados: [],
+      usuarioAlta: null,
+    },
+  }),
   computed: {
     ...mapState("asignacionRequerimientos", {
       reqs: state => state.requerimientos,
@@ -74,11 +82,28 @@ export default {
     }),
     ...mapGetters("asignacionRequerimientos", ["requerimientosFiltered"]),
   },
-  created() {
-    this.$store.dispatch("requerimientos/createRequerimiento")
+  async created() {
+    // this.$store.dispatch("requerimientos/createRequerimiento")
     // if (!this.requerimientosLoaded) {
-    this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
+    await this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
     // }
+  },
+  methods: {
+    filtrarRequerimientos(filtrosValues) {
+      if (filtrosValues) {
+        this.filtroLastValues.descripcion = filtrosValues.descripcion
+        this.filtroLastValues.sistema = filtrosValues.sistema
+        this.filtroLastValues.tipo = filtrosValues.tipo
+        this.filtroLastValues.usuariosAsignados =
+          filtrosValues.usuariosAsignados
+        this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
+      }
+
+      this.$store.dispatch(
+        "asignacionRequerimientos/setFilters",
+        this.filtroLastValues,
+      )
+    },
   },
 }
 </script>

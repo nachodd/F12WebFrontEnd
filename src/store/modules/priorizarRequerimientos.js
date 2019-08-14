@@ -13,6 +13,7 @@ import {
   filterBySistema,
   filterByTipoRequerimiento,
   // filterByUsuariosAsignados,
+  filterByUsuarioAltaId,
   UpdatePendingPayloadPriorizarReq,
 } from "utils/requerimientos"
 import { warn, success, pipeWith } from "utils/helpers"
@@ -51,6 +52,7 @@ const state = {
     sistema: null,
     requerimientoTipo: null,
     descripcion: null,
+    usuarioAlta: null,
     // usuariosAsignados: [],
   },
 }
@@ -202,6 +204,7 @@ const getters = {
       descripcion = null,
       sistema = null,
       requerimientoTipo = null,
+      usuarioAlta = null,
       // usuariosAsignados = null,
     } = state.filtros
 
@@ -215,6 +218,9 @@ const getters = {
     }
     if (requerimientoTipo && requerimientoTipo.id) {
       filtersToApply.push(filterByTipoRequerimiento(requerimientoTipo.id))
+    }
+    if (usuarioAlta && usuarioAlta.id) {
+      filtersToApply.push(filterByUsuarioAltaId(usuarioAlta.id))
     }
     // const isAssigOrInExec = reqEstado === "ASSI" || reqEstado === "EXEC"
     // if (isAssigOrInExec && usuariosAsignados && usuariosAsignados.length) {
@@ -268,7 +274,7 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado_priorizacion: { id: estPendienteAprobacionId },
     })
-    return _.orderBy(reqsResult, "[prioridad]", "asc")
+    return _.orderBy(reqsResult, ["prioridad"], "asc")
   },
 
   getAprobadosPriorizados: state => {
@@ -276,7 +282,7 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado_priorizacion: { id: estAprobadosId },
     })
-    return _.orderBy(reqsResult, "[prioridad]", "asc")
+    return _.orderBy(reqsResult, ["prioridad"], "asc")
   },
 }
 
@@ -287,6 +293,11 @@ const mutations = {
 
     state.requerimientos = [...listData]
     state.changesRequerimientos = [...listData]
+
+    // state.requerimientos = _.sortBy(state.requerimientos, ["prioridad"])
+    // state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
+    //   "prioridad",
+    // ])
   },
 
   PUSH_REQS_LIST: (state, { listData }) => {
@@ -296,15 +307,11 @@ const mutations = {
     state.changesRequerimientos.push(
       ..._.map(listData, req => new Requerimiento(req)),
     )
-  },
-  SORT_REQUERIMIENTOS_BY_PRIORITY: state => {
-    // Obtengo la lista
-    state.requerimientos = _.sortBy(state.requerimientos, ["prioridad"])
-  },
-  SORT_CHANGE_REQUERIMIENTOS_BY_PRIORITY: () => {
-    state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
-      "prioridad",
-    ])
+
+    //  state.requerimientos = _.sortBy(state.requerimientos, ["prioridad"])
+    //  state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
+    //    "prioridad",
+    //  ])
   },
   SET_LOADING_STATE_REQS_LISTS: (state, { listType, loadingState }) => {
     listType === "pending"
@@ -347,14 +354,19 @@ const mutations = {
   SET_USUARIO_IMPERSONATE: (state, usuarioImpersonateId) => {
     state.usuarioImpersonateId = usuarioImpersonateId
   },
-  SET_FILTROS: (state, { filter, value }) => {
+  SET_FILTRO: (state, { filter, value }) => {
     state.filtros[filter] = value
+  },
+  SET_FILTROS: (state, filters) => {
+    state.filtros["descripcion"] = filters.descripcion
+    state.filtros["sistema"] = filters.sistema
+    state.filtros["requerimientoTipo"] = filters.tipo
+    state.filtros["usuarioAlta"] = filters.usuarioAlta
   },
   CLEAR_FILTROS: state => {
     state.filtros.sistema = null
     state.filtros.requerimientoTipo = null
     state.filtros.descripcion = null
-    // state.filtros.usuariosAsignados = []
   },
   UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS: (
     state,
@@ -421,9 +433,9 @@ const mutations = {
           id: req.id,
         })
         if (removedIndex !== -1) {
-          state.requerimientos.splice(removedIndex, 1, req)
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
         } else {
-          state.requerimientos.push(req)
+          state.requerimientos.push(new Requerimiento(req))
         }
         break
       }
@@ -441,17 +453,23 @@ const mutations = {
 }
 
 const actions = {
-  inicializarPriorizarRequerimientos(
+  async inicializarPriorizarRequerimientos(
     { commit, dispatch, rootGetters },
     { userId = null },
   ) {
     const esElUltimoDeLaCadenaDeMando =
       rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
-    const userIdToQuery = userId !== null ? userId : rootGetters["auth/userId"]
-
     // Si no impersonamos a nadie, el userId viene en null
+
+    const userIdToQuery = userId !== null ? userId : rootGetters["auth/userId"]
     commit("SET_USUARIO_IMPERSONATE", userId)
+    commit("SET_REQS_LIST", [])
+
+    // Traigo los usuarios para el filtro de usuarios de alta (si !esElUltimoDeLaCadenaDeMando)
+    if (!esElUltimoDeLaCadenaDeMando) {
+      await dispatch("auth/getUsuariosFiltro", null, { root: true })
+    }
 
     dispatch("getRequerimientosByUserAndEstado", {
       userId: userIdToQuery,
@@ -476,8 +494,6 @@ const actions = {
     return getRequerimientosByUserAndEstado(userId, estadoReq.id)
       .then(({ data: { data } }) => {
         commit("PUSH_REQS_LIST", { listData: data })
-        commit("SORT_REQUERIMIENTOS_BY_PRIORITY")
-        commit("SORT_CHANGE_REQUERIMIENTOS_BY_PRIORITY")
       })
       .catch(e => console.log(e))
       .finally(() => {
@@ -841,7 +857,13 @@ const actions = {
   },
   setFilter({ commit }, { filter, value }) {
     return new Promise(resolve => {
-      commit("SET_FILTROS", { filter, value })
+      commit("SET_FILTRO", { filter, value })
+      resolve()
+    })
+  },
+  setFilters({ commit }, filters) {
+    return new Promise(resolve => {
+      commit("SET_FILTROS", filters)
       resolve()
     })
   },
