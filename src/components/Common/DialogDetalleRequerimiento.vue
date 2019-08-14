@@ -58,24 +58,24 @@
               <!-- detalle -->
               <div class="row">
                 <div class="col-4">
-                  <div class="text-grey-6">Area</div>
+                  <div class="text-grey-5 text-bold">Area</div>
                   <q-item-label lines="1">
                     {{ req.area.descripcion }}
+                    <tooltip>Tipo: {{ req.area.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-6">Sistema</div>
+                  <div class="text-grey-5 text-bold">Sistema</div>
                   <q-item-label lines="1">
                     {{ req.sistema.descripcion }}
+                    <tooltip>Tipo: {{ req.sistema.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-6">Tipo</div>
+                  <div class="text-grey-5 text-bold">Tipo</div>
                   <q-item-label lines="1">
                     {{ req.tipo.descripcion }}
-                    <tooltip content-class="text-caption">
-                      {{ req.tipo.descripcion }}
-                    </tooltip>
+                    <tooltip>Tipo: {{ req.tipo.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
               </div>
@@ -84,7 +84,7 @@
 
               <div class="row">
                 <div class="col">
-                  <div class="text-grey-6">Asunto</div>
+                  <div class="text-grey-5 text-bold">Asunto</div>
                   <q-item-label>{{ req.asunto }}</q-item-label>
                 </div>
               </div>
@@ -93,8 +93,9 @@
 
               <div class="row">
                 <div class="col">
-                  <div class="text-grey-6">Descripcion</div>
-                  {{ req.descripcion }}
+                  <div class="text-grey-5 text-bold">Descripcion</div>
+                  <!-- eslint-disable-next-line -->
+                  <div class="text-pre-wrap">{{ req.descripcion }}</div>
                 </div>
               </div>
 
@@ -102,17 +103,14 @@
 
               <div class="row">
                 <div class="col">
-                  <div class="text-grey-6">Ultimo movimiento</div>
+                  <div class="text-grey-5 text-bold">Ultimo movimiento</div>
                   <div>
                     <!-- eslint-disable-next-line -->
                     {{ ultimoMovimiento.usuario }} @ <span class="text-italic">{{ ultimoMovimiento.fecha | formatearFechaHora }}</span>
                   </div>
                   <div>
                     Estado:
-                    {{
-                      ultimoMovimiento.estado
-                        | formatearEstado(ultimoMovimiento)
-                    }}
+                    {{ ultimoMovimiento | formatearEstado }}
                     <div v-if="ultimoMovimientoHasComentario">
                       Comentarios:
                       {{ ultimoMovimiento.comentario }}
@@ -202,7 +200,7 @@
                   <q-timeline-entry
                     v-for="(movimiento, index) in movimientosOrdenados"
                     :key="`req_${index}`"
-                    :title="movimiento.estado | formatearEstado(movimiento)"
+                    :title="movimiento | formatearEstado"
                     :subtitle="movimiento | formatearUsuarioYFecha"
                     text-color="grey"
                     class="timeline-entry-custom"
@@ -264,11 +262,20 @@ export default {
       const fechaFormatiada = date.formatDate(value.fecha, "DD/MM/YYYY HH:mm")
       return value.usuario + " @ " + fechaFormatiada
     },
-    formatearEstado(value, objMovimiento) {
-      if (objMovimiento.tipo === "Modificación estado en proceso") {
-        return "Cadena - " + value
+    formatearEstado(movimiento) {
+      let estado = movimiento.estado
+      if (movimiento.tipo === "Requerimiento pausado") {
+        estado += " (PAUSADO)"
       }
-      return objMovimiento.tipo === "Alta" ? "Alta" : value
+      if (movimiento.tipo === "Requerimiento reanudado") {
+        estado += " (REANUDADO)"
+      }
+
+      if (movimiento.tipo === "Modificación estado en proceso") {
+        return "Cadena - " + estado
+      }
+
+      return movimiento.tipo === "Alta" ? "Alta" : estado
     },
   },
   components: {

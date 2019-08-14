@@ -19,7 +19,7 @@
           flat
           @click="scope.removeQueuedFiles"
         >
-          <tooltip content-class="text-caption">Eliminar todos</tooltip>
+          <tooltip>Eliminar todos</tooltip>
         </q-btn>
         <q-btn
           v-if="scope.uploadedFiles.length > 0"
@@ -29,7 +29,7 @@
           flat
           @click="scope.removeUploadedFiles"
         >
-          <tooltip content-class="text-caption">
+          <tooltip>
             Eliminr Archivos Subidos
           </tooltip>
         </q-btn>
@@ -42,7 +42,7 @@
         </div>
         <q-btn v-if="scope.editable" icon="add_box" round dense flat>
           <q-uploader-add-trigger ref="addButton" />
-          <tooltip content-class="text-caption">
+          <tooltip>
             Seleccionar Archivos...
           </tooltip>
         </q-btn>

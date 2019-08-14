@@ -1,9 +1,6 @@
 <template>
   <q-page padding class="q-pt-lg">
-    <mis-requerimientos-menu-filtros
-      ref="filtros"
-      @buscar="getListRequerimientos"
-    />
+    <mis-requerimientos-filtros ref="filtros" @buscar="getListRequerimientos" />
     <mis-requerimientos-listado
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
@@ -15,6 +12,7 @@
         :max="searchMeta.last_page"
         :max-pages="8"
         :boundary-numbers="true"
+        :direction-links="true"
       ></q-pagination>
     </div>
     <div v-if="noResults" class="q-pa-lg text-body2">
@@ -36,7 +34,7 @@
 import { mapState } from "vuex"
 import { warn, info } from "utils/helpers"
 import MisRequerimientosListado from "comp/MisRequerimientos/MisRequerimientosListado"
-import MisRequerimientosMenuFiltros from "comp/MisRequerimientos/MisRequerimientosMenuFiltros"
+import MisRequerimientosFiltros from "comp/MisRequerimientos/MisRequerimientosFiltros"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import Bus from "utils/bus"
 
@@ -44,7 +42,7 @@ export default {
   components: {
     MisRequerimientosListado,
     DialogDetalleRequerimiento,
-    MisRequerimientosMenuFiltros,
+    MisRequerimientosFiltros,
   },
   data() {
     return {
@@ -72,7 +70,14 @@ export default {
     }),
     hayFiltros() {
       const f = this.filtroLastValues
-      return _.some([f.descripcion, f.reqId, f.estados, f.sistema, f.tipo])
+      return _.some([
+        f.descripcion,
+        f.reqId,
+        f.estados,
+        f.sistema,
+        f.tipo,
+        f.usuarioAlta,
+      ])
     },
     noResults() {
       return !this.searchMeta.total || this.searchMeta.total === 0

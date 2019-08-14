@@ -63,10 +63,7 @@
           class="list-item--narrow"
           :disable="llevaUsuarioCadenaDisabled"
         >
-          <tooltip
-            v-if="llevaUsuarioCadenaDisabled"
-            content-class="text-caption"
-          >
+          <tooltip v-if="llevaUsuarioCadenaDisabled">
             Solo aplicable cuando el Tipo de Requerimiento es "Desarrllos /
             Modificaciones / Implementaciones"
           </tooltip>
@@ -337,9 +334,12 @@ export default {
     ...mapState("requerimientos", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
-      requerimientosTipos: state => state.options.requerimientosTipos,
+      // requerimientosTipos: state => state.options.requerimientosTipos,
       loadingOptions: state => state.loadingOptions,
       loadingRequerimiento: state => state.loadingRequerimiento,
+    }),
+    ...mapGetters({
+      requerimientosTipos: "requerimientos/optionsReqTiposAlta",
     }),
     ...mapGetters("auth", ["esDeSistemasOProcesos", "gerentesOrderByArea"]),
     submitText() {

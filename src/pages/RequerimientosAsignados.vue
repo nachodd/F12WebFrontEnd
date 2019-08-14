@@ -2,7 +2,7 @@
   <q-page padding class="q-pt-lg">
     <div class="row">
       <div class="col">
-        <requerimientos-asignados-filtros />
+        <requerimientos-asignados-filtros @buscar="filtrarRequerimientos" />
       </div>
     </div>
     <div class="row q-pt-md q-px-xs q-col-gutter-sm req-container--filter">
@@ -14,7 +14,6 @@
           :requerimientos-list="requerimientosFiltered('ASSI')"
           :loading-list="loadingRequerimientos"
         />
-        <!-- requerimientosFiltered('ASSI') -->
       </div>
 
       <div
@@ -66,6 +65,13 @@ export default {
     RequerimientosAsignadosFiltros,
   },
   mixins: [pageLoading],
+  data: () => ({
+    filtroLastValues: {
+      descripcion: null,
+      sistema: null,
+      tipo: null,
+    },
+  }),
   computed: {
     ...mapState("requerimientosAsignados", {
       loadingRequerimientos: state => state.loadingRequerimientos,
@@ -73,10 +79,22 @@ export default {
     ...mapGetters("requerimientosAsignados", ["requerimientosFiltered"]),
   },
   async created() {
-    this.$store.dispatch("requerimientos/createRequerimiento")
     this.$store.dispatch(
       "requerimientosAsignados/inicializarRequerimientosAsignados",
     )
+  },
+  methods: {
+    filtrarRequerimientos(filtrosValues) {
+      if (filtrosValues) {
+        this.filtroLastValues.descripcion = filtrosValues.descripcion
+        this.filtroLastValues.sistema = filtrosValues.sistema
+        this.filtroLastValues.tipo = filtrosValues.tipo
+      }
+      this.$store.dispatch(
+        "requerimientosAsignados/setFilters",
+        this.filtroLastValues,
+      )
+    },
   },
 }
 </script>
