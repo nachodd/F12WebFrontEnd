@@ -133,6 +133,9 @@ export default {
     // },
   },
   methods: {
+    validate() {
+      return this.$refs.select.validate()
+    },
     resetValidation() {
       this.$refs.select.resetValidation()
     },

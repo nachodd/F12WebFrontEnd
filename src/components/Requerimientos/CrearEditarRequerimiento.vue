@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
-    <requerimiento-form
-      ref="form"
+    <requerimientos-form
+      ref="requerimientosForm"
       v-bind.sync="form"
       :lleva-fecha-limite.sync="llevaFechaLimite"
       :lleva-usuario-cadena.sync="llevaUsuarioCadena"
@@ -12,7 +12,7 @@
 <script>
 import { mapState } from "vuex"
 import pageLoading from "mixins/pageLoading"
-import RequerimientoForm from "comp/Requerimientos/RequerimientosForm"
+import RequerimientosForm from "comp/Requerimientos/RequerimientosForm"
 import Requerimiento from "models/requerimiento"
 import { warn, success, warnDialog } from "utils/helpers"
 import Bus from "utils/bus"
@@ -20,7 +20,7 @@ import { getRequerimiento } from "api/requerimientos"
 import router from "router"
 
 export default {
-  components: { RequerimientoForm },
+  components: { RequerimientosForm },
   mixins: [pageLoading],
   data() {
     return {
@@ -96,6 +96,11 @@ export default {
   },
   methods: {
     async handleSubmit() {
+      const valid = await this.$refs.requerimientosForm.validate()
+      if (!valid) {
+        return
+      }
+
       try {
         const form = this.isEdit
           ? await this.form.toUpdatePayload()
@@ -109,14 +114,10 @@ export default {
         Bus.$emit("load-list-requerimientos")
         this.$emit("form-submitted")
       } catch ({ message }) {
+        const msg = message || "No se pudo cargar / editar el requerimiento"
         // Si es un error simple (no es de validacion de form con array de errores), muestro el msj nomas
-        warn({ message })
+        warn({ message: msg })
       }
-    },
-    onError() {
-      warn({
-        message: "El formulario contiene errores. Por favor, reviselo.",
-      })
     },
     /* clearForm() {
       this.llevaFechaLimite = false
@@ -130,7 +131,7 @@ export default {
       this.form.importante = false
       this.form.adjuntos = []
       this.$root.$emit("clearFiles")
-      this.$refs.form.resetValidation()
+      this.$refs.requerimientosForm.resetValidation()
     }, */
   },
 }

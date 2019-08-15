@@ -803,7 +803,7 @@ const actions = {
             let res
             dispatch("app/loadingInc", null, { root: true })
 
-            if (this.operation === "descartar") {
+            if (operation === "descartar") {
               if (getters.esAutor) {
                 res = await deleteRequerimiento(requerimientoItem.id)
               } else {
@@ -811,7 +811,7 @@ const actions = {
                   comentario: comment,
                 })
               }
-            } else if (this.operation === "aProcesos") {
+            } else if (operation === "aProcesos") {
               // FIXME: no estaria funcionando, no devuelve error pero no genera ni ticken ni nada. ver que onda
               res = await pasarAProcesosRequerimiento(requerimientoItem.id, {
                 comentario: comment,

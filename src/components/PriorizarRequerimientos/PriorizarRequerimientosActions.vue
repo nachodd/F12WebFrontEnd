@@ -226,8 +226,7 @@ export default {
         : this.cantidadRequerimientos
     },
     showDescartarComment() {
-      const res = this.operation === "descartar" && !this.esAutor
-      return res
+      return this.operation === "descartar" && !this.esAutor
     },
   },
   methods: {
