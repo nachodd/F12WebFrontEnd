@@ -267,7 +267,7 @@ export default {
 .card--qf
   border-left: 3px solid $red-7
 .card--process
-  border-left: 3px solid $teal-7
+  border-left: 3px solid $yellow-7
 /* .card--inprocess
   border-right: 3px solid $green-7 */
 .card__text-body

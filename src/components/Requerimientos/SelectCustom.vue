@@ -3,6 +3,7 @@
     ref="select"
     v-model="localValue"
     :outlined="outlined"
+    :filled="filled"
     :standout="standout"
     :hide-bottom-space="true"
     :label="label"
@@ -14,6 +15,7 @@
     :dense="dense"
     :rules="rules"
     :color="color"
+    :dark="dark"
     :options-cover="optionsCover"
     :use-input="useFilter ? true : null"
     @filter="filterFunction"
@@ -84,6 +86,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    filled: {
+      type: Boolean,
+      default: false,
+    },
     standout: {
       type: Boolean,
       default: false,
@@ -91,6 +97,10 @@ export default {
     color: {
       type: String,
       default: null,
+    },
+    dark: {
+      type: Boolean,
+      default: false,
     },
     useFilter: {
       type: Boolean,

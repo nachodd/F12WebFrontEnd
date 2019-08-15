@@ -231,7 +231,7 @@ export default {
     },
     color: {
       type: String,
-      default: "purple-10", // accent
+      default: "deep-purple-10", // accent
     },
     operationType: {
       type: String,

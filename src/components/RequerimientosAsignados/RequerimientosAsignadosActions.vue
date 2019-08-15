@@ -174,6 +174,71 @@
           </div>
         </div>
       </q-slide-transition>
+
+      <q-slide-transition>
+        <div v-show="operation === 'finalizarYEnviar'">
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Sistema a Enviar:
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col">
+              <select-custom
+                ref="sistema"
+                v-model="sistema"
+                :options="sistemas"
+                label="Sistema"
+                filled
+                :color="color"
+                :dark="dark"
+                :loading="sistemas.length === 0"
+                :apply-validation="true"
+              />
+            </div>
+          </div>
+
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Horas Estimadas del Desarrollo:
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col">
+              <q-input
+                ref="horasEstimadas"
+                v-model.number="horasEstimadas"
+                type="number"
+                :color="color"
+                :dark="dark"
+                label="Horas Estimadas"
+                filled
+                :rules="[notEmpty]"
+                :hide-bottom-space="true"
+              />
+            </div>
+          </div>
+
+          <div class="row q-mt-xs">
+            <div class="col-12 text-grey-7">
+              Comentarios:
+            </div>
+          </div>
+          <div class="row q-mt-xs">
+            <div class="col-12">
+              <q-input
+                v-model="comment"
+                :color="color"
+                :dark="dark"
+                filled
+                autogrow
+                label="Agregar un Comentario:"
+                :hide-bottom-space="true"
+              />
+            </div>
+          </div>
+        </div>
+      </q-slide-transition>
     </div>
 
     <div v-show="operation !== null && !hideSaveButton" class="q-mt-md">
@@ -190,11 +255,12 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import formValidation from "mixins/formValidation"
+import SelectCustom from "comp/Requerimientos/SelectCustom"
 import { warn, success } from "utils/helpers"
 
 export default {
   name: "RequerimientosAsignadosActions",
-  components: {},
+  components: { SelectCustom },
   mixins: [formValidation],
   props: {
     dark: {
@@ -207,7 +273,7 @@ export default {
     },
     color: {
       type: String,
-      default: "purple-10", // accent
+      default: "deep-purple-10", // accent
     },
     operationType: {
       type: String,
@@ -221,12 +287,14 @@ export default {
       operationDisabled: false,
       horasEstimadas: null,
       usuarioTesting: null,
+      sistema: null,
     }
   },
   computed: {
-    ...mapGetters("auth", ["userYoParesYReportantes"]),
+    ...mapGetters("auth", ["userYoParesYReportantes", "esDeProcesos"]),
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
+      sistemas: state => state.options.sistemas,
     }),
     optionsReqsAsignados() {
       const opt = []
@@ -259,6 +327,13 @@ export default {
             label: "Finalizar",
             value: "finalizar",
           })
+
+          if (this.esDeProcesos) {
+            opt.push({
+              label: "Finalizar y Enviar a...",
+              value: "finalizarYEnviar",
+            })
+          }
         } else {
           opt.push({
             label: "Reanudar ejecución",
@@ -275,6 +350,12 @@ export default {
           label: "Finalizar",
           value: "finalizar",
         })
+        if (this.esDeProcesos) {
+          opt.push({
+            label: "Finalizar y Enviar a...",
+            value: "finalizarYEnviar",
+          })
+        }
       }
       return opt
     },
@@ -289,6 +370,10 @@ export default {
     },
   },
   mounted() {
+    // Para cargar los sistemas
+    if (this.esDeProcesos) {
+      this.$store.dispatch("requerimientos/createRequerimiento")
+    }
     // Si se le setea el operationType por prop, asigno el valor correspondiente al combo
     this.operationDisabled = true
     if (this.operationType === "execute") {
@@ -333,6 +418,15 @@ export default {
         return
       }
 
+      // Valido, si esta finalizando debe completar horas de ejecucion
+      if (
+        this.operation === "finalizarYEnviar" &&
+        !this.$refs.horasEstimadas.validate() &&
+        !this.$refs.sistema.validate()
+      ) {
+        return
+      }
+
       this.$store
         .dispatch("requerimientosAsignados/processManualChanges", {
           horasEstimadas: this.horasEstimadas,
@@ -341,6 +435,7 @@ export default {
           }),
           operation: this.operation,
           comment: this.comment,
+          sistema: this.sistema,
         })
         .then(() => {
           let message = ""

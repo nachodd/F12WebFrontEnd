@@ -89,6 +89,9 @@ export default class Requerimiento {
   get usuarioAsignado() {
     return _.get(this, "estado.asignacion.usuario_nombre", null)
   }
+  get usuarioAsignadoId() {
+    return _.get(this, "estado.asignacion.usuario_id", null)
+  }
   // get estaEnTesting() {
   //   return _.get(this, "estado.id", null) === Requerimiento.getEstadoId("TEST")
   // }

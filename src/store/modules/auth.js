@@ -131,6 +131,7 @@ const getters = {
     _.find(state.userSistemas, { id: 13 }) !== undefined,
   esDeSistemasOProcesos: state =>
     _.filter([36, 48], id => id == state.userArea.id).length > 0,
+  esDeProcesos: state => state.userArea.id === 48,
   gerentesOrderByArea: state => {
     // return _.groupBy(state.gerentes, "area.descripcion")
     return _.orderBy(state.gerentes, ["area.descripcion", "razon_social"])

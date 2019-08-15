@@ -8,6 +8,7 @@
       v-model="operation"
       filled
       :options="optionsPriorizar"
+      color="deep-purple-10"
       emit-value
       map-options
       @input="operationChange"
