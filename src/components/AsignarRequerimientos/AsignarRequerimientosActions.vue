@@ -28,9 +28,10 @@
 
           <div class="row q-mt-xs">
             <div class="col-12">
-              <q-select
+              <select-custom
                 ref="usuarioAsignado"
                 v-model="usuarioAsignado"
+                label="Usuario Asignado"
                 :color="color"
                 :dark="dark"
                 filled
@@ -38,7 +39,10 @@
                 :options="optionsUsersReportantes"
                 emit-value
                 map-options
-                :rules="[notEmpty]"
+                id-key="value"
+                description-key="label"
+                :apply-validation="true"
+                :loading="optionsUsersReportantes.length === 0"
               />
             </div>
           </div>
@@ -207,6 +211,7 @@ import { mapGetters, mapState } from "vuex"
 import formValidation from "mixins/formValidation"
 import { warn, success } from "utils/helpers"
 import InputDateCustom from "comp/Common/InputDateCustom"
+import SelectCustom from "comp/Requerimientos/SelectCustom"
 import Tooltip from "comp/Common/Tooltip"
 
 export default {
@@ -214,6 +219,7 @@ export default {
   components: {
     InputDateCustom,
     Tooltip,
+    SelectCustom,
   },
   mixins: [formValidation],
   props: {
@@ -253,10 +259,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters("auth", [
-      "userYoYReportantes",
-      "userEsResponsableDeProcesos",
-    ]),
+    ...mapGetters({
+      optionsUsersReportantes: "auth/userYoYReportantes",
+      userEsResponsableDeProcesos: "auth/userEsResponsableDeProcesos",
+    }),
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
     }),
@@ -265,9 +271,6 @@ export default {
       "requerimientosFilteredLength",
       1,
     ]),
-    // esArregloRapido() {
-    //   return this.req.tipo.id === 1
-    // },
     stateNotAssigned() {
       return this.req.tieneEstado("NOAS")
     },
@@ -298,10 +301,7 @@ export default {
           })
         }
         // Se podrá enviar a procesos si: no fue enviado Y el usuario logueado no es de procesos
-        if (
-          !this.req.fueEnviadoAProcesos &&
-          !this.userEsResponsableDeProcesos
-        ) {
+        if (!this.userEsResponsableDeProcesos) {
           opt.push({
             label: "Enviar a Procesos",
             value: "aProcesos",
@@ -323,15 +323,6 @@ export default {
         value: "descartar",
       })
       return opt
-    },
-    optionsUsersReportantes() {
-      return [
-        {
-          label: "Seleccione un usuario...",
-          value: null,
-        },
-        ..._.orderBy(this.userYoYReportantes, "label"),
-      ]
     },
     shouldValidateComment() {
       return this.operation === "descartar" ? [this.notEmpty] : null
@@ -517,23 +508,4 @@ export default {
   },
 }
 </script>
-<style lang="stylus">
-.custom-error.q-field--dark.q-field--error .q-field__bottom
-  color $red-5
-
-.custom-error.q-field--dark.q-field--error .text-negative
-  color $red-5 !important
-
-.orden-tooltip
-  padding 5px 5px 5px 16px
-
-.tooltip-fix
-  height 185px !important
-  min-height 184px !important
-  min-width 270px
-  overflow hidden
-.tooltip-fix > div
-  height 163px
-.tooltip-height-fix
-  height 163px
-</style>
+<style lang="stylus"></style>

@@ -2,6 +2,7 @@
   <q-select
     ref="select"
     v-model="localValue"
+    :class="classes"
     :outlined="outlined"
     :filled="filled"
     :standout="standout"
@@ -16,6 +17,8 @@
     :rules="rules"
     :color="color"
     :dark="dark"
+    :emit-value="emitValue"
+    :map-options="mapOptions"
     :options-cover="optionsCover"
     :use-input="useFilter ? true : null"
     @filter="filterFunction"
@@ -46,8 +49,9 @@ import formValidation from "mixins/formValidation"
 export default {
   mixins: [formValidation],
   props: {
+    // eslint-disable-next-line
     value: {
-      type: [Object, String, Array],
+      // type: [Object, String, Array],
       default: null,
     },
     applyValidation: {
@@ -59,6 +63,10 @@ export default {
       default: () => [],
     },
     label: {
+      type: String,
+      default: "",
+    },
+    classes: {
       type: String,
       default: "",
     },
@@ -107,6 +115,14 @@ export default {
       default: true,
     },
     optionsCover: {
+      type: Boolean,
+      default: false,
+    },
+    emitValue: {
+      type: Boolean,
+      default: false,
+    },
+    mapOptions: {
       type: Boolean,
       default: false,
     },

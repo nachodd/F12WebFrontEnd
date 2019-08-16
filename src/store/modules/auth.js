@@ -90,8 +90,29 @@ const getters = {
     const users = [...getters.userReportantes, ...getters.userPares]
     return _.orderBy(users, ["label"], ["asc"])
   },
+  userParesReportantesYJefes: (state, getters) => {
+    const userJefes = getters.userJefes.map(uj => ({
+      label: uj.razonSocial,
+      value: uj.usuarioId,
+    }))
+    const users = [
+      ...getters.userReportantes,
+      ...getters.userPares,
+      ...userJefes,
+    ]
+    return _.orderBy(users, ["label"], ["asc"])
+  },
   userYoParesYReportantes: (state, getters) => {
     const users = [...getters.userParesYReportantes]
+    const currentUser = state.user || {}
+    users.push({
+      label: currentUser.razonSocial,
+      value: currentUser.usuarioId,
+    })
+    return _.orderBy(users, ["label"], ["asc"])
+  },
+  userYoYVinculacionDirecta: (state, getters) => {
+    const users = [...getters.userParesReportantesYJefes]
     const currentUser = state.user || {}
     users.push({
       label: currentUser.razonSocial,
@@ -163,6 +184,17 @@ const mutations = {
     state.token = ""
     state.expiresIn = ""
     state.refreshToken = ""
+  },
+  RESET_STATE: state => {
+    state.user = null
+    state.userArea = {}
+    state.userNivel = ""
+    state.userVinculacion.jefes = []
+    state.userVinculacion.reportantes = []
+    state.userVinculacion.pares = []
+    state.userSistemas = []
+    state.gerentes = []
+    state.usuariosFiltro = []
   },
   SET_USER: (state, userData) => {
     if (userData === null) {
@@ -285,12 +317,10 @@ const actions = {
         }
       }
       try {
-        commit("CLEAR_TOKENS")
-        // commit("SET_ROLES", [])
-        // commit("SET_RESPONSABILIDADES", [])
-        commit("SET_USER", null)
+        commit("RESET_STATE")
         commit("app/LOADING_RESET", null, { root: true })
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
+
         removeToken()
         resetRouter()
         resolve()
@@ -303,10 +333,7 @@ const actions = {
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      commit("CLEAR_TOKENS")
-      // commit("SET_ROLES", [])
-      // commit("SET_RESPONSABILIDADES", [])
-      commit("SET_USER", null)
+      commit("RESET_STATE")
       commit("app/LOADING_RESET", null, { root: true })
       removeToken()
       resolve()

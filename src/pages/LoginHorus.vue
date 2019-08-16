@@ -96,7 +96,7 @@ export default {
         })
         return this.redirectForm()
       } catch (e) {
-        console.log(e)
+        console.log("Error Login via Horus: ", e)
         this.error = "cantLogin"
         this.redirectLogin()
       }

@@ -409,7 +409,7 @@ const actions = {
 
   processManualChanges(
     { commit, dispatch, rootState, rootGetters },
-    { operation, comment, horasEstimadas, usuarioTesting, sistema },
+    { operation, comment, horasEstimadas, usuarioTesting, sistemaId },
   ) {
     return new Promise(async (resolve, reject) => {
       let requerimientoItem = _.get(
@@ -432,7 +432,7 @@ const actions = {
               await finalizarRequerimiento(requerimientoItem.id, {
                 horas_ejecucion: horasEstimadas,
                 comentario: comment,
-                sistema_id: sistema,
+                sistema_id: sistemaId,
               })
             }
 

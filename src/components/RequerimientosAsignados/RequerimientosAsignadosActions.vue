@@ -45,7 +45,7 @@
         <div v-show="operation === 'finalizar'">
           <div class="row q-mt-xs">
             <div class="col-12 text-grey-7">
-              Horas Estimadas del Desarrollo:
+              Horas que llevó este Desarrollo:
             </div>
           </div>
           <div class="row q-mt-xs">
@@ -56,7 +56,7 @@
                 type="number"
                 :color="color"
                 :dark="dark"
-                label="Horas Estimadas"
+                label="Horas"
                 filled
                 :rules="[notEmpty]"
               />
@@ -91,7 +91,24 @@
           </div>
           <div class="row q-mt-xs">
             <div class="col-12">
-              <q-select
+              <select-custom
+                ref="usuarioTesting"
+                v-model="usuarioTesting"
+                label="Usuario Testing"
+                :color="color"
+                :dark="dark"
+                filled
+                class="custom-error"
+                :options="optionsUsersTesting"
+                emit-value
+                map-options
+                id-key="value"
+                description-key="label"
+                :apply-validation="true"
+                :loading="optionsUsersTesting.length === 0"
+              />
+
+              <!-- <q-select
                 ref="usuarioTesting"
                 v-model="usuarioTesting"
                 :options="optionsUsersTesting"
@@ -102,7 +119,7 @@
                 emit-value
                 map-options
                 :rules="[notEmpty]"
-              />
+              /> -->
             </div>
           </div>
           <div class="row q-mt-xs">
@@ -200,7 +217,7 @@
 
           <div class="row q-mt-xs">
             <div class="col-12 text-grey-7">
-              Horas Estimadas del Desarrollo:
+              Horas que llevó este Desarrollo:
             </div>
           </div>
           <div class="row q-mt-xs">
@@ -211,7 +228,7 @@
                 type="number"
                 :color="color"
                 :dark="dark"
-                label="Horas Estimadas"
+                label="Horas"
                 filled
                 :rules="[notEmpty]"
                 :hide-bottom-space="true"
@@ -291,7 +308,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters("auth", ["userYoParesYReportantes", "esDeProcesos"]),
+    ...mapGetters({
+      optionsUsersTesting: "auth/userYoYVinculacionDirecta",
+      esDeProcesos: "auth/esDeProcesos",
+    }),
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
       sistemas: state => state.options.sistemas,
@@ -358,15 +378,6 @@ export default {
         }
       }
       return opt
-    },
-    optionsUsersTesting() {
-      return [
-        {
-          label: "Seleccione un usuario...",
-          value: null,
-        },
-        ..._.orderBy(this.userYoParesYReportantes, "label"),
-      ]
     },
   },
   mounted() {
@@ -435,7 +446,7 @@ export default {
           }),
           operation: this.operation,
           comment: this.comment,
-          sistema: this.sistema,
+          sistemaId: _.get(this, "sistema.id", null),
         })
         .then(() => {
           let message = ""
@@ -454,6 +465,10 @@ export default {
             message = `Requerimiento #${this.req.id} en REANUDADO.`
           } else if (this.operation === "devolverADesarrollo") {
             message = `Requerimiento #${this.req.id} en DEVUELTO A DESARROLLO.`
+          } else if (this.operation === "finalizarYEnviar") {
+            message = `Requerimiento #${
+              this.req.id
+            } fue ENVIADO A ${this.sistema.descripcion.toUpperCase()}.`
           }
 
           success({ message })

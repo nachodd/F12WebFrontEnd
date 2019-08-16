@@ -180,11 +180,7 @@ const getters = {
   esAutor: (state, getters, rootState, rootGetters) => {
     const userId = Number(rootGetters["auth/userId"])
     const reqUserId = Number(
-      _.get(
-        rootState,
-        "requerimientos.detalleRequerimientoItem.usuario.id",
-        null,
-      ),
+      _.get(rootState, "requerimientos.detallereq.usuario.id", null),
     )
     return userId === reqUserId
   },
@@ -666,7 +662,7 @@ const actions = {
         rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
       let updatedListData = {}
-      let requerimientoItem = _.get(
+      let req = _.get(
         rootState,
         "requerimientos.detalleRequerimientoItem",
         null,
@@ -678,7 +674,7 @@ const actions = {
           const removedIndexSource = _.findIndex(
             // state.reqsPendientesAprobacion.list,
             getters.requerimientosFiltered("PEND"),
-            { id: requerimientoItem.id },
+            { id: req.id },
           )
           const addedIndexSource = null
           // lista source, se saca el item del listado
@@ -723,7 +719,7 @@ const actions = {
           const removedIndexTarget = _.findIndex(
             // state.reqsAprobadosPriorizados.list,
             getters.requerimientosFiltered("APRV"),
-            { id: requerimientoItem.id },
+            { id: req.id },
           )
           const addedIndexTarget = null
           // lista target, se saca el item del listado
@@ -771,7 +767,7 @@ const actions = {
           // "Genero" los listados de possibleChanges como si hubiese arrastrado
           const removedIndex = _.findIndex(
             getters.requerimientosFiltered(reqState),
-            { id: requerimientoItem.id },
+            { id: req.id },
           )
           const addedIndex = priority - 1
           // JSON.parse(JSON.stringify(getters.requerimientosFiltered(reqState)))
@@ -805,22 +801,29 @@ const actions = {
 
             if (operation === "descartar") {
               if (getters.esAutor) {
-                res = await deleteRequerimiento(requerimientoItem.id)
+                res = await deleteRequerimiento(req.id)
               } else {
-                res = await refuseRequerimiento(requerimientoItem.id, {
+                res = await refuseRequerimiento(req.id, {
                   comentario: comment,
                 })
               }
             } else if (operation === "aProcesos") {
-              // FIXME: no estaria funcionando, no devuelve error pero no genera ni ticken ni nada. ver que onda
-              res = await pasarAProcesosRequerimiento(requerimientoItem.id, {
+              // Chequeamos, debe tener estado de priorizacion "APROBADO", porque asi a procesos le llega con prioridad
+              if (req.tieneEstadoPriorizacion("PEND")) {
+                reject(
+                  "El requerimiento debe estar Aprobado y Priorizado por usted antes de enviarlo a Procesos",
+                )
+                return
+              }
+
+              res = await pasarAProcesosRequerimiento(req.id, {
                 comentario: comment,
               })
             }
 
             // Lo elimino del listado: busco el indice y lo quito y commiteo el cambio
             const removedIndex = _.findIndex(state.changesRequerimientos, {
-              id: requerimientoItem.id,
+              id: req.id,
             })
             if (removedIndex !== -1) {
               let listResult = [...state.changesRequerimientos]

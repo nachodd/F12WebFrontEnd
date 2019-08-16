@@ -129,6 +129,12 @@ const mutations = {
   },
   FLUSH_NOTIFICACIONES: state => {
     state.notificaciones = []
+    state.dashboard.asignados_ejecucion = 0
+    state.dashboard.asignados_pendiente_ejecucion = 0
+    state.dashboard.asignados_testing = 0
+    state.dashboard.pendientes_asignacion = 0
+    state.dashboard.pendientes_priorizacion = 0
+    state.loadingDashboard = false
   },
   SET_NOTIFICACIONES: (state, notificaciones) => {
     _.each(notificaciones, n => {
