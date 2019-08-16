@@ -57,7 +57,9 @@ export default {
         sistema: null,
         tipo: null,
         usuarioAlta: null,
-        // seccionId:null
+        area: null,
+        fechaDesde: null,
+        fechaHasta: null,
       },
     }
   },
@@ -116,6 +118,9 @@ export default {
           this.filtroLastValues.sistema = filtrosValues.sistema
           this.filtroLastValues.tipo = filtrosValues.tipo
           this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
+          this.filtroLastValues.area = filtrosValues.area
+          this.filtroLastValues.fechaDesde = filtrosValues.fechaDesde
+          this.filtroLastValues.fechaHasta = filtrosValues.fechaHasta
         }
 
         const reqEstados =
@@ -125,13 +130,13 @@ export default {
 
         await this.$store.dispatch("requerimientos/listRequerimientos", {
           filtros: {
-            seccion_id: null,
+            seccion_id: _.get(this, "filtroLastValues.area.id", null),
             sistema_id: _.get(this, "filtroLastValues.sistema.id", null),
             requerimiento_tipo: _.get(this, "filtroLastValues.tipo.id", null),
             requerimiento_id: _.get(this, "filtroLastValues.reqId", null),
             requerimiento_estado: reqEstados,
-            fecha_desde: null,
-            fecha_hasta: null,
+            fecha_desde: _.get(this, "filtroLastValues.fechaDesde", null), // DD/MM/YYYY
+            fecha_hasta: _.get(this, "filtroLastValues.fechaHasta", null), // DD/MM/YYYY
             descripcion: this.filtroLastValues.descripcion,
             page: this.current,
             perPage: 10,
