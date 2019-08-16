@@ -464,6 +464,8 @@ const actions = {
             })
             message = _.get(res, "data.message", null)
 
+            // Quitamos el requerimiento del listado:
+            commit("REMOVE_REQUERIMIENTO", requerimientoId)
             break
           }
           case "descartar":

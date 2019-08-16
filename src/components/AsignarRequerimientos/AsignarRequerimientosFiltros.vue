@@ -122,7 +122,7 @@
           class="d-ib cursor-pointer text-caption"
           @click="aplicarFiltroRapidoTipoReq('RevProcesos')"
         >
-          <div class="square d-ib bg-teal-7">&nbsp;</div>
+          <div class="square d-ib bg-yellow-7">&nbsp;</div>
           Rev. Procesos &nbsp;&nbsp;
         </div>
       </span>

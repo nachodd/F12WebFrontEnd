@@ -77,12 +77,15 @@ service.interceptors.response.use(
       undefined,
     )
     // (error && error.config && error.config.__handleErrorsInResponse) || false
-    const errorsArray = _.get(error, "response.data.data.errors", undefined)
+    let errorsArray = _.get(error, "response.data.errors", undefined)
+    if (!errorsArray) {
+      errorsArray = _.get(error, "response.data.data.errors", undefined)
+    }
 
     if (status === 422 && handleErrorsHere && errorsArray) {
       warnDialogParse(errorsArray)
       return Promise.reject({
-        message,
+        message: null,
         status,
         data: errorData,
       })

@@ -41,7 +41,7 @@ export default async ({ router, store }) => {
         // if the route need to check for responsabilites, and the user don't have them, logout
         if (checkHasResponsabilities && !userHasSistemas) {
           await store.dispatch("auth/logout")
-          next(`/login?redirect=${to.path}`)
+          next(`/login?redirect=inicio`)
         } else {
           checkAndSetTitle(to.meta)
           next()

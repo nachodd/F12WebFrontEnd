@@ -89,6 +89,9 @@ export default class Requerimiento {
   get usuarioAsignado() {
     return _.get(this, "estado.asignacion.usuario_nombre", null)
   }
+  get usuarioAsignadoId() {
+    return _.get(this, "estado.asignacion.usuario_id", null)
+  }
   // get estaEnTesting() {
   //   return _.get(this, "estado.id", null) === Requerimiento.getEstadoId("TEST")
   // }
@@ -199,6 +202,9 @@ export default class Requerimiento {
   }
   get esDesarrollo() {
     return _.get(this, "tipo.id", null) === Requerimiento.getTipoId("DMI")
+  }
+  get esRevisionProcesos() {
+    return _.get(this, "tipo.id", null) === Requerimiento.getTipoId("RP")
   }
   esTipo(tipoCod) {
     return _.get(this, "tipo.id", null) === Requerimiento.tipoId(tipoCod)

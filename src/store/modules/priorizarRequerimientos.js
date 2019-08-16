@@ -6,6 +6,7 @@ import {
   updateRequerimientosEstados,
   refuseRequerimiento,
   deleteRequerimiento,
+  pasarAProcesosRequerimiento,
   // getRequerimiento,
 } from "api/requerimientos"
 import {
@@ -179,11 +180,7 @@ const getters = {
   esAutor: (state, getters, rootState, rootGetters) => {
     const userId = Number(rootGetters["auth/userId"])
     const reqUserId = Number(
-      _.get(
-        rootState,
-        "requerimientos.detalleRequerimientoItem.usuario.id",
-        null,
-      ),
+      _.get(rootState, "requerimientos.detallereq.usuario.id", null),
     )
     return userId === reqUserId
   },
@@ -657,7 +654,7 @@ const actions = {
   },
   processManualChanges(
     { commit, state, dispatch, rootGetters, rootState, getters },
-    { operation, priority, comment, listName },
+    { operation, priority, comment },
   ) {
     return new Promise(async (resolve, reject) => {
       // Esta funcion arma manualmente los listados de requerimientos (como si hiciese un drag&drop) y emite los cambios
@@ -665,7 +662,7 @@ const actions = {
         rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
       let updatedListData = {}
-      let requerimientoItem = _.get(
+      let req = _.get(
         rootState,
         "requerimientos.detalleRequerimientoItem",
         null,
@@ -677,7 +674,7 @@ const actions = {
           const removedIndexSource = _.findIndex(
             // state.reqsPendientesAprobacion.list,
             getters.requerimientosFiltered("PEND"),
-            { id: requerimientoItem.id },
+            { id: req.id },
           )
           const addedIndexSource = null
           // lista source, se saca el item del listado
@@ -722,7 +719,7 @@ const actions = {
           const removedIndexTarget = _.findIndex(
             // state.reqsAprobadosPriorizados.list,
             getters.requerimientosFiltered("APRV"),
-            { id: requerimientoItem.id },
+            { id: req.id },
           )
           const addedIndexTarget = null
           // lista target, se saca el item del listado
@@ -770,7 +767,7 @@ const actions = {
           // "Genero" los listados de possibleChanges como si hubiese arrastrado
           const removedIndex = _.findIndex(
             getters.requerimientosFiltered(reqState),
-            { id: requerimientoItem.id },
+            { id: req.id },
           )
           const addedIndex = priority - 1
           // JSON.parse(JSON.stringify(getters.requerimientosFiltered(reqState)))
@@ -793,43 +790,45 @@ const actions = {
           resolve()
           break
         }
-        case "descartar": {
+        case "descartar":
+        case "aProcesos": {
           // const listType = listName === "source" ? "pending" : "approved"
 
           // Rechazo o elimino el requerimiento el requerimiento:
           try {
             let res
             dispatch("app/loadingInc", null, { root: true })
-            if (getters.esAutor) {
-              res = await deleteRequerimiento(requerimientoItem.id)
-            } else {
-              res = await refuseRequerimiento(requerimientoItem.id, {
+
+            if (operation === "descartar") {
+              if (getters.esAutor) {
+                res = await deleteRequerimiento(req.id)
+              } else {
+                res = await refuseRequerimiento(req.id, {
+                  comentario: comment,
+                })
+              }
+            } else if (operation === "aProcesos") {
+              // Chequeamos, debe tener estado de priorizacion "APROBADO", porque asi a procesos le llega con prioridad
+              if (req.tieneEstadoPriorizacion("PEND")) {
+                reject(
+                  "El requerimiento debe estar Aprobado y Priorizado por usted antes de enviarlo a Procesos",
+                )
+                return
+              }
+
+              res = await pasarAProcesosRequerimiento(req.id, {
                 comentario: comment,
               })
             }
 
-            // Lo elimino del listado correspondiente: busco el indice y lo quito y commiteo el cambio
-            if (listName === "source") {
-              const removedIndex = _.findIndex(
-                // state.reqsPendientesAprobacion.list,
-                // getters.requerimientosFiltered("PEND"),
-                state.changesRequerimientos,
-                { id: requerimientoItem.id },
-              )
-              if (removedIndex !== -1) {
-                let listResult = [...state.changesRequerimientos]
-                listResult.splice(removedIndex, 1)
-                commit("SET_REQS_LIST", listResult)
-              }
-            } else if (listName === "target") {
-              const removedIndex = _.findIndex(state.changesRequerimientos, {
-                id: requerimientoItem.id,
-              })
-              if (removedIndex !== -1) {
-                let listResult = [...state.changesRequerimientos]
-                listResult.splice(removedIndex, 1)
-                commit("SET_REQS_LIST", listResult)
-              }
+            // Lo elimino del listado: busco el indice y lo quito y commiteo el cambio
+            const removedIndex = _.findIndex(state.changesRequerimientos, {
+              id: req.id,
+            })
+            if (removedIndex !== -1) {
+              let listResult = [...state.changesRequerimientos]
+              listResult.splice(removedIndex, 1)
+              commit("SET_REQS_LIST", listResult)
             }
 
             commit("CLEAR_OPERATIONS")
