@@ -1,6 +1,6 @@
 <template>
   <tr class="items-center cursor-pointer text-unselectable">
-    <td class="q-px-sm">
+    <td class="q-px-sm mw-40">
       <q-badge color="grey">#{{ req.id }}</q-badge>
     </td>
 

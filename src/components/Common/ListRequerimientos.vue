@@ -33,24 +33,23 @@ export default {
   },
 }
 </script>
-<style lang="scss" scoped>
-.loading-container {
-  min-height: 100px;
-}
-.card-header {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #fff;
-  width: 90%;
-  position: relative;
-  top: -20px;
-  box-shadow: inherit;
-  margin: 0 auto;
-  padding: 5px;
-}
-.req-container {
-  position: relative;
-  top: -10px;
-  height: 95%;
-}
+<style lang="stylus" scoped>
+.loading-container
+  min-height 100px
+
+.card-header
+  text-align center
+  font-size 1.2rem
+  color #fff
+  width 90%
+  position relative
+  top -20px
+  box-shadow inherit
+  margin 0 auto
+  padding 5px
+
+.req-container
+  position relative
+  top -10px
+  height 95%
 </style>

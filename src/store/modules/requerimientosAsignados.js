@@ -409,7 +409,7 @@ const actions = {
 
   processManualChanges(
     { commit, dispatch, rootState, rootGetters },
-    { operation, comment, horasEstimadas, usuarioTesting },
+    { operation, comment, horasEstimadas, usuarioTesting, sistemaId },
   ) {
     return new Promise(async (resolve, reject) => {
       let requerimientoItem = _.get(
@@ -421,11 +421,21 @@ const actions = {
       try {
         dispatch("app/loadingInc", null, { root: true })
         switch (operation) {
-          case "finalizar": {
-            await finalizarRequerimiento(requerimientoItem.id, {
-              horas_ejecucion: horasEstimadas,
-              comentario: comment,
-            })
+          case "finalizar":
+          case "finalizarYEnviar": {
+            if (operation === "finalizar") {
+              await finalizarRequerimiento(requerimientoItem.id, {
+                horas_ejecucion: horasEstimadas,
+                comentario: comment,
+              })
+            } else if (operation === "finalizarYEnviar") {
+              await finalizarRequerimiento(requerimientoItem.id, {
+                horas_ejecucion: horasEstimadas,
+                comentario: comment,
+                sistema_id: sistemaId,
+              })
+            }
+
             dispatch("app/getDashboardData", null, { root: true })
             commit("UPDATE_REQ_ESTADO_FINISH", requerimientoItem.id)
             resolve()

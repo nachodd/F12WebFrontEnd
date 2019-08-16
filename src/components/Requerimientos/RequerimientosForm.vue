@@ -17,6 +17,7 @@
     />
 
     <select-custom
+      ref="sistema"
       v-model="__sistema"
       :options="sistemas"
       label="Sistema"
@@ -54,8 +55,10 @@
       @filesRemoved="handleFilesRemoved"
     />
 
+    <!-- NOTE: momentaneamente, deshabilitado -->
     <!-- usuario cadena -->
-    <div v-if="esDeSistemasOProcesos">
+    <!--
+      <div v-if="esDeSistemasOProcesos">
       <q-list link>
         <q-item
           v-ripple
@@ -112,6 +115,7 @@
         </q-slide-transition>
       </q-list>
     </div>
+    -->
 
     <!-- fecha limite -->
     <div>
@@ -196,11 +200,10 @@ import SelectCustom from "comp/Requerimientos/SelectCustom"
 import InputDateCustom from "comp/Common/InputDateCustom"
 import UploaderCustom from "comp/Requerimientos/UploaderCustom"
 import formValidation from "mixins/formValidation"
-import Tooltip from "comp/Common/Tooltip"
 import { warn } from "utils/helpers"
 
 export default {
-  components: { SelectCustom, InputDateCustom, UploaderCustom, Tooltip },
+  components: { SelectCustom, InputDateCustom, UploaderCustom },
   mixins: [formValidation],
   props: {
     id: {
@@ -395,6 +398,9 @@ export default {
       warn({
         message: "El formulario contiene errores. Por favor, reviselo.",
       })
+    },
+    validate() {
+      return this.$refs.form.validate()
     },
     resetValidation() {
       this.$nextTick(() => {

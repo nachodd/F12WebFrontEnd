@@ -1,5 +1,6 @@
 import Pusher from "pusher-js"
 import { info } from "utils/helpers"
+import store from "store/index"
 
 if (process.env.DEV) {
   // Pusher.logToConsole = true
@@ -97,7 +98,8 @@ const processRequerimientoAprobado = async (ctx, data) => {
 const processAsignarRequerimiento = async (ctx, data) => {
   // Actualiza notificaciones, sidebar (dashboard) y la seccion "Mis Requerimientos"
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  // Agrega (o updatea si existe) el req a "Asignar Requerimientos"
+
+  // Agrega (o updatea si existe) el req en "Asignar Requerimientos"
   await ctx.commit(
     "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("addOrUpdate", data.requerimiento),
@@ -117,11 +119,28 @@ const processCambioTipoRequerimiento = async (ctx, data) => {
 
 const processRequerimientoAsignado = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  // Agrega (o updatea si existe) el req en "Asignar Requerimientos"
   await ctx.commit(
-    "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
+    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("addOrUpdate", data.requerimiento),
     root,
   )
+
+  // Si el usuario asignado al req, es el usuario logueado, agrega/updatea el req en el listado correspondiente
+  const currentUserId = store.getters["auth/userId"]
+  const reqUserAsignadoId = _.get(
+    data.requerimiento,
+    "estado.asignacion.usuario_id",
+    false,
+  )
+  if (currentUserId === reqUserAsignadoId) {
+    await ctx.commit(
+      "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
 }
 
 const processRequerimientoFinalizado = async (ctx, data) => {

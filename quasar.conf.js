@@ -17,7 +17,7 @@ module.exports = function(ctx) {
       "auth-href-directive",
     ], // "vuelidate"
 
-    css: ["app.scss"],
+    css: ["app.styl"],
 
     extras: [
       "roboto-font",

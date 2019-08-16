@@ -46,7 +46,7 @@
           :thumb-style="{
             right: '2px',
             borderRadius: '5px',
-            backgroundColor: '#027be3',
+            background: 'linear-gradient(to top, #5e35b1, #1565c0)',
             width: '5px',
             opacity: 0.75,
           }"
@@ -217,7 +217,8 @@
                         Aprobado por: {{ movimiento.usuario }}
                       </div>
                     </template> -->
-                    <div class="text-italic">{{ movimiento.comentario }}</div>
+                    <!-- eslint-disable-next-line -->
+                    <div class="text-italic text-pre-wrap">{{ movimiento.comentario }}</div>
                   </q-timeline-entry>
                 </q-timeline>
               </div>
