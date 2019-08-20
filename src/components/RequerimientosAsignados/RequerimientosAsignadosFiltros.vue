@@ -40,7 +40,7 @@
 
     <template v-slot:footer>
       <base-filter-chip
-        :showed="sistemaSetted && Boolean(filterPhoto.sistema)"
+        :showed="Boolean(filterPhoto.sistema)"
         label="Sist:"
         :value="filterPhoto.sistema"
         :tooltip="'Sistema: ' + filterPhoto.sistema"
@@ -48,7 +48,7 @@
         @remove="removeFilter('sistema')"
       />
       <base-filter-chip
-        :showed="tipoRequerimientoSetted && Boolean(filterPhoto.tipo)"
+        :showed="Boolean(filterPhoto.tipo)"
         label="Tipo:"
         :value="filterPhoto.tipo"
         :tooltip="'Tipo de Requerimiento: ' + filterPhoto.tipo"

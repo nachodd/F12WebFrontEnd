@@ -125,6 +125,7 @@ export default {
 
         const reqEstados =
           (this.filtroLastValues.estados &&
+            this.filtroLastValues.estados.length > 0 &&
             this.filtroLastValues.estados.map(e => e.value)) ||
           null
 
