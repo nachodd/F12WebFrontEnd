@@ -69,6 +69,13 @@
         </router-link>
       </div>
     </div>
+    <!--
+      TODO: agregar widget con graficos aca
+      <div class="row justify-center q-mt-md">
+      <div v-if="userEsResponsable" class="col-md-6 col-sm-6 col-xs-12 q-mb-lg">
+        graficos
+      </div>
+    </div> -->
   </q-page>
 </template>
 

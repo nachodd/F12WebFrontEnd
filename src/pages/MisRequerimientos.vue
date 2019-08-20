@@ -1,6 +1,10 @@
 <template>
   <q-page padding class="q-pt-lg">
-    <mis-requerimientos-filtros ref="filtros" @buscar="getListRequerimientos" />
+    <mis-requerimientos-filtros
+      ref="filtros"
+      :base-height="280"
+      @buscar="getListRequerimientos"
+    />
     <mis-requerimientos-listado
       :requerimientos="misRequerimientos"
       :loading="loadingRequerimiento"
