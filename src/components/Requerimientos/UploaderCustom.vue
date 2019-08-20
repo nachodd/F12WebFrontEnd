@@ -5,7 +5,7 @@
     color="accent"
     multiple
     style="width: auto"
-    class="q-uploader--list-no-pading"
+    class="q-uploader--custom"
     @added="handleAdded"
     @removed="handleRemoved"
   >
@@ -178,8 +178,12 @@ export default {
   },
 }
 </script>
-<style lang="scss">
-.q-uploader--list-no-pading .q-uploader__list {
-  padding: 0;
-}
+<style lang="stylus" scoped>
+.q-uploader--custom
+  box-shadow none !important
+
+// Deep selector https://bambielli.com/til/2018-08-19-how-to-target-child-components-with-scoped-css-in-vue/
+/deep/.q-uploader__list
+  padding 0
+  border 1px solid rgba(0,0,0,0.24)
 </style>
