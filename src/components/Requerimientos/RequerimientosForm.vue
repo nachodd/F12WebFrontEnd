@@ -311,8 +311,8 @@ export default {
           // this.fechaLimite = null
           this.__fechaLimite = null
           this.motivoLimite = ""
-          this.$refs.fechaLimite.resetValidation()
-          this.$refs.motivoLimite.resetValidation()
+          this.$refs.fechaLimite && this.$refs.fechaLimite.resetValidation()
+          this.$refs.motivoLimite && this.$refs.motivoLimite.resetValidation()
           // this.$emit("update:fechaLimite", this.fechaLimite)
           this.$emit("update:motivoLimite", this.motivoLimite)
         }
@@ -323,7 +323,7 @@ export default {
         return this.llevaUsuarioCadena
       },
       set(value) {
-        this.$refs.usuarioCadena.resetValidation()
+        this.$refs.usuarioCadena && this.$refs.usuarioCadena.resetValidation()
         this.$emit("update:llevaUsuarioCadena", value)
         if (!value) {
           this.__usuarioCadena = null
