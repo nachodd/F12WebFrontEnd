@@ -1,6 +1,6 @@
 <template>
   <tr class="items-center cursor-pointer text-unselectable">
-    <td class="q-px-sm mw-40">
+    <td class="mw-40 custom-padding">
       <q-badge color="grey">#{{ req.id }}</q-badge>
     </td>
 
@@ -141,4 +141,17 @@ export default {
   color: $grey-7
 .estado
   white-space normal
+
+.custom-padding
+  padding-left 6px
+  @media (max-width $breakpoint-xl-max)
+    padding-left 38px
+  @media (max-width $breakpoint-lg-max)
+    padding-left 24px
+  @media (max-width $breakpoint-md-max)
+    padding-left 16px
+  @media (max-width $breakpoint-sm-max)
+    padding-left 12px
+  @media (max-width $breakpoint-xs-max)
+    padding-left 6px
 </style>

@@ -210,11 +210,11 @@ export default class Requerimiento {
     return _.get(this, "tipo.id", null) === Requerimiento.tipoId(tipoCod)
   }
   get tipoCodigo() {
-    return Requerimiento.getTipoCodigo(this.estado.id)
+    return Requerimiento.getTipoCodigo(_.get(this, "estado.id", null))
   }
 
   get estadoCodigo() {
-    return Requerimiento.getEstadoCodigo(this.estado.id)
+    return Requerimiento.getEstadoCodigo(_.get(this, "estado.id", null))
   }
   tieneEstado(estadoCod) {
     // eslint-disable-next-line

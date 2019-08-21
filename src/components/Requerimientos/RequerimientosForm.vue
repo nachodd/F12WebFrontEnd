@@ -35,6 +35,7 @@
       color="deep-purple-10"
       :loading="requerimientosTipos.length === 0"
       :apply-validation="true"
+      :disable="tipoReqHabilitado === false"
       @input="handleTipoChange"
     />
 
@@ -257,6 +258,10 @@ export default {
     usuarioCadena: {
       type: Object,
       default: null,
+    },
+    tipoReqHabilitado: {
+      type: Boolean,
+      default: true,
     },
   },
   computed: {
