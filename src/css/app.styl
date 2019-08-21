@@ -284,10 +284,10 @@ body {
 
 
 .text-unselectable {
-  -webkit-user-select: none; /* Chrome all / Safari all */
-  -moz-user-select: none;   /* Firefox all */
-  -ms-user-select: none;  /* IE 10+ */
-   user-select: none;  /* Likely future */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .d-ib, .inline-block {
@@ -369,3 +369,17 @@ body.q-body--loading #q-app {
 
 .tooltip-height-fix
   height 163px
+
+.opacity-hover
+  opacity 0.5
+  &:hover
+    opacity 1
+
+.opacity-25
+  opacity 0.25
+.opacity-50
+  opacity 0.5
+.opacity-75
+  opacity 0.75
+.opacity-100
+  opacity 1 !important

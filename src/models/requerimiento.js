@@ -225,6 +225,10 @@ export default class Requerimiento {
     return _.get(this, "estado_priorizacion.id", null) === Requerimiento.getEstadoId(estadoCod)
   }
 
+  get tieneAdjuntos() {
+    return this.adjuntosCargadosUrl.length > 0
+  }
+
   async toCreatePayload() {
     const fechaLimite = this.parseFechaLimite()
 
@@ -306,16 +310,21 @@ export default class Requerimiento {
   async tryConvertDownloadedFiles() {
     if (this.adjuntosCargadosUrl.length > 0) {
       this.procesandoArchivosCargados = true
-      this.adjuntosCargadosBase64 = await Promise.all(
-        _.map(this.adjuntosCargadosUrl, async url => {
-          const res = await getBase64FromUrl(url)
-          return {
-            url,
-            base64: res,
-          }
-        }),
-      )
-      this.procesandoArchivosCargados = false
+      try {
+        this.adjuntosCargadosBase64 = await Promise.all(
+          _.map(this.adjuntosCargadosUrl, async url => {
+            const res = await getBase64FromUrl(url)
+            return {
+              url,
+              base64: res,
+            }
+          }),
+        )
+      } catch (ex) {
+        console.log(ex)
+      } finally {
+        this.procesandoArchivosCargados = false
+      }
     }
     return []
   }

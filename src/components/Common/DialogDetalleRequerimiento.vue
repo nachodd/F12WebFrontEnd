@@ -15,9 +15,27 @@
       <q-header elevated class="bg-deep-purple-10 text-white items-center">
         <q-toolbar class="q-pa-md">
           <q-toolbar-title>
-            <div class="text-h6">Requerimiento Nº {{ req.id }}</div>
-            <div class="text-subtitle3 text-white-7">
-              {{ req.usuario.nombre }}
+            <div class="text-h6 row justify-between">
+              <div>Requerimiento Nº {{ req.id }}</div>
+              <div>
+                <q-btn
+                  size="10px"
+                  flat
+                  icon="fas fa-edit"
+                  class="opacity-hover"
+                  :to="{ query: { ver: 'editarRequerimiento', id: req.id } }"
+                >
+                  <tooltip>
+                    Editar Requerimiento
+                  </tooltip>
+                </q-btn>
+              </div>
+            </div>
+            <div class="text-subtitle3 text-white-7 opacity-75">
+              Cargado por:
+              <span class="text-italic">
+                {{ req.usuario.nombre }}
+              </span>
             </div>
           </q-toolbar-title>
         </q-toolbar>
@@ -58,21 +76,27 @@
               <!-- detalle -->
               <div class="row">
                 <div class="col-4">
-                  <div class="text-grey-5 text-bold">Area</div>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Area
+                  </div>
                   <q-item-label lines="1">
                     {{ req.area.descripcion }}
                     <tooltip>Tipo: {{ req.area.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-5 text-bold">Sistema</div>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Sistema
+                  </div>
                   <q-item-label lines="1">
                     {{ req.sistema.descripcion }}
                     <tooltip>Tipo: {{ req.sistema.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-5 text-bold">Tipo</div>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Tipo
+                  </div>
                   <q-item-label lines="1">
                     {{ req.tipo.descripcion }}
                     <tooltip>Tipo: {{ req.tipo.descripcion }}</tooltip>
@@ -84,8 +108,42 @@
 
               <div class="row">
                 <div class="col">
-                  <div class="text-grey-5 text-bold">Asunto</div>
-                  <q-item-label>{{ req.asunto }}</q-item-label>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Asunto
+                  </div>
+                  <!-- :field-value="quickEdit.asunto" -->
+                  <inline-edit
+                    v-model="quickEdit.asunto"
+                    field-name="Asunto"
+                    @touched="quickEdited = true"
+                  />
+                  <!-- <div>
+                    <div class="row justify-between">
+                      <div>{{ req.asunto }}</div>
+                      <div>
+                        <q-btn
+                          size="10px"
+                          icon="fas fa-pencil-alt"
+                          class="opacity-hover"
+                        >
+                          <tooltip>
+                            Editar Asunto
+                          </tooltip>
+                        </q-btn>
+                      </div>
+                    </div>
+
+                    <q-input
+                      ref="asunto"
+                      v-model="quickEdit.asunto"
+                      type="text"
+                      dense
+                      outlined
+                      color="deep-purple-10"
+                      :rules="[notEmpty]"
+                      :hide-bottom-space="true"
+                    />
+                  </div>-->
                 </div>
               </div>
 
@@ -93,7 +151,9 @@
 
               <div class="row">
                 <div class="col">
-                  <div class="text-grey-5 text-bold">Descripcion</div>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Descripcion
+                  </div>
                   <!-- eslint-disable-next-line -->
                   <div class="text-pre-wrap">{{ req.descripcion }}</div>
                 </div>
@@ -103,7 +163,9 @@
 
               <div class="row">
                 <div class="col">
-                  <div class="text-grey-5 text-bold">Ultimo movimiento</div>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Ultimo movimiento
+                  </div>
                   <div>
                     <!-- eslint-disable-next-line -->
                     {{ ultimoMovimiento.usuario }} @ <span class="text-italic">{{ ultimoMovimiento.fecha | formatearFechaHora }}</span>
@@ -125,12 +187,12 @@
                 <div class="col">
                   <div class="text-grey-6">
                     Requerimiento Asociado:
-                    <strong>#{{ reqAsociadoId }}</strong>
+                    <strong>#{{ req.asociadoId }}</strong>
                   </div>
-                  <div>Estado: {{ reqAsociadoEstadoDescripcion }}</div>
-                  <div v-if="reqAsociadoUsuario !== null">
-                    Usuario Asignado: {{ reqAsociadoUsuario }}
-                  </div>
+                  <!-- <div>Estado: {{ reqAsociadoEstadoDescripcion }}</div>
+                  <div v-if="req.asociadoUsuario !== null">
+                    Usuario Asignado: {{ req.asociadoUsuario }}
+                  </div> -->
                 </div>
               </div>
 
@@ -147,11 +209,9 @@
                           <strong>{{ diasVencimiento }}</strong>
                           días)
                         </span>
-
                         <span v-if="diasVencimiento === 0" class="text-black">
                           (HOY es el día de vencimiento)
                         </span>
-
                         <strong v-if="diasVencimiento < 0">
                           (Este req. lleva {{ diasVencimiento * -1 }} días
                           vencido)
@@ -169,7 +229,7 @@
                 </div>
               </div>
 
-              <div v-show="tieneAdjuntos">
+              <div v-show="req.tieneAdjuntos">
                 <q-separator />
                 <br />
                 <div class="row q-col-gutter-sm">
@@ -251,6 +311,7 @@ import AsignarRequerimientosActions from "comp/AsignarRequerimientos/AsignarRequ
 import RequerimientosAsignadosActions from "comp/RequerimientosAsignados/RequerimientosAsignadosActions"
 import Note from "comp/Common/Note"
 import AdjuntoCard from "comp/Common/AdjuntoCard"
+import DetalleRequerimientoInlineEdit from "comp/Common/DetalleRequerimientoInlineEdit"
 import Tooltip from "comp/Common/Tooltip"
 
 export default {
@@ -286,6 +347,7 @@ export default {
     Note,
     AdjuntoCard,
     Tooltip,
+    inlineEdit: DetalleRequerimientoInlineEdit,
   },
   mixins: [formValidation],
   data() {
@@ -296,6 +358,12 @@ export default {
       tab: "detalle",
       // asignacionUsuarios: [],
       usuarioAsignado: null,
+      quickEdit: {
+        asunto: "",
+        descripcion: "",
+        comentario: "",
+      },
+      quickEdited: false,
     }
   },
   computed: {
@@ -351,7 +419,6 @@ export default {
       },
     },
     movimientosOrdenados() {
-      // let movimientos = [...this.req.movimientos]
       return _.orderBy(this.req.movimientos, ["fecha"], ["desc"])
     },
     ultimoMovimiento() {
@@ -363,29 +430,24 @@ export default {
         this.ultimoMovimiento.comentario.length
       )
     },
-    tieneAdjuntos() {
-      return this.req.adjuntosCargadosUrl.length > 0
-    },
     diasVencimiento() {
       return this.req.diasToVencimiento
     },
-    reqAsociadoId() {
-      return _.get(this.req, "requerimientoAsociado.id", null)
+  },
+  watch: {
+    requerimientoSetted(isSetted) {
+      if (isSetted) {
+        this.quickEdit.asunto = this.req.asunto
+        this.quickEdit.descripcion = this.req.descripcion
+        this.quickEdit.comentario = this.req.comentario
+      }
     },
-    reqAsociadoEstadoDescripcion() {
-      return _.get(this.req, "requerimientoAsociado.estado.descripcion", null)
-    },
-    reqAsociadoUsuario() {
-      return _.get(this.req, "requerimientoAsociado.usuario_asignado", null)
+    quickEdited(val) {
+      console.log("qe", val)
     },
   },
-  created() {
-    // this.asignacionUsuarios = _.map(this.userReportantes, ur => {
-    //   return {
-    //     label: ur.RazonSocial,
-    //     value: ur.IdUsuario,
-    //   }
-    // })
+  mounted() {
+    this.quickEdited = false
   },
   methods: {
     closeDialog() {
@@ -395,14 +457,16 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.avatar--lg {
+<style lang="stylus" scoped>
+.avatar--lg
   font-size: 80px !important;
   height: auto !important;
   width: auto !important;
-}
-.body-detalle-requerimiento {
+
+/deep/.body-detalle-requerimiento
   min-height: 100px;
   height: calc(100vh - 121px - 100px);
-}
+
+.q-dialog__inner > div
+  border-radius 12px !important
 </style>
