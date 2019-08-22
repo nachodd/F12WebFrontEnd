@@ -103,11 +103,11 @@ export function getUsuarioGestion() {
   })
 }
 
-export function getUsuariosFiltro(userId) {
+export function getUsuariosFiltro() {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await request({
-        url: `v1/f12/${userId}/usuariosFiltro`,
+        url: `v1/f12/usuariosFiltro`,
         method: "get",
       })
       if (res && res.data && res.data.data) {

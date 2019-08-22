@@ -35,6 +35,7 @@
       color="deep-purple-10"
       :loading="requerimientosTipos.length === 0"
       :apply-validation="true"
+      :disable="tipoReqHabilitado === false"
       @input="handleTipoChange"
     />
 
@@ -258,6 +259,10 @@ export default {
       type: Object,
       default: null,
     },
+    tipoReqHabilitado: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     __adjuntosCargadosUrl: {
@@ -311,8 +316,8 @@ export default {
           // this.fechaLimite = null
           this.__fechaLimite = null
           this.motivoLimite = ""
-          this.$refs.fechaLimite.resetValidation()
-          this.$refs.motivoLimite.resetValidation()
+          this.$refs.fechaLimite && this.$refs.fechaLimite.resetValidation()
+          this.$refs.motivoLimite && this.$refs.motivoLimite.resetValidation()
           // this.$emit("update:fechaLimite", this.fechaLimite)
           this.$emit("update:motivoLimite", this.motivoLimite)
         }
@@ -323,7 +328,7 @@ export default {
         return this.llevaUsuarioCadena
       },
       set(value) {
-        this.$refs.usuarioCadena.resetValidation()
+        this.$refs.usuarioCadena && this.$refs.usuarioCadena.resetValidation()
         this.$emit("update:llevaUsuarioCadena", value)
         if (!value) {
           this.__usuarioCadena = null

@@ -110,7 +110,7 @@
 
     <template v-slot:footer>
       <base-filter-chip
-        :showed="reqIdSetted && Boolean(filterPhoto.reqId)"
+        :showed="Boolean(filterPhoto.reqId)"
         label="Id:"
         :value="filterPhoto.reqId"
         :tooltip="'Requerimiento Nro: ' + filterPhoto.reqId"
@@ -118,7 +118,7 @@
         @remove="removeFilter('reqId')"
       />
       <base-filter-chip
-        :showed="estadosSetted && Boolean(filterPhoto.estados)"
+        :showed="Boolean(filterPhoto.estados)"
         label="Est.:"
         :value="filterPhoto.estados"
         :tooltip="'Estdos de los Reqs.: ' + filterPhoto.estados"
@@ -126,7 +126,7 @@
         @remove="removeFilter('estados')"
       />
       <base-filter-chip
-        :showed="sistemaSetted && Boolean(filterPhoto.sistema)"
+        :showed="Boolean(filterPhoto.sistema)"
         label="Sist:"
         :value="filterPhoto.sistema"
         :tooltip="'Sistema: ' + filterPhoto.sistema"
@@ -134,7 +134,7 @@
         @remove="removeFilter('sistema')"
       />
       <base-filter-chip
-        :showed="areaSetted && Boolean(filterPhoto.area)"
+        :showed="Boolean(filterPhoto.area)"
         label="Area:"
         :value="filterPhoto.area"
         :tooltip="'Area: ' + filterPhoto.area"
@@ -142,7 +142,7 @@
         @remove="removeFilter('area')"
       />
       <base-filter-chip
-        :showed="tipoRequerimientoSetted && Boolean(filterPhoto.tipo)"
+        :showed="Boolean(filterPhoto.tipo)"
         label="Tipo:"
         :value="filterPhoto.tipo"
         :tooltip="'Tipo de Requerimiento: ' + filterPhoto.tipo"
@@ -150,7 +150,7 @@
         @remove="removeFilter('tipo')"
       />
       <base-filter-chip
-        :showed="usuarioAltaSetted && Boolean(filterPhoto.usuarioAlta)"
+        :showed="Boolean(filterPhoto.usuarioAlta)"
         label="U.A.:"
         :value="filterPhoto.usuarioAlta"
         :tooltip="'Usuario Alta: ' + filterPhoto.usuarioAlta"
@@ -158,7 +158,7 @@
         @remove="removeFilter('usuarioAlta')"
       />
       <base-filter-chip
-        :showed="fechaDesdeSetted && Boolean(filterPhoto.fechaDesde)"
+        :showed="Boolean(filterPhoto.fechaDesde)"
         label="Des:"
         :value="filterPhoto.fechaDesde"
         :tooltip="'Fecha Desde: ' + filterPhoto.fechaDesde"
@@ -166,7 +166,7 @@
         @remove="removeFilter('fechaDesde')"
       />
       <base-filter-chip
-        :showed="fechaHastaSetted && Boolean(filterPhoto.fechaHasta)"
+        :showed="Boolean(filterPhoto.fechaHasta)"
         label="Has:"
         :value="filterPhoto.fechaHasta"
         :tooltip="'Fecha Hasta: ' + filterPhoto.fechaHasta"
@@ -320,6 +320,9 @@ export default {
   },
   methods: {
     filtrar() {
+      if (!this.estadosSetted) {
+        this.filterValues.estados = null
+      }
       this.updateFilterPhoto()
       this.updateSomeFilterIsSetted()
       this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false

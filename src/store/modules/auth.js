@@ -367,18 +367,12 @@ const actions = {
     })
   },
 
-  getUsuariosFiltro({ commit, state, getters }, userId = null) {
+  getUsuariosFiltro({ commit, state }) {
     return new Promise(async (resolve, reject) => {
       try {
-        // solo traera los usuarios para el filtro si no es el ultimo de la cadena (no tiene nadie abajo)
-        // y si no los cargó aun
-        if (
-          !getters.esElUltimoDeLaCadenaDeMando &&
-          state.usuariosFiltro.length === 0
-        ) {
-          // Los usuarios para el filtro seran los que estan abajo de mi, o todos si el usuario es de sistemas (gerentes, responsables) / procesos
-          const userIdForFilter = userId || getters.userId
-          const usuariosFiltro = await getUsuariosFiltro(userIdForFilter)
+        // solo traera los usuarios para el filtro si no los cargó aun
+        if (state.usuariosFiltro.length === 0) {
+          const usuariosFiltro = await getUsuariosFiltro()
           commit("SET_USUARIOS_FILTRO", usuariosFiltro)
         }
         resolve()

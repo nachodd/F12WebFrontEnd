@@ -210,11 +210,11 @@ export default class Requerimiento {
     return _.get(this, "tipo.id", null) === Requerimiento.tipoId(tipoCod)
   }
   get tipoCodigo() {
-    return Requerimiento.getTipoCodigo(this.estado.id)
+    return Requerimiento.getTipoCodigo(_.get(this, "estado.id", null))
   }
 
   get estadoCodigo() {
-    return Requerimiento.getEstadoCodigo(this.estado.id)
+    return Requerimiento.getEstadoCodigo(_.get(this, "estado.id", null))
   }
   tieneEstado(estadoCod) {
     // eslint-disable-next-line
@@ -223,6 +223,10 @@ export default class Requerimiento {
   tieneEstadoPriorizacion(estadoCod) {
     // eslint-disable-next-line
     return _.get(this, "estado_priorizacion.id", null) === Requerimiento.getEstadoId(estadoCod)
+  }
+
+  get tieneAdjuntos() {
+    return this.adjuntosCargadosUrl.length > 0
   }
 
   async toCreatePayload() {
@@ -254,7 +258,7 @@ export default class Requerimiento {
     return payload
   }
 
-  async toUpdatePayload() {
+  async toUpdatePayload({ omitAdjuntos = false }) {
     const fechaLimite = this.parseFechaLimite()
 
     const payload = {
@@ -272,25 +276,28 @@ export default class Requerimiento {
       payload.usuario_cadena = this.usuarioCadena
     }
 
-    // Cheuqeo si hubo cambios en los archivos:
-    // - Si cargo un adjunto nuevo (adjuntos.length > 0)
-    // - Si eliminó un archivo ya cargado (adjuntosCargadosUrl.length !== adjuntosCargadosBase64.length)
-    if (
-      this.adjuntos.length > 0 ||
-      this.adjuntosCargadosUrl.length !== this.adjuntosCargadosBase64.length
-    ) {
-      // mapeo los files del input
-      const filesFromInput = await Promise.all(
-        _.map(this.adjuntos, async file => {
-          return await getBase64FromInput(file)
-        }),
-      )
-      // mapeo los files ya cargados, los busco en el array this.adjuntosCargadosBase64, el campo base64
-      const filesUploaded = _.map(this.adjuntosCargadosUrl, url => {
-        return _.find(this.adjuntosCargadosBase64, { url }).base64
-      })
-      payload.adjuntos = [...filesFromInput, ...filesUploaded]
+    if (omitAdjuntos === false) {
+      // Cheuqeo si hubo cambios en los archivos:
+      // - Si cargo un adjunto nuevo (adjuntos.length > 0)
+      // - Si eliminó un archivo ya cargado (adjuntosCargadosUrl.length !== adjuntosCargadosBase64.length)
+      if (
+        this.adjuntos.length > 0 ||
+        this.adjuntosCargadosUrl.length !== this.adjuntosCargadosBase64.length
+      ) {
+        // mapeo los files del input
+        const filesFromInput = await Promise.all(
+          _.map(this.adjuntos, async file => {
+            return await getBase64FromInput(file)
+          }),
+        )
+        // mapeo los files ya cargados, los busco en el array this.adjuntosCargadosBase64, el campo base64
+        const filesUploaded = _.map(this.adjuntosCargadosUrl, url => {
+          return _.find(this.adjuntosCargadosBase64, { url }).base64
+        })
+        payload.adjuntos = [...filesFromInput, ...filesUploaded]
+      }
     }
+
     return payload
   }
 
@@ -306,16 +313,21 @@ export default class Requerimiento {
   async tryConvertDownloadedFiles() {
     if (this.adjuntosCargadosUrl.length > 0) {
       this.procesandoArchivosCargados = true
-      this.adjuntosCargadosBase64 = await Promise.all(
-        _.map(this.adjuntosCargadosUrl, async url => {
-          const res = await getBase64FromUrl(url)
-          return {
-            url,
-            base64: res,
-          }
-        }),
-      )
-      this.procesandoArchivosCargados = false
+      try {
+        this.adjuntosCargadosBase64 = await Promise.all(
+          _.map(this.adjuntosCargadosUrl, async url => {
+            const res = await getBase64FromUrl(url)
+            return {
+              url,
+              base64: res,
+            }
+          }),
+        )
+      } catch (ex) {
+        console.log(ex)
+      } finally {
+        this.procesandoArchivosCargados = false
+      }
     }
     return []
   }

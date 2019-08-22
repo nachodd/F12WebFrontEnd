@@ -132,8 +132,14 @@ body {
   height: 56px;
 }
 .item--thumb-xs {
-  width: 50px;
+  width: 25px;
   height: 56px;
+}
+.adjunto-card .q-item__section--side > .q-icon {
+  font-size 20px !important
+}
+.adjunto-card .q-item__section--main ~ .q-item__section--side {
+  padding-left: 5px
 }
 
 .no-dec, .no-dec > * {
@@ -236,16 +242,16 @@ body {
 .filter.q-field--standout .q-field__control:before {
   background-color: transparent !important;
 }
-.filter .q-field__control:after {
+/* .filter .q-field__control:after {
   content: 'Más filtros 🡒';
   text-align: right;
   margin-right: 42px;
   margin-top: 10px;
   color: #b7b7b7;
-}
-.filter.popupOpened .q-field__control:after {
+} */
+/* .filter.popupOpened .q-field__control:after {
   content: '';
-}
+} */
 
 .square {
   width: 4px;
@@ -284,10 +290,10 @@ body {
 
 
 .text-unselectable {
-  -webkit-user-select: none; /* Chrome all / Safari all */
-  -moz-user-select: none;   /* Firefox all */
-  -ms-user-select: none;  /* IE 10+ */
-   user-select: none;  /* Likely future */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .d-ib, .inline-block {
@@ -369,3 +375,17 @@ body.q-body--loading #q-app {
 
 .tooltip-height-fix
   height 163px
+
+.opacity-hover
+  opacity 0.5
+  &:hover
+    opacity 1
+
+.opacity-25
+  opacity 0.25
+.opacity-50
+  opacity 0.5
+.opacity-75
+  opacity 0.75
+.opacity-100
+  opacity 1 !important

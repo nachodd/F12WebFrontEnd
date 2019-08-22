@@ -1,10 +1,11 @@
 <template>
   <q-page padding class="q-pt-lg">
-    <mis-requerimientos-filtros ref="filtros" @buscar="getListRequerimientos" />
-    <mis-requerimientos-listado
-      :requerimientos="misRequerimientos"
-      :loading="loadingRequerimiento"
+    <mis-requerimientos-filtros
+      ref="filtros"
+      :base-height="280"
+      @buscar="getListRequerimientos"
     />
+    <mis-requerimientos-listado :requerimientos="misRequerimientos" />
     <div v-if="searchMeta.total > 10" class="q-pa-lg flex flex-center">
       <q-pagination
         v-model="current"
@@ -65,7 +66,7 @@ export default {
   },
   computed: {
     ...mapState("requerimientos", {
-      loadingRequerimiento: state => state.loadingRequerimiento,
+      // loadingRequerimiento: state => state.loadingRequerimiento,
       misRequerimientos: state => state.misRequerimientos,
       misRequerimientosHuboCambio: state => state.misRequerimientosHuboCambio,
       searchMeta: state => state.misRequerimientosSearchMeta,
@@ -125,6 +126,7 @@ export default {
 
         const reqEstados =
           (this.filtroLastValues.estados &&
+            this.filtroLastValues.estados.length > 0 &&
             this.filtroLastValues.estados.map(e => e.value)) ||
           null
 
