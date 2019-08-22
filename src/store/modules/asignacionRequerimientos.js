@@ -397,7 +397,8 @@ const actions = {
         let message = ""
 
         switch (operation) {
-          case "asignar": {
+          case "asignar":
+          case "reasignar": {
             // se arma el objeto para enviar a la api y se la llama
             const { orden, ultimo } = getters.getNewOrder
             const dataAsignar = {

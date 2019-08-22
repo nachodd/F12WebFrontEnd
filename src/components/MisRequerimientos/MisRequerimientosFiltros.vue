@@ -60,10 +60,7 @@
         />
       </base-filter-input>
 
-      <base-filter-input
-        v-if="!esElUltimoDeLaCadenaDeMando"
-        label="Usuario Alta"
-      >
+      <base-filter-input label="Usuario Alta">
         <select-custom
           v-model="filterValues.usuarioAlta"
           :options="optionsUsuariosFiltro"
@@ -235,7 +232,6 @@ export default {
     ...mapGetters("requerimientos", ["optionsEstados"]),
     ...mapGetters({
       optionsUsuariosFiltro: "auth/usuariosFiltro",
-      esElUltimoDeLaCadenaDeMando: "auth/esElUltimoDeLaCadenaDeMando",
     }),
 
     reqIdSetted() {
