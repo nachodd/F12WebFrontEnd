@@ -105,7 +105,6 @@
                 label-always
                 color="accent"
                 @input="updateOrdenTooltip"
-                @change="sliderChange"
               />
             </div>
             <div v-else class="col-12">
@@ -255,6 +254,7 @@ export default {
       asignarcionOrden: 1,
       ordenTooltip: "",
       reqsPossibleNewOrder: [],
+      ordenMaxLength: 1,
       // tooltipShowed: false,
     }
   },
@@ -268,8 +268,7 @@ export default {
     }),
     ...mapGetters("asignacionRequerimientos", [
       "requerimientosFiltered",
-      "requerimientosFilteredLength",
-      1,
+      // "requerimientosFilteredLength",
     ]),
     stateNotAssigned() {
       return this.req.tieneEstado("NOAS")
@@ -331,10 +330,26 @@ export default {
     shouldValidateComment() {
       return this.operation === "descartar" ? [this.notEmpty] : null
     },
-    ordenMaxLength() {
-      return this.operation === "asignar"
-        ? this.requerimientosFilteredLength + 1
-        : this.requerimientosFilteredLength
+    // ordenMaxLength() {
+    //   return this.operation === "asignar"
+    //     ? this.requerimientosFilteredLength + 1
+    //     : this.requerimientosFilteredLength
+    // },
+    requerimientosFilteredLength() {
+      return this.reqsPossibleNewOrder.length
+    },
+  },
+  watch: {
+    usuarioAsignado() {
+      if (["asignar", "reasignar"].includes(this.operation)) {
+        this.updateOrdenTooltip()
+        // el ordenMaxLength lo tomo del reqsPossibleNewOrder (que tiene el posible usuarioAsignado filtrado)
+        this.ordenMaxLength =
+          this.operation === "asignar"
+            ? this.reqsPossibleNewOrder.length
+            : this.reqsPossibleNewOrder.length
+        // FIXME: ver aca que no anda ni calcula bien el reasingnar y el reordenar, no calcula bien el largo ni los elementos del tooltip
+      }
     },
   },
   mounted() {
@@ -355,7 +370,21 @@ export default {
       }
     },
     updateOrdenTooltip() {
-      this.reqsPossibleNewOrder = [...this.requerimientosFiltered("ASSI")]
+      // Si hay un usuario asignado, el slider de orden lo debemos calcular filtrado para ese usuario
+      if (this.usuarioAsignado !== null) {
+        const userObj = _.find(this.optionsUsersReportantes, {
+          value: this.usuarioAsignado,
+        })
+        const overrideFilters = {
+          usuariosAsignados: [userObj],
+        }
+        this.reqsPossibleNewOrder = [
+          ...this.requerimientosFiltered("ASSI", overrideFilters),
+        ]
+      } else {
+        this.reqsPossibleNewOrder = [...this.requerimientosFiltered("ASSI")]
+      }
+
       let startIndex = 1
       const realIndex = this.asignarcionOrden - 1
       let currReq, pre3Req, pre2Req, pre1Req, pos1Req, pos2Req, pos3Req
@@ -436,9 +465,6 @@ export default {
           </ol>
         </div>
       </div>`
-    },
-    sliderChange() {
-      // this.tooltipShowed = false
     },
     async saveChanges() {
       // Si es descartar, debo incluir un comentario
