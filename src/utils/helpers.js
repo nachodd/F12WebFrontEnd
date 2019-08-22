@@ -133,10 +133,8 @@ export function getBase64FromInput(file) {
   return new Promise(function(resolve, reject) {
     const reader = new FileReader()
     reader.onload = function() {
-      const period = file.name.lastIndexOf(".")
-      const fileName = file.name.substring(0, period)
       // Adds name to the base64 file
-      resolve(`${reader.result};name,${fileName}`)
+      resolve(`${reader.result};name,${file.name}`)
     }
     reader.onerror = reject
     reader.readAsDataURL(file)

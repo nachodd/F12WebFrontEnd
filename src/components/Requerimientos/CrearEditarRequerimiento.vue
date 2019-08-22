@@ -5,6 +5,7 @@
       v-bind.sync="form"
       :lleva-fecha-limite.sync="llevaFechaLimite"
       :lleva-usuario-cadena.sync="llevaUsuarioCadena"
+      :tipo-req-habilitado="tipoReqHabilitado"
       @submit="handleSubmit"
     />
   </div>
@@ -42,6 +43,13 @@ export default {
           ? `Editar Requerimiento #${this.form.id}`
           : "Nuevo Requerimiento"
       }
+    },
+    tipoReqHabilitado() {
+      // el tipo de req estará habilitado si
+      return (
+        !this.isEdit || //  ES UN REQ NUEVO (isEdit=false) o
+        (this.isEdit && ["PEND", "NOAS"].includes(this.form.estadoCodigo)) //si es una edicion y esta en los siguientes estados
+      )
     },
   },
   watch: {

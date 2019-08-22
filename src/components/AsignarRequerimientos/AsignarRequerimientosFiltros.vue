@@ -68,7 +68,7 @@
 
     <template v-slot:footer>
       <base-filter-chip
-        :showed="sistemaSetted && Boolean(filterPhoto.sistema)"
+        :showed="Boolean(filterPhoto.sistema)"
         label="Sist:"
         :value="filterPhoto.sistema"
         :tooltip="'Sistema: ' + filterPhoto.sistema"
@@ -76,7 +76,7 @@
         @remove="removeFilter('sistema')"
       />
       <base-filter-chip
-        :showed="tipoRequerimientoSetted && Boolean(filterPhoto.tipo)"
+        :showed="Boolean(filterPhoto.tipo)"
         label="Tipo:"
         :value="filterPhoto.tipo"
         :tooltip="'Tipo de Requerimiento: ' + filterPhoto.tipo"
@@ -84,7 +84,7 @@
         @remove="removeFilter('tipo')"
       />
       <base-filter-chip
-        :showed="usuarioAltaSetted && Boolean(filterPhoto.usuarioAlta)"
+        :showed="Boolean(filterPhoto.usuarioAlta)"
         label="U.Al:"
         :value="filterPhoto.usuarioAlta"
         :tooltip="'Usuario Alta: ' + filterPhoto.usuarioAlta"
@@ -92,9 +92,7 @@
         @remove="removeFilter('usuarioAlta')"
       />
       <base-filter-chip
-        :showed="
-          usuariosAsignadosSetted && Boolean(filterPhoto.usuariosAsignados)
-        "
+        :showed="Boolean(filterPhoto.usuariosAsignados)"
         label="U.As:"
         :value="filterPhoto.usuariosAsignados"
         :tooltip="'Usuario Asignados: ' + filterPhoto.usuariosAsignados"

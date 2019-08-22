@@ -5,7 +5,7 @@
     color="accent"
     multiple
     style="width: auto"
-    class="q-uploader--list-no-pading"
+    class="q-uploader--custom"
     @added="handleAdded"
     @removed="handleRemoved"
   >
@@ -70,18 +70,20 @@
             class="row justify-around q-col-gutter-sm q-mt-sm q-mb-md"
           >
             <div v-for="file in scope.files" :key="file.name" class="col-4">
-              <q-item class="shadow-2 bg-grey-3 no-padding">
+              <q-item class="shadow-2 bg-grey-3 no-padding adjunto-card">
                 <q-item-section v-if="file.__img" side class="no-pad">
                   <img class="item--thumb" :src="file.__img.src" />
                 </q-item-section>
-                <q-item-section v-else side class="no-pad">
+                <q-item-section v-else side class="q-px-xs">
                   <q-icon class="item--thumb-xs" name="fas fa-paperclip" />
                 </q-item-section>
 
                 <q-item-section class="q-pa-sm">
-                  <q-item-label lines="2" class>{{ file.name }}</q-item-label>
+                  <q-item-label class="ellipsis">
+                    {{ file.name }}
+                  </q-item-label>
                 </q-item-section>
-                <q-item-section top side>
+                <q-item-section top side class="q-px-xs">
                   <q-btn
                     size="12px"
                     flat
@@ -92,6 +94,7 @@
                   />
                 </q-item-section>
               </q-item>
+              <tooltip>{{ file.name }}</tooltip>
             </div>
           </div>
         </div>
@@ -108,7 +111,7 @@
             <div
               v-for="(adjunto, i) in __filesUploaded"
               :key="`req_${i}_${adjunto}`"
-              class="col-3"
+              class="col-4"
             >
               <adjunto-card
                 :adjunto="adjunto"
@@ -178,8 +181,12 @@ export default {
   },
 }
 </script>
-<style lang="scss">
-.q-uploader--list-no-pading .q-uploader__list {
-  padding: 0;
-}
+<style lang="stylus" scoped>
+.q-uploader--custom
+  box-shadow none !important
+
+// Deep selector https://bambielli.com/til/2018-08-19-how-to-target-child-components-with-scoped-css-in-vue/
+/deep/.q-uploader__list
+  padding 0
+  border 1px solid rgba(0,0,0,0.24)
 </style>

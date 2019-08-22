@@ -29,19 +29,21 @@
         :offset="[0, -4]"
         content-class="q-menu-fix"
         no-parent-event
+        :content-style="{ height: bodyHeight + 'px' }"
       >
-        <div
-          class="q-pa-md row justify-center"
+        <q-layout
+          container
           :style="{
             width: widthInputDescripcion + 'px',
-            'padding-top': '0',
+            height: bodyHeight + 'px',
           }"
+          view="hHh lpR fFf"
         >
-          <div class="col-md-8 col-sm-8 col-xs-12">
+          <q-page-container>
             <q-scroll-area
               ref="menuBody"
               :thumb-style="{
-                right: '-10px',
+                right: '2px',
                 borderRadius: '5px',
                 background: 'linear-gradient(to top, #5e35b1, #1565c0)',
                 width: '5px',
@@ -49,17 +51,35 @@
               }"
               :class="['body-menu']"
               :style="{
-                height: bodyHeight + 'px !important',
+                width: widthInputDescripcion + 'px',
+                height: bodyHeight + 'px',
+                'background-color': 'yellow',
               }"
             >
-              <slot name="body" />
+              <div
+                class="q-pa-md row justify-center"
+                :style="{
+                  width: widthInputDescripcion + 'px',
+                  'padding-top': '0',
+                }"
+              >
+                <div class="col-md-8 col-sm-8 col-xs-12">
+                  <slot name="body" />
+                </div>
+              </div>
             </q-scroll-area>
+          </q-page-container>
 
-            <div class="row q-mt-md justify-end">
-              <slot name="buttons" />
+          <q-footer elevated class="bg-white q-py-sm">
+            <div class="row">
+              <div class="col-md-8 col-sm-8 col-xs-12">
+                <div class="row justify-end">
+                  <slot name="buttons" />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </q-footer>
+        </q-layout>
       </q-menu>
     </div>
     <div v-if="hasQuickFilterSlot" class="row items-center filters-row">
@@ -98,16 +118,13 @@ export default {
       type: Boolean,
       default: false,
     },
-    baseHeight: {
-      type: Number,
-      default: 0,
-    },
   },
   data() {
     return {
       widthInputDescripcion: 0,
       popupOpened: false,
-      bodyHeight: 80,
+      bodyHeight: 120,
+      bodyMenuClass: "",
     }
   },
   computed: {
@@ -118,22 +135,16 @@ export default {
       return !!this.$slots.quickFilter
     },
   },
-  watch: {
-    popupOpened(opened) {
-      if (opened) {
-        document
-          .getElementsByTagName("body")[0]
-          .classList.add("overflow-hidden")
-      } else {
-        document
-          .getElementsByTagName("body")[0]
-          .classList.remove("overflow-hidden")
-      }
-    },
-  },
   mounted() {
-    const bodyElements = this.$slots.body.length || 2
-    this.bodyHeight = this.baseHeight || bodyElements * 40
+    const bodyElemnts = this.$slots.body.length || 2
+    this.bodyHeight = bodyElemnts * 80
+    console.log("this.bodyHeight", this.bodyHeight)
+
+    if (bodyElemnts > 6) {
+      this.bodyMenuClass = "body-menu-x-el"
+    } else {
+      this.bodyMenuClass = `body-menu-${bodyElemnts - 1}-el`
+    }
   },
   methods: {
     onResize(size) {
@@ -145,13 +156,38 @@ export default {
     setPopUpOpened(value) {
       this.popupOpened = value
     },
+    // show() {
+    //   const bodyElemnts = this.$slots.body.length || 2
+    //   this.bodyHeight = bodyElemnts * 60
+    //   this.$refs.menuBody.$el.style["min-height"] = this.bodyHeight + "px"
+    //   this.$refs.menuBody.$el.style["height"] = this.bodyHeight + "px"
+    //   console.log("sh", this.$refs.menuBody)
+    //   debugger
+    // },
   },
 }
 </script>
-<style lang="stylus">
+<style lang="stylus" scoped>
 .body-menu
+  width 150px
   min-height: 120px;
   height: 120px;
-// /deep/.q-scrollarea__thumb--invisible
-//   opacity: 0.25 !important;
+//   // height: calc(100vh - 121px - 100px);
+.body-menu-1-el
+  height: 120px;
+.body-menu-2-el
+  height: 120px;
+.body-menu-3-el
+  height: 180px;
+.body-menu-4-el
+  height: 240px;
+.body-menu-5-el
+  height: 300px;
+.body-menu-6-el
+  height: 360px;
+.body-menu-x-el
+  height: 360px;
+
+/deep/.q-scrollarea__thumb--invisible
+  opacity: 0.25 !important;
 </style>
