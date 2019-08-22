@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="q-mb-md">
     <div class="text-grey-7">
       Seleccione una acción:
     </div>
@@ -19,7 +19,7 @@
 
     <div class="q-mt-md">
       <q-slide-transition>
-        <div v-show="operation === 'asignar'">
+        <div v-show="operation === 'asignar' || operation === 'reasignar'">
           <div class="row q-mt-xs">
             <div class="col-12 text-grey-7">
               Seleccione un usuario para asignar este Requerimiento:
@@ -314,6 +314,10 @@ export default {
           value: "desasignar",
         })
         opt.push({
+          label: "Reasignar",
+          value: "reasignar",
+        })
+        opt.push({
           label: "Reordenar",
           value: "reordenar",
         })
@@ -346,7 +350,7 @@ export default {
   },
   methods: {
     operationChange() {
-      if (this.operation === "asignar" || this.operation === "reordenar") {
+      if (["asignar", "reasignar", "reordenar"].includes(this.operation)) {
         this.updateOrdenTooltip()
       }
     },
@@ -361,7 +365,10 @@ export default {
         // ubico el req a insertar en la posicion this.asignarcionOrden
         const reqToInsert = this.req
         this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
-      } else if (this.operation === "reordenar") {
+      } else if (
+        this.operation === "reordenar" ||
+        this.operation === "reasignar"
+      ) {
         // primero lo saco del array resultado
         const currentIndex = _.findIndex(this.reqsPossibleNewOrder, {
           id: this.req.id,
@@ -443,7 +450,7 @@ export default {
       }
 
       // Si es asignar, debo elegir un usuario
-      if (this.operation === "asignar") {
+      if (this.operation === "asignar" || this.operation === "reasignar") {
         const validations = [
           !this.$refs.usuarioAsignado.validate(),
           !this.$refs.fechaFinalizacion.validate(),
@@ -483,11 +490,32 @@ export default {
             // TODO: implementar el resto de los mensajes de success aca en el front
             let msg = ""
             switch (this.operation) {
+              case "asignar":
+                msg = `Requerimiento #${this.req.id} ASIGNADO correctamente`
+                break
+              case "aPriorizar":
+                // eslint-disable-next-line
+                msg = `Requerimiento #${this.req.id} marcado como DESARROLLO y devuelto a LA CADENA DE PRIORIZACIÓN`
+                break
               case "aProcesos":
                 msg = `Requerimiento #${this.req.id} enviado A PROCESOS`
                 break
+              case "desasignar":
+                msg = `Requerimiento #${this.req.id} DESASIGNADO`
+                break
+              case "reasignar":
+                msg = `Requerimiento #${this.req.id} REASIGNADO`
+                break
+              case "reordenar":
+                msg = `Requerimiento #${this.req.id} REORDENADO / PRIORIZADO`
+                break
+              case "descartar":
+                msg = `Requerimiento #${this.req.id} DESCARTADO`
+                break
+              default:
+                msg = `Operación completada satisfactoriamente`
             }
-            if (msg) success({ message: msg })
+            success({ message: msg })
           }
           this.operation = null
           this.usuarioAsignado = null
