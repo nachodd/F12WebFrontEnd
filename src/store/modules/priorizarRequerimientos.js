@@ -463,10 +463,8 @@ const actions = {
     commit("SET_USUARIO_IMPERSONATE", userId)
     commit("SET_REQS_LIST", [])
 
-    // Traigo los usuarios para el filtro de usuarios de alta (si !esElUltimoDeLaCadenaDeMando)
-    if (!esElUltimoDeLaCadenaDeMando) {
-      await dispatch("auth/getUsuariosFiltro", null, { root: true })
-    }
+    // Traigo los usuarios para el filtro de usuarios de alta
+    await dispatch("auth/getUsuariosFiltro", null, { root: true })
 
     dispatch("getRequerimientosByUserAndEstado", {
       userId: userIdToQuery,

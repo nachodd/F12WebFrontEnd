@@ -1,22 +1,20 @@
 <template>
   <div>
-    <q-slide-transition>
-      <q-markup-table v-if="!loading" class="rounded-borders-12">
-        <tbody>
-          <mis-requerimientos-item
-            v-for="req in requerimientos"
-            :key="`req_${req.id}`"
-            :req="req"
-            @click.native="
-              abrirDetalleRequerimiento({
-                reqId: req.id,
-                listName: 'mis-requerimientos',
-              })
-            "
-          />
-        </tbody>
-      </q-markup-table>
-    </q-slide-transition>
+    <q-markup-table class="rounded-borders-12">
+      <tbody>
+        <mis-requerimientos-item
+          v-for="req in requerimientos"
+          :key="`req_${req.id}`"
+          :req="req"
+          @click.native="
+            abrirDetalleRequerimiento({
+              reqId: req.id,
+              listName: 'mis-requerimientos',
+            })
+          "
+        />
+      </tbody>
+    </q-markup-table>
   </div>
 </template>
 <script>
@@ -35,10 +33,6 @@ export default {
       type: Array,
       required: true,
       default: () => [],
-    },
-    loading: {
-      type: Boolean,
-      required: true,
     },
   },
   methods: {

@@ -258,7 +258,7 @@ export default class Requerimiento {
     return payload
   }
 
-  async toUpdatePayload() {
+  async toUpdatePayload({ omitAdjuntos = false }) {
     const fechaLimite = this.parseFechaLimite()
 
     const payload = {
@@ -276,25 +276,28 @@ export default class Requerimiento {
       payload.usuario_cadena = this.usuarioCadena
     }
 
-    // Cheuqeo si hubo cambios en los archivos:
-    // - Si cargo un adjunto nuevo (adjuntos.length > 0)
-    // - Si eliminó un archivo ya cargado (adjuntosCargadosUrl.length !== adjuntosCargadosBase64.length)
-    if (
-      this.adjuntos.length > 0 ||
-      this.adjuntosCargadosUrl.length !== this.adjuntosCargadosBase64.length
-    ) {
-      // mapeo los files del input
-      const filesFromInput = await Promise.all(
-        _.map(this.adjuntos, async file => {
-          return await getBase64FromInput(file)
-        }),
-      )
-      // mapeo los files ya cargados, los busco en el array this.adjuntosCargadosBase64, el campo base64
-      const filesUploaded = _.map(this.adjuntosCargadosUrl, url => {
-        return _.find(this.adjuntosCargadosBase64, { url }).base64
-      })
-      payload.adjuntos = [...filesFromInput, ...filesUploaded]
+    if (omitAdjuntos === false) {
+      // Cheuqeo si hubo cambios en los archivos:
+      // - Si cargo un adjunto nuevo (adjuntos.length > 0)
+      // - Si eliminó un archivo ya cargado (adjuntosCargadosUrl.length !== adjuntosCargadosBase64.length)
+      if (
+        this.adjuntos.length > 0 ||
+        this.adjuntosCargadosUrl.length !== this.adjuntosCargadosBase64.length
+      ) {
+        // mapeo los files del input
+        const filesFromInput = await Promise.all(
+          _.map(this.adjuntos, async file => {
+            return await getBase64FromInput(file)
+          }),
+        )
+        // mapeo los files ya cargados, los busco en el array this.adjuntosCargadosBase64, el campo base64
+        const filesUploaded = _.map(this.adjuntosCargadosUrl, url => {
+          return _.find(this.adjuntosCargadosBase64, { url }).base64
+        })
+        payload.adjuntos = [...filesFromInput, ...filesUploaded]
+      }
     }
+
     return payload
   }
 

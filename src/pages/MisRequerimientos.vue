@@ -5,10 +5,7 @@
       :base-height="280"
       @buscar="getListRequerimientos"
     />
-    <mis-requerimientos-listado
-      :requerimientos="misRequerimientos"
-      :loading="loadingRequerimiento"
-    />
+    <mis-requerimientos-listado :requerimientos="misRequerimientos" />
     <div v-if="searchMeta.total > 10" class="q-pa-lg flex flex-center">
       <q-pagination
         v-model="current"
@@ -69,7 +66,7 @@ export default {
   },
   computed: {
     ...mapState("requerimientos", {
-      loadingRequerimiento: state => state.loadingRequerimiento,
+      // loadingRequerimiento: state => state.loadingRequerimiento,
       misRequerimientos: state => state.misRequerimientos,
       misRequerimientosHuboCambio: state => state.misRequerimientosHuboCambio,
       searchMeta: state => state.misRequerimientosSearchMeta,

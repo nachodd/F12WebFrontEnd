@@ -117,33 +117,6 @@
                     field-name="Asunto"
                     @touched="quickEdited = true"
                   />
-                  <!-- <div>
-                    <div class="row justify-between">
-                      <div>{{ req.asunto }}</div>
-                      <div>
-                        <q-btn
-                          size="10px"
-                          icon="fas fa-pencil-alt"
-                          class="opacity-hover"
-                        >
-                          <tooltip>
-                            Editar Asunto
-                          </tooltip>
-                        </q-btn>
-                      </div>
-                    </div>
-
-                    <q-input
-                      ref="asunto"
-                      v-model="quickEdit.asunto"
-                      type="text"
-                      dense
-                      outlined
-                      color="deep-purple-10"
-                      :rules="[notEmpty]"
-                      :hide-bottom-space="true"
-                    />
-                  </div>-->
                 </div>
               </div>
 
@@ -154,8 +127,30 @@
                   <div class="text-grey-5 text-bold text-unselectable">
                     Descripcion
                   </div>
-                  <!-- eslint-disable-next-line -->
-                  <div class="text-pre-wrap">{{ req.descripcion }}</div>
+                  <!-- <div class="text-pre-wrap">{{ req.descripcion }}</div> -->
+                  <inline-edit
+                    v-model="quickEdit.descripcion"
+                    field-name="Descripcion"
+                    input-type="textarea"
+                    @touched="quickEdited = true"
+                  />
+                </div>
+              </div>
+
+              <br />
+
+              <div class="row">
+                <div class="col">
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Comentarios
+                  </div>
+                  <inline-edit
+                    v-model="quickEdit.comentario"
+                    field-name="Comentarios"
+                    input-type="textarea"
+                    :apply-validation="false"
+                    @touched="quickEdited = true"
+                  />
                 </div>
               </div>
 
@@ -230,13 +225,15 @@
               </div>
 
               <div v-show="req.tieneAdjuntos">
-                <q-separator />
-                <br />
-                <div class="row q-col-gutter-sm">
+                <q-separator class="q-mb-sm" />
+                <div class="text-grey-5 text-bold text-unselectable">
+                  Adjuntos
+                </div>
+                <div class="row q-col-gutter-sm justify-center">
                   <div
                     v-for="(adjunto, i) in req.adjuntosCargadosUrl"
                     :key="`req_${i}_${adjunto}`"
-                    class="col-6"
+                    class="col-4"
                   >
                     <adjunto-card :adjunto="adjunto" :nro="i + 1" />
                   </div>
@@ -291,9 +288,17 @@
         <q-card-actions align="right">
           <q-btn
             flat
-            label="Cerrar"
-            color="deep-purple-10"
+            :label="cerrarLabel"
+            color="negative"
             @click="detalleRequerimientoOpen = false"
+          />
+          <q-btn
+            v-if="quickEdited"
+            label="Guardar Cambios"
+            color="deep-purple-10"
+            :outline="loadingRequerimiento"
+            :loading="loadingRequerimiento"
+            @click="quickEditRequerimiento"
           />
         </q-card-actions>
       </q-footer>
@@ -305,7 +310,6 @@
 import { mapState, mapGetters } from "vuex"
 import { date } from "quasar"
 import formValidation from "mixins/formValidation"
-// import { warn, success } from "utils/helpers"
 import PriorizarRequerimientosActions from "comp/PriorizarRequerimientos/PriorizarRequerimientosActions"
 import AsignarRequerimientosActions from "comp/AsignarRequerimientos/AsignarRequerimientosActions"
 import RequerimientosAsignadosActions from "comp/RequerimientosAsignados/RequerimientosAsignadosActions"
@@ -313,6 +317,8 @@ import Note from "comp/Common/Note"
 import AdjuntoCard from "comp/Common/AdjuntoCard"
 import DetalleRequerimientoInlineEdit from "comp/Common/DetalleRequerimientoInlineEdit"
 import Tooltip from "comp/Common/Tooltip"
+import { success, warn } from "utils/helpers"
+import Bus from "utils/bus"
 
 export default {
   name: "DialogDetalleRequerimiento",
@@ -369,6 +375,7 @@ export default {
   computed: {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
+      loadingRequerimiento: state => state.loadingRequerimiento,
     }),
     ...mapGetters("requerimientos", ["getEstadoById"]),
     // ...mapGetters("auth", ["userReportantes"]),
@@ -401,6 +408,9 @@ export default {
         default:
           return false
       }
+    },
+    cerrarLabel() {
+      return this.quickEdited ? "Cancelar y Cerrar" : "Cerrar"
     },
     detalleRequerimientoOpen: {
       get() {
@@ -436,22 +446,37 @@ export default {
   },
   watch: {
     requerimientoSetted(isSetted) {
+      this.quickEdited = false
       if (isSetted) {
         this.quickEdit.asunto = this.req.asunto
         this.quickEdit.descripcion = this.req.descripcion
         this.quickEdit.comentario = this.req.comentario
       }
     },
-    quickEdited(val) {
-      console.log("qe", val)
-    },
-  },
-  mounted() {
-    this.quickEdited = false
   },
   methods: {
     closeDialog() {
       this.detalleRequerimientoOpen = false
+    },
+    async quickEditRequerimiento() {
+      try {
+        const form = await this.req.toUpdatePayload({ omitAdjuntos: true })
+        form.asunto = this.quickEdit.asunto
+        form.descripcion = this.quickEdit.descripcion
+        form.comentario = this.quickEdit.comentario
+
+        await this.$store.dispatch("requerimientos/storeRequerimiento", form)
+        success({
+          message: "La solicitud fue procesada correctamente!",
+        })
+        this.detalleRequerimientoOpen = false
+
+        Bus.$emit("load-list-requerimientos")
+      } catch ({ message }) {
+        const msg = message || "No se pudo editar el requerimiento"
+        // Si es un error simple (no es de validacion de form con array de errores), muestro el msj nomas
+        warn({ message: msg })
+      }
     },
   },
 }
