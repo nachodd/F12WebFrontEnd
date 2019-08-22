@@ -166,7 +166,7 @@ const getters = {
         id: uf.usuarioId,
         descripcion: uf.razonSocial,
       }))
-      .orderBy("label")
+      .orderBy("descripcion")
       .value()
   },
 }

@@ -111,7 +111,7 @@ export default {
 
       try {
         const form = this.isEdit
-          ? await this.form.toUpdatePayload()
+          ? await this.form.toUpdatePayload({ omitAdjuntos: false })
           : await this.form.toCreatePayload()
 
         await this.$store.dispatch("requerimientos/storeRequerimiento", form)
