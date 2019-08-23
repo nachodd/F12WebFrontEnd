@@ -36,13 +36,14 @@
                 :dark="dark"
                 filled
                 class="custom-error"
-                :options="optionsUsersReportantes"
+                :options="optionsUsersReportantesFiltrados"
                 emit-value
                 map-options
                 id-key="value"
                 description-key="label"
                 :apply-validation="true"
-                :loading="optionsUsersReportantes.length === 0"
+                :loading="optionsUsersReportantesFiltrados.length === 0"
+                @input="usuarioAsignadoChange"
               />
             </div>
           </div>
@@ -76,12 +77,9 @@
             </div>
           </div>
           <div v-if="!hideOrderAsignacion" class="row q-mt-xs">
-            <div
-              v-if="requerimientosFilteredLength > 0"
-              id="ordenContainer"
-              class="col-12"
-            >
+            <div v-if="ordenMaxLength > 1" id="ordenContainer" class="col-12">
               <tooltip
+                v-if="usuarioAsignado !== null"
                 anchor="top middle"
                 self="center middle"
                 :offset="[0, 100]"
@@ -104,14 +102,14 @@
                 label
                 label-always
                 color="accent"
+                :disable="usuarioAsignado === null"
                 @input="updateOrdenTooltip"
-                @change="sliderChange"
               />
             </div>
-            <div v-else class="col-12">
+            <!-- <div v-else class="col-12">
               Orden:
               <strong>Último</strong>
-            </div>
+            </div> -->
           </div>
           <div class="row q-mt-xs">
             <div class="col-12">
@@ -156,11 +154,7 @@
       <q-slide-transition>
         <div v-if="operation === 'reordenar'">
           <div class="row q-mt-xs">
-            <div
-              v-if="requerimientosFilteredLength > 1"
-              id="ordenContainer"
-              class="col-12"
-            >
+            <div v-if="ordenMaxLength > 1" id="ordenContainer" class="col-12">
               <div class="row q-mt-xs q-mb-md">
                 <div class="col-12 text-grey-7">
                   Orden
@@ -255,6 +249,7 @@ export default {
       asignarcionOrden: 1,
       ordenTooltip: "",
       reqsPossibleNewOrder: [],
+      ordenMaxLength: 1,
       // tooltipShowed: false,
     }
   },
@@ -268,8 +263,7 @@ export default {
     }),
     ...mapGetters("asignacionRequerimientos", [
       "requerimientosFiltered",
-      "requerimientosFilteredLength",
-      1,
+      // "requerimientosFilteredLength",
     ]),
     stateNotAssigned() {
       return this.req.tieneEstado("NOAS")
@@ -331,10 +325,13 @@ export default {
     shouldValidateComment() {
       return this.operation === "descartar" ? [this.notEmpty] : null
     },
-    ordenMaxLength() {
-      return this.operation === "asignar"
-        ? this.requerimientosFilteredLength + 1
-        : this.requerimientosFilteredLength
+    optionsUsersReportantesFiltrados() {
+      if (this.operation === "reasignar") {
+        return this.optionsUsersReportantes.filter(ur => {
+          return ur.value !== this.req.usuarioAsignadoId
+        })
+      }
+      return this.optionsUsersReportantes
     },
   },
   mounted() {
@@ -350,33 +347,70 @@ export default {
   },
   methods: {
     operationChange() {
+      // Reseteamos el usuario asignado (y la validacion, porque al setearla en null salta) y el orden
+      this.usuarioAsignado = null
+      this.$refs.usuarioAsignado.resetValidation()
+      this.asignarcionOrden = 1
+
       if (["asignar", "reasignar", "reordenar"].includes(this.operation)) {
         this.updateOrdenTooltip()
+        this.updateOrderMax()
       }
     },
+    usuarioAsignadoChange() {
+      this.asignarcionOrden = 1
+      this.updateOrdenTooltip()
+      this.updateOrderMax()
+    },
+    updateReqsPossibleNewOrder() {
+      // Si hay un usuario asignado, el slider de orden lo debemos calcular filtrado para ese usuario
+      if (this.usuarioAsignado !== null) {
+        const userObj = _.find(this.optionsUsersReportantes, {
+          value: this.usuarioAsignado,
+        })
+        const overrideFilters = {
+          usuariosAsignados: [userObj],
+        }
+        this.reqsPossibleNewOrder = [
+          ...this.requerimientosFiltered("ASSI", overrideFilters),
+        ]
+      } else {
+        this.reqsPossibleNewOrder = [...this.requerimientosFiltered("ASSI")]
+      }
+    },
+    // ubico el req a insertar en la posicion this.asignarcionOrden (menos 1)
+    insertCurrentReqIntoPosition(realIndex) {
+      const reqToInsert = this.req
+      this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
+    },
+    // Primero saco el req del listado de reqs, de donde esté y luego inserto en la posicion this.asignarcionOrden (menos 1)
+    removeAndInsertCurrentReqIntoPosition(realIndex) {
+      const currentIndex = _.findIndex(this.reqsPossibleNewOrder, {
+        id: this.req.id,
+      })
+      const reqToInsert = this.reqsPossibleNewOrder.splice(currentIndex, 1)[0]
+      this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
+    },
     updateOrdenTooltip() {
-      this.reqsPossibleNewOrder = [...this.requerimientosFiltered("ASSI")]
+      this.updateReqsPossibleNewOrder()
+
       let startIndex = 1
       const realIndex = this.asignarcionOrden - 1
       let currReq, pre3Req, pre2Req, pre1Req, pos1Req, pos2Req, pos3Req
 
       // Dependiendo del tipo de operacion, inserto el nuevo
       if (this.operation === "asignar") {
-        // ubico el req a insertar en la posicion this.asignarcionOrden
-        const reqToInsert = this.req
-        this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
-      } else if (
-        this.operation === "reordenar" ||
-        this.operation === "reasignar"
-      ) {
-        // primero lo saco del array resultado
-        const currentIndex = _.findIndex(this.reqsPossibleNewOrder, {
-          id: this.req.id,
-        })
-        const reqToInsert = this.reqsPossibleNewOrder.splice(currentIndex, 1)[0]
-        // luego lo ubico en la posicion this.asignarcionOrden
-        this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
+        this.insertCurrentReqIntoPosition(realIndex)
+      } else if (this.operation === "reordenar") {
+        this.removeAndInsertCurrentReqIntoPosition(realIndex)
+      } else if (this.operation === "reasignar") {
+        if (this.usuarioAsignado === null) {
+          this.removeAndInsertCurrentReqIntoPosition(realIndex)
+        } else {
+          this.insertCurrentReqIntoPosition(realIndex)
+        }
       }
+
       pre3Req = this.reqsPossibleNewOrder[realIndex - 3]
       pre2Req = this.reqsPossibleNewOrder[realIndex - 2]
       pre1Req = this.reqsPossibleNewOrder[realIndex - 1]
@@ -437,8 +471,16 @@ export default {
         </div>
       </div>`
     },
-    sliderChange() {
-      // this.tooltipShowed = false
+    updateOrderMax() {
+      if (["asignar", "reordenar", "reasignar"].includes(this.operation)) {
+        // el ordenMaxLength lo tomo del reqsPossibleNewOrder (que tiene el posible usuarioAsignado filtrado)
+        // this.ordenMaxLength =
+        //   this.operation === "asignar"
+        //     ? this.reqsPossibleNewOrder.length
+        //     : this.reqsPossibleNewOrder.length
+        this.ordenMaxLength = this.reqsPossibleNewOrder.length
+        console.log("ordenmax", this.ordenMaxLength)
+      }
     },
     async saveChanges() {
       // Si es descartar, debo incluir un comentario

@@ -86,7 +86,10 @@ const getters = {
     return _.orderBy(reqsResult, "tipo.id", "asc")
   },
   // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
-  requerimientosFiltered: (state, getters) => reqEstado => {
+  requerimientosFiltered: (state, getters) => (
+    reqEstado,
+    overrideFilters = false,
+  ) => {
     let reqs
     switch (reqEstado) {
       case "NOAS":
@@ -104,13 +107,23 @@ const getters = {
         break
     }
 
-    const {
+    let {
       descripcion = null,
       sistema = null,
       requerimientoTipo = null,
       usuarioAlta = null,
       usuariosAsignados = null,
     } = state.filtros
+
+    if (overrideFilters) {
+      if (overrideFilters.descripcion) descripcion = overrideFilters.descripcion
+      if (overrideFilters.sistema) sistema = overrideFilters.sistema
+      if (overrideFilters.requerimientoTipo)
+        requerimientoTipo = overrideFilters.requerimientoTipo
+      if (overrideFilters.usuarioAlta) usuarioAlta = overrideFilters.usuarioAlta
+      if (overrideFilters.usuariosAsignados)
+        usuariosAsignados = overrideFilters.usuariosAsignados
+    }
 
     // Determino que filtros aplicar, dependiendo de que hayan seteado
     let filtersToApply = []
