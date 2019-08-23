@@ -232,10 +232,8 @@ const getters = {
         orden = 1
       } else {
         // Busco el último reqs de los asignados, tomo su orden y le aumento 1
-        const lastReq =
-          getters.requerimientosAsignados[
-            getters.requerimientosAsignados.length - 1
-          ]
+        // eslint-disable-next-line
+        const lastReq = getters.requerimientosAsignados[ getters.requerimientosAsignados.length - 1 ]
         orden = lastReq.estado.asignacion.orden + 1
       }
       // Será el ultimo (ya sea porque se filtro el listado y no hay nadao porque efectivametne no habia otro asignado)
