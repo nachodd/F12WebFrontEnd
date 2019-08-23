@@ -176,7 +176,19 @@ const actions = {
       try {
         // Si esta seteado el id, es porque esta editando
         if (requerimiento.id) {
-          await updateRequerimiento(requerimiento, requerimiento.id)
+          const res = await updateRequerimiento(requerimiento, requerimiento.id)
+          // Obtenemos el req actualizado, y lo actualizamos en las stores correspondientes:
+          const req = _.get(res, "data.data", null)
+          if (req) {
+            const payload = { operation: "update", req }
+            const root = { root: true }
+            // eslint-disable-next-line
+            commit("asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO", payload, root)
+            // eslint-disable-next-line
+            commit("priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO", payload, root)
+            // eslint-disable-next-line
+            commit("requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO", payload, root)
+          }
         } else {
           await storeRequerimiento(requerimiento)
         }
