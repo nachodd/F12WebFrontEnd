@@ -38,7 +38,7 @@ const state = {
     pendientes_asignacion: 0,
     pendientes_priorizacion: 0,
   },
-  loadingDashboard: false,
+  loadingDashboard: true,
   notificaciones: [],
   limitUnread: LIMIT_NOTIFICACIONES_SHOWED,
   limitRead: LIMIT_NOTIFICACIONES_SHOWED,
@@ -228,7 +228,7 @@ const actions = {
         commit("SET_LOADING_DASHBOARD", false)
       }
     })
-  }, 500),
+  }, 250),
   checkNotificaciones({ commit, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {
