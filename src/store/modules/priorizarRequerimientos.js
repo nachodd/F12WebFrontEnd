@@ -436,6 +436,15 @@ const mutations = {
         }
         break
       }
+      case "update": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        }
+        break
+      }
       case "delete": {
         const removedIndex = _.findIndex(state.requerimientos, {
           id: req.id,
@@ -623,13 +632,13 @@ const actions = {
           break
         case "approve":
           message = `Requerimiento #${getters.requerimientoIdToChange} APROBADO`
-          dispatch("app/getDashboardData", null, { root: true })
+          // dispatch("app/getDashboardData", null, { root: true })
           break
         case "reject":
           message = `Requerimiento #${
             getters.requerimientoIdToChange
           } marcado como "PEND. DE APROBACIÓN"`
-          dispatch("app/getDashboardData", null, { root: true })
+          // dispatch("app/getDashboardData", null, { root: true })
           break
       }
       success({ message })

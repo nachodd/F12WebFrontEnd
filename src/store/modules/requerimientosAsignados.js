@@ -310,6 +310,15 @@ const mutations = {
         }
         break
       }
+      case "update": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        }
+        break
+      }
       case "delete": {
         const removedIndex = _.findIndex(state.requerimientos, {
           id: req.id,
@@ -436,7 +445,7 @@ const actions = {
               })
             }
 
-            dispatch("app/getDashboardData", null, { root: true })
+            // dispatch("app/getDashboardData", null, { root: true })
             commit("UPDATE_REQ_ESTADO_FINISH", requerimientoItem.id)
             resolve()
             break
@@ -462,7 +471,7 @@ const actions = {
               usuario_asignado: usuarioTesting.value,
               comentario: comment,
             })
-            dispatch("app/getDashboardData", null, { root: true })
+            // dispatch("app/getDashboardData", null, { root: true })
             commit("UPDATE_REQ_ESTADO_TESTING", {
               reqId: requerimientoItem.id,
               usuarioTesting,
@@ -509,7 +518,7 @@ const actions = {
             else {
               commit("UPDATE_REQ_ESTADO_FINISH", requerimientoItem.id)
             }
-            dispatch("app/getDashboardData", null, { root: true })
+            // dispatch("app/getDashboardData", null, { root: true })
             resolve()
             break
           }
