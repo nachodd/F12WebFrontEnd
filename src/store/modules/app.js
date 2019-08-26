@@ -10,12 +10,17 @@ import {
   getPusherChannel,
   destroyPusherChannel,
   processAsignarRequerimiento,
+  processRequerimientoDesasignado,
   processRequerimientoAsignado,
+  processEjecutarOCancelarEjecucionRequerimiento,
+  processCancelaTestingRequerimiento,
   processCambioTipoRequerimiento,
   processRequerimientoFinalizado,
   processPriorizarRequerimiento,
+  processPriorizarRequerimientoAprobado,
   processRequerimientoAprobado,
   processRequerimientoRechazado,
+  processPausarReanudarRequerimiento,
 } from "utils/pusher"
 
 const LIMIT_NOTIFICACIONES_SHOWED = 5
@@ -209,7 +214,7 @@ const actions = {
   loadingReset({ commit }) {
     commit("LOADING_RESET")
   },
-  getDashboardData({ commit, rootGetters }, userId = null) {
+  getDashboardData: _.debounce(({ commit, rootGetters }, userId = null) => {
     return new Promise(async (resolve, reject) => {
       try {
         commit("SET_LOADING_DASHBOARD", true)
@@ -223,7 +228,7 @@ const actions = {
         commit("SET_LOADING_DASHBOARD", false)
       }
     })
-  },
+  }, 500),
   checkNotificaciones({ commit, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {
@@ -286,6 +291,18 @@ const actions = {
       pc.bind("requerimiento_asignado_testing", data => {
         processRequerimientoAsignado(ctx, data)
       })
+      pc.bind("requerimiento_desasignado", data => {
+        processRequerimientoDesasignado(ctx, data)
+      })
+      pc.bind("ejecutar_requerimiento", data => {
+        processEjecutarOCancelarEjecucionRequerimiento(ctx, data)
+      })
+      pc.bind("cancela_ejecucion_requerimiento", data => {
+        processEjecutarOCancelarEjecucionRequerimiento(ctx, data)
+      })
+      pc.bind("cancela_testing_requerimiento", data => {
+        processCancelaTestingRequerimiento(ctx, data)
+      })
       pc.bind("cambio_tipo_requerimiento", data => {
         processCambioTipoRequerimiento(ctx, data)
       })
@@ -295,11 +312,21 @@ const actions = {
       pc.bind("priorizar_requerimiento", data => {
         processPriorizarRequerimiento(ctx, data)
       })
+      pc.bind("priorizacion_requerimiento_aprobado", data => {
+        processPriorizarRequerimientoAprobado(ctx, data)
+      })
       pc.bind("requerimiento_aprobado", data => {
         processRequerimientoAprobado(ctx, data)
       })
       pc.bind("requerimiento_rechazado", data => {
         processRequerimientoRechazado(ctx, data)
+      })
+
+      pc.bind("pausar_requerimiento", data => {
+        processPausarReanudarRequerimiento(ctx, data)
+      })
+      pc.bind("reanudar_requerimiento", data => {
+        processPausarReanudarRequerimiento(ctx, data)
       })
 
       resolve()

@@ -44,38 +44,29 @@ const getPayload = (operation, data) => {
     operation,
     req: data,
   }
-} /*
-const updateMisRequerimientosSection = (ctx, requerimiento) => {
-  ctx.dispatch(
-    "requerimientos/pusherUpdateMisRequerimientos",
-    requerimiento,
-    root,
-  )
-  // Cuando se hace una action desde el modal, el detalleRequerimientoItem esta abierto.
-  // entonces, estaría mal actualizarlo, ya que cuando se termina la accion el detalle se le asigna {}
-  // ctx.dispatch(
-  //   "requerimientos/pusherUpdateDetalleRequerimientoItem",
-  //   requerimiento,
-  //   root,
-  // )
-} */
+}
+
 /**
  * Actualiza notificaciones, sidebar (dashboard) y la seccion Mis Requerimientos
  * @param {Object} ctx: store context (app)
  * @param {Object} requerimiento: requerimiento actualizado
  */
-const updateNotificacionesDashboardMisReqs = (ctx, requerimiento) => {
-  ctx.dispatch("checkNotificacionesYDashboard")
+const updateNotificacionesDashboardMisReqs = _.debounce(
+  (ctx, requerimiento) => {
+    ctx.dispatch("checkNotificacionesYDashboard")
 
-  ctx.dispatch(
-    "requerimientos/pusherUpdateMisRequerimientos",
-    { requerimiento },
-    root,
-  )
-}
+    ctx.dispatch(
+      "requerimientos/pusherUpdateMisRequerimientos",
+      { requerimiento },
+      root,
+    )
+  },
+  2500,
+)
 
 const processPriorizarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+  // USERS: usuario_cadena (siguiente en la cadena)
   await ctx.commit(
     "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("addOrUpdate", data.requerimiento),
@@ -83,16 +74,33 @@ const processPriorizarRequerimiento = async (ctx, data) => {
   )
 }
 
+const processPriorizarRequerimientoAprobado = async (ctx, data) => {
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+  // USERS: usuario_anterior_cadena
+  await ctx.commit(
+    "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("remove", data.requerimiento),
+    root,
+  )
+}
+
 const processRequerimientoAprobado = async (ctx, data) => {
-  ctx.dispatch("checkNotificacionesYDashboard")
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
   // paso showMessage: false ya que el mensaje se disparará desde acá
+  // USERS: usuario_creador
   ctx.dispatch(
     "requerimientos/pusherUpdateMisRequerimientos",
     { requerimiento: data.requerimiento, showMessage: false },
     root,
   )
 
-  info({ message: `El requerimiento #${data.requerimiento.id} fue APROBADO` })
+  // Lo notifico solo si es el usuario creador (debería, este evento en teoria lo recibe solo el)
+  const currentUserId = store.getters["auth/userId"]
+  const userCreadorId = _.get(data.requerimiento, "usuario_id", false)
+  if (currentUserId === userCreadorId) {
+    info({ message: `El requerimiento #${data.requerimiento.id} fue APROBADO` })
+  }
 }
 
 const processAsignarRequerimiento = async (ctx, data) => {
@@ -100,6 +108,7 @@ const processAsignarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
 
   // Agrega (o updatea si existe) el req en "Asignar Requerimientos"
+  // USERS: responsables_sistemas
   await ctx.commit(
     "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("addOrUpdate", data.requerimiento),
@@ -109,32 +118,61 @@ const processAsignarRequerimiento = async (ctx, data) => {
 
 const processCambioTipoRequerimiento = async (ctx, data) => {
   // updatea solo notificaciones, en el dashboard nada va a haber cambiado
-  await ctx.dispatch("checkNotificaciones")
+  // await ctx.dispatch("checkNotificaciones")
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  // USERS: usuario_creador
   ctx.dispatch(
     "requerimientos/pusherUpdateMisRequerimientos",
     { requerimiento: data.requerimiento },
     root,
   )
+  // Intento actualizar el listado de priorizar requerimientos, si lo encuentra lo updatea
+  await ctx.commit(
+    "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("update", data.requerimiento),
+    root,
+  )
+
+  // USERS: responsables_sistemas
+  const userEsResponsable = store.getters["auth/userEsResponsable"]
+  if (userEsResponsable) {
+    await ctx.commit(
+      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("update", data.requerimiento),
+      root,
+    )
+  }
 }
 
 const processRequerimientoAsignado = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
 
-  // Agrega (o updatea si existe) el req en "Asignar Requerimientos"
-  await ctx.commit(
-    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-    getPayload("addOrUpdate", data.requerimiento),
-    root,
-  )
+  // Agrega (o updatea si existe) el req en "Asignar Requerimientos", solo si es responsable (tiene acceso al panel de asignar reqs)
+  // USERS: responsables_sistemas
+  const userEsResponsable = store.getters["auth/userEsResponsable"]
+  if (userEsResponsable) {
+    await ctx.commit(
+      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
 
-  // Si el usuario asignado al req, es el usuario logueado, agrega/updatea el req en el listado correspondiente
+  // Si el usuario asignado al req (o el asignado a testing), es el usuario logueado, agrega/updatea el req en el listado correspondiente
+  // USERS: usuario_sistemas_asignado | usuario_testing_asignado
   const currentUserId = store.getters["auth/userId"]
-  const reqUserAsignadoId = _.get(
+  const userAsignadoId = _.get(
     data.requerimiento,
     "estado.asignacion.usuario_id",
     false,
   )
-  if (currentUserId === reqUserAsignadoId) {
+  const userTestingAsignadoId = _.get(
+    data.requerimiento,
+    "estado.asignacion_testing.usuario_id",
+    false,
+  )
+  if ([userAsignadoId, userTestingAsignadoId].includes(currentUserId)) {
     await ctx.commit(
       "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
       getPayload("addOrUpdate", data.requerimiento),
@@ -143,11 +181,133 @@ const processRequerimientoAsignado = async (ctx, data) => {
   }
 }
 
+const processRequerimientoDesasignado = async (ctx, data) => {
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  // USERS: responsables_sistemas
+  const userEsResponsable = store.getters["auth/userEsResponsable"]
+  if (userEsResponsable) {
+    await ctx.commit(
+      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
+
+  // USERS: usuario_sistemas_asignado
+  await ctx.commit(
+    "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("remove", data.requerimiento),
+    root,
+  )
+}
+
+const processEjecutarOCancelarEjecucionRequerimiento = async (ctx, data) => {
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  // USERS: responsables_sistemas
+  const userEsResponsable = store.getters["auth/userEsResponsable"]
+  if (userEsResponsable) {
+    await ctx.commit(
+      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
+
+  // USERS: usuario_sistemas_asignado | usuario_testing_asignado
+  const currentUserId = store.getters["auth/userId"]
+  const userAsignadoId = _.get(
+    data.requerimiento,
+    "estado.asignacion.usuario_id",
+    false,
+  )
+  if ([userAsignadoId].includes(currentUserId)) {
+    await ctx.commit(
+      "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
+}
+
+const processCancelaTestingRequerimiento = async (ctx, data) => {
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  // USERS: responsables_sistemas
+  const userEsResponsable = store.getters["auth/userEsResponsable"]
+  if (userEsResponsable) {
+    await ctx.commit(
+      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
+
+  // USERS: usuario_sistemas_asignado | usuario_testing_asignado
+  const currentUserId = store.getters["auth/userId"]
+  const userAsignadoId = _.get(
+    data.requerimiento,
+    "estado.asignacion.usuario_id",
+    false,
+  )
+  // Si soy el usuario asignado, lo actualizo de estado
+  if ([userAsignadoId].includes(currentUserId)) {
+    await ctx.commit(
+      "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  } else {
+    // Si no soy el usuario asignado, se debe eliminar
+    await ctx.commit(
+      "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("remove", data.requerimiento),
+      root,
+    )
+  }
+  // FIXME: aca voy a tener un problema. Si el usuario asinado a testing es distinto del asignado
+  // cuando se vuelve a desarrollo, se debe QUITAR del store. Pero en este caso, el req que viene
+  // en pusher no tiene más el "estado.asignacion_testing.usuario_id". Por ende, no voy a poder saber si tengo que eliminarselo o que
+  // en teoria se solucionaría localmente este problema, porque el usuaroi que lo saca de testing, yo lo elimino localmente. PROBAR
+  /* debugger
+  const userTestingAsignadoId = _.get(
+    data.requerimiento,
+    "estado.asignacion_testing.usuario_id",
+    false,
+  )
+  if ([userTestingAsignadoId].includes(currentUserId)) {
+    await ctx.commit(
+      "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("update", data.requerimiento),
+      root,
+    )
+  } */
+}
+
 const processRequerimientoFinalizado = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  // FIXME: aca no estaría notificando a andres, solo al que creo el req original, por lo que no tiene mucho sentido que updatee: asignacionRequerimientos
+
+  // USERS: responsables_sistemas
+  const userEsResponsable = store.getters["auth/userEsResponsable"]
+  if (userEsResponsable) {
+    await ctx.commit(
+      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("delete", data.requerimiento),
+      root,
+    )
+  }
+  // Intento actualizar el listado de priorizar requerimientos, si lo encuentra lo updatea
+  // USERS: usuario_creador
+  ctx.dispatch(
+    "requerimientos/pusherUpdateMisRequerimientos",
+    { requerimiento: data.requerimiento },
+    root,
+  )
+
+  // USERS: usuario_sistemas_asignado | usuario_testing_asignado
   await ctx.commit(
-    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("delete", data.requerimiento),
     root,
   )
@@ -171,7 +331,50 @@ const processRequerimientoRechazado = async (ctx, data) => {
     getPayload("delete", data.requerimiento),
     root,
   )
-  info({ message: `El requerimiento #${data.requerimiento.id} fue RECHAZADO` })
+
+  // USERS: usuario_creador
+  ctx.dispatch(
+    "requerimientos/pusherUpdateMisRequerimientos",
+    { requerimiento: data.requerimiento, showMessage: false },
+    root,
+  )
+  // Lo notifico solo si es el usuario creador (debería, este evento en teoria lo recibe solo el)
+  const currentUserId = store.getters["auth/userId"]
+  const userCreadorId = _.get(data.requerimiento, "usuario_id", false)
+  if (currentUserId === userCreadorId) {
+    info({
+      message: `El requerimiento #${data.requerimiento.id} fue RECHAZADO`,
+    })
+  }
+}
+
+const processPausarReanudarRequerimiento = async (ctx, data) => {
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  // USERS: responsables_sistemas
+  const userEsResponsable = store.getters["auth/userEsResponsable"]
+  if (userEsResponsable) {
+    await ctx.commit(
+      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
+
+  // USERS: usuario_sistemas_asignado
+  const currentUserId = store.getters["auth/userId"]
+  const userAsignadoId = _.get(
+    data.requerimiento,
+    "estado.asignacion.usuario_id",
+    false,
+  )
+  if ([userAsignadoId].includes(currentUserId)) {
+    await ctx.commit(
+      "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
 }
 
 export {
@@ -179,9 +382,14 @@ export {
   destroyPusherChannel,
   processAsignarRequerimiento,
   processRequerimientoAsignado,
+  processRequerimientoDesasignado,
+  processEjecutarOCancelarEjecucionRequerimiento,
+  processCancelaTestingRequerimiento,
   processCambioTipoRequerimiento,
   processRequerimientoFinalizado,
   processPriorizarRequerimiento,
+  processPriorizarRequerimientoAprobado,
   processRequerimientoAprobado,
   processRequerimientoRechazado,
+  processPausarReanudarRequerimiento,
 }

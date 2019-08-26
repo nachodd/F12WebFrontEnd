@@ -507,7 +507,7 @@ const actions = {
             break
           }
         }
-        dispatch("app/getDashboardData", null, { root: true })
+        // dispatch("app/getDashboardData", null, { root: true })
         resolve(message)
       } catch (error) {
         reject(error)
