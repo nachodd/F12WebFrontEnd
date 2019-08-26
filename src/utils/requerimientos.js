@@ -1,6 +1,6 @@
 export function filterByAsuntoAndDescripcion(descripcion) {
   return reqs => {
-    const searchString = descripcion.toLowerCase()
+    const searchString = descripcion.toLowerCase().trim()
     return reqs.filter(req => {
       const usuarioAsig = _.get(req, "estado.asignacion.usuario_nombre", "")
       const usuarioAlta = _.get(req, "usuario.nombre", "")
@@ -8,7 +8,8 @@ export function filterByAsuntoAndDescripcion(descripcion) {
         req.asunto.toLowerCase().includes(searchString) ||
         req.descripcion.toLowerCase().includes(searchString) ||
         usuarioAsig.toLowerCase().includes(searchString) ||
-        usuarioAlta.toLowerCase().includes(searchString)
+        usuarioAlta.toLowerCase().includes(searchString) ||
+        String(req.id) === searchString
       )
     })
   }

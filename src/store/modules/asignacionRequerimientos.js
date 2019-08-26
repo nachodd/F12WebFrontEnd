@@ -232,10 +232,8 @@ const getters = {
         orden = 1
       } else {
         // Busco el último reqs de los asignados, tomo su orden y le aumento 1
-        const lastReq =
-          getters.requerimientosAsignados[
-            getters.requerimientosAsignados.length - 1
-          ]
+        // eslint-disable-next-line
+        const lastReq = getters.requerimientosAsignados[ getters.requerimientosAsignados.length - 1 ]
         orden = lastReq.estado.asignacion.orden + 1
       }
       // Será el ultimo (ya sea porque se filtro el listado y no hay nadao porque efectivametne no habia otro asignado)
@@ -358,6 +356,15 @@ const mutations = {
           state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
         } else {
           state.requerimientos.push(new Requerimiento(req))
+        }
+        break
+      }
+      case "update": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
         }
         break
       }
@@ -500,7 +507,7 @@ const actions = {
             break
           }
         }
-        dispatch("app/getDashboardData", null, { root: true })
+        // dispatch("app/getDashboardData", null, { root: true })
         resolve(message)
       } catch (error) {
         reject(error)
