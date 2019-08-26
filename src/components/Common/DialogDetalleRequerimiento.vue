@@ -48,6 +48,7 @@
           indicator-color="white"
           align="justify"
           narrow-indicator
+          @input="handleTabChange"
         >
           <q-tab name="detalle" label="Detalle" />
 
@@ -247,7 +248,14 @@
               name="acciones"
               class="body-detalle-requerimiento"
             >
-              <component :is="actionsComponent" @closeDialog="closeDialog" />
+              <component
+                :is="actionsComponent"
+                ref="actionsTab"
+                @closeDialog="closeDialog"
+                @showSaveRequerimientoAction="
+                  val => (showSaveRequerimientoAction = val)
+                "
+              />
             </q-tab-panel>
 
             <!-- Tab movicmientos -->
@@ -299,6 +307,15 @@
             :outline="loadingRequerimiento"
             :loading="loadingRequerimiento"
             @click="quickEditRequerimiento"
+          />
+
+          <q-btn
+            v-if="showSaveRequerimientoAction"
+            label="Guardar"
+            color="deep-purple-10"
+            :outline="loadingRequerimiento"
+            :loading="loadingRequerimiento"
+            @click="saveRequerimientoAction"
           />
         </q-card-actions>
       </q-footer>
@@ -370,6 +387,7 @@ export default {
         comentario: "",
       },
       quickEdited: false,
+      showSaveRequerimientoAction: false,
     }
   },
   computed: {
@@ -446,6 +464,7 @@ export default {
   },
   watch: {
     requerimientoSetted(isSetted) {
+      this.showSaveRequerimientoAction = false
       this.quickEdited = false
       if (isSetted) {
         this.quickEdit.asunto = this.req.asunto
@@ -453,6 +472,9 @@ export default {
         this.quickEdit.comentario = this.req.comentario
       }
     },
+    // tab(newVal) {
+    //   this.showSaveRequerimientoAction
+    // }
   },
   methods: {
     closeDialog() {
@@ -477,6 +499,14 @@ export default {
         // Si es un error simple (no es de validacion de form con array de errores), muestro el msj nomas
         warn({ message: msg })
       }
+    },
+    handleTabChange() {
+      this.quickEdited = false
+      this.showSaveRequerimientoAction = false
+    },
+    saveRequerimientoAction() {
+      this.$refs.actionsTab.saveChanges()
+      // call save action on child
     },
   },
 }
