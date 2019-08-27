@@ -247,23 +247,6 @@ const processCancelaTestingRequerimiento = async (ctx, data) => {
       root,
     )
   }
-  // FIXME: aca voy a tener un problema. Si el usuario asinado a testing es distinto del asignado
-  // cuando se vuelve a desarrollo, se debe QUITAR del store. Pero en este caso, el req que viene
-  // en pusher no tiene más el "estado.asignacion_testing.usuario_id". Por ende, no voy a poder saber si tengo que eliminarselo o que
-  // en teoria se solucionaría localmente este problema, porque el usuaroi que lo saca de testing, yo lo elimino localmente. PROBAR
-  /* debugger
-  const userTestingAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion_testing.usuario_id",
-    false,
-  )
-  if ([userTestingAsignadoId].includes(currentUserId)) {
-    await ctx.commit(
-      "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
-      getPayload("update", data.requerimiento),
-      root,
-    )
-  } */
 }
 
 const processRequerimientoFinalizado = async (ctx, data) => {

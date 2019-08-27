@@ -14,6 +14,7 @@
       :dark="dark"
       :disable="operationDisabled"
       :class="{ 'cursor-not-allowed': operationDisabled }"
+      @input="operationChange"
     />
 
     <div class="q-mt-md">
@@ -146,8 +147,7 @@
         <div v-show="operation == 'devolverADesarrollo'">
           <div class="row q-mt-xs">
             <div class="col-12 text-grey-7">
-              Deje un mensaje de feedback para la persona encargada del
-              Desarrollo:
+              Deje un mensaje de feedback para la persona encargada del Desarrollo:
             </div>
           </div>
           <div class="row q-mt-xs">
@@ -258,14 +258,9 @@
       </q-slide-transition>
     </div>
 
-    <div v-show="operation !== null && !hideSaveButton" class="q-mt-md">
-      <q-btn
-        class="full-width"
-        label="Guardar"
-        color="deep-purple-10"
-        @click="saveChanges"
-      />
-    </div>
+    <!-- <div v-show="operation !== null && !hideSaveButton" class="q-mt-md">
+      <q-btn class="full-width" label="Guardar" color="deep-purple-10" @click="saveChanges" />
+    </div> -->
   </div>
 </template>
 
@@ -398,23 +393,24 @@ export default {
     }
   },
   methods: {
+    operationChange() {
+      if (this.operation !== null) {
+        this.$emit("showSaveRequerimientoAction", true)
+      } else {
+        this.$emit("showSaveRequerimientoAction", false)
+      }
+    },
     saveChanges() {
       // Valido, si esta descartando debe completar el comentario
       if (this.operation === "descartar" && !this.$refs.comment.validate()) {
         return
       }
       // Valido, si esta enviando a testing debe seleccionar un usuario
-      if (
-        this.operation === "testing" &&
-        !this.$refs.usuarioTesting.validate()
-      ) {
+      if (this.operation === "testing" && !this.$refs.usuarioTesting.validate()) {
         return
       }
       // Valido, si esta finalizando debe completar horas de ejecucion
-      if (
-        this.operation === "finalizar" &&
-        !this.$refs.horasEstimadas.validate()
-      ) {
+      if (this.operation === "finalizar" && !this.$refs.horasEstimadas.validate()) {
         return
       }
       // Valido, si esta en testing debe completar horas de ejecucion

@@ -94,9 +94,9 @@
       </q-slide-transition>
     </div>
 
-    <div v-show="operation !== null" class="q-mt-md">
+    <!-- <div v-show="operation !== null" class="q-mt-md">
       <q-btn class="full-width" label="Guardar" color="deep-purple-10" @click="saveChanges" />
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -219,6 +219,12 @@ export default {
   },
   methods: {
     operationChange() {
+      if (this.operation !== null) {
+        this.$emit("showSaveRequerimientoAction", true)
+      } else {
+        this.$emit("showSaveRequerimientoAction", false)
+      }
+
       if (this.operation === "aprobar" || this.operation === "seleccionarPrioridad") {
         this.updateOrdenTooltip()
       }

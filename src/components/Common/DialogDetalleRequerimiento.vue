@@ -481,12 +481,16 @@ export default {
       }
     },
     handleTabChange() {
+      // reset de los botones y los valores por defecto
       this.quickEdited = false
       this.showSaveRequerimientoAction = false
+      this.quickEdit.asunto = this.req.asunto
+      this.quickEdit.descripcion = this.req.descripcion
+      this.quickEdit.comentario = this.req.comentario
     },
     saveRequerimientoAction() {
-      this.$refs.actionsTab.saveChanges()
       // call save action on child
+      this.$refs.actionsTab.saveChanges()
     },
   },
 }
