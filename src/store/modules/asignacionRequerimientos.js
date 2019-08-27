@@ -52,11 +52,7 @@ const getters = {
     let reqsResult = _.filter(state.requerimientos, req => {
       return _.includes([estSinAsig.id, estEnProceso.id], req.estado.id)
     })
-    return _.orderBy(
-      reqsResult,
-      ["tipo.id", "prioridad", "id"],
-      ["asc", "asc", "desc"],
-    )
+    return _.orderBy(reqsResult, ["tipo.id", "prioridad", "id"], ["asc", "asc", "desc"])
   },
   requerimientosAsignados: (state, getters, rootState, rootGetters) => {
     const estAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
@@ -72,12 +68,7 @@ const getters = {
     })
     return _.orderBy(reqsResult, "tipo.id", "asc")
   },
-  requerimientosEnEjecucionYTesting: (
-    state,
-    getters,
-    rootState,
-    rootGetters,
-  ) => {
+  requerimientosEnEjecucionYTesting: (state, getters, rootState, rootGetters) => {
     const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
     const estadoEnTest = rootGetters["requerimientos/getEstadoByCodigo"]("TEST")
     const reqsResult = _.filter(state.requerimientos, req => {
@@ -86,10 +77,7 @@ const getters = {
     return _.orderBy(reqsResult, "tipo.id", "asc")
   },
   // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
-  requerimientosFiltered: (state, getters) => (
-    reqEstado,
-    overrideFilters = false,
-  ) => {
+  requerimientosFiltered: (state, getters) => (reqEstado, overrideFilters = false) => {
     let reqs
     switch (reqEstado) {
       case "NOAS":
@@ -118,11 +106,9 @@ const getters = {
     if (overrideFilters) {
       if (overrideFilters.descripcion) descripcion = overrideFilters.descripcion
       if (overrideFilters.sistema) sistema = overrideFilters.sistema
-      if (overrideFilters.requerimientoTipo)
-        requerimientoTipo = overrideFilters.requerimientoTipo
+      if (overrideFilters.requerimientoTipo) requerimientoTipo = overrideFilters.requerimientoTipo
       if (overrideFilters.usuarioAlta) usuarioAlta = overrideFilters.usuarioAlta
-      if (overrideFilters.usuariosAsignados)
-        usuariosAsignados = overrideFilters.usuariosAsignados
+      if (overrideFilters.usuariosAsignados) usuariosAsignados = overrideFilters.usuariosAsignados
     }
 
     // Determino que filtros aplicar, dependiendo de que hayan seteado
@@ -208,8 +194,7 @@ const getters = {
       return ""
     }
   },
-  requerimientoIdToChange: state =>
-    _.get(state.possibleChanges.payload, "id", ""),
+  requerimientoIdToChange: state => _.get(state.possibleChanges.payload, "id", ""),
   getNewOrder: (state, getters) => {
     // Busca el requerimiento a actualizar en el listado que está en pantalla en pantalla
     const reqsAsignadosOnScreen = state.possibleChanges.targetList
@@ -322,12 +307,7 @@ const mutations = {
 
   UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO: (
     state,
-    {
-      estadoAsignadoId,
-      orderStart,
-      reqIdToAvoid,
-      updateOrderToCurrentRequerimiento = false,
-    },
+    { estadoAsignadoId, orderStart, reqIdToAvoid, updateOrderToCurrentRequerimiento = false },
   ) => {
     // Actualiza todos los requerimientos en estado ASIGNADO
     state.requerimientos = state.requerimientos.map(ra => {
@@ -389,12 +369,8 @@ const actions = {
         commit("SET_LOADING_REQUERIMIENTOS", true)
         await dispatch("auth/getUsuariosFiltro", null, { root: true })
         // Determino el userId para los requerimientos
-        const userIdForRequerimientos = userId
-          ? userId
-          : rootGetters["auth/userId"]
-        const requerimientos = await getRequerimientosForPanelAsignacion(
-          userIdForRequerimientos,
-        )
+        const userIdForRequerimientos = userId ? userId : rootGetters["auth/userId"]
+        const requerimientos = await getRequerimientosForPanelAsignacion(userIdForRequerimientos)
         commit("SET_REQUERIMIENTOS", requerimientos)
         resolve()
       } catch (error) {
@@ -434,9 +410,7 @@ const actions = {
             message = _.get(res, "data.message", null)
 
             // Se armar el objeto 'estado' para actualizar el objeto en el array local
-            const estadoAsignado = rootGetters[
-              "requerimientos/getEstadoByCodigo"
-            ]("ASSI")
+            const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
             const newState = {
               id: estadoAsignado.id,
               descripcion: estadoAsignado.descripcion,
@@ -464,9 +438,7 @@ const actions = {
             message = _.get(res, "data.message", null)
 
             // Se armar el objeto 'estado' para actualizar el objeto en el array local
-            const estadoAsignado = rootGetters[
-              "requerimientos/getEstadoByCodigo"
-            ]("NOAS")
+            const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("NOAS")
             const newState = {
               id: estadoAsignado.id,
               descripcion: estadoAsignado.descripcion,
@@ -583,16 +555,11 @@ const actions = {
           orden,
           ultimo,
         }
-        const res = await asignarRequerimiento(
-          getters.requerimientoIdToChange,
-          dataReordenar,
-        )
+        const res = await asignarRequerimiento(getters.requerimientoIdToChange, dataReordenar)
         const message = _.get(res, "data.message", null)
 
         // Updatea el Orden de todo el arbol y el orden
-        const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"](
-          "ASSI",
-        )
+        const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
         commit("UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO", {
           estadoAsignadoId: estadoAsignado.id,
           orderStart: orden,

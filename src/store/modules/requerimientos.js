@@ -124,10 +124,7 @@ const mutations = {
   SET_MIS_REQUERIMIENTOS_HUBO_CAMBIOS(state, value) {
     state.misRequerimientosHuboCambio = value
   },
-  PUSHER_PROCESS_UPDATE: (
-    state,
-    { showHuboCambioMsg, reqInCurrentList, requerimiento },
-  ) => {
+  PUSHER_PROCESS_UPDATE: (state, { showHuboCambioMsg, reqInCurrentList, requerimiento }) => {
     state.misRequerimientosHuboCambio = showHuboCambioMsg
     // state.misRequerimientosHuboCambio = true
     if (reqInCurrentList) {
@@ -254,25 +251,13 @@ const actions = {
         let reqList = state.misRequerimientos
         requerimiento = _.find(reqList, { id: reqId })
       } else if (listName === "priorizar-requerimientos") {
-        let reqList = _.get(
-          rootState,
-          "priorizarRequerimientos.requerimientos",
-          null,
-        )
+        let reqList = _.get(rootState, "priorizarRequerimientos.requerimientos", null)
         requerimiento = _.find(reqList, { id: reqId })
       } else if (listName === "asignar-requerimientos") {
-        let reqList = _.get(
-          rootState,
-          "asignacionRequerimientos.requerimientos",
-          null,
-        )
+        let reqList = _.get(rootState, "asignacionRequerimientos.requerimientos", null)
         requerimiento = _.find(reqList, { id: reqId })
       } else if (listName === "requerimientos-asignados") {
-        let reqList = _.get(
-          rootState,
-          "requerimientosAsignados.requerimientos",
-          null,
-        )
+        let reqList = _.get(rootState, "requerimientosAsignados.requerimientos", null)
         requerimiento = _.find(reqList, { id: reqId })
       }
       // else if (
@@ -342,15 +327,11 @@ const actions = {
     })
   },
 
-  pusherUpdateMisRequerimientos(
-    { commit, state },
-    { requerimiento, showMessage = true },
-  ) {
+  pusherUpdateMisRequerimientos({ commit, state }, { requerimiento, showMessage = true }) {
     return new Promise(resolve => {
       // chequeo si se debe mostrar el mensaje de "algo cambio" (solo si esta en la pagina)
       // se mostrará si showMessage===true y la pagina es "mis-requerimientos"
-      const showHuboCambioMsg =
-        showMessage && router.currentRoute.name === "mis-requerimientos"
+      const showHuboCambioMsg = showMessage && router.currentRoute.name === "mis-requerimientos"
       // chequeo si el req en cuestion está en la vista actual de mis reqs, para saber si lo tengo que actualizar
       const reqInCurrentList = _.find(state.misRequerimientos, {
         id: requerimiento.id,

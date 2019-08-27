@@ -51,18 +51,11 @@ const getPayload = (operation, data) => {
  * @param {Object} ctx: store context (app)
  * @param {Object} requerimiento: requerimiento actualizado
  */
-const updateNotificacionesDashboardMisReqs = _.debounce(
-  (ctx, requerimiento) => {
-    ctx.dispatch("checkNotificacionesYDashboard")
+const updateNotificacionesDashboardMisReqs = _.debounce((ctx, requerimiento) => {
+  ctx.dispatch("checkNotificacionesYDashboard")
 
-    ctx.dispatch(
-      "requerimientos/pusherUpdateMisRequerimientos",
-      { requerimiento },
-      root,
-    )
-  },
-  2500,
-)
+  ctx.dispatch("requerimientos/pusherUpdateMisRequerimientos", { requerimiento }, root)
+}, 2500)
 
 const processPriorizarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
@@ -162,11 +155,7 @@ const processRequerimientoAsignado = async (ctx, data) => {
   // Si el usuario asignado al req (o el asignado a testing), es el usuario logueado, agrega/updatea el req en el listado correspondiente
   // USERS: usuario_sistemas_asignado | usuario_testing_asignado
   const currentUserId = store.getters["auth/userId"]
-  const userAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion.usuario_id",
-    false,
-  )
+  const userAsignadoId = _.get(data.requerimiento, "estado.asignacion.usuario_id", false)
   const userTestingAsignadoId = _.get(
     data.requerimiento,
     "estado.asignacion_testing.usuario_id",
@@ -217,11 +206,7 @@ const processEjecutarOCancelarEjecucionRequerimiento = async (ctx, data) => {
 
   // USERS: usuario_sistemas_asignado | usuario_testing_asignado
   const currentUserId = store.getters["auth/userId"]
-  const userAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion.usuario_id",
-    false,
-  )
+  const userAsignadoId = _.get(data.requerimiento, "estado.asignacion.usuario_id", false)
   if ([userAsignadoId].includes(currentUserId)) {
     await ctx.commit(
       "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
@@ -246,11 +231,7 @@ const processCancelaTestingRequerimiento = async (ctx, data) => {
 
   // USERS: usuario_sistemas_asignado | usuario_testing_asignado
   const currentUserId = store.getters["auth/userId"]
-  const userAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion.usuario_id",
-    false,
-  )
+  const userAsignadoId = _.get(data.requerimiento, "estado.asignacion.usuario_id", false)
   // Si soy el usuario asignado, lo actualizo de estado
   if ([userAsignadoId].includes(currentUserId)) {
     await ctx.commit(
@@ -363,11 +344,7 @@ const processPausarReanudarRequerimiento = async (ctx, data) => {
 
   // USERS: usuario_sistemas_asignado
   const currentUserId = store.getters["auth/userId"]
-  const userAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion.usuario_id",
-    false,
-  )
+  const userAsignadoId = _.get(data.requerimiento, "estado.asignacion.usuario_id", false)
   if ([userAsignadoId].includes(currentUserId)) {
     await ctx.commit(
       "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",

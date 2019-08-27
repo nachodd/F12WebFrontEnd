@@ -28,16 +28,10 @@ export default class Requerimiento {
     this.motivoLimite = req.motivo_limite ? req.motivo_limite : ""
 
     // el estado puede estar setiado en estado o estado_general por eso va este ternario
-    this.estado = req.estado
-      ? req.estado
-      : req.estado_general
-      ? req.estado_general
-      : null
+    this.estado = req.estado ? req.estado : req.estado_general ? req.estado_general : null
     //this.estado = req.estado ? req.estado : null
 
-    this.estado_priorizacion = req.estado_priorizacion
-      ? req.estado_priorizacion
-      : null
+    this.estado_priorizacion = req.estado_priorizacion ? req.estado_priorizacion : null
     // Consevervamos la original
     this._fechaAlta = req.fecha_alta ? req.fecha_alta : null
     this.fechaAlta =
@@ -49,9 +43,7 @@ export default class Requerimiento {
     this.usuario = req.usuario ? req.usuario : null
     this.comentario = req.comentario ? req.comentario : null
     this.movimientos = req.movimientos ? req.movimientos : []
-    this.requerimientoAsociado = req.requerimiento_asociado
-      ? req.requerimiento_asociado
-      : null
+    this.requerimientoAsociado = req.requerimiento_asociado ? req.requerimiento_asociado : null
     this.usuarioCadena = req.usuario_cadena ? req.usuario_cadena : null
   }
 
@@ -64,11 +56,7 @@ export default class Requerimiento {
 
   get diasToVencimiento() {
     if (this.vence) {
-      const diff = date.getDateDiff(
-        new Date(this._fechaLimite),
-        new Date(),
-        "days",
-      )
+      const diff = date.getDateDiff(new Date(this._fechaLimite), new Date(), "days")
       return diff
     }
     return null

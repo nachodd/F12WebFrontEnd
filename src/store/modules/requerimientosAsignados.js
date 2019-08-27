@@ -53,8 +53,7 @@ const state = {
 }
 
 const getters = {
-  requerimientoIdToChange: state =>
-    _.get(state.possibleChanges.payload, "id", ""),
+  requerimientoIdToChange: state => _.get(state.possibleChanges.payload, "id", ""),
   // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
   // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
   possibleChangesSetted: state => {
@@ -69,11 +68,7 @@ const getters = {
     return _.get(state, "possibleChanges.payload.estado.pausado", false)
   },
   operationToExec: state => {
-    const {
-      sourceChanges,
-      targetChanges,
-      testingChanges,
-    } = state.possibleChanges
+    const { sourceChanges, targetChanges, testingChanges } = state.possibleChanges
     return (
       sourceChanges.removedIndex !== null &&
       sourceChanges.addedIndex === null &&
@@ -84,11 +79,7 @@ const getters = {
     )
   },
   operationToPending: state => {
-    const {
-      sourceChanges,
-      targetChanges,
-      testingChanges,
-    } = state.possibleChanges
+    const { sourceChanges, targetChanges, testingChanges } = state.possibleChanges
     return (
       sourceChanges.removedIndex === null &&
       sourceChanges.addedIndex !== null &&
@@ -99,11 +90,7 @@ const getters = {
     )
   },
   operationToTesting: state => {
-    const {
-      sourceChanges,
-      targetChanges,
-      testingChanges,
-    } = state.possibleChanges
+    const { sourceChanges, targetChanges, testingChanges } = state.possibleChanges
     return (
       sourceChanges.removedIndex === null &&
       sourceChanges.addedIndex === null &&
@@ -114,11 +101,7 @@ const getters = {
     )
   },
   operationWrongToTesting: state => {
-    const {
-      sourceChanges,
-      targetChanges,
-      testingChanges,
-    } = state.possibleChanges
+    const { sourceChanges, targetChanges, testingChanges } = state.possibleChanges
     return (
       sourceChanges.removedIndex !== null &&
       sourceChanges.addedIndex === null &&
@@ -130,16 +113,10 @@ const getters = {
   },
   operationWrongFromTesting: state => {
     const { testingChanges } = state.possibleChanges
-    return (
-      testingChanges.removedIndex !== null && testingChanges.addedIndex === null
-    )
+    return testingChanges.removedIndex !== null && testingChanges.addedIndex === null
   },
   operationType: (state, getters) => {
-    if (
-      getters.operationToExec &&
-      !getters.operationToPending &&
-      !getters.operationToTesting
-    ) {
+    if (getters.operationToExec && !getters.operationToPending && !getters.operationToTesting) {
       return "execute"
     } else if (
       !getters.operationToExec &&
@@ -169,11 +146,7 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estadoEnEjec.id },
     })
-    return _.orderBy(
-      reqsResult,
-      ["estado.pausado", "estado.asignacion.orden"],
-      ["asc", "asc"],
-    )
+    return _.orderBy(reqsResult, ["estado.pausado", "estado.asignacion.orden"], ["asc", "asc"])
   },
   requerimientosTesting: (state, getters, rootState, rootGetters) => {
     const estTesting = rootGetters["requerimientos/getEstadoByCodigo"]("TEST")
@@ -197,11 +170,7 @@ const getters = {
         reqs = [...getters.requerimientosTesting]
         break
     }
-    const {
-      descripcion = null,
-      sistema = null,
-      requerimientoTipo = null,
-    } = state.filtros
+    const { descripcion = null, sistema = null, requerimientoTipo = null } = state.filtros
 
     // Determino que filtros aplicar, dependiendo de que hayan seteado
     let filtersToApply = []
@@ -371,8 +340,7 @@ const actions = {
       }
       if (getters.operationWrongToTesting) {
         reject({
-          message:
-            "El requerimiento debe estar en ejecución para poder enviar a testing",
+          message: "El requerimiento debe estar en ejecución para poder enviar a testing",
         })
         commit("CLEAR_OPERATIONS")
         return
@@ -421,11 +389,7 @@ const actions = {
     { operation, comment, horasEstimadas, usuarioTesting, sistemaId },
   ) {
     return new Promise(async (resolve, reject) => {
-      let requerimientoItem = _.get(
-        rootState,
-        "requerimientos.detalleRequerimientoItem",
-        null,
-      )
+      let requerimientoItem = _.get(rootState, "requerimientos.detalleRequerimientoItem", null)
 
       try {
         dispatch("app/loadingInc", null, { root: true })
