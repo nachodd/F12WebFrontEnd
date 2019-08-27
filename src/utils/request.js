@@ -71,11 +71,7 @@ service.interceptors.response.use(
     const errorData = _.get(error, "response.data", undefined) // (error && error.response && error.response.data) || undefined
 
     // Check if it was 'Unprocessable Entity' error and if it has to handle it here:
-    const handleErrorsHere = _.get(
-      error,
-      "config.__handleErrorsInResponse",
-      undefined,
-    )
+    const handleErrorsHere = _.get(error, "config.__handleErrorsInResponse", undefined)
     // (error && error.config && error.config.__handleErrorsInResponse) || false
     let errorsArray = _.get(error, "response.data.errors", undefined)
     if (!errorsArray) {
@@ -105,13 +101,9 @@ service.interceptors.response.use(
     // If you can't refresh your token or you are sent Unauthorized on any request, reset token and go to login
     const isRefreshOrLogout =
       req !== undefined &&
-      (req.responseURL.includes("refresh") ||
-        req.responseURL.includes("logout"))
+      (req.responseURL.includes("refresh") || req.responseURL.includes("logout"))
 
-    if (
-      isRefreshOrLogout ||
-      (status === 401 && error.config.__isRetryRequest)
-    ) {
+    if (isRefreshOrLogout || (status === 401 && error.config.__isRetryRequest)) {
       await store.dispatch("auth/resetToken")
       router.replace({ name: "login" })
       return Promise.reject({
@@ -121,10 +113,7 @@ service.interceptors.response.use(
       })
     }
     // retry the request ONLY if not already tried
-    if (
-      isRefreshOrLogout ||
-      (status === 401 && !error.config.__isRetryRequest)
-    ) {
+    if (isRefreshOrLogout || (status === 401 && !error.config.__isRetryRequest)) {
       await store.dispatch("auth/refresh")
       error.config.__isRetryRequest = true
       return service.request(error.config)
@@ -148,12 +137,9 @@ async function getAuthToken() {
   const expiresIn = store.getters["auth/expiresIn"]
   const expiresMinus15Minutes = new Date(+expiresIn)
   const minutesBefore = 60 * 0
-  expiresMinus15Minutes.setSeconds(
-    expiresMinus15Minutes.getSeconds() - minutesBefore,
-  ) // returns unix ts
+  expiresMinus15Minutes.setSeconds(expiresMinus15Minutes.getSeconds() - minutesBefore) // returns unix ts
   const expiresDateMinus15Minutes = new Date(expiresMinus15Minutes)
-  const isTokenExpiredOrAboutTo =
-    expiresDateMinus15Minutes.getTime() <= Date.now()
+  const isTokenExpiredOrAboutTo = expiresDateMinus15Minutes.getTime() <= Date.now()
 
   if (isTokenExpiredOrAboutTo) {
     // refresh it and update it

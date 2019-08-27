@@ -1,10 +1,4 @@
-import {
-  login,
-  logout,
-  refresh,
-  getUsuarioGestion,
-  getUsuariosFiltro,
-} from "api/user"
+import { login, logout, refresh, getUsuarioGestion, getUsuariosFiltro } from "api/user"
 import {
   getToken,
   getExpiresIn,
@@ -95,11 +89,7 @@ const getters = {
       label: uj.razonSocial,
       value: uj.usuarioId,
     }))
-    const users = [
-      ...getters.userReportantes,
-      ...getters.userPares,
-      ...userJefes,
-    ]
+    const users = [...getters.userReportantes, ...getters.userPares, ...userJefes]
     return _.orderBy(users, ["label"], ["asc"])
   },
   userYoParesYReportantes: (state, getters) => {
@@ -120,15 +110,11 @@ const getters = {
     })
     return _.orderBy(users, ["label"], ["asc"])
   },
-  hasJefes: (state, getters) =>
-    getters.userJefes && getters.userJefes.length > 0,
-  hasReportantes: (state, getters) =>
-    getters.userReportantes && getters.userReportantes.length > 0,
+  hasJefes: (state, getters) => getters.userJefes && getters.userJefes.length > 0,
+  hasReportantes: (state, getters) => getters.userReportantes && getters.userReportantes.length > 0,
   hasReportantesNoOperativos: (state, getters) => {
     const userReps = _.get(state, "userVinculacion.reportantes", [])
-    return (
-      getters.hasReportantes && _.some(userReps, ur => ur.nivel !== "Operativo")
-    )
+    return getters.hasReportantes && _.some(userReps, ur => ur.nivel !== "Operativo")
   },
 
   // Si no tiene reportantes, será el ultimo eslabon de la cadena de mando
@@ -148,10 +134,8 @@ const getters = {
     )
   },
 
-  userEsResponsableDeProcesos: state =>
-    _.find(state.userSistemas, { id: 13 }) !== undefined,
-  esDeSistemasOProcesos: state =>
-    _.filter([36, 48], id => id == state.userArea.id).length > 0,
+  userEsResponsableDeProcesos: state => _.find(state.userSistemas, { id: 13 }) !== undefined,
+  esDeSistemasOProcesos: state => _.filter([36, 48], id => id == state.userArea.id).length > 0,
   esDeProcesos: state => state.userArea.id === 48,
   gerentesOrderByArea: state => {
     // return _.groupBy(state.gerentes, "area.descripcion")
@@ -281,10 +265,7 @@ const actions = {
       }
     })
   },
-  loginHorus(
-    { commit, dispatch },
-    { access_token, expires_in, refresh_token },
-  ) {
+  loginHorus({ commit, dispatch }, { access_token, expires_in, refresh_token }) {
     return new Promise(async (resolve, reject) => {
       try {
         const expires = expiresToUnixTS(expires_in)

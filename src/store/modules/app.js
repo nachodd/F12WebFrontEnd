@@ -1,9 +1,5 @@
 import Cookies from "js-cookie"
-import {
-  getDashboardData,
-  checkNotificaciones,
-  readNotificaciones,
-} from "api/user"
+import { getDashboardData, checkNotificaciones, readNotificaciones } from "api/user"
 import Notificacion from "models/notificacion"
 import { date } from "quasar"
 import {
@@ -26,9 +22,7 @@ import {
 const LIMIT_NOTIFICACIONES_SHOWED = 5
 
 const state = {
-  sidebarOpen: Cookies.get("sidebarStatus")
-    ? !!+Cookies.get("sidebarStatus")
-    : true,
+  sidebarOpen: Cookies.get("sidebarStatus") ? !!+Cookies.get("sidebarStatus") : true,
   device: "desktop",
   loadingLevel: 0,
   dashboard: {
@@ -50,10 +44,7 @@ const getters = {
   device: state => state.device,
   isPageLoading: state => state.loadingLevel !== 0,
   dashboardAsignadosYEjecutando: state => {
-    return (
-      state.dashboard.asignados_pendiente_ejecucion +
-      state.dashboard.asignados_ejecucion
-    )
+    return state.dashboard.asignados_pendiente_ejecucion + state.dashboard.asignados_ejecucion
   },
 
   notificacionesRead: state =>
@@ -68,10 +59,8 @@ const getters = {
       .orderBy(["_created_at"], ["desc"])
       .take(state.limitUnread)
       .value(),
-  notificacionesUnreadCount: state =>
-    _.filter(state.notificaciones, { leida: false }).length,
-  notificacionesReadCount: state =>
-    _.filter(state.notificaciones, { leida: true }).length,
+  notificacionesUnreadCount: state => _.filter(state.notificaciones, { leida: false }).length,
+  notificacionesReadCount: state => _.filter(state.notificaciones, { leida: true }).length,
   notificacionesUnreadVerMasShowed: (state, getters) =>
     state.limitUnread < getters.notificacionesUnreadCount,
   notificacionesReadVerMasShowed: (state, getters) =>
@@ -159,17 +148,11 @@ const mutations = {
       })
       if (notificacion) {
         notificacion._read_at = nr.notification_read_at
-        notificacion.read_at = date.formatDate(
-          nr.notification_read_at,
-          "HH:mm DD/MM",
-        )
+        notificacion.read_at = date.formatDate(nr.notification_read_at, "HH:mm DD/MM")
       }
     })
   },
-  SET_LIMIT_NOTIFICACIONES_SHOWED: (
-    state,
-    { which, showMore = 3, reset = false },
-  ) => {
+  SET_LIMIT_NOTIFICACIONES_SHOWED: (state, { which, showMore = 3, reset = false }) => {
     if (reset) {
       state.limitUnread = LIMIT_NOTIFICACIONES_SHOWED
       state.limitRead = LIMIT_NOTIFICACIONES_SHOWED

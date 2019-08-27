@@ -189,14 +189,14 @@
         </div>
       </q-slide-transition>
     </div>
-    <div v-show="operation !== null && !hideSaveButton" class="q-mt-md">
+    <!-- <div v-show="operation !== null && !hideSaveButton" class="q-mt-md">
       <q-btn
         class="full-width"
         label="Guardar"
         color="deep-purple-10"
         @click="saveChanges"
       />
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -347,6 +347,11 @@ export default {
   },
   methods: {
     operationChange() {
+      if (this.operation !== null) {
+        this.$emit("showSaveRequerimientoAction", true)
+      } else {
+        this.$emit("showSaveRequerimientoAction", false)
+      }
       // Reseteamos el usuario asignado (y la validacion, porque al setearla en null salta) y el orden
       this.usuarioAsignado = null
       this.$refs.usuarioAsignado.resetValidation()
