@@ -59,7 +59,7 @@ const updateNotificacionesDashboardMisReqs = _.debounce((ctx, requerimiento) => 
 
 const processPriorizarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  // USERS: usuario_cadena (siguiente en la cadena)
+  // USERS: usuario_cadena (siguiente en la cadena), usuario_creador (el data.requerimiento viene con el estado correspondiente a cada usuario)
   await ctx.commit(
     "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("addOrUpdate", data.requerimiento),
