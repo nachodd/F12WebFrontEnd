@@ -61,10 +61,7 @@
         </q-item-label> -->
         <q-item-label v-if="req.vence">
           <span class="card__text-body">
-            <q-icon
-              name="far fa-calendar-alt"
-              class="vertical-top q-mr-xs q-pl-xs"
-            />
+            <q-icon name="far fa-calendar-alt" class="vertical-top q-mr-xs q-pl-xs" />
             {{ req.fechaLimite }}
             <q-icon
               v-if="diasVencimiento < 7"
@@ -115,10 +112,7 @@
 
         <q-item-label v-if="estaAsignado">
           <span class="card__text-user">
-            <q-icon
-              name="fas fa-user-check"
-              class="vertical-top q-mr-xs q-pl-sm"
-            />
+            <q-icon name="fas fa-user-check" class="vertical-top q-mr-xs q-pl-sm" />
             {{ usuarioAsignado }}
             <q-tooltip>
               Usuario Asignado:
@@ -129,10 +123,7 @@
 
         <q-item-label v-if="estaEnTesting">
           <span class="card__text-user">
-            <q-icon
-              name="fas fas fa-flask"
-              class="vertical-top q-mr-xs q-pl-xs"
-            />
+            <q-icon name="fas fas fa-flask" class="vertical-top q-mr-xs q-pl-xs" />
             {{ usuarioTesting }}
             <q-tooltip>
               Usuario Tester:
@@ -181,9 +172,7 @@
       </div>
 
       <div v-if="isDevelopment && estadoAsignado" class="col-3 text-right">
-        <q-badge color="red-7" text-color="white">
-          ORDEN: {{ reqOrden }}
-        </q-badge>
+        <q-badge color="red-7" text-color="white">ORDEN: {{ reqOrden }}</q-badge>
       </div>
     </div>
   </q-item>

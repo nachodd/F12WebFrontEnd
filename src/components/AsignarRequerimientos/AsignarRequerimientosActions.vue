@@ -376,9 +376,7 @@ export default {
         const overrideFilters = {
           usuariosAsignados: [userObj],
         }
-        this.reqsPossibleNewOrder = [
-          ...this.requerimientosFiltered("ASSI", overrideFilters),
-        ]
+        this.reqsPossibleNewOrder = [...this.requerimientosFiltered("ASSI", overrideFilters)]
       } else {
         this.reqsPossibleNewOrder = [...this.requerimientosFiltered("ASSI")]
       }
@@ -489,10 +487,7 @@ export default {
     },
     async saveChanges() {
       // Si es descartar, debo incluir un comentario
-      if (
-        this.operation === "descartar" &&
-        !this.$refs.commentDesasignarDescartar.validate()
-      ) {
+      if (this.operation === "descartar" && !this.$refs.commentDesasignarDescartar.validate()) {
         return
       }
 
@@ -510,13 +505,10 @@ export default {
 
       // Si el slider esta mostrado, envio el listado de requerimientos "ordenado" asi actualiza el state.possibleChanges.target y de esta manera, calcula el nuevo orden y el ultimo
       if (!this.hideOrderAsignacion) {
-        await this.$store.dispatch(
-          "asignacionRequerimientos/updateTargetList",
-          {
-            targetList: this.reqsPossibleNewOrder,
-            reqIdToUpdate: this.req.id,
-          },
-        )
+        await this.$store.dispatch("asignacionRequerimientos/updateTargetList", {
+          targetList: this.reqsPossibleNewOrder,
+          reqIdToUpdate: this.req.id,
+        })
       }
 
       this.$store
@@ -571,10 +563,7 @@ export default {
           this.comment = null
           this.$emit("closeDialog") // close details dialog
           // close confirm op. dialog
-          this.$store.dispatch(
-            "asignacionRequerimientos/setDialogConfirmOperationOpen",
-            false,
-          )
+          this.$store.dispatch("asignacionRequerimientos/setDialogConfirmOperationOpen", false)
         })
         .catch(e => {
           warn({ message: e.message })

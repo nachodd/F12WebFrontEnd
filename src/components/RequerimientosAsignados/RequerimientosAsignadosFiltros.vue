@@ -160,10 +160,7 @@ export default {
       this.filterPhoto.sistema = this.sistemaDescripcion || null
     },
     updateSomeFilterIsSetted() {
-      this.someFilterIsSetted = _.some([
-        this.sistemaSetted,
-        this.tipoRequerimientoSetted,
-      ])
+      this.someFilterIsSetted = _.some([this.sistemaSetted, this.tipoRequerimientoSetted])
     },
     limpiarFiltros() {
       this.filterValues.descripcion = null

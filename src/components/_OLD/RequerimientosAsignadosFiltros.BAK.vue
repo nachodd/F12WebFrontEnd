@@ -117,17 +117,11 @@
           Click aquí para aplicar este filtro
         </tooltip>
         <span>
-          <div
-            class="d-ib cursor-pointer"
-            @click="aplicarFiltroRapidoTipoReq('Arreglo')"
-          >
+          <div class="d-ib cursor-pointer" @click="aplicarFiltroRapidoTipoReq('Arreglo')">
             <div class="square d-ib bg-red-7">&nbsp;</div>
             Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
           </div>
-          <div
-            class="d-ib cursor-pointer"
-            @click="aplicarFiltroRapidoTipoReq('Desarrollo')"
-          >
+          <div class="d-ib cursor-pointer" @click="aplicarFiltroRapidoTipoReq('Desarrollo')">
             <div class="square d-ib bg-light-blue-7">&nbsp;</div>
             Desarrollo / Mejora &nbsp;&nbsp;
           </div>
@@ -188,8 +182,7 @@ export default {
     },
     __tipo: {
       get() {
-        return this.$store.state.requerimientosAsignados.filtros
-          .requerimientoTipo
+        return this.$store.state.requerimientosAsignados.filtros.requerimientoTipo
       },
       set(value) {
         this.$store.dispatch("requerimientosAsignados/setFilter", {

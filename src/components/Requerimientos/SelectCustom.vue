@@ -25,11 +25,7 @@
   >
     <!-- @input="handleInput" -->
     <template v-if="localValue" v-slot:append>
-      <q-icon
-        name="cancel"
-        class="cursor-pointer"
-        @click.stop="$emit('input', null)"
-      />
+      <q-icon name="cancel" class="cursor-pointer" @click.stop="$emit('input', null)" />
     </template>
 
     <!-- override only "option" v-scoped-slot: -->

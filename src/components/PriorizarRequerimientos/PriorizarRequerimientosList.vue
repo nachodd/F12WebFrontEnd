@@ -17,10 +17,7 @@
         </div>
       </template>
       <template v-else>
-        <Draggable
-          v-for="(req, index) in requerimientosList"
-          :key="`req_${req.id}`"
-        >
+        <Draggable v-for="(req, index) in requerimientosList" :key="`req_${req.id}`">
           <transition
             appear
             name="flip"
@@ -112,10 +109,7 @@ export default {
 
       const updatedListData = { listName, listResult, dropResult }
 
-      this.$store.dispatch(
-        "priorizarRequerimientos/processUpdateList",
-        updatedListData,
-      )
+      this.$store.dispatch("priorizarRequerimientos/processUpdateList", updatedListData)
 
       // this.$emit("list-updated")
     },

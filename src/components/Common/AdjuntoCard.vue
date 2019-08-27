@@ -16,13 +16,7 @@
         </q-item-label>
       </q-item-section>
       <q-item-section v-if="showRemove" top side class="q-px-xs">
-        <q-btn
-          flat
-          dense
-          round
-          icon="delete"
-          @click="$emit('removeAttach', adjunto)"
-        />
+        <q-btn flat dense round icon="delete" @click="$emit('removeAttach', adjunto)" />
       </q-item-section>
     </q-item>
     <tooltip>{{ fileNameComp }}</tooltip>

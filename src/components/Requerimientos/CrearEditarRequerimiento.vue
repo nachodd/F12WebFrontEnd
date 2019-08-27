@@ -39,9 +39,7 @@ export default {
       if (this.isPageLoading || this.form.procesandoArchivosCargados) {
         return "Cargando, por favor espere..."
       } else {
-        return this.isEdit
-          ? `Editar Requerimiento #${this.form.id}`
-          : "Nuevo Requerimiento"
+        return this.isEdit ? `Editar Requerimiento #${this.form.id}` : "Nuevo Requerimiento"
       }
     },
     tipoReqHabilitado() {
@@ -63,8 +61,7 @@ export default {
       await this.$store.dispatch("app/loadingInc")
       await this.$store.dispatch("requerimientos/createRequerimiento")
       const reqIdToEdit = _.get(this, "$route.query.id", false)
-      const isEdit =
-        _.get(this, "$route.query.ver", null) === "editarRequerimiento"
+      const isEdit = _.get(this, "$route.query.ver", null) === "editarRequerimiento"
 
       if (isEdit && reqIdToEdit) {
         this.isEdit = true
@@ -97,8 +94,7 @@ export default {
       }
     } catch (e) {
       const message =
-        e.message ||
-        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
+        e.message || "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
       warn({ message })
     }
   },

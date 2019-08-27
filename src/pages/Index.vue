@@ -4,10 +4,7 @@
       <!-- <q-btn @click="refresh">
         test
       </q-btn> -->
-      <div
-        v-if="!esElUltimoDeLaCadenaDeMando"
-        class="col-md-4 col-sm-6 col-xs-12 q-mb-lg"
-      >
+      <div v-if="!esElUltimoDeLaCadenaDeMando" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'priorizar-requerimientos' }" class="no-dec">
           <widget-simple
             icon="fas fa-sort-amount-down"
@@ -35,10 +32,7 @@
         </router-link>
       </div>
 
-      <div
-        v-if="puedeVerRequerimientosAsignados"
-        class="col-md-4 col-sm-6 col-xs-12 q-mb-lg"
-      >
+      <div v-if="puedeVerRequerimientosAsignados" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
           <widget-simple
             icon="fas fa-bell"
@@ -52,10 +46,7 @@
         </router-link>
       </div>
 
-      <div
-        v-if="puedeVerRequerimientosAsignados"
-        class="col-md-4 col-sm-6 col-xs-12 q-mb-lg"
-      >
+      <div v-if="puedeVerRequerimientosAsignados" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
           <widget-simple
             icon="fas fa-flask"

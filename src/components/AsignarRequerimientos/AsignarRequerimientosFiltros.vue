@@ -184,16 +184,10 @@ export default {
       return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
     },
     usuarioAltaSetted() {
-      return (
-        this.filterValues.usuarioAlta &&
-        Boolean(this.filterValues.usuarioAlta.id)
-      )
+      return this.filterValues.usuarioAlta && Boolean(this.filterValues.usuarioAlta.id)
     },
     usuariosAsignadosSetted() {
-      return (
-        this.filterValues.usuariosAsignados &&
-        this.filterValues.usuariosAsignados.length > 0
-      )
+      return this.filterValues.usuariosAsignados && this.filterValues.usuariosAsignados.length > 0
     },
 
     sistemaDescripcion() {
@@ -207,29 +201,20 @@ export default {
     },
     usuariosAsignadosDescripcion() {
       if (this.usuariosAsignadosSetted) {
-        return this.filterValues.usuariosAsignados
-          .map(ua => ua.label)
-          .join(", ")
+        return this.filterValues.usuariosAsignados.map(ua => ua.label).join(", ")
       }
       return ""
     },
   },
   async mounted() {
     await this.$store.dispatch("requerimientos/createRequerimiento")
-    const {
-      descripcion,
-      sistema,
-      tipo,
-      usuariosAsignados,
-      usuarioAlta,
-    } = this.filtros
+    const { descripcion, sistema, tipo, usuariosAsignados, usuarioAlta } = this.filtros
 
     if (descripcion) this.filterValues.descripcion = descripcion
     if (sistema) this.filterValues.sistema = sistema
     if (tipo) this.filterValues.tipo = tipo
     if (usuarioAlta) this.filterValues.usuarioAlta = usuarioAlta
-    if (usuariosAsignados)
-      this.filterValues.usuariosAsignados = usuariosAsignados
+    if (usuariosAsignados) this.filterValues.usuariosAsignados = usuariosAsignados
 
     this.filtrar()
   },
@@ -243,8 +228,7 @@ export default {
     updateFilterPhoto() {
       this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
       this.filterPhoto.sistema = this.sistemaDescripcion || null
-      this.filterPhoto.usuariosAsignados =
-        this.usuariosAsignadosDescripcion || null
+      this.filterPhoto.usuariosAsignados = this.usuariosAsignadosDescripcion || null
       this.filterPhoto.usuarioAlta = this.usuarioAltaDescripcion || null
     },
     updateSomeFilterIsSetted() {

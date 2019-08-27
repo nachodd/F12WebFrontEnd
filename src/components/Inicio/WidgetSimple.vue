@@ -11,10 +11,7 @@
       :style="backGradientColor"
     >
       <div class="text-center col" :class="[iconTextClass]">
-        <q-icon
-          :name="loading ? 'fas fa-spinner fa-spin' : icon"
-          size="3.7rem"
-        />
+        <q-icon :name="loading ? 'fas fa-spinner fa-spin' : icon" size="3.7rem" />
       </div>
     </div>
 

@@ -18,10 +18,7 @@
           </div>
         </template>
         <template v-else>
-          <Draggable
-            v-for="(req, index) in requerimientosList"
-            :key="`req_${req.id}`"
-          >
+          <Draggable v-for="(req, index) in requerimientosList" :key="`req_${req.id}`">
             <transition
               appear
               name="flip"

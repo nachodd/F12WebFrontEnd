@@ -26,10 +26,7 @@
 
         <q-item-label v-if="estaEnTesting && !yoDeboTestearla">
           <span class="card__text-user">
-            <q-icon
-              name="fas fas fa-flask"
-              class="vertical-top q-mr-xs q-pl-xs"
-            />
+            <q-icon name="fas fas fa-flask" class="vertical-top q-mr-xs q-pl-xs" />
             {{ usuarioTesting }}
             <q-tooltip>
               Usuario Tester:
@@ -41,10 +38,7 @@
     </div>
 
     <div class="row">
-      <div
-        class="text-left"
-        :class="{ 'col-6': !esArregloRapido, 'col-12': esArregloRapido }"
-      >
+      <div class="text-left" :class="{ 'col-6': !esArregloRapido, 'col-12': esArregloRapido }">
         <q-badge
           :class="{
             'nro-req--default': !esArregloRapido,
@@ -107,8 +101,7 @@ export default {
     },
     yoDeboTestearla() {
       return (
-        this.estaEnTesting &&
-        Number(this.req.estado.asignacion_testing.usuario_id) === this.userId
+        this.estaEnTesting && Number(this.req.estado.asignacion_testing.usuario_id) === this.userId
       )
     },
     usuarioTesting() {
