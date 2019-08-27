@@ -16,10 +16,7 @@
         />
       </div>
 
-      <div
-        class="col-sm-4 col-xs-12"
-        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
-      >
+      <div class="col-sm-4 col-xs-12" :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }">
         <requerimientos-asignados-list
           title="En Ejecución"
           group-name="requerimientos"
@@ -29,10 +26,7 @@
         />
       </div>
 
-      <div
-        class="col-sm-4 col-xs-12"
-        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
-      >
+      <div class="col-sm-4 col-xs-12" :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }">
         <requerimientos-asignados-list
           title="Testing"
           group-name="requerimientos"
@@ -79,9 +73,7 @@ export default {
     ...mapGetters("requerimientosAsignados", ["requerimientosFiltered"]),
   },
   async created() {
-    this.$store.dispatch(
-      "requerimientosAsignados/inicializarRequerimientosAsignados",
-    )
+    this.$store.dispatch("requerimientosAsignados/inicializarRequerimientosAsignados")
   },
   methods: {
     filtrarRequerimientos(filtrosValues) {
@@ -90,10 +82,7 @@ export default {
         this.filtroLastValues.sistema = filtrosValues.sistema
         this.filtroLastValues.tipo = filtrosValues.tipo
       }
-      this.$store.dispatch(
-        "requerimientosAsignados/setFilters",
-        this.filtroLastValues,
-      )
+      this.$store.dispatch("requerimientosAsignados/setFilters", this.filtroLastValues)
     },
   },
 }

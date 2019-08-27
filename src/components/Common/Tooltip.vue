@@ -45,9 +45,7 @@ export default {
   },
   computed: {
     __contentClass() {
-      return this.contentClass
-        ? `text-caption ${this.contentClass}`
-        : "text-caption"
+      return this.contentClass ? `text-caption ${this.contentClass}` : "text-caption"
     },
   },
   methods: {

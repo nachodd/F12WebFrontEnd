@@ -123,11 +123,7 @@
       <q-list link>
         <q-item v-ripple tag="label" class="list-item--narrow">
           <q-item-section avatar>
-            <q-checkbox
-              v-model="__llevaFechaLimite"
-              left-label
-              color="deep-purple-10"
-            />
+            <q-checkbox v-model="__llevaFechaLimite" left-label color="deep-purple-10" />
           </q-item-section>
           <q-item-section>
             <q-item-label>¿Tiene Fecha Limite?</q-item-label>

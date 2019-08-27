@@ -23,11 +23,7 @@
         >
           {{ notificacionesUnreadCount }}
         </q-badge>
-        <q-menu
-          anchor="bottom right"
-          self="top right"
-          @hide="onHideNotificacionesMenu"
-        >
+        <q-menu anchor="bottom right" self="top right" @hide="onHideNotificacionesMenu">
           <q-list v-if="noNewNotifications">
             <q-item v-close-popup clickable tabindex="0">
               <q-item-section side>
@@ -38,20 +34,12 @@
               </q-item-section>
             </q-item>
           </q-list>
-          <q-list
-            v-else
-            bordered
-            class="rounded-borders"
-            style="max-width: 350px"
-          >
+          <q-list v-else bordered class="rounded-borders" style="max-width: 350px">
             <template v-if="notificacionesUnread.length">
               <q-item-label caption class="q-pa-sm">NUEVAS</q-item-label>
               <div v-for="(notif, i) in notificacionesUnread" :key="notif.id">
                 <notificacion-item :notif="notif" />
-                <q-separator
-                  v-if="notificacionesUnread.length - 1 !== i"
-                  inset="item"
-                />
+                <q-separator v-if="notificacionesUnread.length - 1 !== i" inset="item" />
               </div>
               <q-item-label
                 v-if="notificacionesUnreadVerMasShowed"
@@ -70,16 +58,9 @@
 
             <template v-if="notificacionesRead.length">
               <q-item-label caption class="q-pa-sm">ANTERIORES</q-item-label>
-              <div
-                v-for="(notif, i) in notificacionesRead"
-                :key="notif.id"
-                class="bg-grey-2"
-              >
+              <div v-for="(notif, i) in notificacionesRead" :key="notif.id" class="bg-grey-2">
                 <notificacion-item :notif="notif" unread />
-                <q-separator
-                  v-if="notificacionesRead.length - 1 !== i"
-                  inset="item"
-                />
+                <q-separator v-if="notificacionesRead.length - 1 !== i" inset="item" />
               </div>
               <q-item-label
                 v-if="notificacionesReadVerMasShowed"
@@ -180,15 +161,10 @@ export default {
       return this.$q.screen.lt.sm ? "account_circle" : undefined
     },
     noNewNotifications() {
-      return (
-        this.notificacionesRead.length === 0 &&
-        this.notificacionesUnread.length === 0
-      )
+      return this.notificacionesRead.length === 0 && this.notificacionesUnread.length === 0
     },
     notificationsReadAndUnread() {
-      return (
-        this.notificacionesReadCount > 0 && this.notificacionesUnreadCount > 0
-      )
+      return this.notificacionesReadCount > 0 && this.notificacionesUnreadCount > 0
     },
     title() {
       const { headerTitle = "F12" } = this.$route.meta

@@ -254,26 +254,17 @@ export default {
       return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
     },
     usuarioAltaSetted() {
-      return (
-        this.filterValues.usuarioAlta &&
-        Boolean(this.filterValues.usuarioAlta.id)
-      )
+      return this.filterValues.usuarioAlta && Boolean(this.filterValues.usuarioAlta.id)
     },
     fechaDesdeSetted() {
-      return (
-        this.filterValues.fechaDesde && Boolean(this.filterValues.fechaDesde)
-      )
+      return this.filterValues.fechaDesde && Boolean(this.filterValues.fechaDesde)
     },
     fechaHastaSetted() {
-      return (
-        this.filterValues.fechaHasta && Boolean(this.filterValues.fechaHasta)
-      )
+      return this.filterValues.fechaHasta && Boolean(this.filterValues.fechaHasta)
     },
 
     estadosDescripcion() {
-      return this.estadosSetted
-        ? this.filterValues.estados.map(st => st.label).join(", ")
-        : ""
+      return this.estadosSetted ? this.filterValues.estados.map(st => st.label).join(", ") : ""
     },
     sistemaDescripcion() {
       return _.get(this, "filterValues.sistema.descripcion", null)

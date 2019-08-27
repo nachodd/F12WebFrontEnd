@@ -28,10 +28,7 @@
         />
       </base-filter-input> -->
 
-      <base-filter-input
-        v-if="!esElUltimoDeLaCadenaDeMando"
-        label="Usuario Alta"
-      >
+      <base-filter-input v-if="!esElUltimoDeLaCadenaDeMando" label="Usuario Alta">
         <select-custom
           v-model="filterValues.usuarioAlta"
           :options="optionsUsuariosFiltro"
@@ -41,10 +38,7 @@
         />
       </base-filter-input>
 
-      <base-filter-input
-        v-if="hasReportantesNoOperativos"
-        label="Ver listado como"
-      >
+      <base-filter-input v-if="hasReportantesNoOperativos" label="Ver listado como">
         <q-select
           v-model="filterValues.usuarioVerComo"
           color="deep-purple-10"
@@ -156,16 +150,10 @@ export default {
       return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
     },
     usuarioVerComoSetted() {
-      return (
-        this.filterValues.usuarioVerComo &&
-        Boolean(this.filterValues.usuarioVerComo.value)
-      )
+      return this.filterValues.usuarioVerComo && Boolean(this.filterValues.usuarioVerComo.value)
     },
     usuarioAltaSetted() {
-      return (
-        this.filterValues.usuarioAlta &&
-        Boolean(this.filterValues.usuarioAlta.id)
-      )
+      return this.filterValues.usuarioAlta && Boolean(this.filterValues.usuarioAlta.id)
     },
     optionsUsersReportantes() {
       const label =
@@ -202,13 +190,7 @@ export default {
   async mounted() {
     // this.changeUsuarioVerComo(null)
     await this.$store.dispatch("requerimientos/createRequerimiento")
-    const {
-      descripcion,
-      sistema,
-      tipo,
-      usuarioVerComo,
-      usuarioAlta,
-    } = this.filtros
+    const { descripcion, sistema, tipo, usuarioVerComo, usuarioAlta } = this.filtros
 
     if (descripcion) this.filterValues.descripcion = descripcion
     if (sistema) this.filterValues.sistema = sistema

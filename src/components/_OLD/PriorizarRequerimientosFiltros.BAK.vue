@@ -24,12 +24,7 @@
         </template>
       </q-input>
 
-      <q-menu
-        v-model="popupOpened"
-        no-parent-event
-        content-class="q-menu-fix"
-        :offset="[0, -4]"
-      >
+      <q-menu v-model="popupOpened" no-parent-event content-class="q-menu-fix" :offset="[0, -4]">
         <div
           class="q-pa-md row justify-center"
           :style="{
@@ -68,10 +63,7 @@
               </div>
             </div>
 
-            <div
-              v-if="hasReportantesNoOperativos"
-              class="row q-mt-sm q-col-gutter-sm items-center"
-            >
+            <div v-if="hasReportantesNoOperativos" class="row q-mt-sm q-col-gutter-sm items-center">
               <div class="col-xs-3 text-body2 text-right q-pt-md ellipsis">
                 Ver listado como:
               </div>
@@ -211,8 +203,7 @@ export default {
     },
     __tipo: {
       get() {
-        return this.$store.state.priorizarRequerimientos.filtros
-          .requerimientoTipo
+        return this.$store.state.priorizarRequerimientos.filtros.requerimientoTipo
       },
       set(value) {
         this.$store.dispatch("priorizarRequerimientos/setFilter", {
@@ -223,8 +214,7 @@ export default {
     },
     __usuariosAsignados: {
       get() {
-        return this.$store.state.asignacionRequerimientos.filtros
-          .usuariosAsignados
+        return this.$store.state.asignacionRequerimientos.filtros.usuariosAsignados
       },
       set(value) {
         this.$store.dispatch("asignacionRequerimientos/setFilter", {
@@ -279,10 +269,7 @@ export default {
     },
     async changeUsuarioVerComo(userId) {
       await this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
-      this.$store.dispatch(
-        "priorizarRequerimientos/inicializarPriorizarRequerimientos",
-        { userId },
-      )
+      this.$store.dispatch("priorizarRequerimientos/inicializarPriorizarRequerimientos", { userId })
     },
     filterUsuariosAsignados(val, update) {
       if (val === "") {

@@ -84,10 +84,7 @@ export default {
       },
     },
     isComentarioAndEmpty() {
-      return (
-        this.fieldName === "Comentarios" &&
-        (this.value === null || this.value.trim() === "")
-      )
+      return this.fieldName === "Comentarios" && (this.value === null || this.value.trim() === "")
     },
     validationRules() {
       return this.applyValidation ? [this.notEmpty] : null

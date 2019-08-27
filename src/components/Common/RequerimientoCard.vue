@@ -42,10 +42,7 @@
         <!-- FECHA DE CARGA -->
         <q-item-label>
           <span class="card__text-body">
-            <q-icon
-              name="far fa-calendar"
-              class="vertical-top q-mr-xs q-pl-xs"
-            />
+            <q-icon name="far fa-calendar" class="vertical-top q-mr-xs q-pl-xs" />
             {{ req.fechaAlta }}
             <tooltip>
               Fecha de Carga:
@@ -57,10 +54,7 @@
         <!-- USUARIO DE CARGA -->
         <q-item-label>
           <span class="card__text-body">
-            <q-icon
-              name="fas fa-user-tie"
-              class="vertical-top q-mr-xs q-pl-xs"
-            />
+            <q-icon name="fas fa-user-tie" class="vertical-top q-mr-xs q-pl-xs" />
             {{ req.usuario.nombre }}
             <tooltip>
               Usuario Alta:
@@ -72,10 +66,7 @@
         <!-- VENCIMIENTO -->
         <q-item-label v-if="req.vence">
           <span class="card__text-body card__text-red">
-            <q-icon
-              name="far fa-calendar-alt"
-              class="vertical-top q-mr-xs q-pl-xs"
-            />
+            <q-icon name="far fa-calendar-alt" class="vertical-top q-mr-xs q-pl-xs" />
             Venc:
             {{ req.fechaLimite }}
             <q-icon
@@ -96,8 +87,7 @@
                   (HOY es el día de vencimiento)
                 </span>
                 <strong v-if="req.diasToVencimiento < 0">
-                  (Este req. lleva {{ req.diasToVencimiento * -1 }} días
-                  vencido)
+                  (Este req. lleva {{ req.diasToVencimiento * -1 }} días vencido)
                 </strong>
               </template>
             </tooltip>
@@ -130,10 +120,7 @@
         <!-- USUARIO ASIGNADO -->
         <q-item-label v-if="muestraUsuarioAsignado">
           <span class="card__text-user">
-            <q-icon
-              name="fas fa-user-check"
-              class="vertical-top q-mr-xs q-pl-sm"
-            />
+            <q-icon name="fas fa-user-check" class="vertical-top q-mr-xs q-pl-sm" />
             {{ req.usuarioAsignado }}
             <tooltip>
               Usuario Asignado:
@@ -145,10 +132,7 @@
         <!-- USUARIO TESTING -->
         <q-item-label v-if="req.tieneEstado('TEST')">
           <span class="card__text-user">
-            <q-icon
-              name="fas fas fa-flask"
-              class="vertical-top q-mr-xs q-pl-xs"
-            />
+            <q-icon name="fas fas fa-flask" class="vertical-top q-mr-xs q-pl-xs" />
             {{ req.usuarioTesting }}
             <tooltip>
               Usuario Tester:
@@ -187,13 +171,8 @@
         </q-badge>
       </div>
 
-      <div
-        v-if="isDevelopment && req.tieneEstado('ASSI')"
-        class="col-3 text-right"
-      >
-        <q-badge color="red-7" text-color="white">
-          ORDEN: {{ req.asignacionOrden }}
-        </q-badge>
+      <div v-if="isDevelopment && req.tieneEstado('ASSI')" class="col-3 text-right">
+        <q-badge color="red-7" text-color="white">ORDEN: {{ req.asignacionOrden }}</q-badge>
       </div>
     </div>
   </q-item>
@@ -233,12 +212,8 @@ export default {
       // En priorizar, se muestra para cualquier estado
       const condicionesEnPriorizar = this.cardType === "priorizar"
       // En asignar, Solo se muestra para la columna de "Por asignar"
-      const condicionesEnAsignar =
-        this.cardType === "asignar" && this.req.tieneEstado("NOAS")
-      return (
-        this.req.esDesarrollo &&
-        (condicionesEnPriorizar || condicionesEnAsignar)
-      )
+      const condicionesEnAsignar = this.cardType === "asignar" && this.req.tieneEstado("NOAS")
+      return this.req.esDesarrollo && (condicionesEnPriorizar || condicionesEnAsignar)
     },
 
     muestraUsuarioAsignado() {

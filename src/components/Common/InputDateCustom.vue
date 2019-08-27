@@ -13,12 +13,7 @@
     class="custom-error"
   >
     <template v-slot:append>
-      <q-icon
-        v-if="selectedValue"
-        name="cancel"
-        class="cursor-pointer"
-        @click.stop="clearValues"
-      />
+      <q-icon v-if="selectedValue" name="cancel" class="cursor-pointer" @click.stop="clearValues" />
       <q-icon name="event" class="cursor-pointer">
         <q-popup-proxy v-model="datePopupShowed">
           <q-date
