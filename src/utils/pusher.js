@@ -51,18 +51,11 @@ const getPayload = (operation, data) => {
  * @param {Object} ctx: store context (app)
  * @param {Object} requerimiento: requerimiento actualizado
  */
-const updateNotificacionesDashboardMisReqs = _.debounce(
-  (ctx, requerimiento) => {
-    ctx.dispatch("checkNotificacionesYDashboard")
+const updateNotificacionesDashboardMisReqs = _.debounce((ctx, requerimiento) => {
+  ctx.dispatch("checkNotificacionesYDashboard")
 
-    ctx.dispatch(
-      "requerimientos/pusherUpdateMisRequerimientos",
-      { requerimiento },
-      root,
-    )
-  },
-  2500,
-)
+  ctx.dispatch("requerimientos/pusherUpdateMisRequerimientos", { requerimiento }, root)
+}, 2500)
 
 const processPriorizarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
@@ -162,11 +155,7 @@ const processRequerimientoAsignado = async (ctx, data) => {
   // Si el usuario asignado al req (o el asignado a testing), es el usuario logueado, agrega/updatea el req en el listado correspondiente
   // USERS: usuario_sistemas_asignado | usuario_testing_asignado
   const currentUserId = store.getters["auth/userId"]
-  const userAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion.usuario_id",
-    false,
-  )
+  const userAsignadoId = _.get(data.requerimiento, "estado.asignacion.usuario_id", false)
   const userTestingAsignadoId = _.get(
     data.requerimiento,
     "estado.asignacion_testing.usuario_id",
@@ -217,11 +206,7 @@ const processEjecutarOCancelarEjecucionRequerimiento = async (ctx, data) => {
 
   // USERS: usuario_sistemas_asignado | usuario_testing_asignado
   const currentUserId = store.getters["auth/userId"]
-  const userAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion.usuario_id",
-    false,
-  )
+  const userAsignadoId = _.get(data.requerimiento, "estado.asignacion.usuario_id", false)
   if ([userAsignadoId].includes(currentUserId)) {
     await ctx.commit(
       "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
@@ -246,11 +231,7 @@ const processCancelaTestingRequerimiento = async (ctx, data) => {
 
   // USERS: usuario_sistemas_asignado | usuario_testing_asignado
   const currentUserId = store.getters["auth/userId"]
-  const userAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion.usuario_id",
-    false,
-  )
+  const userAsignadoId = _.get(data.requerimiento, "estado.asignacion.usuario_id", false)
   // Si soy el usuario asignado, lo actualizo de estado
   if ([userAsignadoId].includes(currentUserId)) {
     await ctx.commit(
@@ -266,23 +247,6 @@ const processCancelaTestingRequerimiento = async (ctx, data) => {
       root,
     )
   }
-  // FIXME: aca voy a tener un problema. Si el usuario asinado a testing es distinto del asignado
-  // cuando se vuelve a desarrollo, se debe QUITAR del store. Pero en este caso, el req que viene
-  // en pusher no tiene más el "estado.asignacion_testing.usuario_id". Por ende, no voy a poder saber si tengo que eliminarselo o que
-  // en teoria se solucionaría localmente este problema, porque el usuaroi que lo saca de testing, yo lo elimino localmente. PROBAR
-  /* debugger
-  const userTestingAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion_testing.usuario_id",
-    false,
-  )
-  if ([userTestingAsignadoId].includes(currentUserId)) {
-    await ctx.commit(
-      "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
-      getPayload("update", data.requerimiento),
-      root,
-    )
-  } */
 }
 
 const processRequerimientoFinalizado = async (ctx, data) => {
@@ -363,11 +327,7 @@ const processPausarReanudarRequerimiento = async (ctx, data) => {
 
   // USERS: usuario_sistemas_asignado
   const currentUserId = store.getters["auth/userId"]
-  const userAsignadoId = _.get(
-    data.requerimiento,
-    "estado.asignacion.usuario_id",
-    false,
-  )
+  const userAsignadoId = _.get(data.requerimiento, "estado.asignacion.usuario_id", false)
   if ([userAsignadoId].includes(currentUserId)) {
     await ctx.commit(
       "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",

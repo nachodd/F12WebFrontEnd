@@ -35,8 +35,7 @@ export default async ({ router, store }) => {
         next({ path: "/inicio" })
       } else {
         const userHasSistemas = store.getters["auth/userEsResponsable"]
-        const checkHasResponsabilities =
-          to.meta && to.meta.checkHasResponsabilities
+        const checkHasResponsabilities = to.meta && to.meta.checkHasResponsabilities
 
         // if the route need to check for responsabilites, and the user don't have them, logout
         if (checkHasResponsabilities && !userHasSistemas) {

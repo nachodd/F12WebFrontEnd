@@ -59,13 +59,11 @@ const state = {
 }
 
 const getters = {
-  requerimientoIdToChange: state =>
-    _.get(state.possibleChanges.payload, "id", ""),
+  requerimientoIdToChange: state => _.get(state.possibleChanges.payload, "id", ""),
   // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
   // o si fue seteado el target Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
   possibleChangesSetted: (state, getters, rootState, rootGetters) => {
-    const esElUltimoDeLaCadenaDeMando =
-      rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
+    const esElUltimoDeLaCadenaDeMando = rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
     return (
       (state.possibleChanges.sourceChanges.changesSetted &&
         state.possibleChanges.targetChanges.changesSetted &&
@@ -162,8 +160,7 @@ const getters = {
     )
   },
   cantidadRequerimientos: (state, getters, rootState, rootGetters) => {
-    const esElUltimoDeLaCadenaDeMando =
-      rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
+    const esElUltimoDeLaCadenaDeMando = rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
     if (esElUltimoDeLaCadenaDeMando) {
       // return state.reqsPendientesAprobacion.listLength + 1
@@ -179,9 +176,7 @@ const getters = {
   //   state.reqsAprobadosPriorizados.listLength,
   esAutor: (state, getters, rootState, rootGetters) => {
     const userId = Number(rootGetters["auth/userId"])
-    const reqUserId = Number(
-      _.get(rootState, "requerimientos.detallereq.usuario.id", null),
-    )
+    const reqUserId = Number(_.get(rootState, "requerimientos.detallereq.usuario.id", null))
     return userId === reqUserId
   },
 
@@ -301,9 +296,7 @@ const mutations = {
     // state.requerimientos.push(...listData)
     // state.changesRequerimientos.push(...listData)
     state.requerimientos.push(..._.map(listData, req => new Requerimiento(req)))
-    state.changesRequerimientos.push(
-      ..._.map(listData, req => new Requerimiento(req)),
-    )
+    state.changesRequerimientos.push(..._.map(listData, req => new Requerimiento(req)))
 
     //  state.requerimientos = _.sortBy(state.requerimientos, ["prioridad"])
     //  state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
@@ -367,12 +360,7 @@ const mutations = {
   },
   UPDATE_REQUERIMIENTOS_ORDEN_APROBADOS: (
     state,
-    {
-      estadoTargetId,
-      orderStart,
-      reqIdToAvoid,
-      updateOrderToCurrentRequerimiento = false,
-    },
+    { estadoTargetId, orderStart, reqIdToAvoid, updateOrderToCurrentRequerimiento = false },
   ) => {
     // Actualiza todos los requerimientos aprobados priorizados
     state.changesRequerimientos = state.changesRequerimientos.map(ra => {
@@ -391,9 +379,7 @@ const mutations = {
       return ra
     })
 
-    state.changesRequerimientos = _.sortBy(state.changesRequerimientos, [
-      "prioridad",
-    ])
+    state.changesRequerimientos = _.sortBy(state.changesRequerimientos, ["prioridad"])
 
     // re indexa la prioridades de los aprobados
     let prioridad = 1
@@ -459,12 +445,8 @@ const mutations = {
 }
 
 const actions = {
-  async inicializarPriorizarRequerimientos(
-    { commit, dispatch, rootGetters },
-    { userId = null },
-  ) {
-    const esElUltimoDeLaCadenaDeMando =
-      rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
+  async inicializarPriorizarRequerimientos({ commit, dispatch, rootGetters }, { userId = null }) {
+    const esElUltimoDeLaCadenaDeMando = rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
     // Si no impersonamos a nadie, el userId viene en null
 
@@ -487,10 +469,7 @@ const actions = {
       })
     }
   },
-  getRequerimientosByUserAndEstado(
-    { commit, rootGetters },
-    { userId, reqState },
-  ) {
+  getRequerimientosByUserAndEstado({ commit, rootGetters }, { userId, reqState }) {
     const estadoReq = rootGetters["requerimientos/getEstadoByCodigo"](reqState)
     const listType = reqState === "PEND" ? "pending" : "approved"
     commit("SET_LOADING_STATE_REQS_LISTS", { listType, loadingState: true })
@@ -540,8 +519,7 @@ const actions = {
       if (getters.differentPositionsTarget) {
         const backup = JSON.parse(JSON.stringify(state.changesRequerimientos))
 
-        const esElUltimoDeLaCadenaDeMando =
-          rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
+        const esElUltimoDeLaCadenaDeMando = rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
         const estadoTargetId = esElUltimoDeLaCadenaDeMando
           ? Requerimiento.getEstadoId("PEND")
@@ -556,9 +534,7 @@ const actions = {
           updateOrderToCurrentRequerimiento: true,
         })
 
-        let tempReqs = UpdatePendingPayloadPriorizarReq([
-          ...state.changesRequerimientos,
-        ])
+        let tempReqs = UpdatePendingPayloadPriorizarReq([...state.changesRequerimientos])
 
         // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
         const res = await dispatch("persistChanges", tempReqs)
@@ -594,9 +570,7 @@ const actions = {
       })
 
       // generar payload
-      let tempReqs = UpdatePendingPayloadPriorizarReq([
-        ...state.changesRequerimientos,
-      ])
+      let tempReqs = UpdatePendingPayloadPriorizarReq([...state.changesRequerimientos])
 
       // Persisto los cambios en el remoto y si no gurado correctamente, reviertos los cambios
       const res = await dispatch("persistChanges", tempReqs)
@@ -665,15 +639,10 @@ const actions = {
   ) {
     return new Promise(async (resolve, reject) => {
       // Esta funcion arma manualmente los listados de requerimientos (como si hiciese un drag&drop) y emite los cambios
-      const esElUltimoDeLaCadenaDeMando =
-        rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
+      const esElUltimoDeLaCadenaDeMando = rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
       let updatedListData = {}
-      let req = _.get(
-        rootState,
-        "requerimientos.detalleRequerimientoItem",
-        null,
-      )
+      let req = _.get(rootState, "requerimientos.detalleRequerimientoItem", null)
 
       switch (operation) {
         case "aprobar": {
@@ -772,10 +741,7 @@ const actions = {
           // dependiendo del si es el ultimo de la cadena, tengo que buscar los reqs en el listado general del estado aporpiado
           const reqState = esElUltimoDeLaCadenaDeMando ? "PEND" : "APRV"
           // "Genero" los listados de possibleChanges como si hubiese arrastrado
-          const removedIndex = _.findIndex(
-            getters.requerimientosFiltered(reqState),
-            { id: req.id },
-          )
+          const removedIndex = _.findIndex(getters.requerimientosFiltered(reqState), { id: req.id })
           const addedIndex = priority - 1
           // JSON.parse(JSON.stringify(getters.requerimientosFiltered(reqState)))
           let listResult = [...getters.requerimientosFiltered(reqState)]
@@ -839,13 +805,7 @@ const actions = {
             }
 
             commit("CLEAR_OPERATIONS")
-            resolve(
-              _.get(
-                res,
-                "data.message",
-                "Operación completada satisfactoriamente",
-              ),
-            )
+            resolve(_.get(res, "data.message", "Operación completada satisfactoriamente"))
           } catch (e) {
             const message =
               e.message ||
