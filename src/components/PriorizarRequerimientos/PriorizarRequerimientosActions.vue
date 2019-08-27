@@ -95,12 +95,7 @@
     </div>
 
     <div v-show="operation !== null" class="q-mt-md">
-      <q-btn
-        class="full-width"
-        label="Guardar"
-        color="deep-purple-10"
-        @click="saveChanges"
-      />
+      <q-btn class="full-width" label="Guardar" color="deep-purple-10" @click="saveChanges" />
     </div>
   </div>
 </template>
@@ -158,10 +153,7 @@ export default {
         return opt
       }
 
-      if (
-        this.req.tieneEstadoPriorizacion("PEND") &&
-        !this.esElUltimoDeLaCadenaDeMando
-      ) {
+      if (this.req.tieneEstadoPriorizacion("PEND") && !this.esElUltimoDeLaCadenaDeMando) {
         opt.push({
           label: "Aprobar",
           value: "aprobar",
@@ -202,21 +194,16 @@ export default {
     //   return this.estadoPriorizacion === "APRV"
     // },
     isApprovingOrReordering() {
-      return (
-        this.operation === "aprobar" ||
-        this.operation === "seleccionarPrioridad"
-      )
+      return this.operation === "aprobar" || this.operation === "seleccionarPrioridad"
     },
     seleccionarPrioridadShown() {
       if (this.esElUltimoDeLaCadenaDeMando) {
         return (
-          this.req.tieneEstadoPriorizacion("PEND") &&
-          this.requerimientosFiltered("PEND").length > 1
+          this.req.tieneEstadoPriorizacion("PEND") && this.requerimientosFiltered("PEND").length > 1
         )
       } else {
         return (
-          this.req.tieneEstadoPriorizacion("APRV") &&
-          this.requerimientosFiltered("APRV").length > 1
+          this.req.tieneEstadoPriorizacion("APRV") && this.requerimientosFiltered("APRV").length > 1
         )
       }
     },
@@ -232,10 +219,7 @@ export default {
   },
   methods: {
     operationChange() {
-      if (
-        this.operation === "aprobar" ||
-        this.operation === "seleccionarPrioridad"
-      ) {
+      if (this.operation === "aprobar" || this.operation === "seleccionarPrioridad") {
         this.updateOrdenTooltip()
       }
     },

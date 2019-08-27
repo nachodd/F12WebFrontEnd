@@ -6,12 +6,7 @@
     transition-hide="scale"
     @before-show="tab = 'detalle'"
   >
-    <q-layout
-      v-if="requerimientoSetted"
-      container
-      view="hHh lpR fFf"
-      class="bg-white"
-    >
+    <q-layout v-if="requerimientoSetted" container view="hHh lpR fFf" class="bg-white">
       <q-header elevated class="bg-deep-purple-10 text-white items-center">
         <q-toolbar class="q-pa-md">
           <q-toolbar-title>
@@ -209,8 +204,7 @@
                           (HOY es el día de vencimiento)
                         </span>
                         <strong v-if="diasVencimiento < 0">
-                          (Este req. lleva {{ diasVencimiento * -1 }} días
-                          vencido)
+                          (Este req. lleva {{ diasVencimiento * -1 }} días vencido)
                         </strong>
                       </template>
                       <br />
@@ -243,18 +237,12 @@
             </q-tab-panel>
 
             <!-- Tab Acciones (dinamico) -->
-            <q-tab-panel
-              v-if="showAcciones"
-              name="acciones"
-              class="body-detalle-requerimiento"
-            >
+            <q-tab-panel v-if="showAcciones" name="acciones" class="body-detalle-requerimiento">
               <component
                 :is="actionsComponent"
                 ref="actionsTab"
                 @closeDialog="closeDialog"
-                @showSaveRequerimientoAction="
-                  val => (showSaveRequerimientoAction = val)
-                "
+                @showSaveRequerimientoAction="val => (showSaveRequerimientoAction = val)"
               />
             </q-tab-panel>
 
@@ -311,7 +299,7 @@
 
           <q-btn
             v-if="showSaveRequerimientoAction"
-            label="Guardar"
+            label="Guardar Cambios"
             color="deep-purple-10"
             :outline="loadingRequerimiento"
             :loading="loadingRequerimiento"
@@ -428,7 +416,7 @@ export default {
       }
     },
     cerrarLabel() {
-      return this.quickEdited ? "Cancelar y Cerrar" : "Cerrar"
+      return this.quickEdited || this.showSaveRequerimientoAction ? "Cancelar y Cerrar" : "Cerrar"
     },
     detalleRequerimientoOpen: {
       get() {
@@ -436,13 +424,8 @@ export default {
       },
       set(value) {
         // solo disparamos el dispatch si el valor es distinto al actual
-        if (
-          value !== this.$store.state.requerimientos.detalleRequerimientoOpen
-        ) {
-          return this.$store.dispatch(
-            "requerimientos/setDetalleRequerimientoOpen",
-            value,
-          )
+        if (value !== this.$store.state.requerimientos.detalleRequerimientoOpen) {
+          return this.$store.dispatch("requerimientos/setDetalleRequerimientoOpen", value)
         }
       },
     },
@@ -453,10 +436,7 @@ export default {
       return _.maxBy([...this.req.movimientos], "fecha")
     },
     ultimoMovimientoHasComentario() {
-      return (
-        this.ultimoMovimiento.comentario &&
-        this.ultimoMovimiento.comentario.length
-      )
+      return this.ultimoMovimiento.comentario && this.ultimoMovimiento.comentario.length
     },
     diasVencimiento() {
       return this.req.diasToVencimiento
