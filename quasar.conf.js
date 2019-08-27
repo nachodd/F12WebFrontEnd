@@ -15,6 +15,7 @@ module.exports = function(ctx) {
       // "permission-directive",
       "filters",
       "auth-href-directive",
+      "log",
     ], // "vuelidate"
 
     css: ["app.styl"],

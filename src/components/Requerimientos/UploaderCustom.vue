@@ -35,7 +35,10 @@
         </q-btn>
         <q-spinner v-if="scope.isUploading" class="q-uploader__spinner" />
         <div class="col">
-          <div class="q-uploader__title">Adjunte Imagenes, documentos, etc</div>
+          <div class="q-uploader__title">
+            Adjunte Imagenes, documentos, etc
+          </div>
+
           <!-- <div class="q-uploader__subtitle">
             {{ scope.uploadSizeLabel }} / {{ scope.uploadProgressLabel }}
           </div>-->
@@ -58,8 +61,18 @@
             @click="scope.pickFiles()"
           >
             <!-- @click="scope.pickFiles()" -->
-            <span class="col text-body1">
-              Seleccione o arrastre Imagenes, Documentos, etc...
+            <span class="col text-body1 text-center">
+              <div class="q-mb-xs">
+                Seleccione o arrastre Imagenes, Documentos, etc...
+              </div>
+              <div class="text-caption text-italic q-mb-md w_75p">
+                Puede
+                <strong>pegar imagenes desde el portapaeles</strong>
+                utilizando la combinación de teclas
+                <kbd>Ctrl</kbd>
+                +
+                <kbd>V</kbd>
+              </div>
             </span>
           </div>
         </div>
@@ -78,7 +91,7 @@
                   <q-icon class="item--thumb-xs" name="fas fa-paperclip" />
                 </q-item-section>
 
-                <q-item-section class="q-pa-sm">
+                <q-item-section v-if="!file.__img" class="q-pa-sm">
                   <q-item-label class="ellipsis">
                     {{ file.name }}
                   </q-item-label>
@@ -125,6 +138,7 @@
 <script>
 import AdjuntoCard from "comp/Common/AdjuntoCard"
 import Tooltip from "comp/Common/Tooltip"
+import { uid } from "quasar"
 
 export default {
   components: { AdjuntoCard, Tooltip },
@@ -151,8 +165,27 @@ export default {
   },
   mounted() {
     this.$root.$on("clearFiles", this.clearFiles)
+    window.addEventListener("paste", this.handleAddedByClipboard)
+  },
+  beforeDestroy() {
+    window.addEventListener("paste", this.handleAddedByClipboard)
   },
   methods: {
+    handleAddedByClipboard(pasteEvent) {
+      const fileList = _.get(pasteEvent, "clipboardData.files", null)
+      if (fileList && fileList.length > 0) {
+        // convert FileList instance to array, to iterate over it:
+        // https://stackoverflow.com/questions/25333488/why-isnt-the-filelist-object-an-array
+        let fileArray = Array.from(fileList)
+        // if we paste from clipboard, same name is used for the file, so it is skipped by default
+        // to prevent this scenario, we have to re-create the files:
+        const newFileArray = fileArray.map(f => {
+          return new File([f], `${uid()}_${f.name}`, { type: f.type })
+        })
+        this.handleAdded(newFileArray)
+        this.$refs.uploader.addFiles(newFileArray)
+      }
+    },
     handleAdded(files) {
       this.$emit("filesAdded", files)
     },
@@ -185,4 +218,9 @@ export default {
 /deep/.q-uploader__list
   padding 0
   border 1px solid rgba(0,0,0,0.24)
+
+.w_75p
+  width 75%
+  margin-left: auto;
+  margin-right: auto;
 </style>

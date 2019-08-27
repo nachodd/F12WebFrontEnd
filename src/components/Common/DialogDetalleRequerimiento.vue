@@ -314,6 +314,7 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import { date } from "quasar"
+import Tooltip from "comp/Common/Tooltip"
 import formValidation from "mixins/formValidation"
 import PriorizarRequerimientosActions from "comp/PriorizarRequerimientos/PriorizarRequerimientosActions"
 import AsignarRequerimientosActions from "comp/AsignarRequerimientos/AsignarRequerimientosActions"
@@ -321,7 +322,6 @@ import RequerimientosAsignadosActions from "comp/RequerimientosAsignados/Requeri
 import Note from "comp/Common/Note"
 import AdjuntoCard from "comp/Common/AdjuntoCard"
 import DetalleRequerimientoInlineEdit from "comp/Common/DetalleRequerimientoInlineEdit"
-import Tooltip from "comp/Common/Tooltip"
 import { success, warn } from "utils/helpers"
 import Bus from "utils/bus"
 
