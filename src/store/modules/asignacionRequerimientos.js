@@ -406,6 +406,11 @@ const actions = {
               orden,
               ultimo,
             }
+            // se agrega que es REASIGNACION para que el backend lo procese correctamente
+            if (operation === "reasignar") {
+              dataAsignar.reasignar = true
+            }
+
             const res = await asignarRequerimiento(requerimientoId, dataAsignar)
             message = _.get(res, "data.message", null)
 
