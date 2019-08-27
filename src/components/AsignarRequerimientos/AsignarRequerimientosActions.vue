@@ -477,12 +477,7 @@ export default {
     updateOrderMax() {
       if (["asignar", "reordenar", "reasignar"].includes(this.operation)) {
         // el ordenMaxLength lo tomo del reqsPossibleNewOrder (que tiene el posible usuarioAsignado filtrado)
-        // this.ordenMaxLength =
-        //   this.operation === "asignar"
-        //     ? this.reqsPossibleNewOrder.length
-        //     : this.reqsPossibleNewOrder.length
         this.ordenMaxLength = this.reqsPossibleNewOrder.length
-        console.log("ordenmax", this.ordenMaxLength)
       }
     },
     async saveChanges() {
