@@ -61,13 +61,18 @@
             @click="scope.pickFiles()"
           >
             <!-- @click="scope.pickFiles()" -->
-            <span class="col text-body1">
-              Seleccione o arrastre Imagenes, Documentos, etc...
-              <br />
-              <div class="q-uploader__subtitle text-italic">
-                Puede utlizar la Herramienta de Recortes de Windows para pegar directamente
+            <span class="col text-body1 text-center">
+              <div class="q-mb-xs">
+                Seleccione o arrastre Imagenes, Documentos, etc...
               </div>
-              <br />
+              <div class="text-caption text-italic q-mb-md w_75p">
+                Puede
+                <strong>pegar imagenes desde el portapaeles</strong>
+                utilizando la combinación de teclas
+                <kbd>Ctrl</kbd>
+                +
+                <kbd>V</kbd>
+              </div>
             </span>
           </div>
         </div>
@@ -213,4 +218,9 @@ export default {
 /deep/.q-uploader__list
   padding 0
   border 1px solid rgba(0,0,0,0.24)
+
+.w_75p
+  width 75%
+  margin-left: auto;
+  margin-right: auto;
 </style>
