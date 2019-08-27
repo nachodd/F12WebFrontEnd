@@ -5,13 +5,8 @@
         <priorizar-requerimientos-filtros @buscar="filtrarRequerimientos" />
       </div>
     </div>
-    <div
-      class="row q-pt-md q-px-xs q-col-gutter-sm justify-center req-container--nofilter"
-    >
-      <div
-        v-if="esElUltimoDeLaCadenaDeMando === false"
-        class="col-sm-6 col-xs-12"
-      >
+    <div class="row q-pt-md q-px-xs q-col-gutter-sm justify-center req-container--nofilter">
+      <div v-if="esElUltimoDeLaCadenaDeMando === false" class="col-sm-6 col-xs-12">
         <priorizar-requerimientos-list
           title="Pendientes de Aprobación"
           group-name="requerimientos"
@@ -21,10 +16,7 @@
         />
       </div>
 
-      <div
-        class="col-sm-6 col-xs-12"
-        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
-      >
+      <div class="col-sm-6 col-xs-12" :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }">
         <priorizar-requerimientos-list
           :requerimientos-list="targetList"
           :loading-list="loadingReqsAprobadosPriorizados"
@@ -71,10 +63,8 @@ export default {
     ...mapGetters("priorizarRequerimientos", ["requerimientosFiltered"]),
     ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
     ...mapState("priorizarRequerimientos", {
-      loadingReqsPendientesAprobacion: state =>
-        state.loadingReqsPendientesAprobacion,
-      loadingReqsAprobadosPriorizados: state =>
-        state.loadingReqsAprobadosPriorizados,
+      loadingReqsPendientesAprobacion: state => state.loadingReqsPendientesAprobacion,
+      loadingReqsAprobadosPriorizados: state => state.loadingReqsAprobadosPriorizados,
     }),
     targetList() {
       return this.esElUltimoDeLaCadenaDeMando
@@ -82,9 +72,7 @@ export default {
         : this.requerimientosFiltered("APRV")
     },
     titleTargetList() {
-      return this.esElUltimoDeLaCadenaDeMando
-        ? "Pendientes de Aprobación"
-        : "Aprobados"
+      return this.esElUltimoDeLaCadenaDeMando ? "Pendientes de Aprobación" : "Aprobados"
     },
   },
   beforeCreate() {
@@ -95,10 +83,9 @@ export default {
     // Tener cuidado con usuarioVerComo, poruqe cuando ese cambia se hace un request al backend y se debe hacer un
     //   this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
     // this.$store.dispatch("requerimientos/createRequerimiento")
-    await this.$store.dispatch(
-      "priorizarRequerimientos/inicializarPriorizarRequerimientos",
-      { userId: null },
-    )
+    await this.$store.dispatch("priorizarRequerimientos/inicializarPriorizarRequerimientos", {
+      userId: null,
+    })
   },
   methods: {
     async filtrarRequerimientos(filtrosValues) {
@@ -113,19 +100,13 @@ export default {
           this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
         }
 
-        if (
-          this.filtroLastValues.usuarioVerComo !== filtrosValues.usuarioVerComo
-        ) {
-          await this.$store.dispatch(
-            "priorizarRequerimientos/inicializarPriorizarRequerimientos",
-            { userId: this.filtroLastValues.usuarioVerComo },
-          )
+        if (this.filtroLastValues.usuarioVerComo !== filtrosValues.usuarioVerComo) {
+          await this.$store.dispatch("priorizarRequerimientos/inicializarPriorizarRequerimientos", {
+            userId: this.filtroLastValues.usuarioVerComo,
+          })
         }
 
-        this.$store.dispatch(
-          "priorizarRequerimientos/setFilters",
-          this.filtroLastValues,
-        )
+        this.$store.dispatch("priorizarRequerimientos/setFilters", this.filtroLastValues)
       } catch (e) {
         const message =
           e.message ||

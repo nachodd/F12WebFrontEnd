@@ -49,12 +49,7 @@
       </q-item-label>
     </q-item-section>
 
-    <q-item-section
-      v-show="$q.screen.gt.xs"
-      top
-      side
-      class="padding-none col-1"
-    >
+    <q-item-section v-show="$q.screen.gt.xs" top side class="padding-none col-1">
       <div class="text-grey-8 q-gutter-xs">
         <q-btn
           size="12px"

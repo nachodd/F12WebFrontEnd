@@ -41,8 +41,7 @@ export default {
     }),
     getItemClass(index) {
       if (index === 0) return "rounded-borders-12-top"
-      if (index === this.requerimientos.length)
-        return "rounded-borders-12-bottom"
+      if (index === this.requerimientos.length) return "rounded-borders-12-bottom"
       return ""
     },
   },

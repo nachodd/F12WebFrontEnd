@@ -24,12 +24,7 @@
           ></q-icon>
         </template>
       </q-input>
-      <q-menu
-        v-model="popupOpened"
-        :offset="[0, -4]"
-        content-class="q-menu-fix"
-        no-parent-event
-      >
+      <q-menu v-model="popupOpened" :offset="[0, -4]" content-class="q-menu-fix" no-parent-event>
         <div
           class="q-pa-md row justify-center"
           :style="{
@@ -121,13 +116,9 @@ export default {
   watch: {
     popupOpened(opened) {
       if (opened) {
-        document
-          .getElementsByTagName("body")[0]
-          .classList.add("overflow-hidden")
+        document.getElementsByTagName("body")[0].classList.add("overflow-hidden")
       } else {
-        document
-          .getElementsByTagName("body")[0]
-          .classList.remove("overflow-hidden")
+        document.getElementsByTagName("body")[0].classList.remove("overflow-hidden")
       }
     },
   },

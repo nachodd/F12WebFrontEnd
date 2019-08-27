@@ -24,12 +24,7 @@
         </template>
       </q-input>
 
-      <q-menu
-        v-model="popupOpened"
-        no-parent-event
-        content-class="q-menu-fix"
-        :offset="[0, -4]"
-      >
+      <q-menu v-model="popupOpened" no-parent-event content-class="q-menu-fix" :offset="[0, -4]">
         <div
           class="q-pa-md row justify-center"
           :style="{
@@ -88,8 +83,8 @@
                 />
               </div>
               <div class="col-xs-9 offset-xs-3 text-caption">
-                Este filtro aplica para los "Requerimientos Asignados" y
-                "Requerimientos en Ejecución"
+                Este filtro aplica para los "Requerimientos Asignados" y "Requerimientos en
+                Ejecución"
               </div>
             </div>
 
@@ -150,17 +145,11 @@
           Click aquí para aplicar este filtro
         </tooltip>
         <span>
-          <div
-            class="d-ib cursor-pointer"
-            @click="aplicarFiltroRapidoTipoReq('Arreglo')"
-          >
+          <div class="d-ib cursor-pointer" @click="aplicarFiltroRapidoTipoReq('Arreglo')">
             <div class="square d-ib bg-red-7">&nbsp;</div>
             Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
           </div>
-          <div
-            class="d-ib cursor-pointer"
-            @click="aplicarFiltroRapidoTipoReq('Desarrollo')"
-          >
+          <div class="d-ib cursor-pointer" @click="aplicarFiltroRapidoTipoReq('Desarrollo')">
             <div class="square d-ib bg-light-blue-7">&nbsp;</div>
             Desarrollo / Mejora &nbsp;&nbsp;
           </div>
@@ -222,8 +211,7 @@ export default {
     },
     __tipo: {
       get() {
-        return this.$store.state.asignacionRequerimientos.filtros
-          .requerimientoTipo
+        return this.$store.state.asignacionRequerimientos.filtros.requerimientoTipo
       },
       set(value) {
         this.$store.dispatch("asignacionRequerimientos/setFilter", {
@@ -234,8 +222,7 @@ export default {
     },
     __usuariosAsignados: {
       get() {
-        return this.$store.state.asignacionRequerimientos.filtros
-          .usuariosAsignados
+        return this.$store.state.asignacionRequerimientos.filtros.usuariosAsignados
       },
       set(value) {
         this.$store.dispatch("asignacionRequerimientos/setFilter", {

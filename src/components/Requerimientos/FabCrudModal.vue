@@ -47,21 +47,13 @@
             }"
             class="modal-fabcrud-body"
           >
-            <crear-editar-requerimiento
-              ref="crud"
-              @form-submitted="removeQueryParams"
-            />
+            <crear-editar-requerimiento ref="crud" @form-submitted="removeQueryParams" />
           </q-scroll-area>
         </q-page-container>
 
         <q-footer elevated class="bg-white">
           <q-card-actions align="right">
-            <q-btn
-              flat
-              label="Cerrar"
-              color="negative"
-              @click="crudModalOpen = false"
-            />
+            <q-btn flat label="Cerrar" color="negative" @click="crudModalOpen = false" />
             <q-btn
               :label="submitText"
               color="deep-purple-10"

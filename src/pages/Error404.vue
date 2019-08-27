@@ -8,11 +8,7 @@
       <br />
       Perdon! no hay nada que ver por aquí...
     </p>
-    <q-btn
-      color="deep-purple-10"
-      style="width:200px;"
-      @click="$router.push('/')"
-    >
+    <q-btn color="deep-purple-10" style="width:200px;" @click="$router.push('/')">
       Volver
     </q-btn>
   </div>

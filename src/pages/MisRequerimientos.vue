@@ -1,10 +1,6 @@
 <template>
   <q-page padding class="q-pt-lg">
-    <mis-requerimientos-filtros
-      ref="filtros"
-      :base-height="280"
-      @buscar="getListRequerimientos"
-    />
+    <mis-requerimientos-filtros ref="filtros" :base-height="280" @buscar="getListRequerimientos" />
     <mis-requerimientos-listado :requerimientos="misRequerimientos" />
     <div v-if="searchMeta.total > 10" class="q-pa-lg flex flex-center">
       <q-pagination
@@ -73,14 +69,7 @@ export default {
     }),
     hayFiltros() {
       const f = this.filtroLastValues
-      return _.some([
-        f.descripcion,
-        f.reqId,
-        f.estados,
-        f.sistema,
-        f.tipo,
-        f.usuarioAlta,
-      ])
+      return _.some([f.descripcion, f.reqId, f.estados, f.sistema, f.tipo, f.usuarioAlta])
     },
     noResults() {
       return !this.searchMeta.total || this.searchMeta.total === 0
@@ -93,10 +82,7 @@ export default {
     misRequerimientosHuboCambio(huboCambios) {
       if (huboCambios) {
         info({ message: "Hubo requerimientos actualizados" })
-        this.$store.dispatch(
-          "requerimientos/setMisRequerimientosHuboCambios",
-          false,
-        )
+        this.$store.dispatch("requerimientos/setMisRequerimientosHuboCambios", false)
       }
     },
   },
@@ -142,11 +128,7 @@ export default {
             descripcion: this.filtroLastValues.descripcion,
             page: this.current,
             perPage: 10,
-            requerimiento_usuario_alta_id: _.get(
-              this,
-              "filtroLastValues.usuarioAlta.id",
-              null,
-            ),
+            requerimiento_usuario_alta_id: _.get(this, "filtroLastValues.usuarioAlta.id", null),
           },
         })
       } catch (e) {

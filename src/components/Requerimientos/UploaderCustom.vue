@@ -108,11 +108,7 @@
             Archivos cargados previamente:
           </div>
           <div class="row justify-around q-col-gutter-sm">
-            <div
-              v-for="(adjunto, i) in __filesUploaded"
-              :key="`req_${i}_${adjunto}`"
-              class="col-4"
-            >
+            <div v-for="(adjunto, i) in __filesUploaded" :key="`req_${i}_${adjunto}`" class="col-4">
               <adjunto-card
                 :adjunto="adjunto"
                 :nro="i + 1"

@@ -23,12 +23,7 @@
           ></q-icon>
         </template>
       </q-input>
-      <q-menu
-        v-model="popupOpened"
-        :offset="[0, -4]"
-        content-class="q-menu-fix"
-        no-parent-event
-      >
+      <q-menu v-model="popupOpened" :offset="[0, -4]" content-class="q-menu-fix" no-parent-event>
         <div
           class="q-pa-md row justify-center"
           :style="{
@@ -259,15 +254,10 @@ export default {
       )
     },
     usuarioAltaSetted() {
-      return (
-        this.filterValues.usuarioAlta &&
-        Boolean(this.filterValues.usuarioAlta.id)
-      )
+      return this.filterValues.usuarioAlta && Boolean(this.filterValues.usuarioAlta.id)
     },
     estadosDescripcion() {
-      return this.estadosSetted
-        ? this.filterValues.estados.map(st => st.label).join(", ")
-        : ""
+      return this.estadosSetted ? this.filterValues.estados.map(st => st.label).join(", ") : ""
     },
     sistemaDescripcion() {
       return _.get(this, "filterValues.sistema.descripcion", null)
@@ -284,14 +274,7 @@ export default {
   },
   async mounted() {
     await this.$store.dispatch("requerimientos/initFiltrosMisRequerimientos")
-    const {
-      descripcion,
-      reqId,
-      estados,
-      sistema,
-      tipo,
-      usuarioAlta,
-    } = this.filtros
+    const { descripcion, reqId, estados, sistema, tipo, usuarioAlta } = this.filtros
 
     if (descripcion) this.filterValues.descripcion = descripcion
     if (reqId) this.filterValues.reqId = reqId

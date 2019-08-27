@@ -16,10 +16,7 @@
           list-name="source"
         />
       </div>
-      <div
-        class="col-sm-4 col-xs-12"
-        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
-      >
+      <div class="col-sm-4 col-xs-12" :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }">
         <asignar-requerimientos-list
           :requerimientos-list="requerimientosFiltered('ASSI')"
           :loading-list="loadingList"
@@ -29,10 +26,7 @@
           list-name="target"
         />
       </div>
-      <div
-        class="col-sm-4 col-xs-12"
-        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
-      >
+      <div class="col-sm-4 col-xs-12" :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }">
         <asignar-requerimientos-list
           :requerimientos-list="requerimientosFiltered('EXEC/TEST')"
           :loading-list="loadingList"
@@ -94,15 +88,11 @@ export default {
         this.filtroLastValues.descripcion = filtrosValues.descripcion
         this.filtroLastValues.sistema = filtrosValues.sistema
         this.filtroLastValues.tipo = filtrosValues.tipo
-        this.filtroLastValues.usuariosAsignados =
-          filtrosValues.usuariosAsignados
+        this.filtroLastValues.usuariosAsignados = filtrosValues.usuariosAsignados
         this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
       }
 
-      this.$store.dispatch(
-        "asignacionRequerimientos/setFilters",
-        this.filtroLastValues,
-      )
+      this.$store.dispatch("asignacionRequerimientos/setFilters", this.filtroLastValues)
     },
   },
 }
