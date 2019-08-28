@@ -91,10 +91,13 @@ export default {
     confirmOperation() {
       const comment = this.operationReject ? null : this.approveComment
 
-      this.$store.dispatch("priorizarRequerimientos/confirmOperation", comment).then(() => {
-        this.dialogConfirmOpen = false
-        this.approveComment = ""
-      })
+      this.$store
+        .dispatch("priorizarRequerimientos/confirmOperation", comment)
+        .then(() => {
+          this.dialogConfirmOpen = false
+          this.approveComment = ""
+        })
+        .catch(() => {})
 
       // this.$emit("dialog-confirm-operation-confirm", comment)
     },

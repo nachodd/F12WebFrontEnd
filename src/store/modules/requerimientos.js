@@ -348,7 +348,6 @@ const actions = {
     return new Promise(resolve => {
       // chequeo si el detalle está abierto y si es así, lo actualizo
       const currentReqOpened = _.get(state.detalleRequerimientoItem, "id", null)
-      debugger
       if (currentReqOpened === requerimiento.id) {
         commit("SET_DETALLE_REQUERIMIENTO_ITEM", requerimiento)
       }
