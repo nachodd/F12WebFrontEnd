@@ -321,14 +321,11 @@ export default {
         return
       }
 
-      this.$store
+      return this.$store
         .dispatch("priorizarRequerimientos/processManualChanges", {
           operation: this.operation,
           priority: this.approvedPriority,
           comment: this.comment,
-          // listName: this.req.tieneEstadoPriorizacion("PEND")
-          //   ? "source"
-          //   : "target",
         })
         .then(message => {
           if (message) success({ message })

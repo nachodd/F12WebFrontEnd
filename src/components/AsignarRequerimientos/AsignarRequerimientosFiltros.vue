@@ -4,6 +4,7 @@
     search-placeholder="Buscar en Asunto, Descripción, Usuario Asignado..."
     :descripcion.sync="filterValues.descripcion"
     :some-filter-is-setted="someFilterIsSetted"
+    :base-height="280"
     @filtrar="filtrar"
   >
     <template #body>

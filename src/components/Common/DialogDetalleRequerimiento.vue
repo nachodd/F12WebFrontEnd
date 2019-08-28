@@ -450,14 +450,18 @@ export default {
         this.quickEdit.asunto = this.req.asunto
         this.quickEdit.descripcion = this.req.descripcion
         this.quickEdit.comentario = this.req.comentario
+      } else {
+        this.quickEdit.asunto = ""
+        this.quickEdit.descripcion = ""
+        this.quickEdit.comentario = ""
       }
     },
-    // tab(newVal) {
-    //   this.showSaveRequerimientoAction
-    // }
   },
   methods: {
     closeDialog() {
+      this.quickEdit.asunto = ""
+      this.quickEdit.descripcion = ""
+      this.quickEdit.comentario = ""
       this.detalleRequerimientoOpen = false
     },
     async quickEditRequerimiento() {

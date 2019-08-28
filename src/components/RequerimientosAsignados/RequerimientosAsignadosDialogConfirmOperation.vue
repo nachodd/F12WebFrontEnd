@@ -71,12 +71,16 @@ export default {
   },
   methods: {
     cancelOperation() {
-      this.$store.dispatch("requerimientosAsignados/clearOperations")
       this.dialogConfirmOpen = false
     },
     confirmOperation() {
       // se llama al save del children (del componente RequerimientosAsignadosActions)
-      this.$refs.actions.saveChanges()
+      this.$refs.actions
+        .saveChanges()
+        .then(() => {
+          this.dialogConfirmOpen = false
+        })
+        .catch(() => {})
     },
   },
 }
