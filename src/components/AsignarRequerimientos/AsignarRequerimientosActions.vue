@@ -66,13 +66,14 @@
                 ref="horasEstimadas"
                 v-model.number="horasEstimadas"
                 class="custom-error"
-                min="1"
+                min="0.5"
+                step="0.5"
                 type="number"
                 :color="color"
                 label="Horas Estimadas"
                 filled
                 :dark="dark"
-                :rules="[numberPositive, notEmpty]"
+                :rules="[notEmpty]"
               />
             </div>
           </div>
@@ -483,7 +484,7 @@ export default {
     async saveChanges() {
       // Si es descartar, debo incluir un comentario
       if (this.operation === "descartar" && !this.$refs.commentDesasignarDescartar.validate()) {
-        return
+        return Promise.reject()
       }
 
       // Si es asignar, debo elegir un usuario
@@ -494,7 +495,7 @@ export default {
           !this.$refs.horasEstimadas.validate(),
         ]
         if (_.some(validations)) {
-          return
+          return Promise.reject()
         }
       }
 
@@ -506,7 +507,7 @@ export default {
         })
       }
 
-      this.$store
+      return this.$store
         .dispatch("asignacionRequerimientos/updateRequerimientoState", {
           requerimientoId: this.req.id,
           operation: this.operation,
@@ -521,7 +522,6 @@ export default {
           if (message) {
             success({ message })
           } else {
-            // TODO: implementar el resto de los mensajes de success aca en el front
             let msg = ""
             switch (this.operation) {
               case "asignar":
@@ -557,8 +557,6 @@ export default {
           this.horasEstimadas = null
           this.comment = null
           this.$emit("closeDialog") // close details dialog
-          // close confirm op. dialog
-          this.$store.dispatch("asignacionRequerimientos/setDialogConfirmOperationOpen", false)
         })
         .catch(e => {
           warn({ message: e.message })

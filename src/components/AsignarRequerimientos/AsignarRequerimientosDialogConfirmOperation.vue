@@ -75,7 +75,13 @@ export default {
     },
     confirmOperation() {
       // se llama al save del children (del componente AsignarRequerimientosActions)
-      this.$refs.actions.saveChanges()
+      this.$refs.actions
+        .saveChanges()
+        .then(() => {
+          debugger
+          this.dialogConfirmOpen = false
+        })
+        .catch(() => {})
     },
   },
 }

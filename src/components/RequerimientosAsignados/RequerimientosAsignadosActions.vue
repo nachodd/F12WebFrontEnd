@@ -225,6 +225,8 @@
               <q-input
                 ref="horasEstimadas"
                 v-model.number="horasEstimadas"
+                min="0.5"
+                step="0.5"
                 type="number"
                 :color="color"
                 :dark="dark"
@@ -403,26 +405,26 @@ export default {
     saveChanges() {
       // Valido, si esta descartando debe completar el comentario
       if (this.operation === "descartar" && !this.$refs.comment.validate()) {
-        return
+        return Promise.reject()
       }
       // Valido, si esta enviando a testing debe seleccionar un usuario
       if (this.operation === "testing" && !this.$refs.usuarioTesting.validate()) {
-        return
+        return Promise.reject()
       }
       // Valido, si esta finalizando debe completar horas de ejecucion
       if (this.operation === "finalizar" && !this.$refs.horasEstimadas.validate()) {
-        return
+        return Promise.reject()
       }
       // Valido, si esta en testing debe completar horas de ejecucion
       if (
         this.operation === "devolverADesarrollo" &&
         !this.$refs.commentDevolverADesarrollo.validate()
       ) {
-        return
+        return Promise.reject()
       }
 
       if (this.operation === "pausar" && !this.$refs.commentPausar.validate()) {
-        return
+        return Promise.reject()
       }
 
       // Valido, si esta finalizando debe completar horas de ejecucion
@@ -431,10 +433,10 @@ export default {
         !this.$refs.horasEstimadas.validate() &&
         !this.$refs.sistema.validate()
       ) {
-        return
+        return Promise.reject()
       }
 
-      this.$store
+      return this.$store
         .dispatch("requerimientosAsignados/processManualChanges", {
           horasEstimadas: this.horasEstimadas,
           usuarioTesting: _.find(this.optionsUsersTesting, {

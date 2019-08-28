@@ -1,6 +1,6 @@
 <template>
   <q-page padding class="q-pt-lg">
-    <mis-requerimientos-filtros ref="filtros" :base-height="280" @buscar="getListRequerimientos" />
+    <mis-requerimientos-filtros ref="filtros" @buscar="getListRequerimientos" />
     <mis-requerimientos-listado :requerimientos="misRequerimientos" />
     <div v-if="searchMeta.total > 10" class="q-pa-lg flex flex-center">
       <q-pagination
