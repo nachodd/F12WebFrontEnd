@@ -245,7 +245,7 @@ export default {
         onlyNotNull.usuarioAlta = onlyNotNull.usuarioAlta.id
       }
 
-      if (_.has(onlyNotNull, "usuariosAsignados")) {
+      if (_.has(onlyNotNull, "usuariosAsignados") && onlyNotNull.usuariosAsignados.length != 0) {
         onlyNotNull.usuariosAsignados = encodeURIComponent(
           _.map(onlyNotNull.usuariosAsignados, "value"),
         )
