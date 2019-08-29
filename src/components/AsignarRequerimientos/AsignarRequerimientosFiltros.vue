@@ -232,8 +232,6 @@ export default {
 
       const onlyNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
 
-      console.log(onlyNotNull)
-
       // Remplazo de objetos por id
       if (_.has(onlyNotNull, "sistema")) {
         onlyNotNull.sistema = onlyNotNull.sistema.id
@@ -248,9 +246,9 @@ export default {
       }
 
       if (_.has(onlyNotNull, "usuariosAsignados")) {
-        // Resta serializar para el envio y deserializar en el recupero
-        // onlyNotNull.usuariosAsignados.value
-        // encodeURIComponent([1,2,3,4])
+        onlyNotNull.usuariosAsignados = encodeURIComponent(
+          _.map(onlyNotNull.usuariosAsignados, "value"),
+        )
       }
 
       this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
@@ -339,15 +337,25 @@ export default {
     }) {
       this.localFilterValues.descripcion = descripcion
       this.localFilterValues.id = id
+
       this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, {
         id: parseInt(sistema),
       })
+
       this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: parseInt(tipo) })
-      this.localFilterValues.usuariosAsignados = usuariosAsignados
+
       this.localFilterValues.usuarioAlta = _.find(this.optionsUsuariosFiltro, {
         id: parseInt(usuarioAlta),
       })
+
+      this.localFilterValues.usuariosAsignados = _.filter(this.userYoYReportantes, function(
+        usuario,
+      ) {
+        return _.split(decodeURIComponent(usuariosAsignados), ",").includes(String(usuario.value))
+      })
+
       this.updateSomeFilterIsSetted()
+
       this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
     },
   },
