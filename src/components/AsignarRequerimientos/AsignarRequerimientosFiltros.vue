@@ -241,6 +241,10 @@ export default {
         onlyNotNull.tipo = onlyNotNull.tipo.id
       }
 
+      if (_.has(onlyNotNull, "usuarioAlta")) {
+        onlyNotNull.usuarioAlta = onlyNotNull.usuarioAlta.id
+      }
+
       this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
     },
     updateFilterPhoto() {
@@ -332,7 +336,9 @@ export default {
       })
       this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: parseInt(tipo) })
       this.localFilterValues.usuariosAsignados = usuariosAsignados
-      this.localFilterValues.usuarioAlta = usuarioAlta
+      this.localFilterValues.usuarioAlta = _.find(this.optionsUsuariosFiltro, {
+        id: parseInt(usuarioAlta),
+      })
       this.updateSomeFilterIsSetted()
       this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
     },
