@@ -584,8 +584,12 @@ const actions = {
       resolve()
     })
   },
-  setDialogConfirmOperationOpen({ commit }, value = true) {
+  setDialogConfirmOperationOpen({ commit, dispatch }, value = true) {
     commit("SET_DIALOG_CONFIRM_OPERATION_OPEN", value)
+    if (!value) {
+      dispatch("clearOperations")
+      commit("requerimientos/SET_DETALLE_REQUERIMIENTO_ITEM", null, { root: true })
+    }
   },
   async persistChanges({ dispatch, getters, rootGetters, state }, list) {
     try {
