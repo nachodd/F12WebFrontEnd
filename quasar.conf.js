@@ -14,7 +14,8 @@ module.exports = function(ctx) {
       "router-hooks",
       // "permission-directive",
       "filters",
-      "auth-href-directive",
+      "vue-auth-href",
+      "vue-auth-image",
       "log",
     ], // "vuelidate"
 

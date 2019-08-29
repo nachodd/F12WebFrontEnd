@@ -43,7 +43,6 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import pageLoading from "mixins/pageLoading"
-// import PageHeader from "comp/Common/PageHeader"
 import AsignarRequerimientosList from "comp/AsignarRequerimientos/AsignarRequerimientosList"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import AsignarRequerimientosDialogConfirmOperation from "comp/AsignarRequerimientos/AsignarRequerimientosDialogConfirmOperation"
@@ -52,7 +51,6 @@ import AsignarRequerimientosFiltros from "comp/AsignarRequerimientos/AsignarRequ
 export default {
   name: "AsignarRequerimientos",
   components: {
-    // PageHeader,
     AsignarRequerimientosList,
     DialogDetalleRequerimiento,
     AsignarRequerimientosDialogConfirmOperation,
