@@ -68,7 +68,7 @@
         :showed="Boolean(filterPhoto.sistema)"
         label="Sist:"
         :value="filterPhoto.sistema"
-        :tooltip="'Sistema: ' + filterPhoto.sistema"
+        :tooltip="'Sistema: ' + foto.sistema"
         color="red"
         @remove="removeFilter('sistema')"
       />
@@ -164,7 +164,11 @@ export default {
       sistemas: state => state.options.sistemas,
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
+    ...mapState("asignacionRequerimientos", {
+      foto: state => state.filtros,
+    }),
     ...mapGetters("auth", ["userSistemas", "userYoYReportantes"]),
+
     ...mapGetters({
       optionsUsuariosFiltro: "auth/usuariosFiltro",
     }),
@@ -254,10 +258,10 @@ export default {
       this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
     },
     updateFilterPhoto() {
-      this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
-      this.filterPhoto.sistema = this.sistemaDescripcion || null
-      this.filterPhoto.usuariosAsignados = this.usuariosAsignadosDescripcion || null
-      this.filterPhoto.usuarioAlta = this.usuarioAltaDescripcion || null
+      // this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
+      // this.filterPhoto.sistema = this.sistemaDescripcion || null
+      // this.filterPhoto.usuariosAsignados = this.usuariosAsignadosDescripcion || null
+      // this.filterPhoto.usuarioAlta = this.usuarioAltaDescripcion || null
     },
     updateSomeFilterIsSetted() {
       this.someFilterIsSetted = _.some([
