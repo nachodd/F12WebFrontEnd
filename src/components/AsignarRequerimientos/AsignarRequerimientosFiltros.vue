@@ -215,16 +215,15 @@ export default {
         usuariosAsignados = [],
         usuarioAlta = null,
       }) {
-        this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
-
         this.localFilterValues.descripcion = descripcion
         this.localFilterValues.id = id
         this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, { id: sistema })
         this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: tipo })
         this.localFilterValues.usuariosAsignados = usuariosAsignados
         this.localFilterValues.usuarioAlta = usuarioAlta
-
         this.updateSomeFilterIsSetted()
+        console.log("watch", this.localFilterValues, "llega=>", sistema)
+        this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
       },
       immediate: true,
     },
@@ -239,6 +238,8 @@ export default {
     if (tipo) this.localFilterValues.tipo = tipo
     if (usuarioAlta) this.localFilterValues.usuarioAlta = usuarioAlta
     if (usuariosAsignados) this.localFilterValues.usuariosAsignados = usuariosAsignados
+
+    console.log("mounted", this.localFilterValues)
   },
   methods: {
     filtrar() {
