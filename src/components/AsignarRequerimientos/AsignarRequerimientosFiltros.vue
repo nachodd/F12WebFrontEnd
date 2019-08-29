@@ -232,6 +232,8 @@ export default {
 
       const onlyNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
 
+      console.log(onlyNotNull)
+
       // Remplazo de objetos por id
       if (_.has(onlyNotNull, "sistema")) {
         onlyNotNull.sistema = onlyNotNull.sistema.id
@@ -243,6 +245,12 @@ export default {
 
       if (_.has(onlyNotNull, "usuarioAlta")) {
         onlyNotNull.usuarioAlta = onlyNotNull.usuarioAlta.id
+      }
+
+      if (_.has(onlyNotNull, "usuariosAsignados")) {
+        // Resta serializar para el envio y deserializar en el recupero
+        // onlyNotNull.usuariosAsignados.value
+        // encodeURIComponent([1,2,3,4])
       }
 
       this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
