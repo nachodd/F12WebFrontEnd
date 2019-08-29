@@ -2,14 +2,14 @@
   <base-filter
     ref="baseFilter"
     search-placeholder="Buscar en Asunto, Descripción, Usuario Asignado..."
-    :descripcion.sync="filterValues.descripcion"
+    :descripcion.sync="localFilterValues.descripcion"
     :some-filter-is-setted="someFilterIsSetted"
     @filtrar="filtrar"
   >
     <template #body>
       <base-filter-input label="Sistema">
         <select-custom
-          v-model="filterValues.sistema"
+          v-model="localFilterValues.sistema"
           :options="sistemasUsuarioOptions"
           dense
           color="deep-purple-10"
@@ -19,7 +19,7 @@
       </base-filter-input>
       <base-filter-input label="Tipo Requerimiento">
         <select-custom
-          v-model="filterValues.tipo"
+          v-model="localFilterValues.tipo"
           :options="requerimientosTipos"
           dense
           color="deep-purple-10"
@@ -30,7 +30,7 @@
 
       <base-filter-input label="Usuario Alta">
         <select-custom
-          v-model="filterValues.usuarioAlta"
+          v-model="localFilterValues.usuarioAlta"
           :options="optionsUsuariosFiltro"
           dense
           color="deep-purple-10"
@@ -43,7 +43,7 @@
         footer="Este filtro aplica para los 'Requerimientos Asignados' y 'Requerimientos en Ejecución'"
       >
         <q-select
-          v-model="filterValues.usuariosAsignados"
+          v-model="localFilterValues.usuariosAsignados"
           color="deep-purple-10"
           clearable
           dense
@@ -58,12 +58,8 @@
     </template>
 
     <template v-slot:buttons>
-      <q-btn color="negative" flat size="md" @click="limpiarFiltros">
-        Limpiar Filtros
-      </q-btn>
-      <q-btn color="deep-purple-10" size="md" @click="filtrar">
-        FILTRAR
-      </q-btn>
+      <q-btn color="negative" flat size="md" @click="limpiarFiltros">Limpiar Filtros</q-btn>
+      <q-btn color="deep-purple-10" size="md" @click="filtrar">FILTRAR</q-btn>
     </template>
 
     <template v-slot:footer>
@@ -144,7 +140,7 @@ export default {
   },
   data() {
     return {
-      filterValues: {
+      localFilterValues: {
         descripcion: null,
         sistema: null,
         tipo: null,
@@ -178,52 +174,88 @@ export default {
       })
     },
     sistemaSetted() {
-      return this.filterValues.sistema && Boolean(this.filterValues.sistema.id)
+      return this.localFilterValues.sistema && Boolean(this.localFilterValues.sistema.id)
     },
     tipoRequerimientoSetted() {
-      return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
+      return this.localFilterValues.tipo && Boolean(this.localFilterValues.tipo.id)
     },
     usuarioAltaSetted() {
-      return this.filterValues.usuarioAlta && Boolean(this.filterValues.usuarioAlta.id)
+      return this.localFilterValues.usuarioAlta && Boolean(this.localFilterValues.usuarioAlta.id)
     },
     usuariosAsignadosSetted() {
-      return this.filterValues.usuariosAsignados && this.filterValues.usuariosAsignados.length > 0
+      return (
+        this.localFilterValues.usuariosAsignados &&
+        this.localFilterValues.usuariosAsignados.length > 0
+      )
     },
 
     sistemaDescripcion() {
-      return _.get(this, "filterValues.sistema.descripcion", null)
+      return _.get(this, "localFilterValues.sistema.descripcion", null)
     },
     tipoRequerimientoDescripcion() {
-      return _.get(this, "filterValues.tipo.descripcion", null)
+      return _.get(this, "localFilterValues.tipo.descripcion", null)
     },
     usuarioAltaDescripcion() {
-      return _.get(this, "filterValues.usuarioAlta.descripcion", null)
+      return _.get(this, "localFilterValues.usuarioAlta.descripcion", null)
     },
     usuariosAsignadosDescripcion() {
       if (this.usuariosAsignadosSetted) {
-        return this.filterValues.usuariosAsignados.map(ua => ua.label).join(", ")
+        return this.localFilterValues.usuariosAsignados.map(ua => ua.label).join(", ")
       }
       return ""
     },
   },
+  watch: {
+    "$route.query": {
+      handler: function({
+        descripcion = null,
+        id = null,
+        sistema = null,
+        tipo = null,
+        usuariosAsignados = [],
+        usuarioAlta = null,
+      }) {
+        this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
+
+        this.localFilterValues.descripcion = descripcion
+        this.localFilterValues.id = id
+        this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, { id: sistema })
+        this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: tipo })
+        this.localFilterValues.usuariosAsignados = usuariosAsignados
+        this.localFilterValues.usuarioAlta = usuarioAlta
+
+        this.updateSomeFilterIsSetted()
+      },
+      immediate: true,
+    },
+  },
   async mounted() {
     await this.$store.dispatch("requerimientos/createRequerimiento")
+
     const { descripcion, sistema, tipo, usuariosAsignados, usuarioAlta } = this.filtros
 
-    if (descripcion) this.filterValues.descripcion = descripcion
-    if (sistema) this.filterValues.sistema = sistema
-    if (tipo) this.filterValues.tipo = tipo
-    if (usuarioAlta) this.filterValues.usuarioAlta = usuarioAlta
-    if (usuariosAsignados) this.filterValues.usuariosAsignados = usuariosAsignados
-
-    this.filtrar()
+    if (descripcion) this.localFilterValues.descripcion = descripcion
+    if (sistema) this.localFilterValues.sistema = sistema
+    if (tipo) this.localFilterValues.tipo = tipo
+    if (usuarioAlta) this.localFilterValues.usuarioAlta = usuarioAlta
+    if (usuariosAsignados) this.localFilterValues.usuariosAsignados = usuariosAsignados
   },
   methods: {
     filtrar() {
-      this.updateFilterPhoto()
-      this.updateSomeFilterIsSetted()
       this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
-      this.$emit("buscar", this.filterValues)
+
+      var onlyNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
+
+      // Remplazo de objetos por id
+      if (_.has(onlyNotNull, "sistema")) {
+        onlyNotNull.sistema = onlyNotNull.sistema.id
+      }
+
+      if (_.has(onlyNotNull, "tipo")) {
+        onlyNotNull.tipo = onlyNotNull.tipo.id
+      }
+
+      this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
     },
     updateFilterPhoto() {
       this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
@@ -240,25 +272,25 @@ export default {
       ])
     },
     limpiarFiltros() {
-      this.filterValues.descripcion = null
-      this.filterValues.tipo = null
-      this.filterValues.sistema = null
-      this.filterValues.usuariosAsignados = []
-      this.filterValues.usuarioAlta = null
+      this.localFilterValues.descripcion = null
+      this.localFilterValues.tipo = null
+      this.localFilterValues.sistema = null
+      this.localFilterValues.usuariosAsignados = []
+      this.localFilterValues.usuarioAlta = null
       this.filtrar()
     },
     removeFilter(filter) {
       if (filter == "tipo") {
-        this.filterValues.tipo = null
+        this.localFilterValues.tipo = null
       }
       if (filter == "sistema") {
-        this.filterValues.sistema = null
+        this.localFilterValues.sistema = null
       }
       if (filter == "usuariosAsignados") {
-        this.filterValues.usuariosAsignados = []
+        this.localFilterValues.usuariosAsignados = []
       }
       if (filter == "usuarioAlta") {
-        this.filterValues.usuarioAlta = null
+        this.localFilterValues.usuarioAlta = null
       }
       this.filtrar()
     },
@@ -280,19 +312,19 @@ export default {
     aplicarFiltroRapidoTipoReq(filtroRapido) {
       switch (filtroRapido) {
         case "Arreglo":
-          this.filterValues.tipo = {
+          this.localFilterValues.tipo = {
             descripcion: "Arreglo rápido",
             id: 1,
           }
           break
         case "Desarrollo":
-          this.filterValues.tipo = {
+          this.localFilterValues.tipo = {
             descripcion: "Desarrollos / Modificaciones / Implementaciones",
             id: 2,
           }
           break
         case "RevProcesos":
-          this.filterValues.tipo = {
+          this.localFilterValues.tipo = {
             descripcion: "Revisión Procesos",
             id: 3,
           }

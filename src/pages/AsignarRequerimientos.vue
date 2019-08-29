@@ -2,7 +2,7 @@
   <q-page padding class="q-pt-lg">
     <div class="row">
       <div class="col">
-        <asignar-requerimientos-filtros @buscar="filtrarRequerimientos" />
+        <asignar-requerimientos-filtros />
       </div>
     </div>
     <div class="row q-pt-md q-px-xs q-col-gutter-sm req-container--filter">
@@ -81,19 +81,6 @@ export default {
     // if (!this.requerimientosLoaded) {
     await this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
     // }
-  },
-  methods: {
-    filtrarRequerimientos(filtrosValues) {
-      if (filtrosValues) {
-        this.filtroLastValues.descripcion = filtrosValues.descripcion
-        this.filtroLastValues.sistema = filtrosValues.sistema
-        this.filtroLastValues.tipo = filtrosValues.tipo
-        this.filtroLastValues.usuariosAsignados = filtrosValues.usuariosAsignados
-        this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
-      }
-
-      this.$store.dispatch("asignacionRequerimientos/setFilters", this.filtroLastValues)
-    },
   },
 }
 </script>
