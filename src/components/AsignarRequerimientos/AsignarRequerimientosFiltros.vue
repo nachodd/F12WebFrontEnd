@@ -5,7 +5,7 @@
     :descripcion.sync="localFilterValues.descripcion"
     :some-filter-is-setted="someFilterIsSetted"
     :base-height="280"
-    @filtrar="filtrar"
+    @filtrar="pushFilters"
   >
     <template #body>
       <base-filter-input label="Sistema">
@@ -60,7 +60,7 @@
 
     <template v-slot:buttons>
       <q-btn color="negative" flat size="md" @click="limpiarFiltros">Limpiar Filtros</q-btn>
-      <q-btn color="deep-purple-10" size="md" @click="filtrar">FILTRAR</q-btn>
+      <q-btn color="deep-purple-10" size="md" @click="pushFilters">FILTRAR</q-btn>
     </template>
 
     <template v-slot:footer>
@@ -208,25 +208,9 @@ export default {
   },
   watch: {
     "$route.query": {
-      handler: function({
-        descripcion = null,
-        id = null,
-        sistema = null,
-        tipo = null,
-        usuariosAsignados = [],
-        usuarioAlta = null,
-      }) {
-        this.localFilterValues.descripcion = descripcion
-        this.localFilterValues.id = id
-        this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, { id: sistema })
-        this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: tipo })
-        this.localFilterValues.usuariosAsignados = usuariosAsignados
-        this.localFilterValues.usuarioAlta = usuarioAlta
-        this.updateSomeFilterIsSetted()
-        console.log("watch", this.localFilterValues, "llega=>", sistema)
-        this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
+      handler: function(query) {
+        this.setFilters(query)
       },
-      immediate: true,
     },
   },
   async mounted() {
@@ -240,13 +224,13 @@ export default {
     if (usuarioAlta) this.localFilterValues.usuarioAlta = usuarioAlta
     if (usuariosAsignados) this.localFilterValues.usuariosAsignados = usuariosAsignados
 
-    console.log("mounted", this.localFilterValues)
+    this.setFilters(this.$route.query)
   },
   methods: {
-    filtrar() {
+    pushFilters() {
       this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
 
-      var onlyNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
+      const onlyNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
 
       // Remplazo de objetos por id
       if (_.has(onlyNotNull, "sistema")) {
@@ -279,7 +263,7 @@ export default {
       this.localFilterValues.sistema = null
       this.localFilterValues.usuariosAsignados = []
       this.localFilterValues.usuarioAlta = null
-      this.filtrar()
+      this.pushFilters()
     },
     removeFilter(filter) {
       if (filter == "tipo") {
@@ -294,9 +278,8 @@ export default {
       if (filter == "usuarioAlta") {
         this.localFilterValues.usuarioAlta = null
       }
-      this.filtrar()
+      this.pushFilters()
     },
-
     filterUsuariosAsignados(val, update) {
       if (val === "") {
         update(() => {
@@ -332,7 +315,26 @@ export default {
           }
           break
       }
-      this.filtrar()
+      this.pushFilters()
+    },
+    setFilters({
+      descripcion = null,
+      id = null,
+      sistema = null,
+      tipo = null,
+      usuariosAsignados = [],
+      usuarioAlta = null,
+    }) {
+      this.localFilterValues.descripcion = descripcion
+      this.localFilterValues.id = id
+      this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, {
+        id: parseInt(sistema),
+      })
+      this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: parseInt(tipo) })
+      this.localFilterValues.usuariosAsignados = usuariosAsignados
+      this.localFilterValues.usuarioAlta = usuarioAlta
+      this.updateSomeFilterIsSetted()
+      this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
     },
   },
 }
