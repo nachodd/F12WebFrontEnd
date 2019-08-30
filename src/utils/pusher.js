@@ -60,6 +60,7 @@ const updateNotificacionesDashboardMisReqs = _.debounce((ctx, requerimiento) => 
 const processPriorizarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
   // USERS: usuario_cadena (siguiente en la cadena)
+  debugger
   await ctx.commit(
     "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("addOrUpdate", data.requerimiento),
@@ -70,9 +71,11 @@ const processPriorizarRequerimiento = async (ctx, data) => {
 const processPriorizarRequerimientoAprobado = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
 
+  debugger
   const currentUserId = store.getters["auth/userId"]
   const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
-  if (currentUserId === userCreadorId) {
+
+  if (currentUserId !== userCreadorId) {
     // USERS: usuario_creador (el data.requerimiento viene con el estado correspondiente a cada usuario)
     await ctx.commit(
       "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
@@ -80,7 +83,10 @@ const processPriorizarRequerimientoAprobado = async (ctx, data) => {
       root,
     )
   } else {
+    // Si entro aca, es porque un requerimiento que el usuario logueado creó, fue aprobado.
+    // Entonces se debe sacar del listado de reqs
     // USERS: usuario_anterior_cadena
+    debugger
     await ctx.commit(
       "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
       getPayload("remove", data.requerimiento),

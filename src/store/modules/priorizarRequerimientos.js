@@ -417,8 +417,10 @@ const mutations = {
         })
         if (removedIndex !== -1) {
           state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+          state.changesRequerimientos.splice(removedIndex, 1, new Requerimiento(req))
         } else {
           state.requerimientos.push(new Requerimiento(req))
+          state.changesRequerimientos.push(new Requerimiento(req))
         }
         break
       }
@@ -428,6 +430,7 @@ const mutations = {
         })
         if (removedIndex !== -1) {
           state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+          state.changesRequerimientos.splice(removedIndex, 1, new Requerimiento(req))
         }
         break
       }
@@ -437,6 +440,7 @@ const mutations = {
         })
         if (removedIndex !== -1) {
           state.requerimientos.splice(removedIndex, 1)
+          state.changesRequerimientos.splice(removedIndex, 1)
         }
         break
       }

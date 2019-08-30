@@ -32,7 +32,7 @@ export function warn({
   icon = "warning",
   actions = [{ label: "CERRAR", color: "white" }],
 }) {
-  Notify.create({
+  return Notify.create({
     color,
     textColor,
     message,
@@ -52,7 +52,7 @@ export function info({
   icon = "info",
   actions = [{ label: "CERRAR", color: "white" }],
 }) {
-  Notify.create({
+  return Notify.create({
     color,
     textColor,
     message,
@@ -72,7 +72,7 @@ export function success({
   icon = "thumb_up",
   actions = [{ label: "CERRAR", color: "white" }],
 }) {
-  Notify.create({
+  return Notify.create({
     color,
     textColor,
     message,
