@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { extension } from "utils/helpers"
+import { extension, lastPartOfPath } from "utils/helpers"
 import Bus from "utils/bus"
 import Tooltip from "comp/Common/Tooltip"
 export default {
@@ -72,7 +72,8 @@ export default {
       return !!this.$slots["default"]
     },
     fileNameComp() {
-      return `${this.fileName} ${this.nro}`
+      return lastPartOfPath(this.adjunto)
+      // return `${this.fileName} ${this.nro}`
     },
     fileIsImage() {
       const fileExtension = extension(this.adjunto.toLowerCase())
@@ -83,7 +84,11 @@ export default {
   },
   methods: {
     openImage() {
-      Bus.$emit("open-image", this.$refs.imgThumb.src)
+      let imgLoaded = this.$refs.imgThumb.dataset && this.$refs.imgThumb.dataset.loaded
+      if (imgLoaded === "1") {
+        Bus.$emit("open-image", this.$refs.imgThumb.src)
+      }
+
       // this.imageOpened = true
       /* this.$nextTick(() => {
         // console.log(this.$refs)
