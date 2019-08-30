@@ -65,34 +65,35 @@
 
     <template v-slot:footer>
       <base-filter-chip
-        :showed="Boolean(filterPhoto.sistema)"
+        :showed="Boolean(sistemaDescripcion)"
         label="Sist:"
-        :value="filterPhoto.sistema"
-        :tooltip="'Sistema: ' + foto.sistema"
+        :value="sistemaDescripcion"
+        :tooltip="'Sistema: ' + sistemaDescripcion"
         color="red"
         @remove="removeFilter('sistema')"
       />
+
       <base-filter-chip
-        :showed="Boolean(filterPhoto.tipo)"
+        :showed="Boolean(tipoRequerimientoDescripcion)"
         label="Tipo:"
-        :value="filterPhoto.tipo"
-        :tooltip="'Tipo de Requerimiento: ' + filterPhoto.tipo"
+        :value="tipoRequerimientoDescripcion"
+        :tooltip="'Tipo de Requerimiento: ' + tipoRequerimientoDescripcion"
         color="blue"
         @remove="removeFilter('tipo')"
       />
       <base-filter-chip
-        :showed="Boolean(filterPhoto.usuarioAlta)"
+        :showed="Boolean(usuarioAltaDescripcion)"
         label="U.Al:"
-        :value="filterPhoto.usuarioAlta"
-        :tooltip="'Usuario Alta: ' + filterPhoto.usuarioAlta"
+        :value="usuarioAltaDescripcion"
+        :tooltip="'Usuario Alta: ' + usuarioAltaDescripcion"
         color="purple"
         @remove="removeFilter('usuarioAlta')"
       />
       <base-filter-chip
-        :showed="Boolean(filterPhoto.usuariosAsignados)"
+        :showed="Boolean(usuariosAsignadosDescripcion)"
         label="U.As:"
-        :value="filterPhoto.usuariosAsignados"
-        :tooltip="'Usuario Asignados: ' + filterPhoto.usuariosAsignados"
+        :value="usuariosAsignadosDescripcion"
+        :tooltip="'Usuario Asignados: ' + usuariosAsignadosDescripcion"
         color="teal"
         @remove="removeFilter('usuariosAsignados')"
       />
@@ -148,12 +149,12 @@ export default {
         usuariosAsignados: [],
         usuarioAlta: null,
       },
-      filterPhoto: {
-        sistema: null,
-        tipo: null,
-        usuariosAsignados: null,
-        usuarioAlta: null,
-      },
+      // filterPhoto: {
+      //   sistema: null,
+      //   tipo: null,
+      //   usuariosAsignados: null,
+      //   usuarioAlta: null,
+      // },
       someFilterIsSetted: false,
       usuariosAsignadosOptionsFiltered: null,
     }
@@ -165,7 +166,7 @@ export default {
       requerimientosTipos: state => state.options.requerimientosTipos,
     }),
     ...mapState("asignacionRequerimientos", {
-      foto: state => state.filtros,
+      filterPhoto: state => state.filtros,
     }),
     ...mapGetters("auth", ["userSistemas", "userYoYReportantes"]),
 
@@ -188,24 +189,20 @@ export default {
       return this.localFilterValues.usuarioAlta && Boolean(this.localFilterValues.usuarioAlta.id)
     },
     usuariosAsignadosSetted() {
-      return (
-        this.localFilterValues.usuariosAsignados &&
-        this.localFilterValues.usuariosAsignados.length > 0
-      )
+      return this.filterPhoto.usuariosAsignados && this.filterPhoto.usuariosAsignados.length > 0
     },
-
     sistemaDescripcion() {
-      return _.get(this, "localFilterValues.sistema.descripcion", null)
+      return _.get(this, "filterPhoto.sistema.descripcion", null)
     },
     tipoRequerimientoDescripcion() {
-      return _.get(this, "localFilterValues.tipo.descripcion", null)
+      return _.get(this, "filterPhoto.requerimientoTipo.descripcion", null)
     },
     usuarioAltaDescripcion() {
-      return _.get(this, "localFilterValues.usuarioAlta.descripcion", null)
+      return _.get(this, "filterPhoto.usuarioAlta.descripcion", null)
     },
     usuariosAsignadosDescripcion() {
       if (this.usuariosAsignadosSetted) {
-        return this.localFilterValues.usuariosAsignados.map(ua => ua.label).join(", ")
+        return this.filterPhoto.usuariosAsignados.map(ua => ua.label).join(", ")
       }
       return ""
     },
@@ -358,9 +355,9 @@ export default {
         return _.split(decodeURIComponent(usuariosAsignados), ",").includes(String(usuario.value))
       })
 
-      this.updateSomeFilterIsSetted()
-
       this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
+
+      this.updateSomeFilterIsSetted()
     },
   },
 }
