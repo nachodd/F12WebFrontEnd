@@ -134,12 +134,6 @@ import { mapState, mapGetters } from "vuex"
 export default {
   name: "AsignarRequerimientosFiltros",
   components: { SelectCustom, BaseFilter, BaseFilterInput, BaseFilterChip },
-  props: {
-    filtros: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
   data() {
     return {
       localFilterValues: {
@@ -149,12 +143,6 @@ export default {
         usuariosAsignados: [],
         usuarioAlta: null,
       },
-      // filterPhoto: {
-      //   sistema: null,
-      //   tipo: null,
-      //   usuariosAsignados: null,
-      //   usuarioAlta: null,
-      // },
       someFilterIsSetted: false,
       usuariosAsignadosOptionsFiltered: null,
     }
@@ -168,10 +156,10 @@ export default {
     ...mapState("asignacionRequerimientos", {
       filterPhoto: state => state.filtros,
     }),
-    ...mapGetters("auth", ["userSistemas", "userYoYReportantes"]),
-
     ...mapGetters({
       optionsUsuariosFiltro: "auth/usuariosFiltro",
+      userSistemas: "auth/userSistemas",
+      userYoYReportantes: "auth/userYoYReportantes",
     }),
     // Filtro solo los sistemas que tiene el usuario logueado
     sistemasUsuarioOptions() {
@@ -217,48 +205,36 @@ export default {
   async mounted() {
     await this.$store.dispatch("requerimientos/createRequerimiento")
 
-    const { descripcion, sistema, tipo, usuariosAsignados, usuarioAlta } = this.filtros
-
-    if (descripcion) this.localFilterValues.descripcion = descripcion
-    if (sistema) this.localFilterValues.sistema = sistema
-    if (tipo) this.localFilterValues.tipo = tipo
-    if (usuarioAlta) this.localFilterValues.usuarioAlta = usuarioAlta
-    if (usuariosAsignados) this.localFilterValues.usuariosAsignados = usuariosAsignados
+    // const { descripcion, sistema, tipo, usuariosAsignados, usuarioAlta } = this.filtros
+    // if (descripcion) this.localFilterValues.descripcion = descripcion
+    // if (sistema) this.localFilterValues.sistema = sistema
+    // if (tipo) this.localFilterValues.tipo = tipo
+    // if (usuarioAlta) this.localFilterValues.usuarioAlta = usuarioAlta
+    // if (usuariosAsignados) this.localFilterValues.usuariosAsignados = usuariosAsignados
 
     this.setFilters(this.$route.query)
   },
   methods: {
     pushFilters() {
       this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
-
       const onlyNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
 
       // Remplazo de objetos por id
       if (_.has(onlyNotNull, "sistema")) {
         onlyNotNull.sistema = onlyNotNull.sistema.id
       }
-
       if (_.has(onlyNotNull, "tipo")) {
         onlyNotNull.tipo = onlyNotNull.tipo.id
       }
-
       if (_.has(onlyNotNull, "usuarioAlta")) {
         onlyNotNull.usuarioAlta = onlyNotNull.usuarioAlta.id
       }
-
       if (_.has(onlyNotNull, "usuariosAsignados") && onlyNotNull.usuariosAsignados.length != 0) {
         onlyNotNull.usuariosAsignados = encodeURIComponent(
           _.map(onlyNotNull.usuariosAsignados, "value"),
         )
       }
-
       this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
-    },
-    updateFilterPhoto() {
-      // this.filterPhoto.tipo = this.tipoRequerimientoDescripcion || null
-      // this.filterPhoto.sistema = this.sistemaDescripcion || null
-      // this.filterPhoto.usuariosAsignados = this.usuariosAsignadosDescripcion || null
-      // this.filterPhoto.usuarioAlta = this.usuarioAltaDescripcion || null
     },
     updateSomeFilterIsSetted() {
       this.someFilterIsSetted = _.some([
@@ -338,25 +314,17 @@ export default {
     }) {
       this.localFilterValues.descripcion = descripcion
       this.localFilterValues.id = id
-
       this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, {
         id: parseInt(sistema),
       })
-
       this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: parseInt(tipo) })
-
       this.localFilterValues.usuarioAlta = _.find(this.optionsUsuariosFiltro, {
         id: parseInt(usuarioAlta),
       })
-
-      this.localFilterValues.usuariosAsignados = _.filter(this.userYoYReportantes, function(
-        usuario,
-      ) {
-        return _.split(decodeURIComponent(usuariosAsignados), ",").includes(String(usuario.value))
-      })
-
+      this.localFilterValues.usuariosAsignados = _.filter(this.userYoYReportantes, usuario =>
+        _.split(decodeURIComponent(usuariosAsignados), ",").includes(String(usuario.value)),
+      )
       this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
-
       this.updateSomeFilterIsSetted()
     },
   },
