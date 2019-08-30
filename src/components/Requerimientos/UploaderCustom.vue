@@ -180,10 +180,17 @@ export default {
         // if we paste from clipboard, same name is used for the file, so it is skipped by default
         // to prevent this scenario, we have to re-create the files:
         const newFileArray = fileArray.map(f => {
-          return new File([f], `${uid()}_${f.name}`, { type: f.type })
+          let name = f.name.split(".")
+          return new File([f], `${name[0]}_${uid()}.${name[1]}`, { type: f.type })
         })
-        this.handleAdded(newFileArray)
-        this.$refs.uploader.addFiles(newFileArray)
+        this.$nextTick(() => {
+          if (this.$refs.uploader) {
+            // add to the control
+            this.$refs.uploader.addFiles(newFileArray)
+            // add to the array to upload them after
+            this.handleAdded(newFileArray)
+          }
+        })
       }
     },
     handleAdded(files) {

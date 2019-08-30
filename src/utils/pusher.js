@@ -72,7 +72,8 @@ const processPriorizarRequerimientoAprobado = async (ctx, data) => {
 
   const currentUserId = store.getters["auth/userId"]
   const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
-  if (currentUserId === userCreadorId) {
+
+  if (currentUserId !== userCreadorId) {
     // USERS: usuario_creador (el data.requerimiento viene con el estado correspondiente a cada usuario)
     await ctx.commit(
       "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
@@ -80,7 +81,10 @@ const processPriorizarRequerimientoAprobado = async (ctx, data) => {
       root,
     )
   } else {
+    // Si entro aca, es porque un requerimiento que el usuario logueado creó, fue aprobado.
+    // Entonces se debe sacar del listado de reqs
     // USERS: usuario_anterior_cadena
+    debugger
     await ctx.commit(
       "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
       getPayload("remove", data.requerimiento),
