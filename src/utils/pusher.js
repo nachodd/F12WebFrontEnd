@@ -60,7 +60,6 @@ const updateNotificacionesDashboardMisReqs = _.debounce((ctx, requerimiento) => 
 const processPriorizarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
   // USERS: usuario_cadena (siguiente en la cadena)
-  debugger
   await ctx.commit(
     "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("addOrUpdate", data.requerimiento),
@@ -71,7 +70,6 @@ const processPriorizarRequerimiento = async (ctx, data) => {
 const processPriorizarRequerimientoAprobado = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
 
-  debugger
   const currentUserId = store.getters["auth/userId"]
   const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
 
