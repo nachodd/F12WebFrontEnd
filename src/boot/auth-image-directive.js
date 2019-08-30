@@ -104,8 +104,7 @@ function setImgSrc(element, binding, pluginOptions) {
     }
 
     let interval
-    element.style.float = "left"
-    element.style.marginLeft = "-16px"
+    element.classList.remove("error")
     element.alt = options.downloadingText
     if (options.dotsAnimation === true) {
       interval = setInterval(() => {
@@ -137,8 +136,6 @@ function setImgSrc(element, binding, pluginOptions) {
         var imgBase64 = Buffer.from(resp.data, "binary").toString("base64")
 
         element.src = "data:" + mimeType + ";base64," + imgBase64
-        element.style.float = ""
-        element.style.marginLeft = ""
         element.alt = ""
         element.dataset.loaded = "1"
       })
@@ -147,8 +144,13 @@ function setImgSrc(element, binding, pluginOptions) {
           clearInterval(interval)
         }
         console.log(e)
-        element.alt = "No se puedo cargar 😥"
-        element.style.float = "left"
+        element.alt = ""
+        element.classList.add("error")
+        element.dataset.loaded = "0"
+        element.dataset.msg = "No se pudo cargar la imagen 😥"
+      })
+      .finally(() => {
+        element.classList.remove("loading")
       })
   }
 }

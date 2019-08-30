@@ -2,7 +2,12 @@
   <div>
     <q-item class="shadow-2 bg-grey-3 no-padding adjunto-card">
       <div v-if="fileIsImage" class="no-pad img-lazy-cont" @click="openImage">
-        <img ref="imgThumb" v-auth-src="adjunto" class="item--thumb lazy" :auth-src="adjunto" />
+        <img
+          ref="imgThumb"
+          v-auth-src="adjunto"
+          class="item--thumb lazy loading"
+          :auth-src="adjunto"
+        />
       </div>
       <template v-else>
         <q-item-section v-if="showIcon" side class="q-px-xs">
@@ -27,13 +32,6 @@
       </q-item-section>
     </q-item>
     <tooltip>{{ fileNameComp }}</tooltip>
-    <!-- <q-overlay v-model="imageOpened" z-index="5000">
-      <template v-slot:body>
-        <div class="fullscreen row justify-center items-center">
-          <img ref="imgFullSize" />
-        </div>
-      </template>
-    </q-overlay> -->
   </div>
 </template>
 

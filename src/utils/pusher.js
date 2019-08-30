@@ -59,7 +59,7 @@ const updateNotificacionesDashboardMisReqs = _.debounce((ctx, requerimiento) => 
 
 const processPriorizarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  // USERS: usuario_cadena (siguiente en la cadena), usuario_creador (el data.requerimiento viene con el estado correspondiente a cada usuario)
+  // USERS: usuario_cadena (siguiente en la cadena)
   await ctx.commit(
     "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("addOrUpdate", data.requerimiento),
@@ -69,12 +69,24 @@ const processPriorizarRequerimiento = async (ctx, data) => {
 
 const processPriorizarRequerimientoAprobado = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  // USERS: usuario_anterior_cadena
-  await ctx.commit(
-    "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-    getPayload("remove", data.requerimiento),
-    root,
-  )
+
+  const currentUserId = store.getters["auth/userId"]
+  const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
+  if (currentUserId === userCreadorId) {
+    // USERS: usuario_creador (el data.requerimiento viene con el estado correspondiente a cada usuario)
+    await ctx.commit(
+      "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  } else {
+    // USERS: usuario_anterior_cadena
+    await ctx.commit(
+      "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("remove", data.requerimiento),
+      root,
+    )
+  }
 }
 
 const processRequerimientoAprobado = async (ctx, data) => {
@@ -90,7 +102,7 @@ const processRequerimientoAprobado = async (ctx, data) => {
 
   // Lo notifico solo si es el usuario creador (debería, este evento en teoria lo recibe solo el)
   const currentUserId = store.getters["auth/userId"]
-  const userCreadorId = _.get(data.requerimiento, "usuario_id", false)
+  const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
   if (currentUserId === userCreadorId) {
     info({ message: `El requerimiento #${data.requerimiento.id} fue APROBADO` })
   }
@@ -304,7 +316,7 @@ const processRequerimientoRechazado = async (ctx, data) => {
   )
   // Lo notifico solo si es el usuario creador (debería, este evento en teoria lo recibe solo el)
   const currentUserId = store.getters["auth/userId"]
-  const userCreadorId = _.get(data.requerimiento, "usuario_id", false)
+  const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
   if (currentUserId === userCreadorId) {
     info({
       message: `El requerimiento #${data.requerimiento.id} fue RECHAZADO`,

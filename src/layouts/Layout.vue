@@ -12,13 +12,7 @@
 
     <fab-crud-modal />
 
-    <q-overlay v-model="overlayOpened" z-index="7000">
-      <template v-slot:body>
-        <div class="fullscreen row justify-center items-center" @click="closeImage">
-          <img ref="imgFullSize" />
-        </div>
-      </template>
-    </q-overlay>
+    <image-overlay />
   </q-layout>
 </template>
 
@@ -26,7 +20,7 @@
 import F12Header from "comp/Header/Index"
 import F12Sidebar from "comp/Sidebar/Index"
 import FabCrudModal from "comp/Requerimientos/FabCrudModal"
-import Bus from "utils/bus"
+import ImageOverlay from "comp/Common/ImageOverlay"
 
 export default {
   name: "F12Layout",
@@ -34,32 +28,16 @@ export default {
     F12Header,
     F12Sidebar,
     FabCrudModal,
+    ImageOverlay,
   },
   data() {
     return {
       mini: false,
-      overlayOpened: false,
     }
-  },
-  mounted() {
-    Bus.$on("open-image", this.openImage)
-  },
-  unmounted() {
-    Bus.$off("open-image", this.openImage)
   },
   methods: {
     handleScroll(info) {
       this.mini = info.position > 100
-    },
-    openImage(data) {
-      this.overlayOpened = true
-      this.$nextTick(() => {
-        this.$refs.imgFullSize.src = data
-      })
-    },
-    closeImage() {
-      this.overlayOpened = false
-      this.$refs.imgFullSize.src = ""
     },
   },
 }
