@@ -1,5 +1,6 @@
 import {
   getRequerimientosForPanelAsignacion,
+  preaprobarRequerimiento,
   asignarRequerimiento,
   desasignarRequerimiento,
   refuseRequerimiento,
@@ -256,6 +257,10 @@ const mutations = {
       ...newState,
     }
   },
+  SET_PREAPROBADO_REQUERIMIENTO: (state, { requerimientoId, preAprobado }) => {
+    const reqToUpdate = _.find(state.requerimientos, { id: requerimientoId })
+    reqToUpdate.preAprobado = preAprobado
+  },
   SET_DIALOG_CONFIRM_OPERATION_OPEN: (state, value) => {
     state.dialogConfirmOpen = value
   },
@@ -393,6 +398,18 @@ const actions = {
         let message = ""
 
         switch (operation) {
+          case "preaprobar": {
+            const res = await preaprobarRequerimiento(requerimientoId, {
+              comentario,
+            })
+            message = _.get(res, "data.message", null)
+
+            // Quitamos el requerimiento del listado:
+            // FIXME: probar esto, agregar algo visual a la tarjeta y ordenarlos por los preaporbados.
+            // FIXME: Agregar ademas que se toglee este estado de preaprobado si se llama de nuevo al mismo metodo
+            commit("SET_PREAPROBADO_REQUERIMIENTO", { requerimientoId, preAprobado: true })
+            break
+          }
           case "asignar":
           case "reasignar": {
             // se arma el objeto para enviar a la api y se la llama

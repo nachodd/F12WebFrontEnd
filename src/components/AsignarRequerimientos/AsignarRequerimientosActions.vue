@@ -286,6 +286,10 @@ export default {
       })
       if (this.stateNotAssigned) {
         opt.push({
+          label: "Pre-Aprobar",
+          value: "preaprobar",
+        })
+        opt.push({
           label: "Asignar",
           value: "asignar",
         })
