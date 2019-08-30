@@ -12,7 +12,16 @@ export function firstToUpper(string) {
 }
 
 export function lastPartOfPath(string) {
-  return string.substring(string.lastIndexOf("/") + 1)
+  if (typeof string === "string" && string.length > 0 && string.includes("/")) {
+    return string.substring(string.lastIndexOf("/") + 1)
+  }
+  return ""
+}
+export function extension(string) {
+  if (typeof string === "string" && string.length > 0 && string.includes(".")) {
+    return string.substring(string.lastIndexOf(".") + 1)
+  }
+  return ""
 }
 
 export function warn({

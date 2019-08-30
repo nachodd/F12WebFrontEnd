@@ -84,9 +84,9 @@
           >
             <div v-for="file in scope.files" :key="file.name" class="col-4">
               <q-item class="shadow-2 bg-grey-3 no-padding adjunto-card">
-                <q-item-section v-if="file.__img" side class="no-pad">
+                <div v-if="file.__img" side class="no-pad img-lazy-cont">
                   <img class="item--thumb" :src="file.__img.src" />
-                </q-item-section>
+                </div>
                 <q-item-section v-else side class="q-px-xs">
                   <q-icon class="item--thumb-xs" name="fas fa-paperclip" />
                 </q-item-section>
