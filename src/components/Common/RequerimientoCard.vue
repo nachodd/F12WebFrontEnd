@@ -19,8 +19,17 @@
     <div class="row">
       <div class="col-12">
         <!-- ASUNTO -->
-        <q-item-label lines="1">
-          <span class="text-weight-medium">{{ req.asunto }}</span>
+        <q-item-label class="row justify-between items-center">
+          <span class="ellipsis text-weight-medium col">
+            {{ req.asunto }}
+          </span>
+          <q-icon
+            v-if="muestraCheckPreAprobado"
+            class="col-auto"
+            name="fas fa-check"
+            color="green-7"
+            size="sm"
+          />
         </q-item-label>
 
         <!-- AREA -->
@@ -202,10 +211,8 @@ export default {
   },
   computed: {
     yoDeboTestearla() {
-      return (
-        this.req.tieneEstado("TEST") &&
-        Number(this.req.estado.asignacion_testing.usuario_id) === this.userId
-      )
+      const usuarioTestingId = _.get(this.req, "estado.asignacion_testing.usuario_id", -1)
+      return this.req.tieneEstado("TEST") && Number(usuarioTestingId) === this.userId
     },
 
     muestraPrioridad() {
@@ -218,6 +225,12 @@ export default {
 
     muestraUsuarioAsignado() {
       return this.req.estaAsignado && this.cardType === "asignar"
+    },
+
+    muestraCheckPreAprobado() {
+      return (
+        this.cardType === "asignar" && this.req.tieneEstado("NOAS") && this.req.preAprobado === true
+      )
     },
 
     isDevelopment() {

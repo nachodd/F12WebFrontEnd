@@ -14,6 +14,7 @@ import {
   processRequerimientoFinalizado,
   processPriorizarRequerimiento,
   processPriorizarRequerimientoAprobado,
+  processAgregaRequerimientoCreadoPriorizacion,
   processRequerimientoAprobado,
   processRequerimientoRechazado,
   processPausarReanudarRequerimiento,
@@ -297,6 +298,9 @@ const actions = {
       })
       pc.bind("priorizacion_requerimiento_aprobado", data => {
         processPriorizarRequerimientoAprobado(ctx, data)
+      })
+      pc.bind("agrega_requerimiento_creado_priorizacion", data => {
+        processAgregaRequerimientoCreadoPriorizacion(ctx, data)
       })
       pc.bind("requerimiento_aprobado", data => {
         processRequerimientoAprobado(ctx, data)

@@ -53,7 +53,11 @@ const getters = {
     let reqsResult = _.filter(state.requerimientos, req => {
       return _.includes([estSinAsig.id, estEnProceso.id], req.estado.id)
     })
-    return _.orderBy(reqsResult, ["tipo.id", "prioridad", "id"], ["asc", "asc", "desc"])
+    return _.orderBy(
+      reqsResult,
+      ["preAprobado", "tipo.id", "prioridad", "id"],
+      ["desc", "asc", "asc", "desc"],
+    )
   },
   requerimientosAsignados: (state, getters, rootState, rootGetters) => {
     const estAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
@@ -401,13 +405,14 @@ const actions = {
           case "preaprobar": {
             const res = await preaprobarRequerimiento(requerimientoId, {
               comentario,
+              pre_aprobado: !data.preAprobado,
             })
             message = _.get(res, "data.message", null)
 
-            // Quitamos el requerimiento del listado:
-            // FIXME: probar esto, agregar algo visual a la tarjeta y ordenarlos por los preaporbados.
-            // FIXME: Agregar ademas que se toglee este estado de preaprobado si se llama de nuevo al mismo metodo
-            commit("SET_PREAPROBADO_REQUERIMIENTO", { requerimientoId, preAprobado: true })
+            commit("SET_PREAPROBADO_REQUERIMIENTO", {
+              requerimientoId,
+              preAprobado: !data.preAprobado,
+            })
             break
           }
           case "asignar":

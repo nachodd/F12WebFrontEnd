@@ -417,11 +417,19 @@ const mutations = {
         })
         if (removedIndex !== -1) {
           state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
-          state.changesRequerimientos.splice(removedIndex, 1, new Requerimiento(req))
         } else {
           state.requerimientos.push(new Requerimiento(req))
+        }
+
+        const removedIndexChangeReqs = _.findIndex(state.changesRequerimientos, {
+          id: req.id,
+        })
+        if (removedIndexChangeReqs !== -1) {
+          state.changesRequerimientos.splice(removedIndexChangeReqs, 1, new Requerimiento(req))
+        } else {
           state.changesRequerimientos.push(new Requerimiento(req))
         }
+
         break
       }
       case "update": {
@@ -430,7 +438,13 @@ const mutations = {
         })
         if (removedIndex !== -1) {
           state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
-          state.changesRequerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        }
+
+        const removedIndexChangeReqs = _.findIndex(state.changesRequerimientos, {
+          id: req.id,
+        })
+        if (removedIndexChangeReqs !== -1) {
+          state.changesRequerimientos.splice(removedIndexChangeReqs, 1, new Requerimiento(req))
         }
         break
       }
@@ -440,7 +454,13 @@ const mutations = {
         })
         if (removedIndex !== -1) {
           state.requerimientos.splice(removedIndex, 1)
-          state.changesRequerimientos.splice(removedIndex, 1)
+        }
+
+        const removedIndexChangeReqs = _.findIndex(state.changesRequerimientos, {
+          id: req.id,
+        })
+        if (removedIndexChangeReqs !== -1) {
+          state.changesRequerimientos.splice(removedIndexChangeReqs, 1)
         }
         break
       }
