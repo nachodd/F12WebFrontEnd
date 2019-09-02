@@ -59,47 +59,65 @@
     </template>
 
     <template v-slot:buttons>
+      <q-btn color="deep-purple-10" size="md" @click="pushFilters(1)">GUARDAR Y FILTRAR</q-btn>
+
       <q-btn color="negative" flat size="md" @click="limpiarFiltros">Limpiar Filtros</q-btn>
+
       <q-btn color="deep-purple-10" size="md" @click="pushFilters">FILTRAR</q-btn>
     </template>
 
     <template v-slot:footer>
-      <base-filter-chip
-        :showed="Boolean(sistemaDescripcion)"
-        label="Sist:"
-        :value="sistemaDescripcion"
-        :tooltip="'Sistema: ' + sistemaDescripcion"
-        color="red"
-        @remove="removeFilter('sistema')"
-      />
+      <div class="result">
+        <div class="test">
+          <select-custom
+            ref="sistema"
+            label="Filtros guardados"
+            outlined
+            dense
+            color="deep-purple-10"
+            :apply-validation="false"
+            :loading="false"
+            :options="filtrosGuardados"
+          />
+        </div>
+        <base-filter-chip
+          :showed="Boolean(sistemaDescripcion)"
+          label="Sist:"
+          :value="sistemaDescripcion"
+          :tooltip="'Sistema: ' + sistemaDescripcion"
+          color="red"
+          @remove="removeFilter('sistema')"
+        />
 
-      <base-filter-chip
-        :showed="Boolean(tipoRequerimientoDescripcion)"
-        label="Tipo:"
-        :value="tipoRequerimientoDescripcion"
-        :tooltip="'Tipo de Requerimiento: ' + tipoRequerimientoDescripcion"
-        color="blue"
-        @remove="removeFilter('tipo')"
-      />
-      <base-filter-chip
-        :showed="Boolean(usuarioAltaDescripcion)"
-        label="U.Al:"
-        :value="usuarioAltaDescripcion"
-        :tooltip="'Usuario Alta: ' + usuarioAltaDescripcion"
-        color="purple"
-        @remove="removeFilter('usuarioAlta')"
-      />
-      <base-filter-chip
-        :showed="Boolean(usuariosAsignadosDescripcion)"
-        label="U.As:"
-        :value="usuariosAsignadosDescripcion"
-        :tooltip="'Usuario Asignados: ' + usuariosAsignadosDescripcion"
-        color="teal"
-        @remove="removeFilter('usuariosAsignados')"
-      />
+        <base-filter-chip
+          :showed="Boolean(tipoRequerimientoDescripcion)"
+          label="Tipo:"
+          :value="tipoRequerimientoDescripcion"
+          :tooltip="'Tipo de Requerimiento: ' + tipoRequerimientoDescripcion"
+          color="blue"
+          @remove="removeFilter('tipo')"
+        />
+        <base-filter-chip
+          :showed="Boolean(usuarioAltaDescripcion)"
+          label="U.Al:"
+          :value="usuarioAltaDescripcion"
+          :tooltip="'Usuario Alta: ' + usuarioAltaDescripcion"
+          color="purple"
+          @remove="removeFilter('usuarioAlta')"
+        />
+
+        <base-filter-chip
+          :showed="Boolean(usuariosAsignadosDescripcion)"
+          label="U.As:"
+          :value="usuariosAsignadosDescripcion"
+          :tooltip="'Usuario Asignados: ' + usuariosAsignadosDescripcion"
+          color="teal"
+          @remove="removeFilter('usuariosAsignados')"
+        />
+      </div>
     </template>
-    <template #quickFilter>
-      <span>
+    <!-- <template #quickFilter> -->
+    <!-- <span>
         <div
           class="d-ib cursor-pointer text-caption"
           @click="aplicarFiltroRapidoTipoReq('Arreglo')"
@@ -121,8 +139,20 @@
           <div class="square d-ib bg-yellow-7">&nbsp;</div>
           Rev. Procesos &nbsp;&nbsp;
         </div>
-      </span>
-    </template>
+    </span>-->
+    <!-- <div class="row justify-end"> -->
+    <!-- <div class="col-xs-6 col-md-6 col-sm-6">
+          <select-custom
+            ref="sistema"
+            label="Filtros guardados"
+            outlined
+            color="deep-purple-10"
+            :apply-validation="false"
+            :loading="false"
+          />
+    </div>-->
+    <!-- </div> -->
+    <!-- </template> -->
   </base-filter>
 </template>
 <script>
@@ -145,6 +175,7 @@ export default {
       },
       someFilterIsSetted: false,
       usuariosAsignadosOptionsFiltered: null,
+      filtrosGuardados: [],
     }
   },
   computed: {
@@ -160,6 +191,7 @@ export default {
       optionsUsuariosFiltro: "auth/usuariosFiltro",
       userSistemas: "auth/userSistemas",
       userYoYReportantes: "auth/userYoYReportantes",
+      userId: "auth/userId",
     }),
     // Filtro solo los sistemas que tiene el usuario logueado
     sistemasUsuarioOptions() {
@@ -215,9 +247,8 @@ export default {
     this.setFilters(this.$route.query)
   },
   methods: {
-    pushFilters() {
-      this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
-      const onlyNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
+    pushFilters(guardarFiltro = false) {
+      let onlyNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
 
       // Remplazo de objetos por id
       if (_.has(onlyNotNull, "sistema")) {
@@ -229,12 +260,92 @@ export default {
       if (_.has(onlyNotNull, "usuarioAlta")) {
         onlyNotNull.usuarioAlta = onlyNotNull.usuarioAlta.id
       }
-      if (_.has(onlyNotNull, "usuariosAsignados") && onlyNotNull.usuariosAsignados.length != 0) {
-        onlyNotNull.usuariosAsignados = encodeURIComponent(
-          _.map(onlyNotNull.usuariosAsignados, "value"),
-        )
+
+      if (_.has(onlyNotNull, "usuariosAsignados")) {
+        if (onlyNotNull.usuariosAsignados.length != 0) {
+          onlyNotNull.usuariosAsignados = encodeURIComponent(
+            _.map(onlyNotNull.usuariosAsignados, "value"),
+          )
+        } else {
+          onlyNotNull = _.omit(onlyNotNull, ["usuariosAsignados"])
+        }
       }
-      this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
+
+      if (guardarFiltro) {
+        this.$q
+          .dialog({
+            title: "Nombre del filtro",
+            // message: "Nombre del filtro",
+            prompt: {
+              model: "",
+              type: "text", // optional
+            },
+            cancel: true,
+            persistent: true,
+          })
+          .onOk(nombreFiltro => {
+            this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
+            console.log(">>>> OK, received", nombreFiltro, this.$route)
+
+            this.guardarFiltrosLocalStorage(nombreFiltro)
+
+            this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
+          })
+          .onCancel(() => {
+            console.log(">>>> Cancel")
+          })
+          .onDismiss(() => {
+            console.log("I am triggered on both OK and Cancel")
+          })
+      } else {
+        this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
+        this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
+      }
+    },
+    setFilters({
+      descripcion = null,
+      id = null,
+      sistema = null,
+      tipo = null,
+      usuariosAsignados = [],
+      usuarioAlta = null,
+    }) {
+      this.localFilterValues.descripcion = descripcion
+      this.localFilterValues.id = id
+      this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, {
+        id: parseInt(sistema),
+      })
+      this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: parseInt(tipo) })
+      this.localFilterValues.usuarioAlta = _.find(this.optionsUsuariosFiltro, {
+        id: parseInt(usuarioAlta),
+      })
+      this.localFilterValues.usuariosAsignados = _.filter(this.userYoYReportantes, usuario =>
+        _.split(decodeURIComponent(usuariosAsignados), ",").includes(String(usuario.value)),
+      )
+      this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
+      this.updateSomeFilterIsSetted()
+    },
+    guardarFiltrosLocalStorage(filterName) {
+      const key = "filtros_" + this.userId
+
+      // if (!this.validarNombreFiltro(key, filterName)) {
+      //   return false
+      // }
+
+      const filtrosGuardados = _.concat([...this.filtrosGuardados], {
+        seccion: "asignarRequerimientos",
+        nombre: filterName,
+        query: this.$route.query,
+      })
+
+      localStorage.setItem(key, JSON.stringify(filtrosGuardados))
+
+      console.log(filtrosGuardados, key)
+    },
+    recuperarFiltrosLocalStorage(filterName = null) {
+      // falta armar el hash
+      console.log(filterName)
+      localStorage.getItem("testObject")
     },
     updateSomeFilterIsSetted() {
       this.someFilterIsSetted = _.some([
@@ -304,30 +415,25 @@ export default {
       }
       this.pushFilters()
     },
-    setFilters({
-      descripcion = null,
-      id = null,
-      sistema = null,
-      tipo = null,
-      usuariosAsignados = [],
-      usuarioAlta = null,
-    }) {
-      this.localFilterValues.descripcion = descripcion
-      this.localFilterValues.id = id
-      this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, {
-        id: parseInt(sistema),
-      })
-      this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: parseInt(tipo) })
-      this.localFilterValues.usuarioAlta = _.find(this.optionsUsuariosFiltro, {
-        id: parseInt(usuarioAlta),
-      })
-      this.localFilterValues.usuariosAsignados = _.filter(this.userYoYReportantes, usuario =>
-        _.split(decodeURIComponent(usuariosAsignados), ",").includes(String(usuario.value)),
-      )
-      this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
-      this.updateSomeFilterIsSetted()
-    },
   },
 }
 </script>
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+.result:after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+.result div {
+  float: left;
+}
+
+.result span {
+  float: left;
+}
+
+.result div.test {
+  float: right;
+}
+</style>

@@ -1,15 +1,9 @@
 <template>
   <span v-if="showed" class="q-mx-xs">
     <q-chip removable @remove="$emit('remove')">
-      <q-avatar :color="color" :text-color="textColor" class="filter-label">
-        {{ label }}
-      </q-avatar>
-      <div class="filter-chip__text">
-        {{ value }}
-      </div>
-      <tooltip v-if="tooltip !== ''">
-        {{ tooltip }}
-      </tooltip>
+      <q-avatar :color="color" :text-color="textColor" class="filter-label">{{ label }}</q-avatar>
+      <div class="filter-chip__text">{{ value }}</div>
+      <tooltip v-if="tooltip !== ''">{{ tooltip }}</tooltip>
     </q-chip>
   </span>
 </template>

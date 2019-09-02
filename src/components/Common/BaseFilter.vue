@@ -57,20 +57,21 @@
         </div>
       </q-menu>
     </div>
+
     <div v-if="hasQuickFilterSlot" class="row items-center filters-row">
-      <div class="col-xs-12 col-md-8 col-sm-7">
+      <!-- <div class="col-xs-12 col-md-8 col-sm-7"> -->
+      <!-- <div class="col-xs-12 col-md-12 col-sm-12">
         <span v-if="someFilterIsSetted">Filtros:</span>
         <slot name="footer" />
-      </div>
+      </div>-->
+      <slot name="footer" />
       <div class="col-xs-12 col-md-4 col-sm-5 text-right">
-        <tooltip>
-          Click aquí para aplicar este filtro
-        </tooltip>
+        <tooltip>Click aquí para aplicar este filtro</tooltip>
         <slot name="quickFilter" />
       </div>
     </div>
     <div v-else class="q-mt-sm">
-      <span v-if="someFilterIsSetted">Filtros:</span>
+      <!-- <span v-if="someFilterIsSetted">Filtros:</span> -->
       <slot name="footer" />
     </div>
   </div>
@@ -140,9 +141,8 @@ export default {
 }
 </script>
 <style lang="stylus">
-.body-menu
+.body-menu {
   min-height: 120px;
   height: 120px;
-// /deep/.q-scrollarea__thumb--invisible
-//   opacity: 0.25 !important;
+}
 </style>
