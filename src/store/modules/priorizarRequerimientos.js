@@ -2,7 +2,8 @@
 // import Requerimiento from "models/requerimiento"
 
 import {
-  getRequerimientosByUserAndEstado,
+  // getRequerimientosByUserAndEstado,
+  getRequerimientosForPanelPriorizacion,
   updateRequerimientosEstados,
   refuseRequerimiento,
   deleteRequerimiento,
@@ -303,10 +304,12 @@ const mutations = {
     //    "prioridad",
     //  ])
   },
-  SET_LOADING_STATE_REQS_LISTS: (state, { listType, loadingState }) => {
-    listType === "pending"
-      ? (state.loadingReqsPendientesAprobacion = loadingState)
-      : (state.loadingReqsAprobadosPriorizados = loadingState)
+  SET_LOADING_STATE_REQS_LISTS: (state, { loadingState }) => {
+    state.loadingReqsPendientesAprobacion = loadingState
+    state.loadingReqsAprobadosPriorizados = loadingState
+    // listType === "pending"
+    //   ? (state.loadingReqsPendientesAprobacion = loadingState)
+    //   : (state.loadingReqsAprobadosPriorizados = loadingState)
   },
   SET_POSSIBLE_CHANGES: (state, { path, value }) => {
     _.set(state.possibleChanges, path, value)
@@ -470,7 +473,7 @@ const mutations = {
 
 const actions = {
   async inicializarPriorizarRequerimientos({ commit, dispatch, rootGetters }, { userId = null }) {
-    const esElUltimoDeLaCadenaDeMando = rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
+    // const esElUltimoDeLaCadenaDeMando = rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
 
     // Si no impersonamos a nadie, el userId viene en null
 
@@ -479,21 +482,21 @@ const actions = {
     commit("SET_REQS_LIST", [])
 
     // Traigo los usuarios para el filtro de usuarios de alta
+    dispatch("app/loadingInc", null, { root: true })
     await dispatch("auth/getUsuariosFiltro", null, { root: true })
 
-    dispatch("getRequerimientosByUserAndEstado", {
-      userId: userIdToQuery,
-      reqState: "PEND",
-    })
-
-    if (!esElUltimoDeLaCadenaDeMando) {
-      dispatch("getRequerimientosByUserAndEstado", {
-        userId: userIdToQuery,
-        reqState: "APRV",
+    commit("SET_LOADING_STATE_REQS_LISTS", { loadingState: true })
+    return getRequerimientosForPanelPriorizacion(userIdToQuery)
+      .then(listData => {
+        commit("PUSH_REQS_LIST", { listData })
       })
-    }
+      .catch(e => console.log(e))
+      .finally(() => {
+        commit("SET_LOADING_STATE_REQS_LISTS", { loadingState: false })
+        dispatch("app/loadingDec", null, { root: true })
+      })
   },
-  getRequerimientosByUserAndEstado({ commit, rootGetters }, { userId, reqState }) {
+  /* getRequerimientosByUserAndEstado({ commit, rootGetters }, { userId, reqState }) {
     const estadoReq = rootGetters["requerimientos/getEstadoByCodigo"](reqState)
     const listType = reqState === "PEND" ? "pending" : "approved"
     commit("SET_LOADING_STATE_REQS_LISTS", { listType, loadingState: true })
@@ -509,7 +512,7 @@ const actions = {
           loadingState: false,
         })
       })
-  },
+  }, */
   processUpdateList({ commit, getters, dispatch }, updatedListData) {
     return new Promise(resolve => {
       // Updateo los listados temporales

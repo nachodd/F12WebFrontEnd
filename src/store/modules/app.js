@@ -19,6 +19,8 @@ import {
   processRequerimientoRechazado,
   processPausarReanudarRequerimiento,
 } from "utils/pusher"
+import router from "router/index"
+import Bus from "utils/bus"
 
 const LIMIT_NOTIFICACIONES_SHOWED = 5
 
@@ -37,6 +39,7 @@ const state = {
   notificaciones: [],
   limitUnread: LIMIT_NOTIFICACIONES_SHOWED,
   limitRead: LIMIT_NOTIFICACIONES_SHOWED,
+  headerRefreshLoading: false,
 }
 
 // getters
@@ -164,6 +167,9 @@ const mutations = {
         state.limitRead = state.limitRead + showMore
       }
     }
+  },
+  SET_HEADER_REFRESH_LOADING: (state, value) => {
+    state.headerRefreshLoading = value
   },
 }
 
@@ -325,6 +331,31 @@ const actions = {
       destroyPusherChannel(pusherChannelName)
       resolve()
     })
+  },
+  async refreshListado({ commit /* , dispatch */ }) {
+    const routeName = router.currentRoute.name
+    const routeMatched = [
+      "mis-requerimientos",
+      "priorizar-requerimientos",
+      "asignar-requerimientos",
+      "requerimientos-asignados",
+    ].includes(routeName)
+
+    if (routeMatched) {
+      // FIXME: esto no esta "frenando". Deberia llamarse a commit("SET_HEADER_REFRESH_LOADING", true) desde la accion en si
+      // FIXME: completar con las sigueintes acciones para los otros listados
+      commit("SET_HEADER_REFRESH_LOADING", true)
+      switch (routeName) {
+        case "mis-requerimientos":
+          Bus.$emit("load-list-requerimientos")
+          break
+        case "priorizar-requerimientos":
+          // await Bus.$emit("load-list-requerimientos")
+          break
+      }
+
+      commit("SET_HEADER_REFRESH_LOADING", false)
+    }
   },
 }
 
