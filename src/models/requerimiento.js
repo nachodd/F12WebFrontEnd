@@ -45,6 +45,8 @@ export default class Requerimiento {
     this.movimientos = req.movimientos ? req.movimientos : []
     this.requerimientoAsociado = req.requerimiento_asociado ? req.requerimiento_asociado : null
     this.usuarioCadena = req.usuario_cadena ? req.usuario_cadena : null
+
+    this.preAprobado = req.pre_aprobado ? req.pre_aprobado : false
   }
 
   // get name() {

@@ -133,6 +133,14 @@ export function finalizarRequerimiento(requerimientoId, data) {
   })
 }
 
+export function preaprobarRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/preaprobacion`,
+    method: "put",
+    data,
+  })
+}
+
 export function asignarRequerimiento(requerimientoId, data) {
   return request({
     url: `v1/f12/requerimientos/${requerimientoId}/asignacion`,
