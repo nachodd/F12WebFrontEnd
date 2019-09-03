@@ -1,4 +1,4 @@
-import VueAuthImage from "./auth-image-directive"
+import VueAuthImage from "./vue-auth-image-directive"
 import store from "store/index"
 
 export default ({ Vue }) => {
