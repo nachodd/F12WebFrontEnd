@@ -9,7 +9,6 @@ export function getFilters(filterName = null) {
   if (filterName == null) {
     return userFilters || []
   } else {
-    console.log("recupera", _.find(userFilters, { seccion: seccion, nombre: filterName }) || [])
     return _.find(userFilters, { seccion: seccion, nombre: filterName }) || []
   }
 }
@@ -17,8 +16,12 @@ export function getFilters(filterName = null) {
 export function saveFilters(newfilter) {
   const userId = store.getters["auth/userId"]
   const key = "filtros_" + userId
-  const filtrosGuardados = [...getFilters(null)]
-  const filtrosGuardadosYnuevo = _.concat(filtrosGuardados, newfilter)
 
-  localStorage.setItem(key, JSON.stringify(filtrosGuardadosYnuevo))
+  const filtrosGuardados = _.map([...getFilters(null)], filtro => {
+    filtro.setted = false
+    return filtro
+  })
+
+  const filtrosGuardadosYnuevoFiltro = _.concat(filtrosGuardados, newfilter)
+  localStorage.setItem(key, JSON.stringify(filtrosGuardadosYnuevoFiltro))
 }

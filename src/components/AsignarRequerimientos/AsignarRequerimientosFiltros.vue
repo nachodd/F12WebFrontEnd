@@ -338,6 +338,7 @@ export default {
         seccion: this.$route.name,
         nombre: filterName,
         query: this.$route.query,
+        setted: true,
       })
 
       this.updateFiltrosGuardados(filterName)
@@ -347,9 +348,20 @@ export default {
         "asignacionRequerimientos/getFiltersLocalStorage",
       )
 
-      this.filtroGuardadoSetted = filterNameSetted
-        ? { id: filterNameSetted, descripcion: filterNameSetted }
-        : null
+      if (filterNameSetted) {
+        this.filtroGuardadoSetted = { id: filterNameSetted, descripcion: filterNameSetted }
+      } else {
+        const ultimoSeteado = _.find(this.filtrosGuardados, { setted: true })
+
+        if (ultimoSeteado) {
+          this.filtroGuardadoSetted = {
+            id: ultimoSeteado.nombre,
+            descripcion: ultimoSeteado.nombre,
+          }
+        } else {
+          this.filtroGuardadoSetted = null
+        }
+      }
     },
 
     updateSomeFilterIsSetted() {
