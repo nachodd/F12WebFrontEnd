@@ -17,7 +17,9 @@
         icon="fas fa-sync-alt"
         :class="{ 'fa-spin': headerRefreshLoading }"
         @click="refreshListado"
-      />
+      >
+        <tooltip>Refrescar Listado</tooltip>
+      </q-btn>
 
       <q-btn
         stretch
@@ -25,6 +27,8 @@
         icon="fas fa-bell"
         :color="notificacionesUnreadCount > 0 ? 'red' : void 0"
       >
+        <!-- eslint-disable-next-line  -->
+        <tooltip><div v-html="notificacionesTooltip"></div></tooltip>
         <q-badge
           v-if="notificacionesUnreadCount > 0"
           color="red"
@@ -125,11 +129,13 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex"
 import NotificacionItem from "comp/Header/NotificacionItem"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "Header",
   components: {
     NotificacionItem,
+    Tooltip,
   },
   props: {
     mini: {
@@ -157,6 +163,13 @@ export default {
       "notificacionesUnreadCount",
       "notificacionesUnreadVerMasShowed",
     ]),
+    notificacionesTooltip() {
+      return this.notificacionesUnreadCount > 0
+        ? `Tiene
+          ${this.notificacionesUnreadCount}
+          notificaciones nuevas`
+        : "No hay notificaciones! <span class='emoji'>🎉</span>"
+    },
     hasSpace() {
       return this.$q.screen.gt.xs && !this.mini
     },
