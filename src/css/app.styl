@@ -127,20 +127,64 @@ body {
   }
 }
 
-.item--thumb {
-  width: 140px;
-  height: 56px;
-}
-.item--thumb-xs {
-  width: 25px;
-  height: 56px;
-}
+.item--thumb
+  width auto
+  height 56px
+  max-width 140px
+
+.item--thumb-xs
+  width 25px
+  height 56px
+  max-width 140px
+
+.adjunto-card
+  max-width: 170px;
+
 .adjunto-card .q-item__section--side > .q-icon {
   font-size 20px !important
 }
 .adjunto-card .q-item__section--main ~ .q-item__section--side {
   padding-left: 5px
 }
+
+.img-lazy-cont
+  overflow hidden
+  width 95%
+  display block
+  text-align center
+  height 56px
+
+img.lazy.loading
+  text-indent 16px
+  float left
+  margin-left -16px
+
+img.lazy
+  font-weight 300
+  line-height 4
+  vertical-align bottom
+
+img.lazy.error
+  line-height 2 !important
+
+img.lazy:after
+  content attr(data-msg)
+  display block
+  text-align left
+  margin-left 16px
+  // text-align center
+
+
+// img.lazy:after {
+//   content: attr(data-text);
+//   font-size: 16px;
+//   color: rgb(100, 100, 100);
+//   display: block;
+//   width: 100%;
+//   height: 100%;
+//   background-color: #fff;
+// }
+
 
 .no-dec, .no-dec > * {
   text-decoration: none !important;
@@ -390,8 +434,6 @@ body.q-body--loading #q-app {
 .opacity-100
   opacity 1 !important
 
-
-
 kbd
   display: inline-block;
   margin: 0 .1em;
@@ -406,3 +448,6 @@ kbd
   border-radius: 3px;
   box-shadow: 0 1px 0 rgba(12,13,14,0.2), 0 0 0 2px #FFF inset;
   white-space: nowrap;
+
+.emoji
+  font-size:24px

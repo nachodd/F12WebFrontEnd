@@ -4,6 +4,7 @@
     search-placeholder="Buscar en Asunto, Descripción..."
     :descripcion.sync="filterValues.descripcion"
     :some-filter-is-setted="someFilterIsSetted"
+    :base-height="200"
     @filtrar="filtrar"
   >
     <template #body>
@@ -39,13 +40,16 @@
       </base-filter-input>
 
       <base-filter-input v-if="hasReportantesNoOperativos" label="Ver listado como">
-        <q-select
+        <select-custom
           v-model="filterValues.usuarioVerComo"
           color="deep-purple-10"
           dense
           :options="optionsUsersReportantes"
-          emit-value
+          :loading="optionsUsersReportantes.length === 0"
           map-options
+          emit-value
+          id-key="value"
+          description-key="label"
         />
       </base-filter-input>
     </template>
@@ -79,7 +83,7 @@
       <base-filter-chip
         :showed="Boolean(filterPhoto.usuarioVerComo)"
         label="V.C.:"
-        :value="filterPhoto.usuarioAlta"
+        :value="filterPhoto.usuarioVerComo"
         :tooltip="'Viendo Como: ' + filterPhoto.usuarioVerComo"
         color="purple"
         @remove="removeFilter('usuarioVerComo')"
@@ -150,7 +154,7 @@ export default {
       return this.filterValues.tipo && Boolean(this.filterValues.tipo.id)
     },
     usuarioVerComoSetted() {
-      return this.filterValues.usuarioVerComo && Boolean(this.filterValues.usuarioVerComo.value)
+      return this.filterValues.usuarioVerComo && Boolean(this.filterValues.usuarioVerComo)
     },
     usuarioAltaSetted() {
       return this.filterValues.usuarioAlta && Boolean(this.filterValues.usuarioAlta.id)
@@ -181,7 +185,10 @@ export default {
       return _.get(this, "filterValues.tipo.descripcion", null)
     },
     usuarioVerComoDescripcion() {
-      return _.get(this, "filterValues.usuarioVerComo.label", null)
+      const uvcId = _.get(this, "filterValues.usuarioVerComo", null)
+      if (!uvcId) return null
+      const uvc = _.find(this.optionsUsersReportantes, { value: uvcId })
+      return uvc && uvc.label
     },
     usuarioAltaDescripcion() {
       return _.get(this, "filterValues.usuarioAlta.descripcion", null)

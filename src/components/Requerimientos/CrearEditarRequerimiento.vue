@@ -115,7 +115,7 @@ export default {
           message: "La solicitud fue procesada correctamente!",
         })
 
-        Bus.$emit("load-list-requerimientos")
+        Bus.$emit("load-mis-requerimientos")
         this.$emit("form-submitted")
       } catch ({ message }) {
         const msg = message || "No se pudo cargar / editar el requerimiento"

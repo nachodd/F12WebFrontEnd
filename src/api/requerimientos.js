@@ -74,6 +74,24 @@ export function updateRequerimientosEstados(userId, data) {
   })
 }
 
+export function getRequerimientosForPanelPriorizacion(userId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/${userId}/requerimientos/priorizacion`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener la Requerimientos Pendientes de Priorizacion")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
 export function getRequerimientosForPanelAsignacion(userId) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -128,6 +146,14 @@ export function cancelaEjecucionRequerimiento(requerimientoId, data) {
 export function finalizarRequerimiento(requerimientoId, data) {
   return request({
     url: `v1/f12/requerimientos/${requerimientoId}/finalizacion`,
+    method: "put",
+    data,
+  })
+}
+
+export function preaprobarRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/preaprobacion`,
     method: "put",
     data,
   })

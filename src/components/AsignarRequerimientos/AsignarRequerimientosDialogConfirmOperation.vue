@@ -78,7 +78,6 @@ export default {
       this.$refs.actions
         .saveChanges()
         .then(() => {
-          debugger
           this.dialogConfirmOpen = false
         })
         .catch(() => {})

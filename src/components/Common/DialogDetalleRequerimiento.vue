@@ -477,7 +477,7 @@ export default {
         })
         this.detalleRequerimientoOpen = false
 
-        Bus.$emit("load-list-requerimientos")
+        Bus.$emit("load-mis-requerimientos")
       } catch ({ message }) {
         const msg = message || "No se pudo editar el requerimiento"
         // Si es un error simple (no es de validacion de form con array de errores), muestro el msj nomas

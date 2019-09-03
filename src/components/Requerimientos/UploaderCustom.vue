@@ -84,9 +84,9 @@
           >
             <div v-for="file in scope.files" :key="file.name" class="col-4">
               <q-item class="shadow-2 bg-grey-3 no-padding adjunto-card">
-                <q-item-section v-if="file.__img" side class="no-pad">
+                <div v-if="file.__img" side class="no-pad img-lazy-cont">
                   <img class="item--thumb" :src="file.__img.src" />
-                </q-item-section>
+                </div>
                 <q-item-section v-else side class="q-px-xs">
                   <q-icon class="item--thumb-xs" name="fas fa-paperclip" />
                 </q-item-section>
@@ -180,10 +180,17 @@ export default {
         // if we paste from clipboard, same name is used for the file, so it is skipped by default
         // to prevent this scenario, we have to re-create the files:
         const newFileArray = fileArray.map(f => {
-          return new File([f], `${uid()}_${f.name}`, { type: f.type })
+          let name = f.name.split(".")
+          return new File([f], `${name[0]}_${uid()}.${name[1]}`, { type: f.type })
         })
-        this.handleAdded(newFileArray)
-        this.$refs.uploader.addFiles(newFileArray)
+        this.$nextTick(() => {
+          if (this.$refs.uploader) {
+            // add to the control
+            this.$refs.uploader.addFiles(newFileArray)
+            // add to the array to upload them after
+            this.handleAdded(newFileArray)
+          }
+        })
       }
     },
     handleAdded(files) {

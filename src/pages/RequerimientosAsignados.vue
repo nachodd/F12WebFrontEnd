@@ -73,7 +73,7 @@ export default {
     ...mapGetters("requerimientosAsignados", ["requerimientosFiltered"]),
   },
   async created() {
-    this.$store.dispatch("requerimientosAsignados/inicializarRequerimientosAsignados")
+    await this.$store.dispatch("requerimientosAsignados/inicializarRequerimientosAsignados")
   },
   methods: {
     filtrarRequerimientos(filtrosValues) {
