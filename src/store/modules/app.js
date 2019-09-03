@@ -19,6 +19,8 @@ import {
   processRequerimientoRechazado,
   processPausarReanudarRequerimiento,
 } from "utils/pusher"
+import router from "router/index"
+import Bus from "utils/bus"
 
 const LIMIT_NOTIFICACIONES_SHOWED = 5
 
@@ -37,6 +39,7 @@ const state = {
   notificaciones: [],
   limitUnread: LIMIT_NOTIFICACIONES_SHOWED,
   limitRead: LIMIT_NOTIFICACIONES_SHOWED,
+  headerRefreshLoading: false,
 }
 
 // getters
@@ -164,6 +167,9 @@ const mutations = {
         state.limitRead = state.limitRead + showMore
       }
     }
+  },
+  SET_HEADER_REFRESH_LOADING: (state, value) => {
+    state.headerRefreshLoading = value
   },
 }
 
@@ -325,6 +331,40 @@ const actions = {
       destroyPusherChannel(pusherChannelName)
       resolve()
     })
+  },
+  async refreshListado({ commit, dispatch }) {
+    const routeName = router.currentRoute.name
+    const routeMatched = [
+      "mis-requerimientos",
+      "priorizar-requerimientos",
+      "asignar-requerimientos",
+      "requerimientos-asignados",
+    ].includes(routeName)
+
+    if (routeMatched) {
+      commit("SET_HEADER_REFRESH_LOADING", true)
+      // FIXME: reemplazar esto por llamadas a cada store correspondiente (cuando se pasen los filterValues corresp a cada store)
+      switch (routeName) {
+        case "mis-requerimientos":
+          Bus.$emit("load-mis-requerimientos")
+          break
+        case "priorizar-requerimientos":
+          // eslint-disable-next-line
+          await dispatch("priorizarRequerimientos/inicializarPriorizarRequerimientos", { useLastUser: true }, { root: true })
+          break
+        case "asignar-requerimientos":
+          await dispatch("asignacionRequerimientos/fetchRequerimientos", null, { root: true })
+          break
+        case "requerimientos-asignados":
+          await dispatch("requerimientosAsignados/inicializarRequerimientosAsignados", null, {
+            root: true,
+          })
+          // Bus.$emit("load-requerimientos-asignados")
+          break
+      }
+
+      commit("SET_HEADER_REFRESH_LOADING", false)
+    }
   },
 }
 

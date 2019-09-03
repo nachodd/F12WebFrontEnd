@@ -73,8 +73,9 @@ const processPriorizarRequerimientoAprobado = async (ctx, data) => {
 
   const currentUserId = store.getters["auth/userId"]
   const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
+  const esElUltimoDeLaCadenaDeMando = store.getters["auth/esElUltimoDeLaCadenaDeMando"]
 
-  if (currentUserId === userCreadorId) {
+  if (currentUserId === userCreadorId && esElUltimoDeLaCadenaDeMando) {
     // Si entro aca, es porque un requerimiento que el usuario logueado creó, fue aprobado.
     // Entonces se debe sacar del listado de reqs
     // USERS: usuario_anterior_cadena
