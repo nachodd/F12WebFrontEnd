@@ -246,16 +246,11 @@ export default {
         this.setFilters(query)
       },
     },
-    async filtroGuardadoSetted(data) {
+    filtroGuardadoSetted(data) {
       let query = {}
 
       if (data) {
-        const filtroSeleccionado = await this.$store.dispatch(
-          "asignacionRequerimientos/getFiltersLocalStorage",
-          data.id,
-        )
-
-        query = filtroSeleccionado.query
+        query = _.find(this.filtrosGuardados, { nombre: data.id }).query
       }
 
       this.$router.push({ name: "asignar-requerimientos", query: query })
@@ -264,7 +259,7 @@ export default {
   async mounted() {
     await this.$store.dispatch("requerimientos/createRequerimiento")
     this.setFilters(this.$route.query)
-    this.recuperarFiltrosGuardados()
+    this.updateFiltrosGuardados()
   },
   methods: {
     pushFilters({ guardarFiltro = false } = {}) {
@@ -308,15 +303,11 @@ export default {
             this.guardarFiltrosLocalStorage(nombreFiltro)
             this.$refs.baseFilter.closePopUp()
           })
-          .onCancel(() => {
-            // console.log(">>>> Cancel")
-          })
-          .onDismiss(() => {
-            // console.log("I am triggered on both OK and Cancel")
-          })
+          .onCancel(() => {})
+          .onDismiss(() => {})
       } else {
         this.$router.push({ name: "asignar-requerimientos", query: queryParamNotNull })
-        this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
+        this.$refs.baseFilter.closePopUp()
       }
     },
     setFilters({
@@ -342,21 +333,23 @@ export default {
       this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
       this.updateSomeFilterIsSetted()
     },
-    guardarFiltrosLocalStorage(filterName) {
-      this.$store.dispatch("asignacionRequerimientos/saveFiltersLocalStorage", {
+    async guardarFiltrosLocalStorage(filterName) {
+      await this.$store.dispatch("asignacionRequerimientos/saveFiltersLocalStorage", {
         seccion: this.$route.name,
         nombre: filterName,
         query: this.$route.query,
       })
 
-      this.recuperarFiltrosGuardados()
-
-      this.filtroGuardadoSetted = filterName
+      this.updateFiltrosGuardados(filterName)
     },
-    async recuperarFiltrosGuardados() {
+    async updateFiltrosGuardados(filterNameSetted = null) {
       this.filtrosGuardados = await this.$store.dispatch(
         "asignacionRequerimientos/getFiltersLocalStorage",
       )
+
+      this.filtroGuardadoSetted = filterNameSetted
+        ? { id: filterNameSetted, descripcion: filterNameSetted }
+        : null
     },
 
     updateSomeFilterIsSetted() {
