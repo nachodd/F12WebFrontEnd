@@ -247,18 +247,24 @@ export default {
       },
     },
     async filtroGuardadoSetted(data) {
-      const filtroSeleccionado = await this.$store.dispatch(
-        "asignacionRequerimientos/getFiltersLocalStorage",
-        data.id,
-      )
+      let query = {}
 
-      this.$router.push({ name: "asignar-requerimientos", query: filtroSeleccionado.query })
+      if (data) {
+        const filtroSeleccionado = await this.$store.dispatch(
+          "asignacionRequerimientos/getFiltersLocalStorage",
+          data.id,
+        )
+
+        query = filtroSeleccionado.query
+      }
+
+      this.$router.push({ name: "asignar-requerimientos", query: query })
     },
   },
   async mounted() {
     await this.$store.dispatch("requerimientos/createRequerimiento")
     this.setFilters(this.$route.query)
-    this.updateFiltrosGuardados()
+    this.recuperarFiltrosGuardados()
   },
   methods: {
     pushFilters({ guardarFiltro = false } = {}) {
@@ -343,22 +349,16 @@ export default {
         query: this.$route.query,
       })
 
-      this.updateFiltrosGuardados()
+      this.recuperarFiltrosGuardados()
 
       this.filtroGuardadoSetted = filterName
     },
-    recuperarFiltrosLocalStorage(filterName = null) {
-      const userFilters = JSON.parse(localStorage.getItem("filtros_" + this.userId))
+    async recuperarFiltrosGuardados() {
+      this.filtrosGuardados = await this.$store.dispatch(
+        "asignacionRequerimientos/getFiltersLocalStorage",
+      )
+    },
 
-      if (filterName == null) {
-        return userFilters || []
-      } else {
-        return _.find(userFilters, { seccion: "asignarRequerimientos", nombre: filterName }) || []
-      }
-    },
-    updateFiltrosGuardados() {
-      this.filtrosGuardados = this.recuperarFiltrosLocalStorage()
-    },
     updateSomeFilterIsSetted() {
       this.someFilterIsSetted = _.some([
         this.sistemaSetted,
