@@ -59,7 +59,9 @@
     </template>
 
     <template v-slot:buttons>
-      <q-btn color="deep-purple-10" size="md" @click="pushFilters(1)">GUARDAR Y FILTRAR</q-btn>
+      <q-btn color="deep-purple-10" size="md" @click="pushFilters({ guardarFiltro: true })">
+        GUARDAR Y FILTRAR
+      </q-btn>
 
       <q-btn color="negative" flat size="md" @click="limpiarFiltros">Limpiar Filtros</q-btn>
 
@@ -71,6 +73,7 @@
         <div class="test">
           <select-custom
             ref="sistema"
+            v-model="filtroGuardadoSetted"
             label="Filtros guardados"
             outlined
             dense
@@ -78,6 +81,7 @@
             :apply-validation="false"
             :loading="false"
             :options="filtrosGuardadosOptions"
+            :value="filtroGuardadoSetted"
           />
         </div>
         <base-filter-chip
@@ -177,6 +181,7 @@ export default {
       someFilterIsSetted: false,
       usuariosAsignadosOptionsFiltered: null,
       filtrosGuardados: [],
+      filtroGuardadoSetted: "arreglo rapido",
     }
   },
   computed: {
@@ -228,7 +233,7 @@ export default {
       return ""
     },
     filtrosGuardadosOptions() {
-      const options = _.map(this.recuperarFiltrosLocalStorage(), function(value) {
+      const options = _.map(this.filtrosGuardados, function(value) {
         return { id: value.nombre, descripcion: value.nombre }
       })
 
@@ -241,44 +246,42 @@ export default {
         this.setFilters(query)
       },
     },
+    async filtroGuardadoSetted(data) {
+      const filtroSeleccionado = await this.$store.dispatch(
+        "asignacionRequerimientos/getFiltersLocalStorage",
+        data.id,
+      )
+
+      this.$router.push({ name: "asignar-requerimientos", query: filtroSeleccionado.query })
+    },
   },
   async mounted() {
     await this.$store.dispatch("requerimientos/createRequerimiento")
-    // console.log(this.$route.name)
-
-    // console.log(this.recuperarFiltrosLocalStorage("esUnTest"))
-
-    // const { descripcion, sistema, tipo, usuariosAsignados, usuarioAlta } = this.filtros
-    // if (descripcion) this.localFilterValues.descripcion = descripcion
-    // if (sistema) this.localFilterValues.sistema = sistema
-    // if (tipo) this.localFilterValues.tipo = tipo
-    // if (usuarioAlta) this.localFilterValues.usuarioAlta = usuarioAlta
-    // if (usuariosAsignados) this.localFilterValues.usuariosAsignados = usuariosAsignados
-
     this.setFilters(this.$route.query)
+    this.updateFiltrosGuardados()
   },
   methods: {
-    pushFilters(guardarFiltro = false) {
-      let onlyNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
+    pushFilters({ guardarFiltro = false } = {}) {
+      let queryParamNotNull = _.pickBy({ ...this.localFilterValues }, _.identity)
 
       // Remplazo de objetos por id
-      if (_.has(onlyNotNull, "sistema")) {
-        onlyNotNull.sistema = onlyNotNull.sistema.id
+      if (_.has(queryParamNotNull, "sistema")) {
+        queryParamNotNull.sistema = queryParamNotNull.sistema.id
       }
-      if (_.has(onlyNotNull, "tipo")) {
-        onlyNotNull.tipo = onlyNotNull.tipo.id
+      if (_.has(queryParamNotNull, "tipo")) {
+        queryParamNotNull.tipo = queryParamNotNull.tipo.id
       }
-      if (_.has(onlyNotNull, "usuarioAlta")) {
-        onlyNotNull.usuarioAlta = onlyNotNull.usuarioAlta.id
+      if (_.has(queryParamNotNull, "usuarioAlta")) {
+        queryParamNotNull.usuarioAlta = queryParamNotNull.usuarioAlta.id
       }
 
-      if (_.has(onlyNotNull, "usuariosAsignados")) {
-        if (onlyNotNull.usuariosAsignados.length != 0) {
-          onlyNotNull.usuariosAsignados = encodeURIComponent(
-            _.map(onlyNotNull.usuariosAsignados, "value"),
+      if (_.has(queryParamNotNull, "usuariosAsignados")) {
+        if (queryParamNotNull.usuariosAsignados.length != 0) {
+          queryParamNotNull.usuariosAsignados = encodeURIComponent(
+            _.map(queryParamNotNull.usuariosAsignados, "value"),
           )
         } else {
-          onlyNotNull = _.omit(onlyNotNull, ["usuariosAsignados"])
+          queryParamNotNull = _.omit(queryParamNotNull, ["usuariosAsignados"])
         }
       }
 
@@ -295,13 +298,9 @@ export default {
             persistent: true,
           })
           .onOk(nombreFiltro => {
-            this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
-
+            this.$router.push({ name: "asignar-requerimientos", query: queryParamNotNull })
             this.guardarFiltrosLocalStorage(nombreFiltro)
-
-            this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
-
-            // console.log(">>>> OK, received", nombreFiltro, this.$route)
+            this.$refs.baseFilter.closePopUp()
           })
           .onCancel(() => {
             // console.log(">>>> Cancel")
@@ -310,7 +309,7 @@ export default {
             // console.log("I am triggered on both OK and Cancel")
           })
       } else {
-        this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
+        this.$router.push({ name: "asignar-requerimientos", query: queryParamNotNull })
         this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
       }
     },
@@ -343,8 +342,11 @@ export default {
         nombre: filterName,
         query: this.$route.query,
       })
-    },
 
+      this.updateFiltrosGuardados()
+
+      this.filtroGuardadoSetted = filterName
+    },
     recuperarFiltrosLocalStorage(filterName = null) {
       const userFilters = JSON.parse(localStorage.getItem("filtros_" + this.userId))
 
@@ -353,6 +355,9 @@ export default {
       } else {
         return _.find(userFilters, { seccion: "asignarRequerimientos", nombre: filterName }) || []
       }
+    },
+    updateFiltrosGuardados() {
+      this.filtrosGuardados = this.recuperarFiltrosLocalStorage()
     },
     updateSomeFilterIsSetted() {
       this.someFilterIsSetted = _.some([

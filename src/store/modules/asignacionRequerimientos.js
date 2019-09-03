@@ -614,7 +614,7 @@ const actions = {
   saveFiltersLocalStorage(context, filter) {
     saveFilters(filter)
   },
-  getFiltersLocalStorage(filterName = null) {
+  getFiltersLocalStorage(context, filterName = null) {
     return getFilters(filterName)
   },
 }

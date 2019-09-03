@@ -9,6 +9,7 @@ export function getFilters(filterName = null) {
   if (filterName == null) {
     return userFilters || []
   } else {
+    console.log("recupera", _.find(userFilters, { seccion: seccion, nombre: filterName }) || [])
     return _.find(userFilters, { seccion: seccion, nombre: filterName }) || []
   }
 }
