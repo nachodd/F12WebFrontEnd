@@ -472,13 +472,19 @@ const mutations = {
 }
 
 const actions = {
-  async inicializarPriorizarRequerimientos({ commit, dispatch, rootGetters }, { userId = null }) {
-    // const esElUltimoDeLaCadenaDeMando = rootGetters["auth/esElUltimoDeLaCadenaDeMando"]
-
-    // Si no impersonamos a nadie, el userId viene en null
-
-    const userIdToQuery = userId !== null ? userId : rootGetters["auth/userId"]
-    commit("SET_USUARIO_IMPERSONATE", userId)
+  async inicializarPriorizarRequerimientos(
+    { commit, dispatch, rootGetters, state },
+    { userId = null, useLastUser = false },
+  ) {
+    let userIdToQuery
+    if (useLastUser) {
+      // usará el ultimo usuario impersonado o el user logueado
+      userIdToQuery = state.usuarioImpersonateId || rootGetters["auth/userId"]
+    } else {
+      // Si no impersonamos a nadie, el userId viene en null
+      userIdToQuery = userId !== null ? userId : rootGetters["auth/userId"]
+      commit("SET_USUARIO_IMPERSONATE", userId)
+    }
     commit("SET_REQS_LIST", [])
 
     // Traigo los usuarios para el filtro de usuarios de alta

@@ -88,10 +88,10 @@ export default {
   },
   async mounted() {
     // this.getListRequerimientos() // Se paso al componente filtro
-    Bus.$on("load-list-requerimientos", await this.getListRequerimientos)
+    Bus.$on("load-mis-requerimientos", await this.getListRequerimientos)
   },
   unmounted() {
-    Bus.$off("load-list-requerimientos", this.getListRequerimientos)
+    Bus.$off("load-mis-requerimientos", this.getListRequerimientos)
   },
   methods: {
     async getListRequerimientos(filtrosValues) {

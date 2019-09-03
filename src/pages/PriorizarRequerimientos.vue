@@ -40,6 +40,7 @@ import PriorizarRequerimientosDialogConfirmOperation from "comp/PriorizarRequeri
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import PriorizarRequerimientosFiltros from "comp/PriorizarRequerimientos/PriorizarRequerimientosFiltros"
 import { warn } from "utils/helpers"
+import Bus from "utils/bus"
 
 export default {
   name: "PriorizarRequerimientos",
@@ -79,31 +80,39 @@ export default {
     this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
   },
   async created() {
-    // FIXME: conectar el filtro PriorizarRequerimientosFiltros2 con esta pagina (similar a lo que hace MisRequerimientos).
-    // Tener cuidado con usuarioVerComo, poruqe cuando ese cambia se hace un request al backend y se debe hacer un
-    //   this.$store.dispatch("priorizarRequerimientos/flushRequerimientos")
-    // this.$store.dispatch("requerimientos/createRequerimiento")
-    await this.$store.dispatch("priorizarRequerimientos/inicializarPriorizarRequerimientos", {
-      userId: null,
-    })
+    await this.loadRequerimientos()
+  },
+  mounted() {
+    Bus.$on("load-priorizar-requerimientos", this.loadRequerimientos)
+  },
+  unmounted() {
+    Bus.$off("load-priorizar-requerimientos", this.loadRequerimientos)
   },
   methods: {
+    async loadRequerimientos() {
+      await this.$store.dispatch("priorizarRequerimientos/inicializarPriorizarRequerimientos", {
+        userId: this.filtroLastValues.usuarioVerComo || null,
+      })
+    },
     async filtrarRequerimientos(filtrosValues) {
       try {
         // Si el filtro fue enviado como parametro, lo guardo localmente.
         // Cuando se llama al paginador, no tengo el valor del filtro. Por eso lo guardo previamente
         if (filtrosValues) {
+          if (this.filtroLastValues.usuarioVerComo !== filtrosValues.usuarioVerComo) {
+            await this.$store.dispatch(
+              "priorizarRequerimientos/inicializarPriorizarRequerimientos",
+              {
+                userId: filtrosValues.usuarioVerComo,
+              },
+            )
+          }
+
           this.filtroLastValues.descripcion = filtrosValues.descripcion
           this.filtroLastValues.sistema = filtrosValues.sistema
           this.filtroLastValues.tipo = filtrosValues.tipo
           this.filtroLastValues.usuarioVerComo = filtrosValues.usuarioVerComo
           this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
-        }
-
-        if (this.filtroLastValues.usuarioVerComo !== filtrosValues.usuarioVerComo) {
-          await this.$store.dispatch("priorizarRequerimientos/inicializarPriorizarRequerimientos", {
-            userId: this.filtroLastValues.usuarioVerComo,
-          })
         }
 
         this.$store.dispatch("priorizarRequerimientos/setFilters", this.filtroLastValues)

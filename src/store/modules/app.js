@@ -332,7 +332,7 @@ const actions = {
       resolve()
     })
   },
-  async refreshListado({ commit /* , dispatch */ }) {
+  async refreshListado({ commit, dispatch }) {
     const routeName = router.currentRoute.name
     const routeMatched = [
       "mis-requerimientos",
@@ -342,15 +342,24 @@ const actions = {
     ].includes(routeName)
 
     if (routeMatched) {
-      // FIXME: esto no esta "frenando". Deberia llamarse a commit("SET_HEADER_REFRESH_LOADING", true) desde la accion en si
-      // FIXME: completar con las sigueintes acciones para los otros listados
       commit("SET_HEADER_REFRESH_LOADING", true)
+      // FIXME: reemplazar esto por llamadas a cada store correspondiente (cuando se pasen los filterValues corresp a cada store)
       switch (routeName) {
         case "mis-requerimientos":
-          Bus.$emit("load-list-requerimientos")
+          Bus.$emit("load-mis-requerimientos")
           break
         case "priorizar-requerimientos":
-          // await Bus.$emit("load-list-requerimientos")
+          // eslint-disable-next-line
+          await dispatch("priorizarRequerimientos/inicializarPriorizarRequerimientos", { useLastUser: true }, { root: true })
+          break
+        case "asignar-requerimientos":
+          await dispatch("asignacionRequerimientos/fetchRequerimientos", null, { root: true })
+          break
+        case "requerimientos-asignados":
+          await dispatch("requerimientosAsignados/inicializarRequerimientosAsignados", null, {
+            root: true,
+          })
+          // Bus.$emit("load-requerimientos-asignados")
           break
       }
 
