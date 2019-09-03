@@ -77,7 +77,7 @@
             color="deep-purple-10"
             :apply-validation="false"
             :loading="false"
-            :options="filtrosGuardados"
+            :options="filtrosGuardadosOptions"
           />
         </div>
         <base-filter-chip
@@ -161,6 +161,7 @@ import BaseFilter from "comp/Common/BaseFilter"
 import BaseFilterInput from "comp/Common/BaseFilterInput"
 import BaseFilterChip from "comp/Common/BaseFilterChip"
 import { mapState, mapGetters } from "vuex"
+
 export default {
   name: "AsignarRequerimientosFiltros",
   components: { SelectCustom, BaseFilter, BaseFilterInput, BaseFilterChip },
@@ -226,6 +227,13 @@ export default {
       }
       return ""
     },
+    filtrosGuardadosOptions() {
+      const options = _.map(this.recuperarFiltrosLocalStorage(), function(value) {
+        return { id: value.nombre, descripcion: value.nombre }
+      })
+
+      return options
+    },
   },
   watch: {
     "$route.query": {
@@ -236,6 +244,9 @@ export default {
   },
   async mounted() {
     await this.$store.dispatch("requerimientos/createRequerimiento")
+    // console.log(this.$route.name)
+
+    // console.log(this.recuperarFiltrosLocalStorage("esUnTest"))
 
     // const { descripcion, sistema, tipo, usuariosAsignados, usuarioAlta } = this.filtros
     // if (descripcion) this.localFilterValues.descripcion = descripcion
@@ -285,17 +296,18 @@ export default {
           })
           .onOk(nombreFiltro => {
             this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
-            console.log(">>>> OK, received", nombreFiltro, this.$route)
 
             this.guardarFiltrosLocalStorage(nombreFiltro)
 
             this.$refs.baseFilter.closePopUp() // seteamos el popupOpened en el padre en false
+
+            // console.log(">>>> OK, received", nombreFiltro, this.$route)
           })
           .onCancel(() => {
-            console.log(">>>> Cancel")
+            // console.log(">>>> Cancel")
           })
           .onDismiss(() => {
-            console.log("I am triggered on both OK and Cancel")
+            // console.log("I am triggered on both OK and Cancel")
           })
       } else {
         this.$router.push({ name: "asignar-requerimientos", query: onlyNotNull })
@@ -326,26 +338,21 @@ export default {
       this.updateSomeFilterIsSetted()
     },
     guardarFiltrosLocalStorage(filterName) {
-      const key = "filtros_" + this.userId
-
-      // if (!this.validarNombreFiltro(key, filterName)) {
-      //   return false
-      // }
-
-      const filtrosGuardados = _.concat([...this.filtrosGuardados], {
-        seccion: "asignarRequerimientos",
+      this.$store.dispatch("asignacionRequerimientos/saveFiltersLocalStorage", {
+        seccion: this.$route.name,
         nombre: filterName,
         query: this.$route.query,
       })
-
-      localStorage.setItem(key, JSON.stringify(filtrosGuardados))
-
-      console.log(filtrosGuardados, key)
     },
+
     recuperarFiltrosLocalStorage(filterName = null) {
-      // falta armar el hash
-      console.log(filterName)
-      localStorage.getItem("testObject")
+      const userFilters = JSON.parse(localStorage.getItem("filtros_" + this.userId))
+
+      if (filterName == null) {
+        return userFilters || []
+      } else {
+        return _.find(userFilters, { seccion: "asignarRequerimientos", nombre: filterName }) || []
+      }
     },
     updateSomeFilterIsSetted() {
       this.someFilterIsSetted = _.some([

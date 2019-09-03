@@ -16,6 +16,8 @@ import {
 } from "utils/requerimientos"
 import { pipeWith } from "utils/helpers"
 
+import { saveFilters, getFilters } from "utils/localStorage"
+
 const state = {
   requerimientos: [],
   loadingRequerimientos: false,
@@ -218,7 +220,7 @@ const getters = {
       } else {
         // Busco el último reqs de los asignados, tomo su orden y le aumento 1
         // eslint-disable-next-line
-        const lastReq = getters.requerimientosAsignados[ getters.requerimientosAsignados.length - 1 ]
+        const lastReq = getters.requerimientosAsignados[getters.requerimientosAsignados.length - 1]
         orden = lastReq.estado.asignacion.orden + 1
       }
       // Será el ultimo (ya sea porque se filtro el listado y no hay nadao porque efectivametne no habia otro asignado)
@@ -608,6 +610,12 @@ const actions = {
       commit("CLEAR_FILTROS")
       resolve()
     })
+  },
+  saveFiltersLocalStorage(context, filter) {
+    saveFilters(filter)
+  },
+  getFiltersLocalStorage(filterName = null) {
+    return getFilters(filterName)
   },
 }
 
