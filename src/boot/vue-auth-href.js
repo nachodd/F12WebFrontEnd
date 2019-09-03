@@ -1,4 +1,4 @@
-import VueAuthHref from "vue-auth-href"
+import VueAuthHref from "./vue-auth-href-directive"
 import store from "store/index"
 
 export default ({ Vue }) => {
