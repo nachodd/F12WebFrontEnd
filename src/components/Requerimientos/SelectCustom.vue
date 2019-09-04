@@ -36,7 +36,7 @@
     <!-- override ALL v-scoped-slot's -->
     <!-- <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
       <slot :name="slot" v-bind="scope" />
-    </template> -->
+    </template>-->
   </q-select>
 </template>
 <script>
@@ -174,6 +174,9 @@ export default {
           v => v[this.descriptionKey].toLowerCase().indexOf(needle) > -1,
         )
       })
+    },
+    hidePopup() {
+      this.$refs.select.hidePopup()
     },
   },
 }

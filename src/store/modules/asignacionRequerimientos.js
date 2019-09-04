@@ -16,7 +16,7 @@ import {
 } from "utils/requerimientos"
 import { pipeWith } from "utils/helpers"
 
-import { saveFilters, getFilters } from "utils/localStorage"
+import { saveFilters, getFilters, removeFilters } from "utils/localStorage"
 
 const state = {
   requerimientos: [],
@@ -611,11 +611,14 @@ const actions = {
       resolve()
     })
   },
-  saveFiltersLocalStorage(context, filter) {
+  saveFiltersLocalStorage(context, filter = null) {
     saveFilters(filter)
   },
   getFiltersLocalStorage(context, filterName = null) {
     return getFilters(filterName)
+  },
+  removeFiltersLocalStorage(context, filterName) {
+    removeFilters(filterName)
   },
 }
 

@@ -69,10 +69,10 @@
     </template>
 
     <template v-slot:footer>
-      <div class="result">
-        <div class="test">
+      <div class="container-filters-selected">
+        <div class="container-filtros-guardados">
           <select-custom
-            ref="sistema"
+            ref="selectTest"
             v-model="filtroGuardadoSetted"
             label="Filtros guardados"
             outlined
@@ -82,7 +82,20 @@
             :loading="false"
             :options="filtrosGuardadosOptions"
             :value="filtroGuardadoSetted"
-          />
+            class="select-filtros-guardados"
+          >
+            <template v-slot:option="scope">
+              <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+                <q-item-section>
+                  <q-item-label v-html="scope.opt.descripcion" />
+                  <!-- <q-item-label caption>{{ scope.opt.descripcion }}</q-item-label> -->
+                </q-item-section>
+                <q-item-section avatar @click.stop="eliminarFiltroGuardado(scope.opt.id)">
+                  <q-icon name="delete_forever" class="filter__icon cursor-pointer" />
+                </q-item-section>
+              </q-item>
+            </template>
+          </select-custom>
         </div>
         <base-filter-chip
           :showed="Boolean(sistemaDescripcion)"
@@ -92,7 +105,6 @@
           color="red"
           @remove="removeFilter('sistema')"
         />
-
         <base-filter-chip
           :showed="Boolean(tipoRequerimientoDescripcion)"
           label="Tipo:"
@@ -109,7 +121,6 @@
           color="purple"
           @remove="removeFilter('usuarioAlta')"
         />
-
         <base-filter-chip
           :showed="Boolean(usuariosAsignadosDescripcion)"
           label="U.As:"
@@ -181,7 +192,7 @@ export default {
       someFilterIsSetted: false,
       usuariosAsignadosOptionsFiltered: null,
       filtrosGuardados: [],
-      filtroGuardadoSetted: "arreglo rapido",
+      filtroGuardadoSetted: "",
     }
   },
   computed: {
@@ -233,6 +244,7 @@ export default {
       return ""
     },
     filtrosGuardadosOptions() {
+      // console.log("paso", this.filtrosGuardados)
       const options = _.map(this.filtrosGuardados, function(value) {
         return { id: value.nombre, descripcion: value.nombre }
       })
@@ -248,12 +260,15 @@ export default {
     },
     filtroGuardadoSetted(data) {
       let query = {}
+      // let nameFilter = null
 
       if (data) {
         query = _.find(this.filtrosGuardados, { nombre: data.id }).query
+        // nameFilter = data.id
       }
 
       this.$router.push({ name: "asignar-requerimientos", query: query })
+      // this.$store.dispatch("asignacionRequerimientos/saveFiltersLocalStorage", nameFilter)
     },
   },
   async mounted() {
@@ -331,6 +346,7 @@ export default {
         _.split(decodeURIComponent(usuariosAsignados), ",").includes(String(usuario.value)),
       )
       this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
+
       this.updateSomeFilterIsSetted()
     },
     async guardarFiltrosLocalStorage(filterName) {
@@ -344,10 +360,12 @@ export default {
       this.updateFiltrosGuardados(filterName)
     },
     async updateFiltrosGuardados(filterNameSetted = null) {
+      // carga los filtros guardaos
       this.filtrosGuardados = await this.$store.dispatch(
         "asignacionRequerimientos/getFiltersLocalStorage",
       )
 
+      // setea el que venga seleccionado
       if (filterNameSetted) {
         this.filtroGuardadoSetted = { id: filterNameSetted, descripcion: filterNameSetted }
       } else {
@@ -362,6 +380,11 @@ export default {
           this.filtroGuardadoSetted = null
         }
       }
+    },
+    async eliminarFiltroGuardado(filterName) {
+      await this.$store.dispatch("asignacionRequerimientos/removeFiltersLocalStorage", filterName)
+      this.updateFiltrosGuardados()
+      this.$refs.selectTest.hidePopup()
     },
 
     updateSomeFilterIsSetted() {
@@ -436,21 +459,26 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
-.result:after {
+.container-filters-selected:after {
   content: '';
   display: table;
   clear: both;
 }
 
-.result div {
+.container-filters-selected div {
   float: left;
 }
 
-.result span {
+.container-filters-selected span {
   float: left;
 }
 
-.result div.test {
+.container-filters-selected div.container-filtros-guardados {
   float: right;
+  width: 330px;
+}
+
+.select-filtros-guardados {
+  width: 100%;
 }
 </style>
