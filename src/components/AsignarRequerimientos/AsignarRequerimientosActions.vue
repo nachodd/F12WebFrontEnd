@@ -78,7 +78,7 @@
             </div>
           </div>
           <div v-if="!hideOrderAsignacion" class="row q-mt-xs">
-            <div v-if="ordenMaxLength > 1" id="ordenContainer" class="col-12">
+            <div v-if="ordenMaxLength > 1" class="col-12">
               <tooltip
                 v-if="usuarioAsignado !== null"
                 anchor="top middle"
@@ -156,7 +156,7 @@
       <q-slide-transition>
         <div v-if="operation === 'reordenar'">
           <div class="row q-mt-xs">
-            <div v-if="ordenMaxLength > 1" id="ordenContainer" class="col-12">
+            <div v-if="ordenMaxLength > 1" class="col-12">
               <div class="row q-mt-xs q-mb-md">
                 <div class="col-12 text-grey-7">
                   Orden

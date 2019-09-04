@@ -520,7 +520,7 @@ const actions = {
       })
   }, */
   processUpdateList({ commit, getters, dispatch }, updatedListData) {
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
       // Updateo los listados temporales
       commit("PROCESS_UPDATE_LISTS", updatedListData)
 
@@ -540,6 +540,15 @@ const actions = {
           break
         case "approve":
         case "reject":
+          // se setea el requerimiento abierto en el store y luego se abre el modal de confirmacion
+          await dispatch(
+            "requerimientos/setDetalleRequerimiento",
+            {
+              reqId: getters.requerimientoIdToChange,
+              listName: "priorizar-requerimientos",
+            },
+            { root: true },
+          )
           dispatch("setDialogConfirmOperationOpen", true)
           break
       }

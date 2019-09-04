@@ -15,6 +15,7 @@
           type="number"
           min="0"
           color="deep-purple-10"
+          @keyup.enter="filtrar"
         />
       </base-filter-input>
       <base-filter-input label="Estados">

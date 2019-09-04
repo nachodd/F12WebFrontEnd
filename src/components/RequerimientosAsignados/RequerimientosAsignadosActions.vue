@@ -54,6 +54,8 @@
               <q-input
                 ref="horasEstimadas"
                 v-model.number="horasEstimadas"
+                min="0.5"
+                step="0.5"
                 type="number"
                 :color="color"
                 :dark="dark"
