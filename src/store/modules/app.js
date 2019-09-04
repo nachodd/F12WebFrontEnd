@@ -6,6 +6,7 @@ import {
   getPusherChannel,
   destroyPusherChannel,
   processAsignarRequerimiento,
+  processRequerimientoEnviadoAProcesos,
   processRequerimientoDesasignado,
   processRequerimientoAsignado,
   processEjecutarOCancelarEjecucionRequerimiento,
@@ -205,12 +206,15 @@ const actions = {
     commit("LOADING_RESET")
   },
   getDashboardData: _.debounce(({ commit, rootGetters }, userId = null) => {
+    console.log("getDashboardData")
     return new Promise(async (resolve, reject) => {
       try {
         commit("SET_LOADING_DASHBOARD", true)
         const userIdToCheck = userId ? userId : rootGetters["auth/userId"]
-        const res = await getDashboardData(userIdToCheck)
-        commit("SET_DASHBOARD_DATA", res)
+        if (userIdToCheck) {
+          const res = await getDashboardData(userIdToCheck)
+          commit("SET_DASHBOARD_DATA", res)
+        }
         resolve()
       } catch (error) {
         reject(error)
@@ -218,25 +222,30 @@ const actions = {
         commit("SET_LOADING_DASHBOARD", false)
       }
     })
-  }, 250),
-  checkNotificaciones({ commit, rootGetters }, userId = null) {
+  }, 500),
+  checkNotificaciones: _.debounce(({ commit, rootGetters }, userId = null) => {
+    console.log("checkNotificaciones")
     return new Promise(async (resolve, reject) => {
       try {
         const userIdToCheck = userId || rootGetters["auth/userId"]
-        const res = await checkNotificaciones(userIdToCheck)
-        commit("SET_NOTIFICACIONES", res)
+        if (userIdToCheck) {
+          const res = await checkNotificaciones(userIdToCheck)
+          commit("SET_NOTIFICACIONES", res)
+        }
         resolve()
       } catch (error) {
         reject(error)
       }
     })
-  },
+  }, 500),
   readNotificaciones({ commit, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {
         const userIdToCheck = userId || rootGetters["auth/userId"]
-        const res = await readNotificaciones(userIdToCheck)
-        commit("SET_NOTIFICACIONES_READ", res)
+        if (userIdToCheck) {
+          const res = await readNotificaciones(userIdToCheck)
+          commit("SET_NOTIFICACIONES_READ", res)
+        }
         resolve()
       } catch (error) {
         reject(error)
@@ -274,6 +283,9 @@ const actions = {
       // usamos el mismo process para requerimiento externo (ya que basicamente, el comportamiento es el mismo)
       pc.bind("asignar_requerimiento_externo", data => {
         processAsignarRequerimiento(ctx, data)
+      })
+      pc.bind("requerimiento_enviado_a_procesos", data => {
+        processRequerimientoEnviadoAProcesos(ctx, data)
       })
       pc.bind("requerimiento_asignado", data => {
         processRequerimientoAsignado(ctx, data)
