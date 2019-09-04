@@ -142,33 +142,21 @@ const processAsignarRequerimiento = async (ctx, data) => {
   )
 }
 
-const processCambioTipoRequerimiento = async (ctx, data) => {
-  // updatea solo notificaciones, en el dashboard nada va a haber cambiado
-  // await ctx.dispatch("checkNotificaciones")
+const processRequerimientoEnviadoAProcesos = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+  // Puede que el usuario que lo envio lo haya hecho desde la cadena de priorizacion (el gerente). Entonces, debe eliiminarlo de ese store
 
-  // USERS: usuario_creador
-  ctx.dispatch(
-    "requerimientos/pusherUpdateMisRequerimientos",
-    { requerimiento: data.requerimiento },
-    root,
-  )
-  // Intento actualizar el listado de priorizar requerimientos, si lo encuentra lo updatea
+  // USERS: usuario_envio | responsables_sistemas
   await ctx.commit(
     "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-    getPayload("update", data.requerimiento),
+    getPayload("delete", data.requerimiento),
     root,
   )
-
-  // USERS: responsables_sistemas
-  const userEsResponsable = store.getters["auth/userEsResponsable"]
-  if (userEsResponsable) {
-    await ctx.commit(
-      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-      getPayload("update", data.requerimiento),
-      root,
-    )
-  }
+  await ctx.commit(
+    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("delete", data.requerimiento),
+    root,
+  )
 }
 
 const processRequerimientoAsignado = async (ctx, data) => {
@@ -293,6 +281,35 @@ const processCancelaTestingRequerimiento = async (ctx, data) => {
   }
 }
 
+const processCambioTipoRequerimiento = async (ctx, data) => {
+  // updatea solo notificaciones, en el dashboard nada va a haber cambiado
+  // await ctx.dispatch("checkNotificaciones")
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  // USERS: usuario_creador
+  ctx.dispatch(
+    "requerimientos/pusherUpdateMisRequerimientos",
+    { requerimiento: data.requerimiento },
+    root,
+  )
+  // Intento actualizar el listado de priorizar requerimientos, si lo encuentra lo updatea
+  await ctx.commit(
+    "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("update", data.requerimiento),
+    root,
+  )
+
+  // USERS: responsables_sistemas
+  const userEsResponsable = store.getters["auth/userEsResponsable"]
+  if (userEsResponsable) {
+    await ctx.commit(
+      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("update", data.requerimiento),
+      root,
+    )
+  }
+}
+
 const processRequerimientoFinalizado = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
 
@@ -385,6 +402,7 @@ export {
   getPusherChannel,
   destroyPusherChannel,
   processAsignarRequerimiento,
+  processRequerimientoEnviadoAProcesos,
   processRequerimientoAsignado,
   processRequerimientoDesasignado,
   processEjecutarOCancelarEjecucionRequerimiento,
