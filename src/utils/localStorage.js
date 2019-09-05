@@ -62,6 +62,5 @@ export function updateFilterLocalStorage(filterUpdated) {
     })
   }
 
-  console.log("update", filtrosGuardados, filterUpdated)
   localStorage.setItem(key, JSON.stringify(filtrosGuardados))
 }

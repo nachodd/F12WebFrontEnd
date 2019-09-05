@@ -530,7 +530,6 @@ const actions = {
     })
   },
   processUpdateList({ state, commit, getters, dispatch }, updatedListData) {
-    // console.log(getters.operationType)
     return new Promise(async (resolve, reject) => {
       try {
         // updatea los listados temporales
