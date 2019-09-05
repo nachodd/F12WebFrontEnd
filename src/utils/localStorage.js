@@ -9,8 +9,8 @@ export function getKey() {
 }
 
 export function getFilters(filterName = null) {
-  const userId = store.getters && store.getters["auth/userId"]
-  const userFilters = JSON.parse(localStorage.getItem("filtros_" + userId))
+  const key = getKey()
+  const userFilters = JSON.parse(localStorage.getItem(key))
   const seccion = router.currentRoute.name
 
   if (filterName == null) {
@@ -21,19 +21,14 @@ export function getFilters(filterName = null) {
 }
 
 export function saveFilters(newfilter) {
-  const userId = store.getters["auth/userId"]
-  const key = "filtros_" + userId
+  const key = getKey()
   const filtrosGuardados = _.map([...getFilters(null)], filtro => {
     filtro.setted = false
     return filtro
   })
 
-  if (newfilter) {
-    const filtrosGuardadosYnuevoFiltro = _.concat(filtrosGuardados, newfilter)
-    localStorage.setItem(key, JSON.stringify(filtrosGuardadosYnuevoFiltro))
-  } else {
-    localStorage.setItem(key, JSON.stringify(filtrosGuardados))
-  }
+  const filtrosGuardadosYnuevoFiltro = _.concat(filtrosGuardados, newfilter)
+  localStorage.setItem(key, JSON.stringify(filtrosGuardadosYnuevoFiltro))
 }
 
 export function removeFilters(filterName) {
@@ -43,4 +38,30 @@ export function removeFilters(filterName) {
   })
 
   localStorage.setItem(key, JSON.stringify(userFilters))
+}
+
+export function updateFilterLocalStorage(filterUpdated) {
+  const key = getKey()
+  let filtrosGuardados = [...getFilters(null)]
+
+  if (filterUpdated == null || filterUpdated.setted == true) {
+    // si  viene null queda null y si viene como setted se ponen todos en false y el el proximo paso este queda setted true.
+    filtrosGuardados = _.map([...filtrosGuardados], filtro => {
+      filtro.setted = false
+      return filtro
+    })
+  }
+
+  if (filterUpdated) {
+    filtrosGuardados = _.map([...filtrosGuardados], filtro => {
+      if (filtro.nombre == filterUpdated.nombre) {
+        filtro = filterUpdated
+      }
+
+      return filtro
+    })
+  }
+
+  console.log("update", filtrosGuardados, filterUpdated)
+  localStorage.setItem(key, JSON.stringify(filtrosGuardados))
 }

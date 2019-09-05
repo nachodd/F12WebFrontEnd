@@ -85,13 +85,13 @@
             class="select-filtros-guardados"
           >
             <template v-slot:option="scope">
-              <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+              <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" class="color-deep-purple-10">
                 <q-item-section>
                   <q-item-label v-html="scope.opt.descripcion" />
                   <!-- <q-item-label caption>{{ scope.opt.descripcion }}</q-item-label> -->
                 </q-item-section>
                 <q-item-section avatar @click.stop="eliminarFiltroGuardado(scope.opt.id)">
-                  <q-icon name="delete_forever" class="filter__icon cursor-pointer" />
+                  <q-icon name="delete_forever" class="delete_icon" />
                 </q-item-section>
               </q-item>
             </template>
@@ -244,7 +244,6 @@ export default {
       return ""
     },
     filtrosGuardadosOptions() {
-      // console.log("paso", this.filtrosGuardados)
       const options = _.map(this.filtrosGuardados, function(value) {
         return { id: value.nombre, descripcion: value.nombre }
       })
@@ -260,15 +259,16 @@ export default {
     },
     filtroGuardadoSetted(data) {
       let query = {}
-      // let nameFilter = null
+      let filter = null
 
       if (data) {
-        query = _.find(this.filtrosGuardados, { nombre: data.id }).query
-        // nameFilter = data.id
+        filter = _.find([...this.filtrosGuardados], { nombre: data.id })
+        query = filter.query
+        filter.setted = true
       }
 
       this.$router.push({ name: "asignar-requerimientos", query: query })
-      // this.$store.dispatch("asignacionRequerimientos/saveFiltersLocalStorage", nameFilter)
+      this.$store.dispatch("asignacionRequerimientos/updateFiltersLocalStorage", filter)
     },
   },
   async mounted() {
@@ -334,17 +334,22 @@ export default {
       usuarioAlta = null,
     }) {
       this.localFilterValues.descripcion = descripcion
+
       this.localFilterValues.id = id
+
       this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, {
         id: parseInt(sistema),
       })
       this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: parseInt(tipo) })
+
       this.localFilterValues.usuarioAlta = _.find(this.optionsUsuariosFiltro, {
         id: parseInt(usuarioAlta),
       })
+
       this.localFilterValues.usuariosAsignados = _.filter(this.userYoYReportantes, usuario =>
         _.split(decodeURIComponent(usuariosAsignados), ",").includes(String(usuario.value)),
       )
+
       this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
 
       this.updateSomeFilterIsSetted()
@@ -480,5 +485,20 @@ export default {
 
 .select-filtros-guardados {
   width: 100%;
+}
+
+.q-item--active.color-deep-purple-10 {
+  color: #311b92 !important;
+}
+
+.delete_icon {
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  transition: background-color 200ms linear;
+}
+
+.delete_icon:hover {
+  background-color: $grey;
 }
 </style>
