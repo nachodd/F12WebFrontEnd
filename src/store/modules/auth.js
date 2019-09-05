@@ -321,8 +321,9 @@ const actions = {
     })
   },
 
-  refresh({ commit, state, dispatch }) {
+  refresh: ({ commit, state, dispatch }) => {
     return new Promise(async (resolve, reject) => {
+      console.log("Refresh Called")
       if (!state.refreshToken) {
         dispatch("logout")
         commit("app/LOADING_RESET", null, { root: true })
@@ -339,10 +340,11 @@ const actions = {
           })
           setToken(data.access_token, expires, data.refresh_token)
 
-          resolve()
+          resolve(data.access_token)
         } catch (e) {
           await dispatch("resetToken")
-          reject()
+          reject("Refresh Error")
+          console.warn("Refresh Error", e)
         }
       }
     })

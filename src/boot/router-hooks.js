@@ -24,7 +24,7 @@ export default async ({ router, store }) => {
         } catch (e) {
           // console.log(e)
           // debugger
-          store.dispatch("auth/logout")
+          await store.dispatch("auth/logout")
           next(`/login?redirect=${to.path}`)
           return
         }

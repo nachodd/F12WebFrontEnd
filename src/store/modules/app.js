@@ -206,7 +206,6 @@ const actions = {
     commit("LOADING_RESET")
   },
   getDashboardData: _.debounce(({ commit, rootGetters }, userId = null) => {
-    console.log("getDashboardData")
     return new Promise(async (resolve, reject) => {
       try {
         commit("SET_LOADING_DASHBOARD", true)
@@ -224,7 +223,6 @@ const actions = {
     })
   }, 500),
   checkNotificaciones: _.debounce(({ commit, rootGetters }, userId = null) => {
-    console.log("checkNotificaciones")
     return new Promise(async (resolve, reject) => {
       try {
         const userIdToCheck = userId || rootGetters["auth/userId"]

@@ -37,11 +37,21 @@ export function listRequerimientos(userId, filtros) {
   })
 }
 
-export function getRequerimiento(requerimientoId) {
-  return request({
-    url: `v1/f12/requerimientos/${requerimientoId}`,
-    method: "get",
-  })
+export async function getRequerimiento(requerimientoId) {
+  // return
+  try {
+    const res = await request({
+      url: `v1/f12/requerimientos/${requerimientoId}`,
+      method: "get",
+    })
+    if (res && res.data && res.data.data) {
+      return res.data.data
+    } else {
+      throw `Error al obtener el detalle del Requerimiento #${requerimientoId}`
+    }
+  } catch (e) {
+    throw e
+  }
 }
 
 export function refuseRequerimiento(requerimientoId, data) {

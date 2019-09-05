@@ -16,8 +16,24 @@
                 <q-btn
                   size="10px"
                   flat
+                  dense
+                  round
+                  icon="fas fa-sync-alt"
+                  class="opacity-hover q-pa-sm"
+                  @click="refreshRequerimiento"
+                >
+                  <tooltip>
+                    Actualizar Requerimiento
+                  </tooltip>
+                </q-btn>
+                &nbsp;
+                <q-btn
+                  size="10px"
+                  flat
+                  dense
+                  round
                   icon="fas fa-edit"
-                  class="opacity-hover"
+                  class="opacity-hover q-pa-sm"
                   :to="{ query: { ver: 'editarRequerimiento', id: req.id } }"
                 >
                   <tooltip>
@@ -443,10 +459,10 @@ export default {
     },
   },
   watch: {
-    requerimientoSetted(isSetted) {
+    req(newReq) {
       this.showSaveRequerimientoAction = false
       this.quickEdited = false
-      if (isSetted) {
+      if (newReq !== null) {
         this.quickEdit.asunto = this.req.asunto
         this.quickEdit.descripcion = this.req.descripcion
         this.quickEdit.comentario = this.req.comentario
@@ -458,6 +474,11 @@ export default {
     },
   },
   methods: {
+    refreshRequerimiento() {
+      this.$store.dispatch("requerimientos/refreshRequerimiento", this.req.id).catch(message => {
+        warn({ message })
+      })
+    },
     closeDialog() {
       this.quickEdit.asunto = ""
       this.quickEdit.descripcion = ""
