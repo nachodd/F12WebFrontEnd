@@ -59,7 +59,8 @@ const updateNotificacionesDashboardMisReqs = _.debounce((ctx, requerimiento) => 
 
 const processPriorizarRequerimiento = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  // USERS: usuario_cadena (siguiente en la cadena), usuario_creador (el data.requerimiento viene con el estado correspondiente a cada usuario)
+  // USERS: usuario_cadena (siguiente en la cadena)
+
   await ctx.commit(
     "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
     getPayload("addOrUpdate", data.requerimiento),
@@ -69,12 +70,44 @@ const processPriorizarRequerimiento = async (ctx, data) => {
 
 const processPriorizarRequerimientoAprobado = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
-  // USERS: usuario_anterior_cadena
-  await ctx.commit(
-    "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-    getPayload("remove", data.requerimiento),
-    root,
-  )
+
+  const currentUserId = store.getters["auth/userId"]
+  const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
+  const esElUltimoDeLaCadenaDeMando = store.getters["auth/esElUltimoDeLaCadenaDeMando"]
+
+  if (currentUserId === userCreadorId && esElUltimoDeLaCadenaDeMando) {
+    // Si entro aca, es porque un requerimiento que el usuario logueado creó, fue aprobado.
+    // Entonces se debe sacar del listado de reqs
+    // USERS: usuario_anterior_cadena
+    await ctx.commit(
+      "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("delete", data.requerimiento),
+      root,
+    )
+  } else {
+    // USERS: usuario_actual
+    await ctx.commit(
+      "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
+}
+
+const processAgregaRequerimientoCreadoPriorizacion = async (ctx, data) => {
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  const currentUserId = store.getters["auth/userId"]
+  const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
+
+  if (currentUserId === userCreadorId) {
+    // USERS: usuario_creador (el data.requerimiento viene con el estado correspondiente a cada usuario)
+    await ctx.commit(
+      "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("addOrUpdate", data.requerimiento),
+      root,
+    )
+  }
 }
 
 const processRequerimientoAprobado = async (ctx, data) => {
@@ -90,7 +123,7 @@ const processRequerimientoAprobado = async (ctx, data) => {
 
   // Lo notifico solo si es el usuario creador (debería, este evento en teoria lo recibe solo el)
   const currentUserId = store.getters["auth/userId"]
-  const userCreadorId = _.get(data.requerimiento, "usuario_id", false)
+  const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
   if (currentUserId === userCreadorId) {
     info({ message: `El requerimiento #${data.requerimiento.id} fue APROBADO` })
   }
@@ -109,37 +142,36 @@ const processAsignarRequerimiento = async (ctx, data) => {
   )
 }
 
-const processCambioTipoRequerimiento = async (ctx, data) => {
-  // updatea solo notificaciones, en el dashboard nada va a haber cambiado
-  // await ctx.dispatch("checkNotificaciones")
+const processRequerimientoEnviadoAProcesos = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+  // Puede que el usuario que lo envio lo haya hecho desde la cadena de priorizacion (el gerente). Entonces, debe eliiminarlo de ese store
 
-  // USERS: usuario_creador
-  ctx.dispatch(
-    "requerimientos/pusherUpdateMisRequerimientos",
-    { requerimiento: data.requerimiento },
-    root,
-  )
-  // Intento actualizar el listado de priorizar requerimientos, si lo encuentra lo updatea
+  // USERS: usuario_envio | responsables_sistemas
   await ctx.commit(
     "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-    getPayload("update", data.requerimiento),
+    getPayload("delete", data.requerimiento),
     root,
   )
-
-  // USERS: responsables_sistemas
-  const userEsResponsable = store.getters["auth/userEsResponsable"]
-  if (userEsResponsable) {
-    await ctx.commit(
-      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
-      getPayload("update", data.requerimiento),
-      root,
-    )
-  }
+  await ctx.commit(
+    "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("delete", data.requerimiento),
+    root,
+  )
 }
 
 const processRequerimientoAsignado = async (ctx, data) => {
   updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  // Si le llega al "primero" de la cadena (al mas alto, el gerente) lo debe eliminar de priorizarRequerimientos
+  // USERS: usuario_cadena_ultimo
+  const userEsGerente = store.getters["auth/esGerente"]
+  if (userEsGerente) {
+    await ctx.commit(
+      "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("delete", data.requerimiento),
+      root,
+    )
+  }
 
   // Agrega (o updatea si existe) el req en "Asignar Requerimientos", solo si es responsable (tiene acceso al panel de asignar reqs)
   // USERS: responsables_sistemas
@@ -186,7 +218,7 @@ const processRequerimientoDesasignado = async (ctx, data) => {
   // USERS: usuario_sistemas_asignado
   await ctx.commit(
     "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
-    getPayload("remove", data.requerimiento),
+    getPayload("delete", data.requerimiento),
     root,
   )
 }
@@ -243,7 +275,36 @@ const processCancelaTestingRequerimiento = async (ctx, data) => {
     // Si no soy el usuario asignado, se debe eliminar
     await ctx.commit(
       "requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO",
-      getPayload("remove", data.requerimiento),
+      getPayload("delete", data.requerimiento),
+      root,
+    )
+  }
+}
+
+const processCambioTipoRequerimiento = async (ctx, data) => {
+  // updatea solo notificaciones, en el dashboard nada va a haber cambiado
+  // await ctx.dispatch("checkNotificaciones")
+  updateNotificacionesDashboardMisReqs(ctx, data.requerimiento)
+
+  // USERS: usuario_creador
+  ctx.dispatch(
+    "requerimientos/pusherUpdateMisRequerimientos",
+    { requerimiento: data.requerimiento },
+    root,
+  )
+  // Intento actualizar el listado de priorizar requerimientos, si lo encuentra lo updatea
+  await ctx.commit(
+    "priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+    getPayload("update", data.requerimiento),
+    root,
+  )
+
+  // USERS: responsables_sistemas
+  const userEsResponsable = store.getters["auth/userEsResponsable"]
+  if (userEsResponsable) {
+    await ctx.commit(
+      "asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO",
+      getPayload("update", data.requerimiento),
       root,
     )
   }
@@ -304,7 +365,7 @@ const processRequerimientoRechazado = async (ctx, data) => {
   )
   // Lo notifico solo si es el usuario creador (debería, este evento en teoria lo recibe solo el)
   const currentUserId = store.getters["auth/userId"]
-  const userCreadorId = _.get(data.requerimiento, "usuario_id", false)
+  const userCreadorId = _.get(data.requerimiento, "usuario.id", false)
   if (currentUserId === userCreadorId) {
     info({
       message: `El requerimiento #${data.requerimiento.id} fue RECHAZADO`,
@@ -341,6 +402,7 @@ export {
   getPusherChannel,
   destroyPusherChannel,
   processAsignarRequerimiento,
+  processRequerimientoEnviadoAProcesos,
   processRequerimientoAsignado,
   processRequerimientoDesasignado,
   processEjecutarOCancelarEjecucionRequerimiento,
@@ -349,6 +411,7 @@ export {
   processRequerimientoFinalizado,
   processPriorizarRequerimiento,
   processPriorizarRequerimientoAprobado,
+  processAgregaRequerimientoCreadoPriorizacion,
   processRequerimientoAprobado,
   processRequerimientoRechazado,
   processPausarReanudarRequerimiento,

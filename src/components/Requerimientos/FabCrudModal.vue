@@ -47,7 +47,8 @@
             }"
             class="modal-fabcrud-body"
           >
-            <crear-editar-requerimiento ref="crud" @form-submitted="removeQueryParams" />
+            <!-- @form-submitted="removeQueryParams" -->
+            <crear-editar-requerimiento ref="crud" @form-submitted="crudModalOpen = false" />
           </q-scroll-area>
         </q-page-container>
 
@@ -141,7 +142,7 @@ export default {
   },
   methods: {
     removeQueryParams() {
-      this.$router.replace({ query: null })
+      this.$router.replace({ query: undefined })
     },
     handleSubmit() {
       this.$refs.crud.handleSubmit()

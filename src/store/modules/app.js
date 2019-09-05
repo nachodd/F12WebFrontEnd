@@ -6,6 +6,7 @@ import {
   getPusherChannel,
   destroyPusherChannel,
   processAsignarRequerimiento,
+  processRequerimientoEnviadoAProcesos,
   processRequerimientoDesasignado,
   processRequerimientoAsignado,
   processEjecutarOCancelarEjecucionRequerimiento,
@@ -14,10 +15,13 @@ import {
   processRequerimientoFinalizado,
   processPriorizarRequerimiento,
   processPriorizarRequerimientoAprobado,
+  processAgregaRequerimientoCreadoPriorizacion,
   processRequerimientoAprobado,
   processRequerimientoRechazado,
   processPausarReanudarRequerimiento,
 } from "utils/pusher"
+import router from "router/index"
+import Bus from "utils/bus"
 
 const LIMIT_NOTIFICACIONES_SHOWED = 5
 
@@ -36,6 +40,7 @@ const state = {
   notificaciones: [],
   limitUnread: LIMIT_NOTIFICACIONES_SHOWED,
   limitRead: LIMIT_NOTIFICACIONES_SHOWED,
+  headerRefreshLoading: false,
 }
 
 // getters
@@ -164,6 +169,9 @@ const mutations = {
       }
     }
   },
+  SET_HEADER_REFRESH_LOADING: (state, value) => {
+    state.headerRefreshLoading = value
+  },
 }
 
 const actions = {
@@ -198,12 +206,15 @@ const actions = {
     commit("LOADING_RESET")
   },
   getDashboardData: _.debounce(({ commit, rootGetters }, userId = null) => {
+    console.log("getDashboardData")
     return new Promise(async (resolve, reject) => {
       try {
         commit("SET_LOADING_DASHBOARD", true)
         const userIdToCheck = userId ? userId : rootGetters["auth/userId"]
-        const res = await getDashboardData(userIdToCheck)
-        commit("SET_DASHBOARD_DATA", res)
+        if (userIdToCheck) {
+          const res = await getDashboardData(userIdToCheck)
+          commit("SET_DASHBOARD_DATA", res)
+        }
         resolve()
       } catch (error) {
         reject(error)
@@ -211,25 +222,30 @@ const actions = {
         commit("SET_LOADING_DASHBOARD", false)
       }
     })
-  }, 250),
-  checkNotificaciones({ commit, rootGetters }, userId = null) {
+  }, 500),
+  checkNotificaciones: _.debounce(({ commit, rootGetters }, userId = null) => {
+    console.log("checkNotificaciones")
     return new Promise(async (resolve, reject) => {
       try {
         const userIdToCheck = userId || rootGetters["auth/userId"]
-        const res = await checkNotificaciones(userIdToCheck)
-        commit("SET_NOTIFICACIONES", res)
+        if (userIdToCheck) {
+          const res = await checkNotificaciones(userIdToCheck)
+          commit("SET_NOTIFICACIONES", res)
+        }
         resolve()
       } catch (error) {
         reject(error)
       }
     })
-  },
+  }, 500),
   readNotificaciones({ commit, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {
         const userIdToCheck = userId || rootGetters["auth/userId"]
-        const res = await readNotificaciones(userIdToCheck)
-        commit("SET_NOTIFICACIONES_READ", res)
+        if (userIdToCheck) {
+          const res = await readNotificaciones(userIdToCheck)
+          commit("SET_NOTIFICACIONES_READ", res)
+        }
         resolve()
       } catch (error) {
         reject(error)
@@ -268,6 +284,9 @@ const actions = {
       pc.bind("asignar_requerimiento_externo", data => {
         processAsignarRequerimiento(ctx, data)
       })
+      pc.bind("requerimiento_enviado_a_procesos", data => {
+        processRequerimientoEnviadoAProcesos(ctx, data)
+      })
       pc.bind("requerimiento_asignado", data => {
         processRequerimientoAsignado(ctx, data)
       })
@@ -298,6 +317,9 @@ const actions = {
       pc.bind("priorizacion_requerimiento_aprobado", data => {
         processPriorizarRequerimientoAprobado(ctx, data)
       })
+      pc.bind("agrega_requerimiento_creado_priorizacion", data => {
+        processAgregaRequerimientoCreadoPriorizacion(ctx, data)
+      })
       pc.bind("requerimiento_aprobado", data => {
         processRequerimientoAprobado(ctx, data)
       })
@@ -321,6 +343,40 @@ const actions = {
       destroyPusherChannel(pusherChannelName)
       resolve()
     })
+  },
+  async refreshListado({ commit, dispatch }) {
+    const routeName = router.currentRoute.name
+    const routeMatched = [
+      "mis-requerimientos",
+      "priorizar-requerimientos",
+      "asignar-requerimientos",
+      "requerimientos-asignados",
+    ].includes(routeName)
+
+    if (routeMatched) {
+      commit("SET_HEADER_REFRESH_LOADING", true)
+      // FIXME: reemplazar esto por llamadas a cada store correspondiente (cuando se pasen los filterValues corresp a cada store)
+      switch (routeName) {
+        case "mis-requerimientos":
+          Bus.$emit("load-mis-requerimientos")
+          break
+        case "priorizar-requerimientos":
+          // eslint-disable-next-line
+          await dispatch("priorizarRequerimientos/inicializarPriorizarRequerimientos", { useLastUser: true }, { root: true })
+          break
+        case "asignar-requerimientos":
+          await dispatch("asignacionRequerimientos/fetchRequerimientos", null, { root: true })
+          break
+        case "requerimientos-asignados":
+          await dispatch("requerimientosAsignados/inicializarRequerimientosAsignados", null, {
+            root: true,
+          })
+          // Bus.$emit("load-requerimientos-asignados")
+          break
+      }
+
+      commit("SET_HEADER_REFRESH_LOADING", false)
+    }
   },
 }
 

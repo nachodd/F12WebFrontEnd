@@ -10,18 +10,23 @@
         standout="bg-white text-black"
         :placeholder="searchPlaceholder"
         :value="descripcion"
-        @keyup.enter="$emit('filtrar')"
+        @keyup.enter="processEnter"
         @input="$emit('update:descripcion', $event)"
       >
         <template v-slot:prepend>
           <q-icon name="search" />
         </template>
         <template v-slot:append>
+          <q-icon v-if="enteredValue" name="cancel" class="cursor-pointer" @click.stop="clearValue">
+            <tooltip>Borrar filtro</tooltip>
+          </q-icon>
           <q-icon
             :name="iconOpenFilter"
             class="filter__icon cursor-pointer"
             @click="popupOpened = !popupOpened"
-          ></q-icon>
+          >
+            <tooltip v-if="!popupOpened"><span class="text-no-wrap">Más filtros...</span></tooltip>
+          </q-icon>
         </template>
       </q-input>
       <q-menu v-model="popupOpened" :offset="[0, -4]" content-class="q-menu-fix" no-parent-event>
@@ -104,6 +109,7 @@ export default {
       widthInputDescripcion: 0,
       popupOpened: false,
       bodyHeight: 80,
+      enteredValue: false,
     }
   },
   computed: {
@@ -136,6 +142,15 @@ export default {
     },
     setPopUpOpened(value) {
       this.popupOpened = value
+    },
+    clearValue() {
+      this.$emit("update:descripcion", "")
+      this.$emit("filtrar")
+      this.enteredValue = false
+    },
+    processEnter() {
+      this.$emit("filtrar")
+      this.enteredValue = true
     },
   },
 }

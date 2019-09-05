@@ -10,11 +10,25 @@
       </q-toolbar-title>
 
       <q-btn
+        v-if="refreshShowed"
+        dense
+        round
+        flat
+        icon="fas fa-sync-alt"
+        :class="{ 'fa-spin': headerRefreshLoading }"
+        @click="refreshListado"
+      >
+        <tooltip>Refrescar Listado</tooltip>
+      </q-btn>
+
+      <q-btn
         stretch
         flat
         icon="fas fa-bell"
         :color="notificacionesUnreadCount > 0 ? 'red' : void 0"
       >
+        <!-- eslint-disable-next-line  -->
+        <tooltip><div v-html="notificacionesTooltip"></div></tooltip>
         <q-badge
           v-if="notificacionesUnreadCount > 0"
           color="red"
@@ -115,13 +129,14 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex"
 import NotificacionItem from "comp/Header/NotificacionItem"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "Header",
   components: {
     NotificacionItem,
+    Tooltip,
   },
-  // inject: ["getPusherChannel"],
   props: {
     mini: {
       type: Boolean,
@@ -130,14 +145,14 @@ export default {
   },
   data() {
     return {
-      // notificacionesInterval: null,
-      // pc: null,
+      refreshShowed: false,
     }
   },
   computed: {
     ...mapState("app", {
       limitUnread: state => state.limitUnread,
       limitRead: state => state.limitRead,
+      headerRefreshLoading: state => state.headerRefreshLoading,
     }),
     ...mapGetters("auth", ["userRazonSocial"]),
     ...mapGetters("app", [
@@ -148,6 +163,13 @@ export default {
       "notificacionesUnreadCount",
       "notificacionesUnreadVerMasShowed",
     ]),
+    notificacionesTooltip() {
+      return this.notificacionesUnreadCount > 0
+        ? `Tiene
+          ${this.notificacionesUnreadCount}
+          notificaciones nuevas`
+        : "No hay notificaciones! <span class='emoji'>🎉</span>"
+    },
     hasSpace() {
       return this.$q.screen.gt.xs && !this.mini
     },
@@ -169,6 +191,21 @@ export default {
     title() {
       const { headerTitle = "F12" } = this.$route.meta
       return headerTitle
+    },
+  },
+  watch: {
+    "$route.name": {
+      immediate: true,
+      handler(routeName) {
+        const routeMatched = [
+          "mis-requerimientos",
+          "priorizar-requerimientos",
+          "asignar-requerimientos",
+          "requerimientos-asignados",
+        ].includes(routeName)
+
+        this.refreshShowed = routeMatched
+      },
     },
   },
   mounted() {
@@ -200,6 +237,7 @@ export default {
       checkNotificaciones: "app/checkNotificaciones",
       showMoreNotificaciones: "app/showMoreNotificaciones",
       resetMoreNotificaciones: "app/resetMoreNotificaciones",
+      refreshListado: "app/refreshListado",
     }),
     async onLogOut() {
       await this.logout()

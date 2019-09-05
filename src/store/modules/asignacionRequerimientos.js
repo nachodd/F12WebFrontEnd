@@ -1,5 +1,6 @@
 import {
   getRequerimientosForPanelAsignacion,
+  preaprobarRequerimiento,
   asignarRequerimiento,
   desasignarRequerimiento,
   refuseRequerimiento,
@@ -59,7 +60,11 @@ const getters = {
     let reqsResult = _.filter(state.requerimientos, req => {
       return _.includes([estSinAsig.id, estEnProceso.id], req.estado.id)
     })
-    return _.orderBy(reqsResult, ["tipo.id", "prioridad", "id"], ["asc", "asc", "desc"])
+    return _.orderBy(
+      reqsResult,
+      ["preAprobado", "tipo.id", "prioridad", "id"],
+      ["desc", "asc", "asc", "desc"],
+    )
   },
   requerimientosAsignados: (state, getters, rootState, rootGetters) => {
     const estAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
@@ -263,6 +268,10 @@ const mutations = {
       ...newState,
     }
   },
+  SET_PREAPROBADO_REQUERIMIENTO: (state, { requerimientoId, preAprobado }) => {
+    const reqToUpdate = _.find(state.requerimientos, { id: requerimientoId })
+    reqToUpdate.preAprobado = preAprobado
+  },
   SET_DIALOG_CONFIRM_OPERATION_OPEN: (state, value) => {
     state.dialogConfirmOpen = value
   },
@@ -400,6 +409,19 @@ const actions = {
         let message = ""
 
         switch (operation) {
+          case "preaprobar": {
+            const res = await preaprobarRequerimiento(requerimientoId, {
+              comentario,
+              pre_aprobado: !data.preAprobado,
+            })
+            message = _.get(res, "data.message", null)
+
+            commit("SET_PREAPROBADO_REQUERIMIENTO", {
+              requerimientoId,
+              preAprobado: !data.preAprobado,
+            })
+            break
+          }
           case "asignar":
           case "reasignar": {
             // se arma el objeto para enviar a la api y se la llama

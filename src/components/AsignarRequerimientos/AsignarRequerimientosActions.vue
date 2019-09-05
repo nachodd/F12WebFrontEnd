@@ -78,7 +78,7 @@
             </div>
           </div>
           <div v-if="!hideOrderAsignacion" class="row q-mt-xs">
-            <div v-if="ordenMaxLength > 1" id="ordenContainer" class="col-12">
+            <div v-if="ordenMaxLength > 1" class="col-12">
               <tooltip
                 v-if="usuarioAsignado !== null"
                 anchor="top middle"
@@ -133,7 +133,8 @@
             operation === 'desasignar' ||
               operation === 'descartar' ||
               operation === 'aProcesos' ||
-              operation === 'aPriorizar'
+              operation === 'aPriorizar' ||
+              operation === 'preaprobar'
           "
         >
           <div class="row q-mt-xs">
@@ -155,7 +156,7 @@
       <q-slide-transition>
         <div v-if="operation === 'reordenar'">
           <div class="row q-mt-xs">
-            <div v-if="ordenMaxLength > 1" id="ordenContainer" class="col-12">
+            <div v-if="ordenMaxLength > 1" class="col-12">
               <div class="row q-mt-xs q-mb-md">
                 <div class="col-12 text-grey-7">
                   Orden
@@ -285,6 +286,11 @@ export default {
         value: null,
       })
       if (this.stateNotAssigned) {
+        const labelPreAprobado = this.req.preAprobado ? "Quitar 'Pre-Aprobación'" : "Pre-Aprobar"
+        opt.push({
+          label: labelPreAprobado,
+          value: "preaprobar",
+        })
         opt.push({
           label: "Asignar",
           value: "asignar",
@@ -506,7 +512,7 @@ export default {
           reqIdToUpdate: this.req.id,
         })
       }
-
+      const preAprobadoState = this.req.preAprobado
       return this.$store
         .dispatch("asignacionRequerimientos/updateRequerimientoState", {
           requerimientoId: this.req.id,
@@ -517,40 +523,44 @@ export default {
           fechaFinalizacion: this.fechaFinalizacion,
           horasEstimadas: this.horasEstimadas,
           comentario: this.comment,
+          preAprobado: preAprobadoState,
         })
         .then(message => {
-          if (message) {
-            success({ message })
-          } else {
-            let msg = ""
-            switch (this.operation) {
-              case "asignar":
-                msg = `Requerimiento #${this.req.id} ASIGNADO correctamente`
-                break
-              case "aPriorizar":
-                // eslint-disable-next-line
-                msg = `Requerimiento #${this.req.id} marcado como DESARROLLO y devuelto a LA CADENA DE PRIORIZACIÓN`
-                break
-              case "aProcesos":
-                msg = `Requerimiento #${this.req.id} enviado A PROCESOS`
-                break
-              case "desasignar":
-                msg = `Requerimiento #${this.req.id} DESASIGNADO`
-                break
-              case "reasignar":
-                msg = `Requerimiento #${this.req.id} REASIGNADO`
-                break
-              case "reordenar":
-                msg = `Requerimiento #${this.req.id} REORDENADO / PRIORIZADO`
-                break
-              case "descartar":
-                msg = `Requerimiento #${this.req.id} DESCARTADO`
-                break
-              default:
-                msg = `Operación completada satisfactoriamente`
-            }
-            success({ message: msg })
+          let msg = ""
+          let actionMsg = ""
+          switch (this.operation) {
+            case "preaprobar":
+              actionMsg = !preAprobadoState ? "PREAPROBADO" : "QUITADO DE PREAPROBACION"
+              msg = `Requerimiento #${this.req.id} ${actionMsg} correctamente`
+              break
+            case "asignar":
+              msg = `Requerimiento #${this.req.id} ASIGNADO correctamente`
+              break
+            case "aPriorizar":
+              // eslint-disable-next-line
+              msg = `Requerimiento #${this.req.id} marcado como DESARROLLO y devuelto a LA CADENA DE PRIORIZACIÓN`
+              break
+            case "aProcesos":
+              msg = `Requerimiento #${this.req.id} enviado A PROCESOS`
+              break
+            case "desasignar":
+              msg = `Requerimiento #${this.req.id} DESASIGNADO`
+              break
+            case "reasignar":
+              msg = `Requerimiento #${this.req.id} REASIGNADO`
+              break
+            case "reordenar":
+              msg = `Requerimiento #${this.req.id} REORDENADO / PRIORIZADO`
+              break
+            case "descartar":
+              msg = `Requerimiento #${this.req.id} DESCARTADO`
+              break
+            default:
+              msg = message || `Operación completada satisfactoriamente`
           }
+
+          success({ message: msg })
+
           this.operation = null
           this.usuarioAsignado = null
           this.fechaFinalizacion = null

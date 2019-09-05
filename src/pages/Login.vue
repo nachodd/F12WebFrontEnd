@@ -12,8 +12,8 @@
         <q-card-section class="card__body">
           <q-form @submit="login">
             <q-input
-              id="usuario"
               v-model.trim="usuario"
+              name="usuario"
               class="q-mb-sm"
               standout
               type="text"
@@ -26,8 +26,8 @@
               </template>
             </q-input>
             <q-input
-              id="password"
               v-model="password"
+              name="password"
               class="q-mb-sm"
               standout
               type="password"
