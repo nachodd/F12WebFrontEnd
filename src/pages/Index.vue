@@ -60,7 +60,7 @@
         </router-link>
       </div>
     </div>
-    <q-btn color="primary" icon="check" label="TEST" @click="onClick" />
+    <!-- <q-btn color="primary" icon="check" label="TEST" @click="onClick" /> -->
     <!--
       TODO: agregar widget con graficos aca
       <div class="row justify-center q-mt-md">
@@ -99,8 +99,8 @@ export default {
   },
   methods: {
     onClick() {
-      console.log("auth/getUserInfo called")
-      this.$store.dispatch("auth/getUserInfo")
+      // console.log("auth/getUserInfo called")
+      // this.$store.dispatch("auth/getUserInfo")
     },
     // async refresh() {
     //   await this.$store.dispatch("auth/refresh")

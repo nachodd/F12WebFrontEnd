@@ -209,7 +209,7 @@ const actions = {
   loadingReset({ commit }) {
     commit("LOADING_RESET")
   },
-  getDashboardData: _.debounce(({ state, commit, rootGetters }, userId = null) => {
+  getDashboardData: ({ state, commit, rootGetters }, userId = null) => {
     return new Promise(async (resolve, reject) => {
       try {
         if (!state.justCalledNotifAndDashboard) {
@@ -227,8 +227,8 @@ const actions = {
         commit("SET_LOADING_DASHBOARD", false)
       }
     })
-  }, 500),
-  checkNotificaciones: _.debounce(({ state, commit, rootGetters }, userId = null) => {
+  },
+  checkNotificaciones: ({ state, commit, rootGetters }, userId = null) => {
     return new Promise(async (resolve, reject) => {
       try {
         if (!state.justCalledNotifAndDashboard) {
@@ -243,7 +243,7 @@ const actions = {
         reject(error)
       }
     })
-  }, 500),
+  },
   readNotificaciones({ commit, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {

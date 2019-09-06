@@ -168,7 +168,6 @@ export function getBase64FromUrl(url) {
         reader.readAsDataURL(response.data)
       })
       .catch(e => {
-        console.log(e)
         reject(e)
       })
   })
