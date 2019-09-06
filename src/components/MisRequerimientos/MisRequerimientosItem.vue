@@ -29,7 +29,7 @@
         <tooltip>Usuario alta: {{ req.usuario.nombre }}</tooltip>
       </div>
       <div class="text-caption ellipsis">
-        {{ req.fecha_alta | formatearFecha }}
+        {{ req.fechaAltaShort }}
       </div>
     </td>
 
@@ -80,7 +80,7 @@
 </style>
 
 <script>
-import { date } from "quasar"
+// import { date } from "quasar"
 import Tooltip from "comp/Common/Tooltip"
 
 export default {
@@ -88,11 +88,11 @@ export default {
   components: {
     Tooltip,
   },
-  filters: {
-    formatearFecha: function(value) {
-      return date.formatDate(value, "DD/MM HH:mm")
-    },
-  },
+  // filters: {
+  //   formatearFecha: function(value) {
+  //     return date.formatDate(value, "DD/MM HH:mm")
+  //   },
+  // },
   props: {
     req: {
       type: Object,

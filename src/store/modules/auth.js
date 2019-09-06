@@ -29,6 +29,7 @@ const state = {
   gerentes: [],
   usuariosFiltro: [],
   // roles: [],
+  refreshed: false,
 }
 
 // getters
@@ -179,6 +180,7 @@ const mutations = {
     state.userSistemas = []
     state.gerentes = []
     state.usuariosFiltro = []
+    state.refreshed = false
   },
   SET_USER: (state, userData) => {
     if (userData === null) {
@@ -216,6 +218,9 @@ const mutations = {
   SET_USUARIOS_FILTRO: (state, data) => {
     state.usuariosFiltro = keysToCamel(data)
   },
+  SET_REFRESHED: (state, value) => {
+    state.refreshed = value
+  },
 }
 
 // actions
@@ -224,21 +229,27 @@ const actions = {
   login({ commit, dispatch }, userInfo) {
     return new Promise(async (resolve, reject) => {
       try {
+        commit("SET_REFRESHED", true)
         const { data } = await login(userInfo)
-        // console.log("loginData", data)
+
         const expires = expiresToUnixTS(data.expires_in)
-        commit("SET_TOKEN", {
+
+        await dispatch("saveTokenData", {
           token: data.access_token,
           expiresIn: expires,
           refreshToken: data.refresh_token,
+          expiresInRaw: data.expires_in,
         })
-        setToken(data.access_token, expires, data.refresh_token)
+
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
 
         await dispatch("getUserInfo")
 
+        await dispatch("app/checkNotificacionesYDashboard", null, { root: true })
+
         resolve()
       } catch (e) {
+        commit("SET_REFRESHED", false)
         reject(e)
       }
     })
@@ -268,12 +279,16 @@ const actions = {
   loginHorus({ commit, dispatch }, { access_token, expires_in, refresh_token }) {
     return new Promise(async (resolve, reject) => {
       try {
+        commit("SET_REFRESHED", true)
         const expires = expiresToUnixTS(expires_in)
-        commit("SET_TOKEN", {
+
+        await dispatch("saveTokenData", {
           token: access_token,
           expiresIn: expires,
           refreshToken: refresh_token,
+          expiresInRaw: expires_in,
         })
+
         setToken(access_token, expires, refresh_token)
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
 
@@ -281,6 +296,7 @@ const actions = {
 
         resolve()
       } catch (e) {
+        commit("SET_REFRESHED", false)
         reject(e)
       }
     })
@@ -321,28 +337,33 @@ const actions = {
     })
   },
 
-  refresh({ commit, state, dispatch }) {
+  refresh: ({ commit, state, dispatch }) => {
     return new Promise(async (resolve, reject) => {
+      console.log("Refresh Called")
       if (!state.refreshToken) {
         dispatch("logout")
         commit("app/LOADING_RESET", null, { root: true })
         reject()
       } else {
         try {
+          commit("SET_REFRESHED", true)
           const { data } = await refresh(state.refreshToken)
 
           const expires = expiresToUnixTS(data.expires_in)
-          commit("SET_TOKEN", {
+
+          await dispatch("saveTokenData", {
             token: data.access_token,
             expiresIn: expires,
             refreshToken: data.refresh_token,
+            expiresInRaw: data.expires_in,
           })
-          setToken(data.access_token, expires, data.refresh_token)
 
-          resolve()
+          resolve(data.access_token)
         } catch (e) {
+          commit("SET_REFRESHED", false)
           await dispatch("resetToken")
-          reject()
+          reject("Refresh Error")
+          console.warn("Refresh Error", e)
         }
       }
     })
@@ -360,6 +381,28 @@ const actions = {
       } catch (e) {
         reject(e)
       }
+    })
+  },
+
+  saveTokenData({ commit }, { token, expiresIn, refreshToken, expiresInRaw }) {
+    return new Promise(resolve => {
+      commit("SET_TOKEN", {
+        token,
+        expiresIn,
+        refreshToken,
+      })
+      // 1000 porque son milisegundos y expiresInRaw viene en segs
+      // - 60 * 15 para restarle 15 minutos
+      const refreshTimeFlag = expiresInRaw * 1000 - 60 * 15
+
+      setTimeout(() => {
+        console.log("TTR!")
+        commit("SET_REFRESHED", false)
+      }, refreshTimeFlag)
+
+      setToken(token, expiresIn, refreshToken)
+
+      resolve()
     })
   },
 }

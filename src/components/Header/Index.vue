@@ -212,22 +212,7 @@ export default {
     this.toggleDevice(this.$q.platform.is)
   },
   created() {
-    // this.pc = this.getPusherChannel()
-    // this.channels.forEach(ch => {
-    //   if (this.pc) {
-    //     this.pc.bind(ch, data => {
-    //       console.log(data)
-    //       debugger
-    //       this.checkNotificaciones()
-    //     })
-    //   }
-    // })
     this.checkNotificaciones()
-  },
-  beforeDestroy() {
-    // this.channels.forEach(ch => {
-    //   this.pc && this.pc.unbind(ch)
-    // })
   },
   methods: {
     ...mapActions({
