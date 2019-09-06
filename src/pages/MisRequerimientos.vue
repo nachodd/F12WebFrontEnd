@@ -3,13 +3,15 @@
     <mis-requerimientos-filtros ref="filtros" @buscar="getListRequerimientos" />
     <mis-requerimientos-listado :requerimientos="misRequerimientos" />
     <div v-if="searchMeta.total > 10" class="q-pa-lg flex flex-center">
+      <!-- v-model="current" -->
       <q-pagination
-        v-model="current"
+        :value="current"
         color="deep-purple-10"
         :max="searchMeta.last_page"
         :max-pages="8"
         :boundary-numbers="true"
         :direction-links="true"
+        @input="changePage"
       ></q-pagination>
     </div>
     <div v-if="noResults" class="q-pa-lg text-body2">
@@ -76,9 +78,9 @@ export default {
     },
   },
   watch: {
-    current() {
-      this.getListRequerimientos()
-    },
+    // current() {
+    //   this.getListRequerimientos()
+    // },
     misRequerimientosHuboCambio(huboCambios) {
       if (huboCambios) {
         info({ message: "Hubo requerimientos actualizados" })
@@ -94,6 +96,10 @@ export default {
     Bus.$off("load-mis-requerimientos", this.getListRequerimientos)
   },
   methods: {
+    changePage(newPage) {
+      this.current = newPage
+      this.getListRequerimientos()
+    },
     async getListRequerimientos(filtrosValues) {
       try {
         // Si el filtro fue enviado como parametro, lo guardo localmente.
@@ -108,6 +114,8 @@ export default {
           this.filtroLastValues.area = filtrosValues.area
           this.filtroLastValues.fechaDesde = filtrosValues.fechaDesde
           this.filtroLastValues.fechaHasta = filtrosValues.fechaHasta
+
+          this.current = 1
         }
 
         const reqEstados =
