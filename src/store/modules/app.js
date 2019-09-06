@@ -41,6 +41,7 @@ const state = {
   limitUnread: LIMIT_NOTIFICACIONES_SHOWED,
   limitRead: LIMIT_NOTIFICACIONES_SHOWED,
   headerRefreshLoading: false,
+  justCalledNotifAndDashboard: false,
 }
 
 // getters
@@ -172,6 +173,9 @@ const mutations = {
   SET_HEADER_REFRESH_LOADING: (state, value) => {
     state.headerRefreshLoading = value
   },
+  SET_JUST_CALLED_NOTIF_DASHBOARD: (state, value) => {
+    state.justCalledNotifAndDashboard = value
+  },
 }
 
 const actions = {
@@ -205,14 +209,16 @@ const actions = {
   loadingReset({ commit }) {
     commit("LOADING_RESET")
   },
-  getDashboardData: _.debounce(({ commit, rootGetters }, userId = null) => {
+  getDashboardData: _.debounce(({ state, commit, rootGetters }, userId = null) => {
     return new Promise(async (resolve, reject) => {
       try {
-        commit("SET_LOADING_DASHBOARD", true)
-        const userIdToCheck = userId ? userId : rootGetters["auth/userId"]
-        if (userIdToCheck) {
-          const res = await getDashboardData(userIdToCheck)
-          commit("SET_DASHBOARD_DATA", res)
+        if (!state.justCalledNotifAndDashboard) {
+          commit("SET_LOADING_DASHBOARD", true)
+          const userIdToCheck = userId ? userId : rootGetters["auth/userId"]
+          if (userIdToCheck) {
+            const res = await getDashboardData(userIdToCheck)
+            commit("SET_DASHBOARD_DATA", res)
+          }
         }
         resolve()
       } catch (error) {
@@ -222,13 +228,15 @@ const actions = {
       }
     })
   }, 500),
-  checkNotificaciones: _.debounce(({ commit, rootGetters }, userId = null) => {
+  checkNotificaciones: _.debounce(({ state, commit, rootGetters }, userId = null) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const userIdToCheck = userId || rootGetters["auth/userId"]
-        if (userIdToCheck) {
-          const res = await checkNotificaciones(userIdToCheck)
-          commit("SET_NOTIFICACIONES", res)
+        if (!state.justCalledNotifAndDashboard) {
+          const userIdToCheck = userId || rootGetters["auth/userId"]
+          if (userIdToCheck) {
+            const res = await checkNotificaciones(userIdToCheck)
+            commit("SET_NOTIFICACIONES", res)
+          }
         }
         resolve()
       } catch (error) {
@@ -267,9 +275,13 @@ const actions = {
       resolve()
     })
   },
-  async checkNotificacionesYDashboard({ dispatch }) {
+  async checkNotificacionesYDashboard({ dispatch, commit }) {
     await dispatch("checkNotificaciones")
     await dispatch("getDashboardData")
+    commit("SET_JUST_CALLED_NOTIF_DASHBOARD", true)
+    setTimeout(() => {
+      commit("SET_JUST_CALLED_NOTIF_DASHBOARD", false)
+    }, 10000)
   },
   initPusher(ctx, pusherChannelName) {
     return new Promise(resolve => {
@@ -337,7 +349,6 @@ const actions = {
   },
   destroyPusher(ctx, pusherChannelName) {
     return new Promise(resolve => {
-      debugger
       destroyPusherChannel(pusherChannelName)
       resolve()
     })

@@ -29,6 +29,7 @@ const state = {
   gerentes: [],
   usuariosFiltro: [],
   // roles: [],
+  refreshed: false,
 }
 
 // getters
@@ -179,6 +180,7 @@ const mutations = {
     state.userSistemas = []
     state.gerentes = []
     state.usuariosFiltro = []
+    state.refreshed = false
   },
   SET_USER: (state, userData) => {
     if (userData === null) {
@@ -216,6 +218,9 @@ const mutations = {
   SET_USUARIOS_FILTRO: (state, data) => {
     state.usuariosFiltro = keysToCamel(data)
   },
+  SET_REFRESHED: (state, value) => {
+    state.refreshed = value
+  },
 }
 
 // actions
@@ -225,17 +230,25 @@ const actions = {
     return new Promise(async (resolve, reject) => {
       try {
         const { data } = await login(userInfo)
-        // console.log("loginData", data)
+
         const expires = expiresToUnixTS(data.expires_in)
         commit("SET_TOKEN", {
           token: data.access_token,
           expiresIn: expires,
           refreshToken: data.refresh_token,
         })
+        commit("SET_REFRESHED", true)
+        setTimeout(() => {
+          console.log("TTR!")
+          commit("SET_REFRESHED", false)
+        }, data.expires_in - 60 * 15)
         setToken(data.access_token, expires, data.refresh_token)
+
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
 
         await dispatch("getUserInfo")
+
+        await dispatch("app/checkNotificacionesYDashboard", null, { root: true })
 
         resolve()
       } catch (e) {
@@ -274,6 +287,12 @@ const actions = {
           expiresIn: expires,
           refreshToken: refresh_token,
         })
+        commit("SET_REFRESHED", true)
+        setTimeout(() => {
+          console.log("TTR!")
+          commit("SET_REFRESHED", false)
+        }, expires_in - 60 * 15)
+
         setToken(access_token, expires, refresh_token)
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
 
@@ -338,6 +357,11 @@ const actions = {
             expiresIn: expires,
             refreshToken: data.refresh_token,
           })
+          commit("SET_REFRESHED", true)
+          setTimeout(() => {
+            console.log("TTR!")
+            commit("SET_REFRESHED", false)
+          }, data.expires_in - 60 * 15)
           setToken(data.access_token, expires, data.refresh_token)
 
           resolve(data.access_token)
@@ -345,6 +369,7 @@ const actions = {
           await dispatch("resetToken")
           reject("Refresh Error")
           console.warn("Refresh Error", e)
+          console.trace()
         }
       }
     })

@@ -45,6 +45,7 @@ service.interceptors.request.use(
       // const token = store.getters["auth/token"]
       // request.headers["Authorization"] = "Bearer " + token
       try {
+        // console.log("request.url", request.url)
         const token = await getAuthToken()
         request.headers["Authorization"] = `Bearer ${token}`
       } catch (e) {
@@ -110,7 +111,7 @@ service.interceptors.response.use(
       (req.responseURL.includes("refresh") || req.responseURL.includes("logout"))
 
     if (isRefreshOrLogout || (status === 401 && error.config.__isRetryRequest)) {
-      await store.dispatch("auth/resetToken")
+      await store.dispatch("auth/resetToken", null, { root: true })
       router.replace({ name: "login" })
       return Promise.reject({
         message,
@@ -120,7 +121,7 @@ service.interceptors.response.use(
     }
     // retry the request ONLY if not already tried
     if (isRefreshOrLogout || (status === 401 && !error.config.__isRetryRequest)) {
-      await store.dispatch("auth/refresh")
+      await store.dispatch("auth/refresh", null, { root: true })
       error.config.__isRetryRequest = true
       return service.request(error.config)
     }
@@ -138,6 +139,7 @@ service.interceptors.response.use(
   },
 )
 
+// let refreshed = false
 // eslint-disable-next-line no-unused-vars
 async function getAuthToken() {
   return new Promise(async resolve => {
@@ -145,21 +147,19 @@ async function getAuthToken() {
     const expiresIn = store.getters["auth/expiresIn"]
     const expiresMinus15Minutes = new Date(+expiresIn)
 
-    // FIXME: poner este tiempo acorde
-    // const minutesBefore = 60 * 15
-    // expiresMinus15Minutes.setSeconds(expiresMinus15Minutes.getSeconds() - minutesBefore) // returns unix ts
-
-    const secondsBefore = 50
-    expiresMinus15Minutes.setSeconds(expiresMinus15Minutes.getSeconds() - secondsBefore) // returns unix ts
+    // const minutesBefore = 60 * 60 * 24
+    const minutesBefore = 60 * 15
+    expiresMinus15Minutes.setSeconds(expiresMinus15Minutes.getSeconds() - minutesBefore) // returns unix 58
 
     const expiresDateMinus15Minutes = new Date(expiresMinus15Minutes)
     const isTokenExpiredOrAboutTo = expiresDateMinus15Minutes.getTime() <= Date.now()
+    let refreshed = store.state.auth.refreshed
 
     let token
-    if (isTokenExpiredOrAboutTo) {
-      console.log("isTokenExpiredOrAboutTo")
-      // refresh it and update it
-      token = await store.dispatch("auth/refresh")
+    if (isTokenExpiredOrAboutTo && !refreshed) {
+      console.log("tokenExpiredOrAboutTo")
+      // refresh the token & update 'refreshed' flag in the store
+      token = await store.dispatch("auth/refresh", null, { root: true })
     } else {
       token = store.getters["auth/token"]
     }

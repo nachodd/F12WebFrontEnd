@@ -4,7 +4,7 @@ import {
   listRequerimientos,
   getRequerimiento,
   updateRequerimiento,
-  getGerentes,
+  // getGerentes,
 } from "api/requerimientos"
 
 import Requerimiento from "models/requerimiento"
@@ -138,7 +138,7 @@ const mutations = {
 }
 
 const actions = {
-  createRequerimiento({ commit, rootGetters, state, rootState }) {
+  createRequerimiento({ commit, state /* , rootGetters,  rootState */ }) {
     return new Promise(async (resolve, reject) => {
       try {
         const { sistemas, requerimientosTipos } = state.options
@@ -152,11 +152,11 @@ const actions = {
           commit("SET_OPTIONS", data)
         }
 
-        const isSisOProc = rootGetters["auth/esDeSistemasOProcesos"]
-        if (isSisOProc && rootState.auth.gerentes.length === 0) {
-          const gerentes = await getGerentes()
-          commit("auth/SET_GERENTES", gerentes, { root: true })
-        }
+        // const isSisOProc = rootGetters["auth/esDeSistemasOProcesos"]
+        // if (isSisOProc && rootState.auth.gerentes.length === 0) {
+        //   const gerentes = await getGerentes()
+        //   commit("auth/SET_GERENTES", gerentes, { root: true })
+        // }
         resolve()
       } catch (error) {
         reject(error)
