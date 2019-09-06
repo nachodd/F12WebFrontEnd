@@ -4,7 +4,7 @@ import {
   listRequerimientos,
   getRequerimiento,
   updateRequerimiento,
-  getGerentes,
+  // getGerentes,
 } from "api/requerimientos"
 
 import Requerimiento from "models/requerimiento"
@@ -100,7 +100,8 @@ const mutations = {
   },
 
   SET_MIS_REQUERIMIENTOS: (state, { requerimientos, meta }) => {
-    state.misRequerimientos = _.map(requerimientos, req => req)
+    // state.misRequerimientos = _.map(requerimientos, req => req)
+    state.misRequerimientos = _.map(requerimientos, req => new Requerimiento(req))
     state.misRequerimientosSearchMeta = meta
   },
 
@@ -131,13 +132,13 @@ const mutations = {
       const removedIndex = _.findIndex(state.misRequerimientos, {
         id: requerimiento.id,
       })
-      state.misRequerimientos.splice(removedIndex, 1, requerimiento)
+      state.misRequerimientos.splice(removedIndex, 1, new Requerimiento(requerimiento))
     }
   },
 }
 
 const actions = {
-  createRequerimiento({ commit, rootGetters, state, rootState }) {
+  createRequerimiento({ commit, state /* , rootGetters,  rootState */ }) {
     return new Promise(async (resolve, reject) => {
       try {
         const { sistemas, requerimientosTipos } = state.options
@@ -151,11 +152,11 @@ const actions = {
           commit("SET_OPTIONS", data)
         }
 
-        const isSisOProc = rootGetters["auth/esDeSistemasOProcesos"]
-        if (isSisOProc && rootState.auth.gerentes.length === 0) {
-          const gerentes = await getGerentes()
-          commit("auth/SET_GERENTES", gerentes, { root: true })
-        }
+        // const isSisOProc = rootGetters["auth/esDeSistemasOProcesos"]
+        // if (isSisOProc && rootState.auth.gerentes.length === 0) {
+        //   const gerentes = await getGerentes()
+        //   commit("auth/SET_GERENTES", gerentes, { root: true })
+        // }
         resolve()
       } catch (error) {
         reject(error)
@@ -221,7 +222,7 @@ const actions = {
       }
     })
   },
-  getRequerimiento({ commit }, requerimientoId = null) {
+  /* getRequerimiento({ commit }, requerimientoId = null) {
     return new Promise(async (resolve, reject) => {
       commit("SET_LOADING_REQ", true)
       commit("app/LOADING_INC", null, { root: true })
@@ -239,8 +240,51 @@ const actions = {
         commit("app/LOADING_DEC", null, { root: true })
       }
     })
-  },
+  }, */
+  async refreshRequerimiento({ commit /* , dispatch */ }, reqId) {
+    // FIXME: implementar. Debe actualizar luego los stores correspondientes dependiendo de la pagina donde este, ademas del req detalle
+    // commit("SET_LOADING_REQ", true)
+    commit("app/LOADING_INC", null, { root: true })
+    try {
+      const requerimiento = await getRequerimiento(reqId)
+      commit("SET_DETALLE_REQUERIMIENTO_ITEM", null)
+      commit("SET_DETALLE_REQUERIMIENTO_ITEM", requerimiento)
 
+      const payload = {
+        operation: "update",
+        req: requerimiento,
+      }
+      const root = { root: true }
+
+      switch (router.currentRoute.name) {
+        case "mis-requerimientos": {
+          const reqInCurrentList = _.find(state.misRequerimientos, {
+            id: requerimiento.id,
+          })
+          commit("PUSHER_PROCESS_UPDATE", {
+            showHuboCambioMsg: false,
+            reqInCurrentList,
+            requerimiento,
+          })
+          break
+        }
+        case "priorizar-requerimientos":
+          commit("priorizarRequerimientos/PUSHER_UPDATE_REQUERIMIENTO", payload, root)
+          break
+        case "asignar-requerimientos":
+          commit("asignacionRequerimientos/PUSHER_UPDATE_REQUERIMIENTO", payload, root)
+          break
+        case "requerimientos-asignados":
+          commit("requerimientosAsignados/PUSHER_UPDATE_REQUERIMIENTO", payload, root)
+          break
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      // commit("SET_LOADING_REQ", false)
+      commit("app/LOADING_DEC", null, { root: true })
+    }
+  },
   setDetalleRequerimiento({ commit, state, rootState }, { reqId, listName }) {
     return new Promise(async resolve => {
       // Para seguir con la convencion de nombres, utilizo listType para la action

@@ -345,7 +345,7 @@ export default {
     ...mapGetters({
       requerimientosTipos: "requerimientos/optionsReqTiposAlta",
     }),
-    ...mapGetters("auth", ["esDeSistemasOProcesos", "gerentesOrderByArea"]),
+    // ...mapGetters("auth", ["esDeSistemasOProcesos", "gerentesOrderByArea"]),
     submitText() {
       return this.id ? "Editar Requerimiento" : "Cargar Requerimiento"
     },

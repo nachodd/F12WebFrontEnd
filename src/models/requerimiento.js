@@ -219,6 +219,10 @@ export default class Requerimiento {
     return this.adjuntosCargadosUrl.length > 0
   }
 
+  get fechaAltaShort() {
+    return date.formatDate(this._fechaAlta, "DD/MM HH:mm")
+  }
+
   async toCreatePayload() {
     const fechaLimite = this.parseFechaLimite()
 

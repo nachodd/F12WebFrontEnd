@@ -66,7 +66,7 @@ export default {
       if (isEdit && reqIdToEdit) {
         this.isEdit = true
         getRequerimiento(reqIdToEdit)
-          .then(({ data: { data } }) => {
+          .then(data => {
             const req = new Requerimiento(data)
             // Mandamos a convertir asincronicamente a base64 los archivos previamente cargados (si es que tiene)
             req.tryConvertDownloadedFiles()
