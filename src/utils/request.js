@@ -147,8 +147,9 @@ async function getAuthToken() {
     const expiresIn = store.getters["auth/expiresIn"]
     const expiresMinus15Minutes = new Date(+expiresIn)
 
-    // const minutesBefore = 60 * 60 * 24
     const minutesBefore = 60 * 15
+
+    // const minutesBefore = 60 * 15
     expiresMinus15Minutes.setSeconds(expiresMinus15Minutes.getSeconds() - minutesBefore) // returns unix 58
 
     const expiresDateMinus15Minutes = new Date(expiresMinus15Minutes)

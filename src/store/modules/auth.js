@@ -229,20 +229,17 @@ const actions = {
   login({ commit, dispatch }, userInfo) {
     return new Promise(async (resolve, reject) => {
       try {
+        commit("SET_REFRESHED", true)
         const { data } = await login(userInfo)
 
         const expires = expiresToUnixTS(data.expires_in)
-        commit("SET_TOKEN", {
+
+        await dispatch("saveTokenData", {
           token: data.access_token,
           expiresIn: expires,
           refreshToken: data.refresh_token,
+          expiresInRaw: data.expires_in,
         })
-        commit("SET_REFRESHED", true)
-        setTimeout(() => {
-          console.log("TTR!")
-          commit("SET_REFRESHED", false)
-        }, data.expires_in - 60 * 15)
-        setToken(data.access_token, expires, data.refresh_token)
 
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
 
@@ -252,6 +249,7 @@ const actions = {
 
         resolve()
       } catch (e) {
+        commit("SET_REFRESHED", false)
         reject(e)
       }
     })
@@ -281,17 +279,15 @@ const actions = {
   loginHorus({ commit, dispatch }, { access_token, expires_in, refresh_token }) {
     return new Promise(async (resolve, reject) => {
       try {
+        commit("SET_REFRESHED", true)
         const expires = expiresToUnixTS(expires_in)
-        commit("SET_TOKEN", {
+
+        await dispatch("saveTokenData", {
           token: access_token,
           expiresIn: expires,
           refreshToken: refresh_token,
+          expiresInRaw: expires_in,
         })
-        commit("SET_REFRESHED", true)
-        setTimeout(() => {
-          console.log("TTR!")
-          commit("SET_REFRESHED", false)
-        }, expires_in - 60 * 15)
 
         setToken(access_token, expires, refresh_token)
         commit("app/FLUSH_NOTIFICACIONES", null, { root: true })
@@ -300,6 +296,7 @@ const actions = {
 
         resolve()
       } catch (e) {
+        commit("SET_REFRESHED", false)
         reject(e)
       }
     })
@@ -349,27 +346,24 @@ const actions = {
         reject()
       } else {
         try {
+          commit("SET_REFRESHED", true)
           const { data } = await refresh(state.refreshToken)
 
           const expires = expiresToUnixTS(data.expires_in)
-          commit("SET_TOKEN", {
+
+          await dispatch("saveTokenData", {
             token: data.access_token,
             expiresIn: expires,
             refreshToken: data.refresh_token,
+            expiresInRaw: data.expires_in,
           })
-          commit("SET_REFRESHED", true)
-          setTimeout(() => {
-            console.log("TTR!")
-            commit("SET_REFRESHED", false)
-          }, data.expires_in - 60 * 15)
-          setToken(data.access_token, expires, data.refresh_token)
 
           resolve(data.access_token)
         } catch (e) {
+          commit("SET_REFRESHED", false)
           await dispatch("resetToken")
           reject("Refresh Error")
           console.warn("Refresh Error", e)
-          console.trace()
         }
       }
     })
@@ -387,6 +381,28 @@ const actions = {
       } catch (e) {
         reject(e)
       }
+    })
+  },
+
+  saveTokenData({ commit }, { token, expiresIn, refreshToken, expiresInRaw }) {
+    return new Promise(resolve => {
+      commit("SET_TOKEN", {
+        token,
+        expiresIn,
+        refreshToken,
+      })
+      // 1000 porque son milisegundos y expiresInRaw viene en segs
+      // - 60 * 15 para restarle 15 minutos
+      const refreshTimeFlag = expiresInRaw * 1000 - 60 * 15
+
+      setTimeout(() => {
+        console.log("TTR!")
+        commit("SET_REFRESHED", false)
+      }, refreshTimeFlag)
+
+      setToken(token, expiresIn, refreshToken)
+
+      resolve()
     })
   },
 }
