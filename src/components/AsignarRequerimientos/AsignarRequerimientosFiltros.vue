@@ -71,11 +71,13 @@
     <template v-slot:footer>
       <div class="container-filters-selected">
         <div class="container-filtros-guardados">
+          FG:
           <select-custom
             ref="selectTest"
             v-model="filtroGuardadoSetted"
             label="Filtros guardados"
             outlined
+            :use-filter="false"
             dense
             color="deep-purple-10"
             :apply-validation="false"
@@ -85,10 +87,10 @@
             class="select-filtros-guardados"
           >
             <template v-slot:option="scope">
-              <q-item v-bind="scope.itemProps" v-on="scope.itemEvents" class="color-deep-purple-10">
+              <q-item v-bind="scope.itemProps" class="color-deep-purple-10" v-on="scope.itemEvents">
                 <q-item-section>
+                  <!-- eslint-disable-next-line vue/no-v-html -->
                   <q-item-label v-html="scope.opt.descripcion" />
-                  <!-- <q-item-label caption>{{ scope.opt.descripcion }}</q-item-label> -->
                 </q-item-section>
                 <q-item-section avatar @click.stop="eliminarFiltroGuardado(scope.opt.id)">
                   <q-icon name="delete_forever" class="delete_icon" />
@@ -244,11 +246,11 @@ export default {
       return ""
     },
     filtrosGuardadosOptions() {
-      const options = _.map(this.filtrosGuardados, function(value) {
-        return { id: value.nombre, descripcion: value.nombre }
-      })
-
-      return options
+      const options = [
+        { id: "Seleccione un valor", descripcion: "Seleccione un valor" },
+        ...this.filtrosGuardados,
+      ]
+      return _.map(options, value => ({ id: value.nombre, descripcion: value.nombre }))
     },
   },
   watch: {
@@ -480,11 +482,11 @@ export default {
 
 .container-filters-selected div.container-filtros-guardados {
   float: right;
-  width: 330px;
+  width: 250px;
 }
 
 .select-filtros-guardados {
-  width: 100%;
+  width: 90%;
 }
 
 .q-item--active.color-deep-purple-10 {

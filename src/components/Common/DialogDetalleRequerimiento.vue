@@ -20,6 +20,7 @@
                   round
                   icon="fas fa-sync-alt"
                   class="opacity-hover q-pa-sm"
+                  :class="{ 'fa-spin': refreshingReq }"
                   @click="refreshRequerimiento"
                 >
                   <tooltip>
@@ -392,6 +393,7 @@ export default {
       },
       quickEdited: false,
       showSaveRequerimientoAction: false,
+      refreshingReq: false,
     }
   },
   computed: {
@@ -475,9 +477,15 @@ export default {
   },
   methods: {
     refreshRequerimiento() {
-      this.$store.dispatch("requerimientos/refreshRequerimiento", this.req.id).catch(message => {
-        warn({ message })
-      })
+      this.refreshingReq = true
+      this.$store
+        .dispatch("requerimientos/refreshRequerimiento", this.req.id)
+        .catch(message => {
+          warn({ message })
+        })
+        .finally(() => {
+          this.refreshingReq = false
+        })
     },
     closeDialog() {
       this.quickEdit.asunto = ""
