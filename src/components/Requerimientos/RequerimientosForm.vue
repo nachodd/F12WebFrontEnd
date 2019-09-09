@@ -12,14 +12,17 @@
       :rules="[notEmpty]"
       :hide-bottom-space="true"
       :value="asunto"
+      color="deep-purple-10"
       @input="$emit('update:asunto', $event)"
     />
 
     <select-custom
+      ref="sistema"
       v-model="__sistema"
       :options="sistemas"
       label="Sistema"
       outlined
+      color="deep-purple-10"
       :loading="sistemas.length === 0"
       :apply-validation="true"
     />
@@ -29,8 +32,11 @@
       :options="requerimientosTipos"
       label="Tipo de Requerimiento"
       outlined
+      color="deep-purple-10"
       :loading="requerimientosTipos.length === 0"
       :apply-validation="true"
+      :disable="tipoReqHabilitado === false"
+      @input="handleTipoChange"
     />
 
     <q-input
@@ -40,6 +46,7 @@
       :rules="[notEmpty]"
       :hide-bottom-space="true"
       :value="descripcion"
+      color="deep-purple-10"
       @input="$emit('update:descripcion', $event)"
     />
 
@@ -49,15 +56,74 @@
       @filesRemoved="handleFilesRemoved"
     />
 
+    <!-- NOTE: momentaneamente, deshabilitado -->
+    <!-- usuario cadena -->
+    <!--
+      <div v-if="esDeSistemasOProcesos">
+      <q-list link>
+        <q-item
+          v-ripple
+          tag="label"
+          class="list-item--narrow"
+          :disable="llevaUsuarioCadenaDisabled"
+        >
+          <tooltip v-if="llevaUsuarioCadenaDisabled">
+            Solo aplicable cuando el Tipo de Requerimiento es "Desarrllos /
+            Modificaciones / Implementaciones"
+          </tooltip>
+          <q-item-section avatar>
+            <q-checkbox
+              v-model="__llevaUsuarioCadena"
+              :disable="llevaUsuarioCadenaDisabled"
+              left-label
+              color="deep-purple-10"
+            />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>¿Desea saletear la Cadena de Mando?</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-slide-transition>
+          <div v-show="__llevaUsuarioCadena" class="row q-mt-sm">
+            <div class="col-12">
+              <select-custom
+                ref="usuarioCadena"
+                v-model="__usuarioCadena"
+                :options="gerentesOrderByArea"
+                label="Usuario Destino"
+                outlined
+                color="deep-purple-10"
+                :loading="requerimientosTipos.length === 0"
+                :apply-validation="true"
+                description-key="razon_social"
+              >
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+                    <q-item-section>
+                      <q-item-label>
+                        {{ scope.opt.razon_social }}
+                      </q-item-label>
+                      <q-item-label caption>
+                        Area: {{ scope.opt.area.descripcion }} -
+                        {{ scope.opt.nivel }}
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </select-custom>
+            </div>
+          </div>
+        </q-slide-transition>
+      </q-list>
+    </div>
+    -->
+
+    <!-- fecha limite -->
     <div>
       <q-list link>
         <q-item v-ripple tag="label" class="list-item--narrow">
           <q-item-section avatar>
-            <q-checkbox
-              v-model="__llevaFechaLimite"
-              left-label
-              color="accent"
-            />
+            <q-checkbox v-model="__llevaFechaLimite" left-label color="deep-purple-10" />
           </q-item-section>
           <q-item-section>
             <q-item-label>¿Tiene Fecha Limite?</q-item-label>
@@ -83,6 +149,7 @@
                     v-model="__fechaLimite"
                     label="Fecha Límite"
                     past-disabled
+                    color="deep-purple-10"
                     :apply-validation="__llevaFechaLimite"
                   />
                 </div>
@@ -95,6 +162,7 @@
                     :rules="motivoLimiteRules"
                     :hide-bottom-space="true"
                     :value="motivoLimite"
+                    color="deep-purple-10"
                     @input="$emit('update:motivoLimite', $event)"
                   />
                 </div>
@@ -124,12 +192,12 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
-import SelectCustom from "@comp/Requerimientos/SelectCustom"
-import InputDateCustom from "@comp/Common/InputDateCustom"
-import UploaderCustom from "@comp/Requerimientos/UploaderCustom"
-import formValidation from "@mixins/formValidation"
-import { warn } from "@utils/helpers"
+import { mapState, mapGetters } from "vuex"
+import SelectCustom from "comp/Requerimientos/SelectCustom"
+import InputDateCustom from "comp/Common/InputDateCustom"
+import UploaderCustom from "comp/Requerimientos/UploaderCustom"
+import formValidation from "mixins/formValidation"
+import { warn } from "utils/helpers"
 
 export default {
   components: { SelectCustom, InputDateCustom, UploaderCustom },
@@ -175,9 +243,21 @@ export default {
       type: Boolean,
       default: false,
     },
+    llevaUsuarioCadena: {
+      type: Boolean,
+      default: false,
+    },
     procesandoArchivosCargados: {
       type: Boolean,
       default: false,
+    },
+    usuarioCadena: {
+      type: Object,
+      default: null,
+    },
+    tipoReqHabilitado: {
+      type: Boolean,
+      default: true,
     },
   },
   computed: {
@@ -213,6 +293,14 @@ export default {
         this.$emit("update:fechaLimite", newVal)
       },
     },
+    __usuarioCadena: {
+      get() {
+        return this.usuarioCadena
+      },
+      set(newVal) {
+        this.$emit("update:usuarioCadena", newVal)
+      },
+    },
     __llevaFechaLimite: {
       get() {
         return this.llevaFechaLimite
@@ -224,20 +312,40 @@ export default {
           // this.fechaLimite = null
           this.__fechaLimite = null
           this.motivoLimite = ""
-          this.$refs.fechaLimite.resetValidation()
-          this.$refs.motivoLimite.resetValidation()
+          this.$refs.fechaLimite && this.$refs.fechaLimite.resetValidation()
+          this.$refs.motivoLimite && this.$refs.motivoLimite.resetValidation()
           // this.$emit("update:fechaLimite", this.fechaLimite)
           this.$emit("update:motivoLimite", this.motivoLimite)
         }
       },
     },
+    __llevaUsuarioCadena: {
+      get() {
+        return this.llevaUsuarioCadena
+      },
+      set(value) {
+        this.$refs.usuarioCadena && this.$refs.usuarioCadena.resetValidation()
+        this.$emit("update:llevaUsuarioCadena", value)
+        if (!value) {
+          this.__usuarioCadena = null
+          this.$emit("update:usuarioCadena", null)
+        }
+      },
+    },
+    llevaUsuarioCadenaDisabled() {
+      return this.__tipo === null || (this.__tipo && this.__tipo.id !== 2)
+    },
     ...mapState("requerimientos", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
-      requerimientosTipos: state => state.options.requerimientosTipos,
+      // requerimientosTipos: state => state.options.requerimientosTipos,
       loadingOptions: state => state.loadingOptions,
       loadingRequerimiento: state => state.loadingRequerimiento,
     }),
+    ...mapGetters({
+      requerimientosTipos: "requerimientos/optionsReqTiposAlta",
+    }),
+    // ...mapGetters("auth", ["esDeSistemasOProcesos", "gerentesOrderByArea"]),
     submitText() {
       return this.id ? "Editar Requerimiento" : "Cargar Requerimiento"
     },
@@ -254,10 +362,21 @@ export default {
         this.__llevaFechaLimite = true
       }
     },
+    __tipo(tipo) {
+      if (tipo === null || (tipo && tipo.id !== 2)) {
+        this.__llevaUsuarioCadena = false
+      }
+    },
     // llevaFechaLimite(val) {
     // },
   },
   methods: {
+    handleTipoChange() {
+      // if (this.llevaUsuarioCadenaDisabled) {
+      //   debugger
+      //   this.__llevaUsuarioCadena = false
+      // }
+    },
     handleFilesAdded(files) {
       files.forEach(file => {
         const isInArray = _.find(this.adjuntos, { name: file.name })
@@ -280,6 +399,9 @@ export default {
       warn({
         message: "El formulario contiene errores. Por favor, reviselo.",
       })
+    },
+    validate() {
+      return this.$refs.form.validate()
     },
     resetValidation() {
       this.$nextTick(() => {

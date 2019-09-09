@@ -1,12 +1,12 @@
-import { getToken } from "@utils/auth"
-// import { checkPermission } from "@utils/permission"
+import { getToken } from "utils/auth"
+// import { checkPermission } from "utils/permission"
 // NOTE: tal vez, si es necesario mas adelanet, se podria armar una funcion similar a la checkPermission pero qeu chequee si tiene o no determinada responsabilidad
 
-const whiteList = ["/login", "/refresh", "/register"] // no redirect whitelist
+const whiteList = ["/login", "/login-horus", "/refresh", "/register"] // no redirect whitelist
 
 const checkAndSetTitle = meta => {
-  if (meta && meta.title && meta.title.length > 0) {
-    document.title = meta.title
+  if (meta && meta.pageTitle && meta.pageTitle.length > 0) {
+    document.title = meta.pageTitle
   } else {
     document.title = "F12"
   }
@@ -19,7 +19,15 @@ export default async ({ router, store }) => {
     if (hasToken) {
       // Si tiene el token y no tiene seteado el usuario, lo traigo
       if (store.getters["auth/user"] === null) {
-        await store.dispatch("auth/getInfo")
+        try {
+          await store.dispatch("auth/getUserInfo", null, { root: true })
+          // chequeamos las notificaciones y dashboard aca, asi setea la bandera correspondiente y no vuelve a chequearlas desde el componente
+          await store.dispatch("app/checkNotificacionesYDashboard", null, { root: true })
+        } catch (e) {
+          await store.dispatch("auth/logout", null, { root: true })
+          next(`/login?redirect=${to.path}`)
+          return
+        }
       }
 
       if (to.path === "/login") {
@@ -27,13 +35,12 @@ export default async ({ router, store }) => {
         next({ path: "/inicio" })
       } else {
         const userHasSistemas = store.getters["auth/userEsResponsable"]
-        const checkHasResponsabilities =
-          to.meta && to.meta.checkHasResponsabilities
+        const checkHasResponsabilities = to.meta && to.meta.checkHasResponsabilities
 
         // if the route need to check for responsabilites, and the user don't have them, logout
         if (checkHasResponsabilities && !userHasSistemas) {
-          await store.dispatch("auth/logout")
-          next(`/login?redirect=${to.path}`)
+          await store.dispatch("auth/logout", null, { root: true })
+          next(`/login?redirect=inicio`)
         } else {
           checkAndSetTitle(to.meta)
           next()

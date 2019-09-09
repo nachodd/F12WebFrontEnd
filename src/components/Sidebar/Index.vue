@@ -1,15 +1,24 @@
 <template>
   <!-- bordered content-class="bg-grey-2" -->
-  <q-drawer v-model="sidebarOpened" bordered content-class="bg-grey-2">
+  <q-drawer v-model="sidebarOpened" bordered content-class="bg-white">
     <q-scroll-area class="fit">
-      <q-list padding class="menu-list">
-        <q-item-label header>Menu Principal</q-item-label>
-        <q-item
-          v-ripple
-          clickable
-          :to="{ name: 'inicio' }"
-          active-class="menu-items--active"
-        >
+      <q-list padding class="menu-list text-unselectable">
+        <q-item :clickable="false">
+          <q-item-section class="text-center">
+            <q-item-label caption>
+              <div class="q-mt-md">
+                <span class="f">F</span>
+                <span class="twelve">12</span>
+              </div>
+              <div class="q-mt-md">
+                Bienvenido,
+                <strong>{{ userRazonSocial }}</strong>
+              </div>
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item v-ripple clickable :to="{ name: 'inicio' }" active-class="menu-items--active">
           <q-item-section avatar>
             <q-icon name="home" />
           </q-item-section>
@@ -18,12 +27,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item
-          v-ripple
-          clickable
-          :to="{ query: { ver: 'crearRequerimiento' } }"
-          active-class=""
-        >
+        <q-item v-ripple clickable :to="{ query: { ver: 'crearRequerimiento' } }" active-class="">
           <q-item-section avatar>
             <q-icon name="note_add" />
           </q-item-section>
@@ -54,14 +58,14 @@
         >
           <q-item-section avatar class="button">
             <q-icon name="fas fa-sort-amount-down" />
-
-            <!-- <div class="icons">
-              <i class="fas fa-sort-amount-down icon-default"></i>
-              <i class="fas fa-sort-amount-up icon-hover"></i>
-            </div>-->
           </q-item-section>
           <q-item-section>
-            <q-item-label>Priorizar Requerimientos</q-item-label>
+            <q-item-label>
+              Priorizar Requerimientos
+              <span v-if="showPriorizarRequerimientosCount" class="text-bold">
+                ({{ dashboard.pendientes_priorizacion }})
+              </span>
+            </q-item-label>
           </q-item-section>
         </q-item>
 
@@ -76,7 +80,12 @@
             <q-icon name="far fa-hand-pointer" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Asignar Requerimientos</q-item-label>
+            <q-item-label>
+              Asignar Requerimientos
+              <span v-if="dashboard.pendientes_asignacion > 0" class="text-bold">
+                ({{ dashboard.pendientes_asignacion }})
+              </span>
+            </q-item-label>
           </q-item-section>
         </q-item>
 
@@ -91,7 +100,12 @@
             <q-icon name="fas fa-tasks" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>Requerimientos Asignados</q-item-label>
+            <q-item-label>
+              Requerimientos Asignados
+              <span v-if="dashboardAsignadosYEjecutando > 0" class="text-bold">
+                ({{ dashboardAsignadosYEjecutando }})
+              </span>
+            </q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -105,13 +119,16 @@ import { mapGetters, mapState } from "vuex"
 export default {
   name: "F12Sidebar",
   computed: {
-    // ...mapGetters("app", ["sidebarOpen"]),
     ...mapGetters("auth", [
       "userEsResponsable",
       "puedeVerRequerimientosAsignados",
+      "userRazonSocial",
     ]),
+    ...mapGetters("app", ["dashboardAsignadosYEjecutando"]),
     ...mapState("app", {
       sidebarOpenStore: state => state.sidebarOpen,
+      dashboard: state => state.dashboard,
+      loadingDashboard: state => state.loadingDashboard,
     }),
     sidebarOpened: {
       set(state) {
@@ -121,61 +138,34 @@ export default {
         return this.sidebarOpenStore
       },
     },
+    showPriorizarRequerimientosCount() {
+      return this.dashboard.pendientes_priorizacion > 0 && !this.esElUltimoDeLaCadenaDeMando
+    },
+  },
+  mounted() {
+    this.$store.dispatch("app/getDashboardData", this.userId)
   },
   methods: {},
 }
 </script>
-<style lang="scss" scoped>
-@import "src/css/variables.scss";
-.menu-list .q-item {
-  border-radius: 0 32px 32px 0;
-}
-.menu-items--active {
-  color: $accent-light;
-  font-weight: 500;
-  background: rgba(73, 65, 214, 0.15);
-}
+<style lang="stylus" scoped>
+.f
+  font-size 2.4rem
+  font-weight 800
+  letter-spacing -5px
+  color $accent-light
 
-/* .button {
-  position: relative;
-  -moz-transition: all 0.3s ease;
-  transition: all 0.3s ease;
-  .icons {
-    position: relative;
+.twelve
+  font-size 1.9rem
+  letter-spacing -5px
+  font-weight 500
+  color $accent-light
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.menu-list .q-item
+  border-radius 0 32px 32px 0
 
-    i {
-      position: absolute;
-      top: 0;
-      left: 0;
-
-      display: block;
-    }
-    .icon-default {
-      transition: opacity 0.3s, transform 0.3s;
-    }
-
-    .icon-hover {
-      transition: opacity 0.3s, transform 0.3s;
-      transform: rotate(-180deg) scale(1);
-      opacity: 0;
-    }
-  }
-
-  &:hover {
-    transform: scale(1.2);
-    box-shadow: 20px 15px rgba(0, 0, 0, 0.15);
-    .icon-hover {
-      transform: rotate(0deg) scale(1.5);
-      opacity: 1;
-    }
-    .icon-default {
-      transform: rotate(180deg) scale(1);
-      opacity: 0;
-    }
-  }
-} */
+.menu-items--active
+  color $accent-light
+  font-weight 500
+  background rgba(73, 65, 214, 0.15)
 </style>

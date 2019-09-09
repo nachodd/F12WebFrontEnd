@@ -18,20 +18,36 @@
           </div>
         </template>
         <template v-else>
-          <Draggable
-            v-for="(req, index) in requerimientosList"
-            :key="`req_${req.id}`"
-          >
-            <asignar-requerimientos-item
-              :req="req"
-              :index="index"
-              @click.native="
-                abrirDetalleRequerimiento({
-                  reqId: req.id,
-                  listName: 'asignar-requerimientos',
-                })
-              "
-            />
+          <Draggable v-for="(req, index) in requerimientosList" :key="`req_${req.id}`">
+            <transition
+              appear
+              name="flip"
+              mode="out-in"
+              enter-active-class="animated slow flipInY"
+              leave-active-class="animated slow flipOutY"
+            >
+              <requerimiento-card
+                :req="req"
+                :index="index"
+                card-type="asignar"
+                @click.native="
+                  abrirDetalleRequerimiento({
+                    reqId: req.id,
+                    listName: 'asignar-requerimientos',
+                  })
+                "
+              />
+              <!-- <asignar-requerimientos-item
+                :req="req"
+                :index="index"
+                @click.native="
+                  abrirDetalleRequerimiento({
+                    reqId: req.id,
+                    listName: 'asignar-requerimientos',
+                  })
+                "
+              /> -->
+            </transition>
           </Draggable>
         </template>
       </Container>
@@ -45,18 +61,39 @@
         </div>
       </template>
       <template v-else>
-        <asignar-requerimientos-item
-          v-for="(req, index) in requerimientosList"
-          :key="`req_${req.id}`"
-          :req="req"
-          :index="index"
-          @click.native="
-            abrirDetalleRequerimiento({
-              reqId: req.id,
-              listName: 'asignar-requerimientos',
-            })
-          "
-        />
+        <transition-group
+          name="flip"
+          tag="div"
+          appear
+          enter-active-class="animated slow flipInY"
+          leave-active-class="animated slow flipOutY"
+        >
+          <requerimiento-card
+            v-for="(req, index) in requerimientosList"
+            :key="`req_${req.id}`"
+            :req="req"
+            :index="index"
+            card-type="asignar"
+            @click.native="
+              abrirDetalleRequerimiento({
+                reqId: req.id,
+                listName: 'asignar-requerimientos',
+              })
+            "
+          />
+          <!-- <asignar-requerimientos-item
+            v-for="(req, index) in requerimientosList"
+            :key="`req_${req.id}`"
+            :req="req"
+            :index="index"
+            @click.native="
+              abrirDetalleRequerimiento({
+                reqId: req.id,
+                listName: 'asignar-requerimientos',
+              })
+            "
+          /> -->
+        </transition-group>
       </template>
     </template>
   </list-requerimientos>
@@ -65,16 +102,18 @@
 <script>
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag } from "@utils/helpers"
-import ListRequerimientos from "@comp/Common/ListRequerimientos"
-import AsignarRequerimientosItem from "@comp/AsignarRequerimientos/AsignarRequerimientosItem"
-import { success, warn } from "@utils/helpers"
+import { applyDrag } from "utils/helpers"
+import ListRequerimientos from "comp/Common/ListRequerimientos"
+import RequerimientoCard from "comp/Common/RequerimientoCard"
+// import AsignarRequerimientosItem from "comp/AsignarRequerimientos/AsignarRequerimientosItem"
+import { success, warn } from "utils/helpers"
 
 export default {
   name: "AsignarRequerimientosList",
   components: {
     ListRequerimientos,
-    AsignarRequerimientosItem,
+    // AsignarRequerimientosItem,
+    RequerimientoCard,
     Container,
     Draggable,
   },
@@ -121,7 +160,6 @@ export default {
   },
   methods: {
     ...mapActions({
-      setDetalleRequerimiento: "requerimientos/setDetalleRequerimiento",
       abrirDetalleRequerimiento: "requerimientos/abrirDetalleRequerimiento",
     }),
     getPayload(index) {
@@ -145,4 +183,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss"></style>

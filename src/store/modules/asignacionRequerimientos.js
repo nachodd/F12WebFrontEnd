@@ -1,23 +1,33 @@
 import {
   getRequerimientosForPanelAsignacion,
+  preaprobarRequerimiento,
   asignarRequerimiento,
   desasignarRequerimiento,
   refuseRequerimiento,
   pasarAProcesosRequerimiento,
   enviarAPriorizarRequerimiento,
-} from "@api/requerimientos"
-import Requerimiento from "@models/Requerimiento"
+} from "api/requerimientos"
+import Requerimiento from "models/requerimiento"
 import {
   filterByAsuntoAndDescripcion,
   filterBySistema,
   filterByTipoRequerimiento,
   filterByUsuariosAsignados,
-} from "@utils/requerimientos"
-import { pipeWith } from "@utils/helpers"
+  filterByUsuarioAltaId,
+} from "utils/requerimientos"
+import { pipeWith } from "utils/helpers"
+
+import {
+  saveFilters,
+  getFilters,
+  updateFilterLocalStorage,
+  removeFilters,
+} from "utils/localStorage"
 
 const state = {
   requerimientos: [],
   loadingRequerimientos: false,
+  requerimientosLoaded: false,
   dialogConfirmOpen: false,
   possibleChanges: {
     sourceList: [],
@@ -39,6 +49,7 @@ const state = {
     sistema: null,
     requerimientoTipo: null,
     descripcion: null,
+    usuarioAlta: null,
     usuariosAsignados: [],
   },
 }
@@ -49,14 +60,18 @@ const getters = {
     let reqsResult = _.filter(state.requerimientos, req => {
       return _.includes([estSinAsig.id, estEnProceso.id], req.estado.id)
     })
-    return _.orderBy(reqsResult, ["tipo.id", "prioridad"], "asc")
+    return _.orderBy(
+      reqsResult,
+      ["preAprobado", "tipo.id", "prioridad", "id"],
+      ["desc", "asc", "asc", "desc"],
+    )
   },
   requerimientosAsignados: (state, getters, rootState, rootGetters) => {
     const estAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estAsignado.id },
     })
-    return _.orderBy(reqsResult, "[estado.asignacion.orden]", "asc")
+    return _.orderBy(reqsResult, ["estado.asignacion.orden"], "asc")
   },
   requerimientosEnEjecucion: (state, getters, rootState, rootGetters) => {
     const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
@@ -65,8 +80,16 @@ const getters = {
     })
     return _.orderBy(reqsResult, "tipo.id", "asc")
   },
+  requerimientosEnEjecucionYTesting: (state, getters, rootState, rootGetters) => {
+    const estadoEnEjec = rootGetters["requerimientos/getEstadoByCodigo"]("EXEC")
+    const estadoEnTest = rootGetters["requerimientos/getEstadoByCodigo"]("TEST")
+    const reqsResult = _.filter(state.requerimientos, req => {
+      return _.includes([estadoEnEjec.id, estadoEnTest.id], req.estado.id)
+    })
+    return _.orderBy(reqsResult, "tipo.id", "asc")
+  },
   // Devuelve la lista de reqs filtrada. La lista filtrada depende del estado pasado por param
-  requerimientosFiltered: (state, getters) => reqEstado => {
+  requerimientosFiltered: (state, getters) => (reqEstado, overrideFilters = false) => {
     let reqs
     switch (reqEstado) {
       case "NOAS":
@@ -79,14 +102,26 @@ const getters = {
       case "EXEC":
         reqs = [...getters.requerimientosEnEjecucion]
         break
+      case "EXEC/TEST":
+        reqs = [...getters.requerimientosEnEjecucionYTesting]
+        break
     }
 
-    const {
+    let {
       descripcion = null,
       sistema = null,
       requerimientoTipo = null,
+      usuarioAlta = null,
       usuariosAsignados = null,
     } = state.filtros
+
+    if (overrideFilters) {
+      if (overrideFilters.descripcion) descripcion = overrideFilters.descripcion
+      if (overrideFilters.sistema) sistema = overrideFilters.sistema
+      if (overrideFilters.requerimientoTipo) requerimientoTipo = overrideFilters.requerimientoTipo
+      if (overrideFilters.usuarioAlta) usuarioAlta = overrideFilters.usuarioAlta
+      if (overrideFilters.usuariosAsignados) usuariosAsignados = overrideFilters.usuariosAsignados
+    }
 
     // Determino que filtros aplicar, dependiendo de que hayan seteado
     let filtersToApply = []
@@ -99,7 +134,11 @@ const getters = {
     if (requerimientoTipo && requerimientoTipo.id) {
       filtersToApply.push(filterByTipoRequerimiento(requerimientoTipo.id))
     }
-    const isAssigOrInExec = reqEstado === "ASSI" || reqEstado === "EXEC"
+    if (usuarioAlta && usuarioAlta.id) {
+      filtersToApply.push(filterByUsuarioAltaId(usuarioAlta.id))
+    }
+    const isAssigOrInExec =
+      reqEstado === "ASSI" || reqEstado === "EXEC" || reqEstado === "EXEC/TEST"
     if (isAssigOrInExec && usuariosAsignados && usuariosAsignados.length) {
       filtersToApply.push(filterByUsuariosAsignados(usuariosAsignados))
     }
@@ -167,8 +206,7 @@ const getters = {
       return ""
     }
   },
-  requerimientoIdToChange: state =>
-    _.get(state.possibleChanges.payload, "id", ""),
+  requerimientoIdToChange: state => _.get(state.possibleChanges.payload, "id", ""),
   getNewOrder: (state, getters) => {
     // Busca el requerimiento a actualizar en el listado que está en pantalla en pantalla
     const reqsAsignadosOnScreen = state.possibleChanges.targetList
@@ -191,10 +229,8 @@ const getters = {
         orden = 1
       } else {
         // Busco el último reqs de los asignados, tomo su orden y le aumento 1
-        const lastReq =
-          getters.requerimientosAsignados[
-            getters.requerimientosAsignados.length - 1
-          ]
+        // eslint-disable-next-line
+        const lastReq = getters.requerimientosAsignados[getters.requerimientosAsignados.length - 1]
         orden = lastReq.estado.asignacion.orden + 1
       }
       // Será el ultimo (ya sea porque se filtro el listado y no hay nadao porque efectivametne no habia otro asignado)
@@ -212,6 +248,15 @@ const getters = {
 const mutations = {
   SET_REQUERIMIENTOS: (state, requerimientos) => {
     state.requerimientos = _.map(requerimientos, req => new Requerimiento(req))
+    state.requerimientosLoaded = true
+  },
+  REMOVE_REQUERIMIENTO: (state, reqId) => {
+    const removedIndex = _.findIndex(state.requerimientos, {
+      id: reqId,
+    })
+    if (removedIndex !== -1) {
+      state.requerimientos.splice(removedIndex, 1)
+    }
   },
   SET_LOADING_REQUERIMIENTOS: (state, loadingRequerimientos) => {
     state.loadingRequerimientos = loadingRequerimientos
@@ -222,6 +267,10 @@ const mutations = {
       ...reqToUpdate.estado,
       ...newState,
     }
+  },
+  SET_PREAPROBADO_REQUERIMIENTO: (state, { requerimientoId, preAprobado }) => {
+    const reqToUpdate = _.find(state.requerimientos, { id: requerimientoId })
+    reqToUpdate.preAprobado = preAprobado
   },
   SET_DIALOG_CONFIRM_OPERATION_OPEN: (state, value) => {
     state.dialogConfirmOpen = value
@@ -254,24 +303,27 @@ const mutations = {
     state.possibleChanges.newOrder = null
     state.dialogConfirmOpen = false
   },
-  SET_FILTROS: (state, { filter, value }) => {
+  SET_FILTRO: (state, { filter, value }) => {
     state.filtros[filter] = value
+  },
+  SET_FILTROS: (state, filters) => {
+    state.filtros["descripcion"] = filters.descripcion
+    state.filtros["sistema"] = filters.sistema
+    state.filtros["requerimientoTipo"] = filters.tipo
+    state.filtros["usuarioAlta"] = filters.usuarioAlta
+    state.filtros["usuariosAsignados"] = filters.usuariosAsignados
   },
   CLEAR_FILTROS: state => {
     state.filtros.sistema = null
     state.filtros.requerimientoTipo = null
     state.filtros.descripcion = null
+    state.filtros.usuarioAlta = null
     state.filtros.usuariosAsignados = []
   },
 
   UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO: (
     state,
-    {
-      estadoAsignadoId,
-      orderStart,
-      reqIdToAvoid,
-      updateOrderToCurrentRequerimiento = false,
-    },
+    { estadoAsignadoId, orderStart, reqIdToAvoid, updateOrderToCurrentRequerimiento = false },
   ) => {
     // Actualiza todos los requerimientos en estado ASIGNADO
     state.requerimientos = state.requerimientos.map(ra => {
@@ -289,33 +341,64 @@ const mutations = {
       return ra
     })
   },
+  PUSHER_UPDATE_REQUERIMIENTO: (state, { operation, req }) => {
+    switch (operation) {
+      case "addOrUpdate": {
+        // Chequeo si lo encuentra en el listdo. Si lo encuentra, actualiza. Si no, lo agrega
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        } else {
+          state.requerimientos.push(new Requerimiento(req))
+        }
+        break
+      }
+      case "update": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        }
+        break
+      }
+      case "delete": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1)
+        }
+        break
+      }
+    }
+  },
 }
 
 const actions = {
-  fetchRequerimientos({ commit, rootGetters }, userId = null) {
+  fetchRequerimientos({ commit, dispatch, rootGetters }, userId = null) {
     return new Promise(async (resolve, reject) => {
       try {
-        commit("app/LOADING_INC", null, { root: true })
+        // commit("app/LOADING_INC", null, { root: true })
         commit("SET_LOADING_REQUERIMIENTOS", true)
+        await dispatch("auth/getUsuariosFiltro", null, { root: true })
         // Determino el userId para los requerimientos
-        const userIdForRequerimientos = userId
-          ? userId
-          : rootGetters["auth/userId"]
-        const requerimientos = await getRequerimientosForPanelAsignacion(
-          userIdForRequerimientos,
-        )
+        const userIdForRequerimientos = userId ? userId : rootGetters["auth/userId"]
+        const requerimientos = await getRequerimientosForPanelAsignacion(userIdForRequerimientos)
         commit("SET_REQUERIMIENTOS", requerimientos)
         resolve()
       } catch (error) {
         reject(error)
       } finally {
-        commit("app/LOADING_DEC", null, { root: true })
+        // commit("app/LOADING_DEC", null, { root: true })
         commit("SET_LOADING_REQUERIMIENTOS", false)
       }
     })
   },
   updateRequerimientoState(
-    { commit, dispatch, rootGetters, getters, state },
+    { commit, dispatch, rootGetters, getters },
     { operation, requerimientoId, comentario, ...data },
   ) {
     return new Promise(async (resolve, reject) => {
@@ -326,7 +409,21 @@ const actions = {
         let message = ""
 
         switch (operation) {
-          case "asignar": {
+          case "preaprobar": {
+            const res = await preaprobarRequerimiento(requerimientoId, {
+              comentario,
+              pre_aprobado: !data.preAprobado,
+            })
+            message = _.get(res, "data.message", null)
+
+            commit("SET_PREAPROBADO_REQUERIMIENTO", {
+              requerimientoId,
+              preAprobado: !data.preAprobado,
+            })
+            break
+          }
+          case "asignar":
+          case "reasignar": {
             // se arma el objeto para enviar a la api y se la llama
             const { orden, ultimo } = getters.getNewOrder
             const dataAsignar = {
@@ -338,13 +435,16 @@ const actions = {
               orden,
               ultimo,
             }
+            // se agrega que es REASIGNACION para que el backend lo procese correctamente
+            if (operation === "reasignar") {
+              dataAsignar.reasignar = true
+            }
+
             const res = await asignarRequerimiento(requerimientoId, dataAsignar)
             message = _.get(res, "data.message", null)
 
             // Se armar el objeto 'estado' para actualizar el objeto en el array local
-            const estadoAsignado = rootGetters[
-              "requerimientos/getEstadoByCodigo"
-            ]("ASSI")
+            const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
             const newState = {
               id: estadoAsignado.id,
               descripcion: estadoAsignado.descripcion,
@@ -372,9 +472,7 @@ const actions = {
             message = _.get(res, "data.message", null)
 
             // Se armar el objeto 'estado' para actualizar el objeto en el array local
-            const estadoAsignado = rootGetters[
-              "requerimientos/getEstadoByCodigo"
-            ]("NOAS")
+            const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("NOAS")
             const newState = {
               id: estadoAsignado.id,
               descripcion: estadoAsignado.descripcion,
@@ -384,11 +482,19 @@ const actions = {
             break
           }
           case "reordenar": {
-            const message = await dispatch("operationSaveReorderAssigned")
-            resolve(message)
+            message = await dispatch("operationSaveReorderAssigned")
             break
           }
-          case "aProcesos":
+          case "aProcesos": {
+            const res = await pasarAProcesosRequerimiento(requerimientoId, {
+              comentario,
+            })
+            message = _.get(res, "data.message", null)
+
+            // Quitamos el requerimiento del listado:
+            commit("REMOVE_REQUERIMIENTO", requerimientoId)
+            break
+          }
           case "descartar":
           case "aPriorizar": {
             let res
@@ -396,29 +502,18 @@ const actions = {
               res = await refuseRequerimiento(requerimientoId, {
                 comentario,
               })
-            } else if (operation === "aProcesos") {
-              res = await pasarAProcesosRequerimiento(requerimientoId, {
-                comentario,
-              })
             } else if (operation === "aPriorizar") {
               res = await enviarAPriorizarRequerimiento(requerimientoId, {
                 comentario,
               })
             }
-
             message = _.get(res, "data.message", null)
-
             // Quitamos el requerimiento del listado:
-            const removedIndex = _.findIndex(state.requerimientos, {
-              id: requerimientoId,
-            })
-            let listResult = [...state.requerimientos]
-            listResult.splice(removedIndex, 1)
-
-            commit("SET_REQUERIMIENTOS", listResult)
+            commit("REMOVE_REQUERIMIENTO", requerimientoId)
             break
           }
         }
+        // dispatch("app/getDashboardData", null, { root: true })
         resolve(message)
       } catch (error) {
         reject(error)
@@ -434,8 +529,7 @@ const actions = {
       resolve()
     })
   },
-  processUpdateList({ commit, getters, dispatch }, updatedListData) {
-    // console.log(getters.operationType)
+  processUpdateList({ state, commit, getters, dispatch }, updatedListData) {
     return new Promise(async (resolve, reject) => {
       try {
         // updatea los listados temporales
@@ -445,21 +539,6 @@ const actions = {
           return
         }
         commit("app/LOADING_INC", null, { root: true })
-
-        // ESTA VALIDACION NO VA POR AHORA
-        // Valido si el requerimiento fue enviado a procesos
-        // const stateSentToProcess = rootGetters[
-        //   "requerimientos/getEstadoByCodigo"
-        // ]("STPR")
-        // const reqToChange = state.possibleChanges.payload
-        // if (reqToChange.estado.id === stateSentToProcess.id) {
-        //   dispatch("clearOperations")
-        //   reject({
-        //     message:
-        //       "El requermiento no se puede asignar, el mismo se encuentra EN PROCESOS",
-        //   })
-        //   return
-        // }
 
         switch (getters.operationType) {
           case "assign":
@@ -477,9 +556,15 @@ const actions = {
             resolve()
             break
           case "reorder-assigned": {
-            const message = await dispatch("operationSaveReorderAssigned")
+            // Solo si movio algo ejecuta la accion
+            if (
+              state.possibleChanges.targetChanges.addedIndex !==
+              state.possibleChanges.targetChanges.removedIndex
+            ) {
+              const message = await dispatch("operationSaveReorderAssigned")
+              resolve(message)
+            }
             dispatch("clearOperations")
-            resolve(message)
             break
           }
           default:
@@ -503,16 +588,11 @@ const actions = {
           orden,
           ultimo,
         }
-        const res = await asignarRequerimiento(
-          getters.requerimientoIdToChange,
-          dataReordenar,
-        )
+        const res = await asignarRequerimiento(getters.requerimientoIdToChange, dataReordenar)
         const message = _.get(res, "data.message", null)
 
         // Updatea el Orden de todo el arbol y el orden
-        const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"](
-          "ASSI",
-        )
+        const estadoAsignado = rootGetters["requerimientos/getEstadoByCodigo"]("ASSI")
         commit("UPDATE_REQUERIMIENTOS_ORDEN_ASIGNADO", {
           estadoAsignadoId: estadoAsignado.id,
           orderStart: orden,
@@ -530,6 +610,7 @@ const actions = {
     commit("SET_DIALOG_CONFIRM_OPERATION_OPEN", value)
     if (!value) {
       dispatch("clearOperations")
+      commit("requerimientos/SET_DETALLE_REQUERIMIENTO_ITEM", null, { root: true })
     }
   },
   clearOperations({ commit }) {
@@ -540,7 +621,13 @@ const actions = {
   },
   setFilter({ commit }, { filter, value }) {
     return new Promise(resolve => {
-      commit("SET_FILTROS", { filter, value })
+      commit("SET_FILTRO", { filter, value })
+      resolve()
+    })
+  },
+  setFilters({ commit }, filters) {
+    return new Promise(resolve => {
+      commit("SET_FILTROS", filters)
       resolve()
     })
   },
@@ -549,6 +636,18 @@ const actions = {
       commit("CLEAR_FILTROS")
       resolve()
     })
+  },
+  saveFiltersLocalStorage(context, filter = null) {
+    saveFilters(filter)
+  },
+  getFiltersLocalStorage(context, filterName = null) {
+    return getFilters(filterName)
+  },
+  removeFiltersLocalStorage(context, filterName) {
+    removeFilters(filterName)
+  },
+  updateFiltersLocalStorage(context, filter) {
+    updateFilterLocalStorage(filter)
   },
 }
 

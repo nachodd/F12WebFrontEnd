@@ -1,107 +1,90 @@
 <template>
-  <q-page padding>
-    <page-header title="Requerimientos Asignados" no-margin />
-    <div class="row q-py-md">
+  <q-page padding class="q-pt-lg">
+    <div class="row">
       <div class="col">
-        <div class="square d-ib bg-red-7">&nbsp;</div>
-        Arreglo Rápido &nbsp;&nbsp; - &nbsp;&nbsp;
-        <div class="square d-ib bg-light-blue-7">&nbsp;</div>
-        Desarrollo / Mejora &nbsp;&nbsp;
-        <!-- - &nbsp;&nbsp; En Procesos
-        <div class="square d-ib bg-green-7"></div>-->
+        <requerimientos-asignados-filtros @buscar="filtrarRequerimientos" />
       </div>
     </div>
-    <div class="row q-pt-md q-col-gutter-sm">
-      <div class="col-sm-6 col-xs-12">
-        <draggable-list
+    <div class="row q-pt-md q-px-xs q-col-gutter-sm req-container--filter">
+      <div class="col-sm-4 col-xs-12">
+        <requerimientos-asignados-list
           title="Pendientes"
           group-name="requerimientos"
           list-name="source"
-          :requerimientos-list.sync="reqsAsignadosPendientes"
-          :loading-list="loadingReqsPendientesAprobacion"
+          :requerimientos-list="requerimientosFiltered('ASSI')"
+          :loading-list="loadingRequerimientos"
         />
       </div>
 
-      <div class="col-sm-6 col-xs-12">
-        <draggable-list
+      <div class="col-sm-4 col-xs-12" :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }">
+        <requerimientos-asignados-list
           title="En Ejecución"
           group-name="requerimientos"
           list-name="target"
-          :requerimientos-list.sync="reqsAsignadosEnEjecucion"
-          :loading-list="loadingReqsAprobadosPriorizados"
+          :requerimientos-list="requerimientosFiltered('EXEC')"
+          :loading-list="loadingRequerimientos"
+        />
+      </div>
+
+      <div class="col-sm-4 col-xs-12" :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }">
+        <requerimientos-asignados-list
+          title="Testing"
+          group-name="requerimientos"
+          list-name="testing"
+          :requerimientos-list="requerimientosFiltered('TEST')"
+          :loading-list="loadingRequerimientos"
         />
       </div>
     </div>
 
-    <dialog-confirm-operation />
+    <requerimientos-asignados-dialog-confirm-operation />
     <dialog-detalle-requerimiento />
   </q-page>
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex"
-import PageHeader from "@comp/Common/PageHeader"
-import pageLoading from "@mixins/pageLoading"
-import DraggableList from "@comp/RequerimientosAsignados/DraggableList"
-import DialogConfirmOperation from "@comp/RequerimientosAsignados/DialogConfirmOperation"
-import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
+import { mapState, mapGetters } from "vuex"
+import pageLoading from "mixins/pageLoading"
+import RequerimientosAsignadosList from "comp/RequerimientosAsignados/RequerimientosAsignadosList"
+import RequerimientosAsignadosDialogConfirmOperation from "comp/RequerimientosAsignados/RequerimientosAsignadosDialogConfirmOperation"
+import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
+import RequerimientosAsignadosFiltros from "comp/RequerimientosAsignados/RequerimientosAsignadosFiltros"
 
 export default {
   name: "RequerimientosAsigandos",
   components: {
-    PageHeader,
-    DraggableList,
-    DialogConfirmOperation,
+    RequerimientosAsignadosList,
+    RequerimientosAsignadosDialogConfirmOperation,
     DialogDetalleRequerimiento,
+    RequerimientosAsignadosFiltros,
   },
   mixins: [pageLoading],
+  data: () => ({
+    filtroLastValues: {
+      descripcion: null,
+      sistema: null,
+      tipo: null,
+    },
+  }),
   computed: {
-    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
-    ...mapState("priorizarRequerimientos", {
-      reqsPendientesAprobacion: state => state.reqsPendientesAprobacion,
-      reqsAprobadosPriorizados: state => state.reqsAprobadosPriorizados,
-      loadingReqsPendientesAprobacion: state =>
-        state.loadingReqsPendientesAprobacion,
-      loadingReqsAprobadosPriorizados: state =>
-        state.loadingReqsAprobadosPriorizados,
-    }),
     ...mapState("requerimientosAsignados", {
-      reqsAsignadosPendientes: state => state.reqsAsignadosPendientes,
-      reqsAsignadosEnEjecucion: state => state.reqsAsignadosEnEjecucion,
+      loadingRequerimientos: state => state.loadingRequerimientos,
     }),
+    ...mapGetters("requerimientosAsignados", ["requerimientosFiltered"]),
   },
   async created() {
-    this.$store.dispatch(
-      "requerimientosAsignados/inicializarRequerimientosAsignados",
-    )
+    await this.$store.dispatch("requerimientosAsignados/inicializarRequerimientosAsignados")
   },
-  methods: {},
+  methods: {
+    filtrarRequerimientos(filtrosValues) {
+      if (filtrosValues) {
+        this.filtroLastValues.descripcion = filtrosValues.descripcion
+        this.filtroLastValues.sistema = filtrosValues.sistema
+        this.filtroLastValues.tipo = filtrosValues.tipo
+      }
+      this.$store.dispatch("requerimientosAsignados/setFilters", this.filtroLastValues)
+    },
+  },
 }
 </script>
-<style lang="scss" scoped>
-.scrolling-wrapper {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding-top: 20px;
-  top: -20px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.scrolling-wrapper__card {
-  flex: 0 0 auto;
-  min-width: 400px;
-  margin-right: 1em;
-}
-
-.d-ib {
-  display: inline-block;
-}
-
-.square {
-  width: 4px;
-  height: 18px;
-  vertical-align: middle;
-}
-</style>
+<style lang="scss" scoped></style>

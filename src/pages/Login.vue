@@ -1,38 +1,38 @@
 <template>
-  <q-layout view="lHh Lpr lFf" class="flex flex-center items-center bg-grey-3">
-    <q-page-container class>
-      <q-card class="card shadow-5 rounded-borders-8">
-        <q-card-section
-          class="card__header card-header-offset rounded-borders-8"
-        >
+  <q-layout view="lHh Lpr lFf" class="flex flex-center items-center bg-page">
+    <q-page-container class="row">
+      <q-card class="col-12 card shadow-5 rounded-borders-8">
+        <q-card-section class="card__header card-header-offset rounded-borders-8">
           <div class="text-h3 text-center">
-            <span class="text-h2 f twelve">F</span>
+            <span class="text-h2 f">F</span>
             <span class="text-h2 twelve">12</span>
           </div>
         </q-card-section>
 
-        <q-card-section>
+        <q-card-section class="card__body">
           <q-form @submit="login">
             <q-input
-              id="usuario"
               v-model.trim="usuario"
+              name="usuario"
+              class="q-mb-sm"
               standout
               type="text"
               label="Usuario"
               :rules="[notEmpty]"
+              :autofocus="true"
             >
               <template v-slot:prepend>
                 <q-icon name="account_circle" />
               </template>
             </q-input>
             <q-input
-              id="password"
               v-model="password"
+              name="password"
+              class="q-mb-sm"
               standout
               type="password"
               label="Contraseña"
               :rules="[notEmpty]"
-              :autofocus="true"
             >
               <template v-slot:prepend>
                 <q-icon name="lock" />
@@ -57,18 +57,14 @@
 </template>
 
 <script>
-import formValidation from "@mixins/formValidation"
+import formValidation from "mixins/formValidation"
 
 export default {
   mixins: [formValidation],
   data() {
     return {
-      // usuario: "administrator",
-      // password: "bldsavqc2010",
-      // usuario: "cmunoz", // "emanavella",
-      // password: "cmunoz5451", // "Gabriel70",
-      usuario: "hcosenza",
-      password: "c053nz4pocha",
+      usuario: "", //"hcosenza",
+      password: "", //"c053nz4pocha",
 
       loading: false,
     }
@@ -97,8 +93,7 @@ export default {
       } catch (e) {
         this.$q.notify({
           color: "negative",
-          message:
-            (e && e.message) || "Hubo un problema al procesar su petición",
+          message: (e && e.message) || "Hubo un problema al procesar su petición",
           icon: "warning",
           position: "top-right",
         })
@@ -111,17 +106,24 @@ export default {
 </script>
 <style lang="stylus" scoped>
 .card
-  width: 400px;
-  padding: 20px;
-  background-color: #fff;
+  min-width 350px
+  height 380px
+  padding 20px
+  background-color #fff
 
-.f.twelve
-  font-size: 4.7rem;
+
+.f
+  font-size 4.75rem
+  font-weight bold
+  letter-spacing -10px
 
 .twelve
-  letter-spacing: -10px;
-  font-weight: bold;
+  letter-spacing -10px
+  font-weight 400
 
 .card__header
   background linear-gradient(to top right, $deep-purple-7, $blue-9 )
+.card__body
+  position relative
+  top -15px
 </style>

@@ -1,5 +1,5 @@
-import { getToken } from "@utils/auth"
-import { checkPermission } from "@utils/permission"
+import { getToken } from "utils/auth"
+import { checkPermission } from "utils/permission"
 
 const whiteList = ["/login", "/refresh", "/register"] // no redirect whitelist
 

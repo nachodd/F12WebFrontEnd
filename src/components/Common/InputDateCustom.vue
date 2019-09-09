@@ -13,12 +13,7 @@
     class="custom-error"
   >
     <template v-slot:append>
-      <q-icon
-        v-if="selectedValue"
-        name="cancel"
-        class="cursor-pointer"
-        @click.stop="clearValues"
-      />
+      <q-icon v-if="selectedValue" name="cancel" class="cursor-pointer" @click.stop="clearValues" />
       <q-icon name="event" class="cursor-pointer">
         <q-popup-proxy v-model="datePopupShowed">
           <q-date
@@ -37,7 +32,7 @@
 
 <script>
 import { date } from "quasar"
-import formValidation from "@mixins/formValidation"
+import formValidation from "mixins/formValidation"
 
 export default {
   mixins: [formValidation],

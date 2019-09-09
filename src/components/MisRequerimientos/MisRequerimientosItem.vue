@@ -1,80 +1,72 @@
 <template>
-  <q-item
-    :active="esImportante"
-    active-class="text-black"
-    class="cursor-pointer"
-  >
-    <q-item-section avatar>
-      <!-- <q-avatar icon="account_box" color text-color="grey" class="avatar--lg" /> -->
+  <tr class="items-center cursor-pointer text-unselectable">
+    <td class="mw-40 custom-padding">
       <q-badge color="grey">#{{ req.id }}</q-badge>
-    </q-item-section>
+    </td>
 
-    <q-item-section>
-      <!-- <q-item-label lines="1">{{ req.usuario.nombre }}</q-item-label> -->
-      <!-- <q-item-label caption>February 22nd, 2019</q-item-label> -->
+    <td class="text-weight-medium mw-150">
+      <span class="ellipsis-2-lines ws-normal">
+        {{ req.asunto }}
+      </span>
+    </td>
 
-      <q-item-label lines="2" class="q-mt-sm text-left text-center">
-        <span class="text-weight-medium">{{ req.usuario.nombre }}</span>
-      </q-item-label>
-      <q-item-label caption>{{ req.fecha_alta | formatearFecha }}</q-item-label>
-    </q-item-section>
+    <td class="gt-sm mw-150">
+      <span class="ellipsis-3-lines text-caption ws-normal">
+        {{ req.descripcion }}
+      </span>
+    </td>
 
-    <q-item-section class="col-2">
-      <q-item-label class="q-mt-sm text-left text-center">
-        <span class="text-weight-medium">{{ req.asunto }}</span>
-      </q-item-label>
-    </q-item-section>
+    <td class="text-center mw-75">
+      <q-badge :color="estadoColor" text-color="white" class="estado">
+        {{ req.estado.descripcion }}
+      </q-badge>
+      <tooltip>Estado: {{ req.estado.descripcion }}</tooltip>
+    </td>
 
-    <q-item-section>
-      <q-item-label caption lines="3">{{ req.descripcion }}</q-item-label>
-      <!-- <q-item-label
-        lines="1"
-        class="q-mt-xs text-body2 text-weight-bold text-primary text-uppercase"
-        style="margin-top: auto;"
-      >
-        <span class="cursor-pointer">VER DETALLE</span>
-      </q-item-label>-->
-    </q-item-section>
+    <td class="mw-100">
+      <div class="text-weight-medium ellipsis">
+        {{ req.usuario.nombre }}
+        <tooltip>Usuario alta: {{ req.usuario.nombre }}</tooltip>
+      </div>
+      <div class="text-caption ellipsis">
+        {{ req.fechaAltaShort }}
+      </div>
+    </td>
 
-    <q-item-section>
-      <q-item-label lines="1" class="text-center">
-        <span class="text-weight-medium">{{ req.estado.descripcion }}</span>
-        <!-- <span class="text-grey-8">- GitHub repository</span> -->
-      </q-item-label>
-    </q-item-section>
-
-    <q-item-section top class="col-2 q-my-xs">
-      <q-item-label class="q-mt-sm" lines="1">
+    <td class="mw-100 gt-xs">
+      <div class="ellipsis">
         <span class="text-weight-medium">Area:</span>
         {{ req.area.descripcion }}
-      </q-item-label>
-      <q-item-label lines="1">
-        <span class="text-weight-medium">Sistema:</span>
+        <tooltip>Area: {{ req.area.descripcion }}</tooltip>
+      </div>
+      <div class="ellipsis">
+        <span class="text-weight-medium">Sist.:</span>
         {{ req.sistema.descripcion }}
-      </q-item-label>
-      <q-item-label lines="1">
+        <tooltip>Sistema: {{ req.sistema.descripcion }}</tooltip>
+      </div>
+      <div class="ellipsis">
         <span class="text-weight-medium">Tipo:</span>
         {{ req.tipo.descripcion }}
-      </q-item-label>
-    </q-item-section>
+        <tooltip>Tipo: {{ req.tipo.descripcion }}</tooltip>
+      </div>
+    </td>
 
-    <q-item-section top side class="padding-none">
-      <div class="text-grey-8 q-gutter-xs">
+    <td class="gt-xs text-right">
+      <div class="text-grey-6">
         <q-btn
-          size="12px"
+          size="10px"
           flat
-          dense
           round
-          icon="more_vert"
+          icon="fas fa-edit"
           :to="{ query: { ver: 'editarRequerimiento', id: req.id } }"
         >
-          <q-tooltip>
+          <tooltip>
             Editar Requerimiento
-          </q-tooltip>
+          </tooltip>
         </q-btn>
       </div>
-    </q-item-section>
-  </q-item>
+    </td>
+  </tr>
 </template>
 <style scope>
 .avatar--lg {
@@ -88,27 +80,78 @@
 </style>
 
 <script>
-import { date } from "quasar"
+// import { date } from "quasar"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "MisRequerimientosItem",
-
-  filters: {
-    formatearFecha: function(value) {
-      return date.formatDate(value, "DD/MM/YYYY HH:mm")
-    },
+  components: {
+    Tooltip,
   },
-
+  // filters: {
+  //   formatearFecha: function(value) {
+  //     return date.formatDate(value, "DD/MM HH:mm")
+  //   },
+  // },
   props: {
     req: {
       type: Object,
       required: true,
+    },
+    itemClass: {
+      type: String,
+      default: "",
     },
   },
   computed: {
     esImportante() {
       return this.req.importante === "SI"
     },
+    estadoColor() {
+      switch (this.req.estado.id) {
+        case 1:
+          return "green-6" // "PEND"
+        case 2:
+          return "teal-6" // "APRV"
+        case 3:
+          return "cyan-6" // "NOAS"
+        case 4:
+          return "blue-6" // "ASSI"
+        case 5:
+          return "indigo-6" // "EXEC"
+        case 6:
+          return "deep-purple-6" // "RESC"
+        case 7:
+          return "red-6" // "REJC"
+        case 8:
+          return "purple-6" // "INGR"
+        case 9:
+          return "orange-6" // "STPR"
+        case 10:
+          return "blue-grey-6" // "TEST"
+        default:
+          return "grey-6" // "TEST"
+      }
+    },
   },
 }
 </script>
+<style lang="stylus" scoped>
+.text-caption
+  color: $grey-7
+.estado
+  white-space normal
+
+.custom-padding
+  padding-left 6px
+  @media (max-width $breakpoint-xl-max)
+    padding-left 38px
+  @media (max-width $breakpoint-lg-max)
+    padding-left 24px
+  @media (max-width $breakpoint-md-max)
+    padding-left 16px
+  @media (max-width $breakpoint-sm-max)
+    padding-left 12px
+  @media (max-width $breakpoint-xs-max)
+    padding-left 6px
+</style>

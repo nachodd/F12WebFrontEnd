@@ -1,10 +1,15 @@
-// import MisRequerimientosCrudModal from "@comp/MisRequerimientos/MisRequerimientosCrudModal"
+// import MisRequerimientosCrudModal from "comp/MisRequerimientos/MisRequerimientosCrudModal"
 
 const routes = [
   {
     path: "/login",
     name: "login",
     component: () => import("pages/Login.vue"),
+  },
+  {
+    path: "/login-horus",
+    name: "login-horus",
+    component: () => import("pages/LoginHorus.vue"),
   },
   {
     path: "/",
@@ -19,37 +24,18 @@ const routes = [
         name: "inicio",
         component: () => import("pages/Index.vue"),
         meta: {
-          title: "Inicio - F12",
+          pageTitle: "Inicio - F12",
+          headerTitle: "Inicio",
           // roles: ["menu_sistemas"],
         },
       },
-
-      /* {
-        path: "/nuevo-requerimiento",
-        name: "nuevo-requerimiento",
-        components: {
-          modal: MisRequerimientosCrudModal,
-        },
-        meta: {
-          title: "Nuevo Requerimiento - F12",
-        },
-      },
-      {
-        path: "/editar-requerimiento/:id",
-        name: "editar-requerimiento",
-        components: {
-          modal: MisRequerimientosCrudModal,
-        },
-        meta: {
-          title: "Editar Requerimiento - F12",
-        },
-      }, */
       {
         path: "/mis-requerimientos",
         name: "mis-requerimientos",
         component: () => import("pages/MisRequerimientos.vue"),
         meta: {
-          title: "Mis Requerimientos - F12",
+          pageTitle: "Mis Requerimientos - F12",
+          headerTitle: "Mis Requerimientos",
         },
       },
       {
@@ -57,7 +43,8 @@ const routes = [
         name: "priorizar-requerimientos",
         component: () => import("pages/PriorizarRequerimientos.vue"),
         meta: {
-          title: "Priorizar Requerimientos - F12",
+          pageTitle: "Priorizar Requerimientos - F12",
+          headerTitle: "Priorizar Requerimientos",
         },
       },
       {
@@ -65,7 +52,8 @@ const routes = [
         name: "asignar-requerimientos",
         component: () => import("pages/AsignarRequerimientos.vue"),
         meta: {
-          title: "Asignar Requerimientos - F12",
+          pageTitle: "Asignar Requerimientos - F12",
+          headerTitle: "Asignar Requerimientos",
           checkHasResponsabilities: true,
         },
       },
@@ -74,7 +62,8 @@ const routes = [
         name: "requerimientos-asignados",
         component: () => import("pages/RequerimientosAsignados.vue"),
         meta: {
-          title: "Requerimientos Asignados - F12",
+          pageTitle: "Requerimientos Asignados - F12",
+          headerTitle: "Requerimientos Asignados",
         },
       },
     ],

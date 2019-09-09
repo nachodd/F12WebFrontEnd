@@ -1,25 +1,22 @@
 <template>
   <div
-    class="row rounded-borders shadow-4 items-stretch widget widget--size widget--center"
+    class="row rounded-borders-12 shadow-4 items-stretch widget widget--size widget--center text-unselectable"
     :class="{ 'shadow-4': !hover, 'shadow-9': hover }"
     @mouseover="hover = true"
     @mouseleave="hover = false"
   >
     <div
-      class="col-sm-5 col-xs-5 row items-center rounded-borders q-pa-sm"
+      class="col-sm-5 col-xs-5 row items-center rounded-borders-12-left q-pa-sm"
       :class="[iconBackgroundClass]"
       :style="backGradientColor"
     >
       <div class="text-center col" :class="[iconTextClass]">
-        <q-icon
-          :name="loading ? 'fas fa-spinner fa-spin' : icon"
-          size="3.7rem"
-        />
+        <q-icon :name="loading ? 'fas fa-spinner fa-spin' : icon" size="3.7rem" />
       </div>
     </div>
 
     <div
-      class="col-sm-7 col-xs-7 row items-center rounded-borders q-pa-sm"
+      class="col-sm-7 col-xs-7 row items-center rounded-borders-12-right q-pa-sm"
       :class="[infoBackgroundClass]"
     >
       <div class="text-center col" :class="[infoTextClass]">
@@ -27,15 +24,15 @@
           <div class="text-h6">Cargando...</div>
         </template>
         <template v-else>
-          <div class="text-h3">{{ value }}</div>
-          <div class="text-subtitle">{{ description }}</div>
+          <div class="text-h3">{{ Number(value) }}</div>
+          <div class="text-subtitle text-bold">{{ description }}</div>
         </template>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { pSBC, changeHue } from "@utils/colorHelper"
+import { pSBC, changeHue } from "utils/colorHelper"
 export default {
   props: {
     loading: {
@@ -48,7 +45,7 @@ export default {
     },
     value: {
       type: [String, Number],
-      required: true,
+      default: 0,
     },
     description: {
       type: String,
@@ -117,5 +114,13 @@ export default {
 }
 .widget {
   transition: box-shadow 0.4s;
+}
+.rounded-borders-12-left {
+  border-top-left-radius: 12px !important;
+  border-bottom-left-radius: 12px !important;
+}
+.rounded-borders-12-right {
+  border-top-right-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
 }
 </style>

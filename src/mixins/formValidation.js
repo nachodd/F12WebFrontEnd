@@ -4,15 +4,15 @@ export default {
   methods: {
     notEmpty: val => {
       const msg =
-        event && event.target && event.target.id
-          ? `El campo '${event.target.id}' es requeido`
+        event && event.target && event.target.name
+          ? `El campo '${event.target.name}' es requerido`
           : "El campo es requerido"
       return !!val || msg
     },
     numberPositive: val => {
       const msg =
-        event && event.target && event.target.id
-          ? `'${event.target.id}' debe ser un entero positivo`
+        event && event.target && event.target.name
+          ? `'${event.target.name}' debe ser un entero positivo`
           : "Debe ser un entero positivo"
       return /^[1-9]\d*$/.test(val) || msg
     },

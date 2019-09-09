@@ -1,100 +1,144 @@
 <template>
-  <q-page padding>
-    <page-header title="Mis Requerimientos" no-margin />
-    <mis-requerimientos-menu-filtros
-      v-bind.sync="filtros"
-      @buscar="getListRequerimientos"
-    />
-    <mis-requerimientos-listado
-      :requerimientos="misRequerimientos"
-      :loading="loadingRequerimiento"
-    />
-    <div class="q-pa-lg flex flex-center">
+  <q-page padding class="q-pt-lg">
+    <mis-requerimientos-filtros ref="filtros" @buscar="getListRequerimientos" />
+    <mis-requerimientos-listado :requerimientos="misRequerimientos" />
+    <div v-if="searchMeta.total > 10" class="q-pa-lg flex flex-center">
+      <!-- v-model="current" -->
       <q-pagination
-        v-model="current"
+        :value="current"
         color="deep-purple-10"
-        :max="lastPage"
+        :max="searchMeta.last_page"
         :max-pages="8"
         :boundary-numbers="true"
+        :direction-links="true"
+        @input="changePage"
       ></q-pagination>
+    </div>
+    <div v-if="noResults" class="q-pa-lg text-body2">
+      <div class="row justify-center">
+        <img src="~assets/empty_box.svg" style="width:40vw;max-width:250px;" />
+      </div>
+      <div class="row justify-center">
+        No hay requerimientos para mostrar
+      </div>
+      <div v-if="hayFiltros" class="row justify-center">
+        <!-- eslint-disable-next-line -->
+        Pruebe&nbsp;<a href="javascript:void(0);" class="text-purple-9" @click="$refs.filtros.limpiarFiltros()">borrando los filtros</a>
+      </div>
     </div>
     <dialog-detalle-requerimiento />
   </q-page>
 </template>
 <script>
 import { mapState } from "vuex"
-import { warn } from "@utils/helpers"
-import PageHeader from "@comp/Common/PageHeader"
-import MisRequerimientosListado from "@comp/MisRequerimientos/MisRequerimientosListado"
-import MisRequerimientosMenuFiltros from "@comp/MisRequerimientos/MisRequerimientosMenuFiltros"
-import DialogDetalleRequerimiento from "@comp/Common/DialogDetalleRequerimiento"
-import Bus from "@utils/bus"
+import { warn, info } from "utils/helpers"
+import MisRequerimientosListado from "comp/MisRequerimientos/MisRequerimientosListado"
+import MisRequerimientosFiltros from "comp/MisRequerimientos/MisRequerimientosFiltros"
+import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
+import Bus from "utils/bus"
 
 export default {
   components: {
-    PageHeader,
     MisRequerimientosListado,
     DialogDetalleRequerimiento,
-    MisRequerimientosMenuFiltros,
+    MisRequerimientosFiltros,
   },
   data() {
     return {
       current: 1,
-      page: 1,
-      perPage: 10,
-      lastPage: 0,
-      filtros: {
-        sistemaId: null,
-        requerimientoTipo: null,
+      // page: 1,
+      // perPage: 10,
+      // lastPage: 0,
+      filtroLastValues: {
         descripcion: null,
-        // seccionId:null
+        reqId: null,
+        estados: null,
+        sistema: null,
+        tipo: null,
+        usuarioAlta: null,
+        area: null,
+        fechaDesde: null,
+        fechaHasta: null,
       },
-      crudModalOpen: false,
     }
   },
   computed: {
     ...mapState("requerimientos", {
-      loadingRequerimiento: state => state.loadingRequerimiento,
+      // loadingRequerimiento: state => state.loadingRequerimiento,
       misRequerimientos: state => state.misRequerimientos,
+      misRequerimientosHuboCambio: state => state.misRequerimientosHuboCambio,
+      searchMeta: state => state.misRequerimientosSearchMeta,
     }),
+    hayFiltros() {
+      const f = this.filtroLastValues
+      return _.some([f.descripcion, f.reqId, f.estados, f.sistema, f.tipo, f.usuarioAlta])
+    },
+    noResults() {
+      return !this.searchMeta.total || this.searchMeta.total === 0
+    },
   },
   watch: {
-    current() {
-      this.getListRequerimientos()
-    },
-    "$route.meta"({ showCrudModal = false }) {
-      this.crudModalOpen = showCrudModal
+    // current() {
+    //   this.getListRequerimientos()
+    // },
+    misRequerimientosHuboCambio(huboCambios) {
+      if (huboCambios) {
+        info({ message: "Hubo requerimientos actualizados" })
+        this.$store.dispatch("requerimientos/setMisRequerimientosHuboCambios", false)
+      }
     },
   },
   async mounted() {
-    this.getListRequerimientos()
-    await this.$store.dispatch("requerimientos/createRequerimiento")
-    Bus.$on("load-list-requerimientos", this.getListRequerimientos)
+    // this.getListRequerimientos() // Se paso al componente filtro
+    Bus.$on("load-mis-requerimientos", await this.getListRequerimientos)
   },
   unmounted() {
-    Bus.$off("load-list-requerimientos", this.getListRequerimientos)
+    Bus.$off("load-mis-requerimientos", this.getListRequerimientos)
   },
   methods: {
-    async getListRequerimientos() {
+    changePage(newPage) {
+      this.current = newPage
+      this.getListRequerimientos()
+    },
+    async getListRequerimientos(filtrosValues) {
       try {
-        const filtros = {
-          seccion_id: null,
-          sistema_id: _.get(this, "filtros.sistemaId.id", null),
-          requerimiento_tipo: _.get(this, "filtros.requerimientoTipo.id", null),
-          requerimiento_estado: null,
-          fecha_desde: null,
-          fecha_hasta: null,
-          descripcion: this.filtros.descripcion,
-          page: this.current,
-          perPage: 10,
-        }
-        const res = await this.$store.dispatch(
-          "requerimientos/listRequerimientos",
-          { filtros },
-        )
+        // Si el filtro fue enviado como parametro, lo guardo localmente.
+        // Cuando se llama al paginador, no tengo el valor del filtro. Por eso lo guardo previamente
+        if (filtrosValues) {
+          this.filtroLastValues.descripcion = filtrosValues.descripcion
+          this.filtroLastValues.reqId = filtrosValues.reqId
+          this.filtroLastValues.estados = filtrosValues.estados
+          this.filtroLastValues.sistema = filtrosValues.sistema
+          this.filtroLastValues.tipo = filtrosValues.tipo
+          this.filtroLastValues.usuarioAlta = filtrosValues.usuarioAlta
+          this.filtroLastValues.area = filtrosValues.area
+          this.filtroLastValues.fechaDesde = filtrosValues.fechaDesde
+          this.filtroLastValues.fechaHasta = filtrosValues.fechaHasta
 
-        this.lastPage = res.last_page
-        // this.current = a.current_page
+          this.current = 1
+        }
+
+        const reqEstados =
+          (this.filtroLastValues.estados &&
+            this.filtroLastValues.estados.length > 0 &&
+            this.filtroLastValues.estados.map(e => e.value)) ||
+          null
+
+        await this.$store.dispatch("requerimientos/listRequerimientos", {
+          filtros: {
+            seccion_id: _.get(this, "filtroLastValues.area.id", null),
+            sistema_id: _.get(this, "filtroLastValues.sistema.id", null),
+            requerimiento_tipo: _.get(this, "filtroLastValues.tipo.id", null),
+            requerimiento_id: _.get(this, "filtroLastValues.reqId", null),
+            requerimiento_estado: reqEstados,
+            fecha_desde: _.get(this, "filtroLastValues.fechaDesde", null), // DD/MM/YYYY
+            fecha_hasta: _.get(this, "filtroLastValues.fechaHasta", null), // DD/MM/YYYY
+            descripcion: this.filtroLastValues.descripcion,
+            page: this.current,
+            perPage: 10,
+            requerimiento_usuario_alta_id: _.get(this, "filtroLastValues.usuarioAlta.id", null),
+          },
+        })
       } catch (e) {
         const message =
           e.message ||

@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh Lpr lFf" @scroll="handleScroll">
+  <q-layout view="hHh Lpr lFf" class="bg-page" @scroll="handleScroll">
     <f12-header :mini="mini" />
 
     <f12-sidebar />
@@ -11,13 +11,16 @@
     </q-page-container>
 
     <fab-crud-modal />
+
+    <image-overlay />
   </q-layout>
 </template>
 
 <script>
-import F12Header from "@comp/Header"
-import F12Sidebar from "@comp/Sidebar"
-import FabCrudModal from "@comp/Requerimientos/FabCrudModal"
+import F12Header from "comp/Header/Index"
+import F12Sidebar from "comp/Sidebar/Index"
+import FabCrudModal from "comp/Requerimientos/FabCrudModal"
+import ImageOverlay from "comp/Common/ImageOverlay"
 
 export default {
   name: "F12Layout",
@@ -25,6 +28,7 @@ export default {
     F12Header,
     F12Sidebar,
     FabCrudModal,
+    ImageOverlay,
   },
   data() {
     return {

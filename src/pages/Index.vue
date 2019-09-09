@@ -1,14 +1,15 @@
 <template>
-  <q-page padding>
-    <page-header title="Inicio" />
-
+  <q-page padding class="q-pt-lg">
     <div class="row justify-around q-col-gutter-md">
-      <div class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
+      <!-- <q-btn @click="refresh">
+        test
+      </q-btn> -->
+      <div v-if="!esElUltimoDeLaCadenaDeMando" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'priorizar-requerimientos' }" class="no-dec">
           <widget-simple
             icon="fas fa-sort-amount-down"
             :value="dashboard.pendientes_priorizacion"
-            description="Reqs. a PRIORIZAR"
+            description="PRIORIZAR"
             icon-background-color="#3949ab"
             icon-background-gradient
             info-text-class="text-indigo-7"
@@ -17,12 +18,12 @@
         </router-link>
       </div>
 
-      <div v-if="userEsResponsable" class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
+      <div v-if="userEsResponsable" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'asignar-requerimientos' }" class="no-dec">
           <widget-simple
             icon="far fa-hand-pointer "
             :value="dashboard.pendientes_asignacion"
-            description="Reqs. PEND. de ASIG."
+            description="PEND. ASIGNACION"
             icon-background-color="#c62828"
             icon-background-gradient
             info-text-class="text-red-9"
@@ -31,15 +32,12 @@
         </router-link>
       </div>
 
-      <div
-        v-if="puedeVerRequerimientosAsignados"
-        class="col-md-4 col-sm-4 col-xs-12 q-mb-lg"
-      >
+      <div v-if="puedeVerRequerimientosAsignados" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
           <widget-simple
             icon="fas fa-bell"
-            :value="dashboard.asignados_ejecucion"
-            description="Reqs. ASIGNADOS"
+            :value="dashboardAsignadosYEjecutando"
+            description="ASIGNADOS"
             icon-background-color="#2e7d32"
             icon-background-gradient
             info-text-class="text-green-9"
@@ -47,31 +45,50 @@
           />
         </router-link>
       </div>
+
+      <div v-if="puedeVerRequerimientosAsignados" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
+        <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
+          <widget-simple
+            icon="fas fa-flask"
+            :value="dashboard.asignados_testing"
+            description="TESTING"
+            icon-background-color="#91981f"
+            icon-background-gradient
+            info-text-class="text-green-9"
+            :loading="loadingDashboard"
+          />
+        </router-link>
+      </div>
     </div>
+    <!-- <q-btn color="primary" icon="check" label="TEST" @click="onClick" /> -->
+    <!--
+      TODO: agregar widget con graficos aca
+      <div class="row justify-center q-mt-md">
+      <div v-if="userEsResponsable" class="col-md-6 col-sm-6 col-xs-12 q-mb-lg">
+        graficos
+      </div>
+    </div> -->
   </q-page>
 </template>
 
 <script>
-import PageHeader from "@comp/Common/PageHeader"
-import WidgetSimple from "@comp/Inicio/WidgetSimple"
+import WidgetSimple from "comp/Inicio/WidgetSimple"
 import { mapGetters, mapState } from "vuex"
 
 export default {
   name: "Index",
-  components: { PageHeader, WidgetSimple },
+  components: { WidgetSimple },
   data() {
-    return {
-      reqsAPriorizar: 0,
-      reqsPendAsignacion: 0,
-      reqsAsignados: 0,
-    }
+    return {}
   },
   computed: {
     ...mapGetters("auth", [
       "userEsResponsable",
       "puedeVerRequerimientosAsignados",
       "userId",
+      "esElUltimoDeLaCadenaDeMando",
     ]),
+    ...mapGetters("app", ["dashboardAsignadosYEjecutando"]),
     ...mapState("app", {
       dashboard: state => state.dashboard,
       loadingDashboard: state => state.loadingDashboard,
@@ -79,6 +96,15 @@ export default {
   },
   mounted() {
     this.$store.dispatch("app/getDashboardData", this.userId)
+  },
+  methods: {
+    onClick() {
+      // console.log("auth/getUserInfo called")
+      // this.$store.dispatch("auth/getUserInfo")
+    },
+    // async refresh() {
+    //   await this.$store.dispatch("auth/refresh")
+    // },
   },
 }
 </script>

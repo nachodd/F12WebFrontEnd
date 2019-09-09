@@ -23,15 +23,14 @@ export default {
       type: Object,
       required: true,
     },
-    unread: {
-      type: Boolean,
-      default: false,
-    },
   },
   computed: {
     icon() {
       switch (this.notif.type) {
         case "Asignar Requerimiento":
+          return "fas fa-mouse-pointer"
+
+        case "Asignar Requerimiento Externo":
           return "fas fa-mouse-pointer"
 
         case "Cambio Tipo Requerimiento":
@@ -52,16 +51,19 @@ export default {
         case "Requerimiento Rechazado":
           return "fas fa-ban"
 
+        case "Testear Requerimiento":
+          return "fas fa-flask"
+
         default:
           return "fas fa-dot-circle"
       }
     },
-    iconColor() {
-      return !this.unread ? "red-3" : "red-5"
-    },
     to() {
       switch (this.notif.type) {
         case "Asignar Requerimiento":
+          return "asignar-requerimientos"
+
+        case "Asignar Requerimiento Externo":
           return "asignar-requerimientos"
 
         case "Cambio Tipo Requerimiento":
@@ -81,6 +83,9 @@ export default {
 
         case "Requerimiento Rechazado":
           return "mis-requerimientos"
+
+        case "Testear Requerimiento":
+          return "requerimientos-asignados"
 
         default:
           return ""

@@ -1,6 +1,6 @@
-import request from "@utils/request"
+import request from "utils/request"
 // import { saveAs } from "file-saver"
-import { lastPartOfPath } from "@utils/helpers"
+import { lastPartOfPath } from "utils/helpers"
 
 export default ({ Vue }) => {
   Vue.directive("auth-href", {

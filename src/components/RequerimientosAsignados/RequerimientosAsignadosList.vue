@@ -11,24 +11,43 @@
     >
       <template v-if="listEmpty">
         <div class="text-h6 text-center">
-          No hay requerimientos para mostrar!
+          No hay requerimientos
+          <br />
+          para mostrar!
         </div>
       </template>
       <template v-else>
-        <Draggable
-          v-for="(req, index) in requerimientosList"
-          :key="`req_${req.id}`"
-        >
-          <priorizar-requerimientos-item
-            :req="req"
-            :index="index"
-            @click.native="
-              abrirDetalleRequerimiento({
-                reqId: req.id,
-                listName: listNameForDetalle,
-              })
-            "
-          />
+        <Draggable v-for="(req, index) in requerimientosList" :key="`req_${req.id}`">
+          <transition
+            appear
+            name="flip"
+            mode="out-in"
+            enter-active-class="animated slow flipInY"
+            leave-active-class="animated slow flipOutY"
+          >
+            <!-- <requerimientos-asignados-Item
+              :req="req"
+              :index="index"
+              @click.native="
+                abrirDetalleRequerimiento({
+                  reqId: req.id,
+                  listName: 'requerimientos-asignados',
+                })
+              "
+            /> -->
+
+            <requerimiento-card
+              :req="req"
+              :index="index"
+              card-type="asignado"
+              @click.native="
+                abrirDetalleRequerimiento({
+                  reqId: req.id,
+                  listName: 'requerimientos-asignados',
+                })
+              "
+            />
+          </transition>
         </Draggable>
       </template>
     </Container>
@@ -38,16 +57,15 @@
 <script>
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
-import { applyDrag } from "@utils/helpers"
-import PriorizarRequerimientosItem from "@comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
-import ListRequerimientos from "@comp/Common/ListRequerimientos"
-// import RequerimientosPriorizarList from "@models/RequerimientosPriorizarList"
+import { applyDrag, warn } from "utils/helpers"
+import RequerimientoCard from "comp/Common/RequerimientoCard"
+import ListRequerimientos from "comp/Common/ListRequerimientos"
 
 export default {
   name: "DraggableList",
   components: {
     ListRequerimientos,
-    PriorizarRequerimientosItem,
+    RequerimientoCard,
     Container,
     Draggable,
   },
@@ -87,11 +105,6 @@ export default {
     listEmpty() {
       return this.requerimientosList.length === 0
     },
-    listNameForDetalle() {
-      return this.listName === "source"
-        ? "reqs-pendientes-aprobacion"
-        : "reqs-aprobados-priorizados"
-    },
   },
   methods: {
     // map `this.abrirDetalleRequerimiento(...)` to `this.$store.dispatch("priorizarRequerimientos/abrirDetalleRequerimiento",...)`
@@ -103,22 +116,14 @@ export default {
     },
     onDrop(listName, dropResult) {
       const listResult = applyDrag(this.requerimientosList, dropResult)
-
       const updatedListData = { listName, listResult, dropResult }
 
-      this.$store.dispatch(
-        "priorizarRequerimientos/processUpdateList",
-        updatedListData,
-      )
-
-      // this.$emit("list-updated")
+      this.$store
+        .dispatch("requerimientosAsignados/processUpdateList", updatedListData)
+        .catch(({ message }) => {
+          warn({ message })
+        })
     },
-    // abrirDetalleRequerimiento(reqId) {
-    //   this.$store.dispatch(
-    //     "priorizarRequerimientos/abrirDetalleRequerimiento",
-    //     reqId,
-    //   )
-    // },
   },
 }
 </script>

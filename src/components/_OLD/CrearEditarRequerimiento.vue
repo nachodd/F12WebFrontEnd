@@ -11,13 +11,13 @@
 </template>
 <script>
 import { mapState } from "vuex"
-import pageLoading from "@mixins/pageLoading"
-import PageHeader from "@comp/Common/PageHeader"
-import RequerimientoForm from "@comp/Requerimientos/RequerimientosForm"
-import Requerimiento from "@models/Requerimiento"
-import { warn, success, warnDialog } from "@utils/helpers"
-import { getRequerimiento } from "@api/requerimientos"
-import router from "@router"
+import pageLoading from "mixins/pageLoading"
+import PageHeader from "comp/Common/PageHeader"
+import RequerimientoForm from "comp/Requerimientos/RequerimientosForm"
+import Requerimiento from "models/requerimiento"
+import { warn, success, warnDialog } from "utils/helpers"
+import { getRequerimiento } from "api/requerimientos"
+import router from "router"
 
 export default {
   components: { PageHeader, RequerimientoForm },
@@ -37,9 +37,7 @@ export default {
       if (this.isPageLoading || this.form.procesandoArchivosCargados) {
         return "Cargando, por favor espere..."
       } else {
-        return this.isEdit
-          ? `Editar Requerimiento #${this.form.id}`
-          : "Nuevo Requerimiento"
+        return this.isEdit ? `Editar Requerimiento #${this.form.id}` : "Nuevo Requerimiento"
       }
     },
   },
@@ -80,8 +78,7 @@ export default {
       }
     } catch (e) {
       const message =
-        e.message ||
-        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
+        e.message || "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
       warn({ message })
     }
   },

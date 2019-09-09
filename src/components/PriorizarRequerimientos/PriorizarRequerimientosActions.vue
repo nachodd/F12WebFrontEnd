@@ -8,14 +8,25 @@
       v-model="operation"
       filled
       :options="optionsPriorizar"
+      color="deep-purple-10"
       emit-value
       map-options
+      @input="operationChange"
     />
 
     <div class="q-mt-md">
       <!-- seleccion de prioridad y motivo para cuando aprueba o reordena-->
       <q-slide-transition>
         <div v-show="isApprovingOrReordering" class="q-mt-md">
+          <tooltip
+            anchor="top middle"
+            self="center middle"
+            :offset="[0, 100]"
+            content-class="bg-amber text-black text-body2 shadow-4 tooltip-fix"
+          >
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <div v-html="ordenTooltip"></div>
+          </tooltip>
           <div class="row">
             <div class="col">
               <div>Seleccione una Prioridad para este Requerimiento:</div>
@@ -28,7 +39,8 @@
                 :max="maximoSliderPrioridad"
                 label
                 label-always
-                color="accent"
+                color="deep-purple-10"
+                @input="updateOrdenTooltip"
               />
             </div>
           </div>
@@ -36,7 +48,7 @@
             <div class="col">
               <q-input
                 v-model="comment"
-                color="accent"
+                color="deep-purple-10"
                 outlined
                 autogrow
                 label="Si desea, puede agregar un comentario: "
@@ -54,7 +66,7 @@
             <q-input
               ref="commentDescartar"
               v-model="comment"
-              color="accent"
+              color="deep-purple-10"
               outlined
               autogrow
               label="Agregar un motivo:"
@@ -64,36 +76,53 @@
           </div>
         </div>
       </q-slide-transition>
+
+      <q-slide-transition>
+        <div v-show="operation === 'aProcesos'" class="row">
+          <div class="col">
+            <q-input
+              ref="commentDescartar"
+              v-model="comment"
+              color="deep-purple-10"
+              outlined
+              autogrow
+              label="Si desea, puede agregar un comentario: "
+              :hide-bottom-space="true"
+            />
+          </div>
+        </div>
+      </q-slide-transition>
     </div>
 
-    <div v-show="operation !== null" class="q-mt-md">
-      <q-btn
-        class="full-width"
-        label="Guardar"
-        color="deep-purple-10"
-        @click="saveChanges"
-      />
-    </div>
+    <!-- <div v-show="operation !== null" class="q-mt-md">
+      <q-btn class="full-width" label="Guardar" color="deep-purple-10" @click="saveChanges" />
+    </div> -->
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex"
-import formValidation from "@mixins/formValidation"
-import { warn, success } from "@utils/helpers"
+import { mapGetters, mapState } from "vuex"
+import formValidation from "mixins/formValidation"
+import { warn, success } from "utils/helpers"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "PriorizarRequerimientosActions",
+  components: {
+    Tooltip,
+  },
   mixins: [formValidation],
   data() {
     return {
       operation: null,
       approvedPriority: 1,
       comment: null,
+      ordenTooltip: "",
+      // tooltipShowed: false,
     }
   },
   computed: {
-    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando"]),
+    ...mapGetters("auth", ["esElUltimoDeLaCadenaDeMando", "esGerente"]),
     ...mapGetters("priorizarRequerimientos", [
       "cantidadRequerimientos",
       "reqsPendientesAprobacionLength",
@@ -101,7 +130,9 @@ export default {
       "esAutor",
       "requerimientosFiltered",
     ]),
-    ...mapGetters("requerimientos", ["detalleRequerimientoState"]),
+    ...mapState("requerimientos", {
+      req: state => state.detalleRequerimientoItem,
+    }),
     optionsPriorizar() {
       const opt = []
       opt.push({
@@ -122,14 +153,14 @@ export default {
         return opt
       }
 
-      if (this.statePending && !this.esElUltimoDeLaCadenaDeMando) {
+      if (this.req.tieneEstadoPriorizacion("PEND") && !this.esElUltimoDeLaCadenaDeMando) {
         opt.push({
           label: "Aprobar",
           value: "aprobar",
         })
       }
 
-      if (this.stateApproved) {
+      if (this.req.tieneEstadoPriorizacion("APRV")) {
         if (this.seleccionarPrioridadShown) {
           opt.push({
             label: "Seleccionar Prioridad",
@@ -147,28 +178,32 @@ export default {
         value: "descartar",
       })
 
+      if (this.esGerente) {
+        opt.push({
+          label: "Enviar a Procesos",
+          value: "aProcesos",
+        })
+      }
+
       return opt
     },
-    statePending() {
-      return this.detalleRequerimientoState === "PEND"
-    },
-    stateApproved() {
-      return this.detalleRequerimientoState === "APRV"
-    },
+    // statePending() {
+    //   return this.estadoPriorizacion === "PEND"
+    // },
+    // stateApproved() {
+    //   return this.estadoPriorizacion === "APRV"
+    // },
     isApprovingOrReordering() {
-      return (
-        this.operation === "aprobar" ||
-        this.operation === "seleccionarPrioridad"
-      )
+      return this.operation === "aprobar" || this.operation === "seleccionarPrioridad"
     },
     seleccionarPrioridadShown() {
       if (this.esElUltimoDeLaCadenaDeMando) {
         return (
-          this.statePending && this.requerimientosFiltered("PEND").length > 1
+          this.req.tieneEstadoPriorizacion("PEND") && this.requerimientosFiltered("PEND").length > 1
         )
       } else {
         return (
-          this.stateApproved && this.requerimientosFiltered("APRV").length > 1
+          this.req.tieneEstadoPriorizacion("APRV") && this.requerimientosFiltered("APRV").length > 1
         )
       }
     },
@@ -179,11 +214,103 @@ export default {
         : this.cantidadRequerimientos
     },
     showDescartarComment() {
-      const res = this.operation === "descartar" && !this.esAutor
-      return res
+      return this.operation === "descartar" && !this.esAutor
     },
   },
   methods: {
+    operationChange() {
+      if (this.operation !== null) {
+        this.$emit("showSaveRequerimientoAction", true)
+      } else {
+        this.$emit("showSaveRequerimientoAction", false)
+      }
+
+      if (this.operation === "aprobar" || this.operation === "seleccionarPrioridad") {
+        this.updateOrdenTooltip()
+      }
+    },
+    updateOrdenTooltip() {
+      const reqState = this.esElUltimoDeLaCadenaDeMando ? "PEND" : "APRV"
+
+      this.reqsPossibleNewOrder = [...this.requerimientosFiltered(reqState)]
+      let startIndex = 1
+      const realIndex = this.approvedPriority - 1
+      let currReq, pre3Req, pre2Req, pre1Req, pos1Req, pos2Req, pos3Req
+
+      // Dependiendo del tipo de operacion, inserto el nuevo
+      if (this.operation === "aprobar") {
+        // ubico el req a insertar en la posicion this.approvedPriority
+        const reqToInsert = this.req
+        this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
+      } else if (this.operation === "seleccionarPrioridad") {
+        // primero lo saco del array resultado
+        const currentIndex = _.findIndex(this.reqsPossibleNewOrder, {
+          id: this.req.id,
+        })
+        const reqToInsert = this.reqsPossibleNewOrder.splice(currentIndex, 1)[0]
+        // luego lo ubico en la posicion this.approvedPriority
+        this.reqsPossibleNewOrder.splice(realIndex, 0, reqToInsert)
+      }
+      pre3Req = this.reqsPossibleNewOrder[realIndex - 3]
+      pre2Req = this.reqsPossibleNewOrder[realIndex - 2]
+      pre1Req = this.reqsPossibleNewOrder[realIndex - 1]
+      currReq = this.reqsPossibleNewOrder[realIndex]
+      pos1Req = this.reqsPossibleNewOrder[realIndex + 1]
+      pos2Req = this.reqsPossibleNewOrder[realIndex + 2]
+      pos3Req = this.reqsPossibleNewOrder[realIndex + 3]
+
+      let pre3ReqFragment = "",
+        pre2ReqFragment = "",
+        pre1ReqFragment = "",
+        currReqFragment = "",
+        pos1ReqFragment = "",
+        pos2ReqFragment = "",
+        pos3ReqFragment = ""
+
+      if (pos3Req) {
+        startIndex = realIndex + 2
+        pos3ReqFragment = `<li>...</li>`
+      }
+      if (pos2Req) {
+        startIndex = realIndex + 1
+        pos2ReqFragment = `<li>${pos2Req.asunto}</li>`
+      }
+      if (pos1Req) {
+        startIndex = realIndex
+        pos1ReqFragment = `<li>${pos1Req.asunto}</li>`
+      }
+      if (currReq) {
+        startIndex = realIndex
+        currReqFragment = `<li><strong>${currReq.asunto}</strong></li>`
+      }
+      if (pre1Req) {
+        startIndex = realIndex - 1
+        pre1ReqFragment = `<li>${pre1Req.asunto}</li>`
+      }
+      if (pre2Req) {
+        startIndex = realIndex - 2
+        pre2ReqFragment = `<li>${pre2Req.asunto}</li>`
+      }
+      if (pre3Req) {
+        startIndex = realIndex - 3
+        pre3ReqFragment = `<li>...</li>`
+      }
+
+      this.ordenTooltip = `
+      <div class="row items-center tooltip-height-fix">
+        <div class="col">
+          <ol class="orden-tooltip" start="${startIndex + 1}">
+            ${pre3ReqFragment}
+            ${pre2ReqFragment}
+            ${pre1ReqFragment}
+            ${currReqFragment}
+            ${pos1ReqFragment}
+            ${pos2ReqFragment}
+            ${pos3ReqFragment}
+          </ol>
+        </div>
+      </div>`
+    },
     saveChanges() {
       // Valido, si esta descartando (operacion: descartar && NO es esAutor), debe completar el comentario
       if (
@@ -194,12 +321,11 @@ export default {
         return
       }
 
-      this.$store
+      return this.$store
         .dispatch("priorizarRequerimientos/processManualChanges", {
           operation: this.operation,
           priority: this.approvedPriority,
           comment: this.comment,
-          listName: this.statePending ? "source" : "target",
         })
         .then(message => {
           if (message) success({ message })
