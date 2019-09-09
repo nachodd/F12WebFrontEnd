@@ -12,14 +12,17 @@
       :rules="[notEmpty]"
       :hide-bottom-space="true"
       :value="asunto"
+      color="deep-purple-10"
       @input="$emit('update:asunto', $event)"
     />
 
     <select-custom
+      ref="sistema"
       v-model="__sistema"
       :options="sistemas"
       label="Sistema"
       outlined
+      color="deep-purple-10"
       :loading="sistemas.length === 0"
       :apply-validation="true"
     />
@@ -29,8 +32,10 @@
       :options="requerimientosTipos"
       label="Tipo de Requerimiento"
       outlined
+      color="deep-purple-10"
       :loading="requerimientosTipos.length === 0"
       :apply-validation="true"
+      :disable="tipoReqHabilitado === false"
       @input="handleTipoChange"
     />
 
@@ -41,6 +46,7 @@
       :rules="[notEmpty]"
       :hide-bottom-space="true"
       :value="descripcion"
+      color="deep-purple-10"
       @input="$emit('update:descripcion', $event)"
     />
 
@@ -50,8 +56,10 @@
       @filesRemoved="handleFilesRemoved"
     />
 
+    <!-- NOTE: momentaneamente, deshabilitado -->
     <!-- usuario cadena -->
-    <div v-if="esDeSistemasOProcesos">
+    <!--
+      <div v-if="esDeSistemasOProcesos">
       <q-list link>
         <q-item
           v-ripple
@@ -59,19 +67,16 @@
           class="list-item--narrow"
           :disable="llevaUsuarioCadenaDisabled"
         >
-          <q-tooltip
-            v-if="llevaUsuarioCadenaDisabled"
-            content-class="text-caption"
-          >
+          <tooltip v-if="llevaUsuarioCadenaDisabled">
             Solo aplicable cuando el Tipo de Requerimiento es "Desarrllos /
             Modificaciones / Implementaciones"
-          </q-tooltip>
+          </tooltip>
           <q-item-section avatar>
             <q-checkbox
               v-model="__llevaUsuarioCadena"
               :disable="llevaUsuarioCadenaDisabled"
               left-label
-              color="accent"
+              color="deep-purple-10"
             />
           </q-item-section>
           <q-item-section>
@@ -87,6 +92,7 @@
                 :options="gerentesOrderByArea"
                 label="Usuario Destino"
                 outlined
+                color="deep-purple-10"
                 :loading="requerimientosTipos.length === 0"
                 :apply-validation="true"
                 description-key="razon_social"
@@ -110,17 +116,14 @@
         </q-slide-transition>
       </q-list>
     </div>
+    -->
 
     <!-- fecha limite -->
     <div>
       <q-list link>
         <q-item v-ripple tag="label" class="list-item--narrow">
           <q-item-section avatar>
-            <q-checkbox
-              v-model="__llevaFechaLimite"
-              left-label
-              color="accent"
-            />
+            <q-checkbox v-model="__llevaFechaLimite" left-label color="deep-purple-10" />
           </q-item-section>
           <q-item-section>
             <q-item-label>¿Tiene Fecha Limite?</q-item-label>
@@ -146,6 +149,7 @@
                     v-model="__fechaLimite"
                     label="Fecha Límite"
                     past-disabled
+                    color="deep-purple-10"
                     :apply-validation="__llevaFechaLimite"
                   />
                 </div>
@@ -158,6 +162,7 @@
                     :rules="motivoLimiteRules"
                     :hide-bottom-space="true"
                     :value="motivoLimite"
+                    color="deep-purple-10"
                     @input="$emit('update:motivoLimite', $event)"
                   />
                 </div>
@@ -250,6 +255,10 @@ export default {
       type: Object,
       default: null,
     },
+    tipoReqHabilitado: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     __adjuntosCargadosUrl: {
@@ -303,8 +312,8 @@ export default {
           // this.fechaLimite = null
           this.__fechaLimite = null
           this.motivoLimite = ""
-          this.$refs.fechaLimite.resetValidation()
-          this.$refs.motivoLimite.resetValidation()
+          this.$refs.fechaLimite && this.$refs.fechaLimite.resetValidation()
+          this.$refs.motivoLimite && this.$refs.motivoLimite.resetValidation()
           // this.$emit("update:fechaLimite", this.fechaLimite)
           this.$emit("update:motivoLimite", this.motivoLimite)
         }
@@ -315,7 +324,7 @@ export default {
         return this.llevaUsuarioCadena
       },
       set(value) {
-        this.$refs.usuarioCadena.resetValidation()
+        this.$refs.usuarioCadena && this.$refs.usuarioCadena.resetValidation()
         this.$emit("update:llevaUsuarioCadena", value)
         if (!value) {
           this.__usuarioCadena = null
@@ -329,11 +338,14 @@ export default {
     ...mapState("requerimientos", {
       areas: state => state.options.areas,
       sistemas: state => state.options.sistemas,
-      requerimientosTipos: state => state.options.requerimientosTipos,
+      // requerimientosTipos: state => state.options.requerimientosTipos,
       loadingOptions: state => state.loadingOptions,
       loadingRequerimiento: state => state.loadingRequerimiento,
     }),
-    ...mapGetters("auth", ["esDeSistemasOProcesos", "gerentesOrderByArea"]),
+    ...mapGetters({
+      requerimientosTipos: "requerimientos/optionsReqTiposAlta",
+    }),
+    // ...mapGetters("auth", ["esDeSistemasOProcesos", "gerentesOrderByArea"]),
     submitText() {
       return this.id ? "Editar Requerimiento" : "Cargar Requerimiento"
     },
@@ -387,6 +399,9 @@ export default {
       warn({
         message: "El formulario contiene errores. Por favor, reviselo.",
       })
+    },
+    validate() {
+      return this.$refs.form.validate()
     },
     resetValidation() {
       this.$nextTick(() => {

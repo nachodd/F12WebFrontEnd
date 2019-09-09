@@ -11,10 +11,7 @@
       :style="backGradientColor"
     >
       <div class="text-center col" :class="[iconTextClass]">
-        <q-icon
-          :name="loading ? 'fas fa-spinner fa-spin' : icon"
-          size="3.7rem"
-        />
+        <q-icon :name="loading ? 'fas fa-spinner fa-spin' : icon" size="3.7rem" />
       </div>
     </div>
 
@@ -28,7 +25,7 @@
         </template>
         <template v-else>
           <div class="text-h3">{{ Number(value) }}</div>
-          <div class="text-subtitle">{{ description }}</div>
+          <div class="text-subtitle text-bold">{{ description }}</div>
         </template>
       </div>
     </div>

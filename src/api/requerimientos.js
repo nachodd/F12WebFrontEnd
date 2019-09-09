@@ -2,7 +2,7 @@ import request from "utils/request"
 
 export function createRequerimiento() {
   return request({
-    url: "/v1/f12/requerimientos/create",
+    url: "v1/f12/requerimientos/create",
     method: "get",
   })
 }
@@ -10,7 +10,7 @@ export function createRequerimiento() {
 export function storeRequerimiento(data) {
   // const __handleErrorsInResponse = false
   return request({
-    url: "/v1/f12/requerimientos",
+    url: "v1/f12/requerimientos",
     method: "post",
     data,
     // __handleErrorsInResponse,
@@ -19,30 +19,44 @@ export function storeRequerimiento(data) {
 
 export function updateRequerimiento(data, requerimientoId) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}`,
+    url: `v1/f12/requerimientos/${requerimientoId}`,
     method: "put",
     data,
   })
 }
 
 export function listRequerimientos(userId, filtros) {
+  let query = { ...filtros }
+  query.requerimiento_estado = query.requerimiento_estado
+    ? JSON.stringify(query.requerimiento_estado)
+    : null
   return request({
-    url: `/v1/f12/${userId}/requerimientos`,
+    url: `v1/f12/${userId}/requerimientos`,
     method: "get",
-    params: filtros,
+    params: query,
   })
 }
 
-export function getRequerimiento(requerimientoId) {
-  return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}`,
-    method: "get",
-  })
+export async function getRequerimiento(requerimientoId) {
+  // return
+  try {
+    const res = await request({
+      url: `v1/f12/requerimientos/${requerimientoId}`,
+      method: "get",
+    })
+    if (res && res.data && res.data.data) {
+      return res.data.data
+    } else {
+      throw `Error al obtener el detalle del Requerimiento #${requerimientoId}`
+    }
+  } catch (e) {
+    throw e
+  }
 }
 
 export function refuseRequerimiento(requerimientoId, data) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}/rechazo`,
+    url: `v1/f12/requerimientos/${requerimientoId}/rechazo`,
     method: "put",
     data,
   })
@@ -50,23 +64,41 @@ export function refuseRequerimiento(requerimientoId, data) {
 
 export function deleteRequerimiento(requerimientoId) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}`,
+    url: `v1/f12/requerimientos/${requerimientoId}`,
     method: "DELETE",
   })
 }
 
 export function getRequerimientosByUserAndEstado(userId, estadoId) {
   return request({
-    url: `/v1/f12/${userId}/requerimientos/estados/${estadoId}`,
+    url: `v1/f12/${userId}/requerimientos/estados/${estadoId}`,
     method: "get",
   })
 }
 
 export function updateRequerimientosEstados(userId, data) {
   return request({
-    url: `/v1/f12/${userId}/requerimientos/proceso`,
+    url: `v1/f12/${userId}/requerimientos/proceso`,
     method: "put",
     data,
+  })
+}
+
+export function getRequerimientosForPanelPriorizacion(userId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/${userId}/requerimientos/priorizacion`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener la Requerimientos Pendientes de Priorizacion")
+      }
+    } catch (e) {
+      reject(e)
+    }
   })
 }
 
@@ -108,14 +140,14 @@ export function getRequerimientosAsignadosByUser(userId) {
 
 export function ejecutarRequerimiento($requerimientoId) {
   return request({
-    url: `/v1/f12/requerimientos/${$requerimientoId}/ejecucion`,
+    url: `v1/f12/requerimientos/${$requerimientoId}/ejecucion`,
     method: "put",
   })
 }
 
 export function cancelaEjecucionRequerimiento(requerimientoId, data) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}/cancelaejecucion`,
+    url: `v1/f12/requerimientos/${requerimientoId}/cancelaejecucion`,
     method: "put",
     data,
   })
@@ -123,7 +155,15 @@ export function cancelaEjecucionRequerimiento(requerimientoId, data) {
 
 export function finalizarRequerimiento(requerimientoId, data) {
   return request({
-    url: `/v1/f12/requerimientos/${requerimientoId}/finalizacion`,
+    url: `v1/f12/requerimientos/${requerimientoId}/finalizacion`,
+    method: "put",
+    data,
+  })
+}
+
+export function preaprobarRequerimiento(requerimientoId, data) {
+  return request({
+    url: `v1/f12/requerimientos/${requerimientoId}/preaprobacion`,
     method: "put",
     data,
   })

@@ -10,15 +10,13 @@
         <q-btn dense flat icon="fas fa-exclamation-triangle" />
         <q-space />
         <q-btn dense flat icon="close" @click="cancelOperation">
-          <q-tooltip content-class="bg-white text-primary">Cancelar</q-tooltip>
+          <tooltip content-class="bg-white text-primary">Cancelar</tooltip>
         </q-btn>
       </q-bar>
       <q-card-section>
         <span class="text-h6">
           Confirmación -
-          <q-chip dense color="accent-light" text-color="white">
-            Req #{{ detalleRequerimientoId }}
-          </q-chip>
+          <q-chip dense color="accent-light" text-color="white">Req #{{ reqId }}</q-chip>
         </span>
       </q-card-section>
       <q-card-section>
@@ -33,11 +31,7 @@
       </q-card-section>
       <q-card-actions align="right">
         <q-btn label="CANCELAR" flat color="red-7" @click="cancelOperation" />
-        <q-btn
-          label="CONFIRMAR"
-          color="deep-purple-10"
-          @click="confirmOperation"
-        />
+        <q-btn label="CONFIRMAR" color="deep-purple-10" @click="confirmOperation" />
       </q-card-actions>
     </q-card>
   </q-dialog>
@@ -46,69 +40,47 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import RequerimientosAsignadosActions from "comp/RequerimientosAsignados/RequerimientosAsignadosActions"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "RequerimientosAsignadosDialogConfirmOperation",
   components: {
     RequerimientosAsignadosActions,
+    Tooltip,
   },
-  // data() {
-  //   return {
-  //     comment: "",
-  //   }
-  // },
   computed: {
     ...mapState("requerimientosAsignados", {
       dialogConfirmOpenState: state => state.dialogConfirmOpen,
     }),
     ...mapGetters("requerimientosAsignados", ["operationType"]),
-    ...mapGetters("requerimientos", ["detalleRequerimientoId"]),
-
+    // ...mapGetters("requerimientos", ["detalleRequerimientoId"]),
+    ...mapState("requerimientos", {
+      req: state => state.detalleRequerimientoItem,
+    }),
+    reqId() {
+      return this.req && this.req.id ? this.req.id : ""
+    },
     dialogConfirmOpen: {
       get() {
         return this.dialogConfirmOpenState
       },
       set(value) {
-        this.$store.dispatch(
-          "requerimientosAsignados/setDialogConfirmOperationOpen",
-          value,
-        )
+        this.$store.dispatch("requerimientosAsignados/setDialogConfirmOperationOpen", value)
       },
     },
   },
   methods: {
     cancelOperation() {
-      this.$store.dispatch("requerimientosAsignados/clearOperations")
       this.dialogConfirmOpen = false
     },
     confirmOperation() {
       // se llama al save del children (del componente RequerimientosAsignadosActions)
-      this.$refs.actions.saveChanges()
-      /* const comment = this.operationReject ? this.comment : null
-
-      this.$store
-        .dispatch("requerimientosAsignados/confirmOperation", comment)
+      this.$refs.actions
+        .saveChanges()
         .then(() => {
           this.dialogConfirmOpen = false
-          this.comment = ""
         })
-        .then(() => {
-          //
-          let message = `Requerimiento #${
-            this.detalleRequerimientoId
-          } en EJECUCIÓN.`
-
-          if (this.operationReject) {
-            message = `Requerimiento #${
-              this.detalleRequerimientoId
-            } volvió a PENDIENTE.`
-          }
-
-          success({ message })
-        })
-        .catch(e => {
-          warn({ message: e.message })
-        }) */
+        .catch(() => {})
     },
   },
 }

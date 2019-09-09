@@ -17,20 +17,37 @@
         </div>
       </template>
       <template v-else>
-        <Draggable
-          v-for="(req, index) in requerimientosList"
-          :key="`req_${req.id}`"
-        >
-          <requerimientos-asignados-Item
-            :req="req"
-            :index="index"
-            @click.native="
-              abrirDetalleRequerimiento({
-                reqId: req.id,
-                listName: 'requerimientos-asignados',
-              })
-            "
-          />
+        <Draggable v-for="(req, index) in requerimientosList" :key="`req_${req.id}`">
+          <transition
+            appear
+            name="flip"
+            mode="out-in"
+            enter-active-class="animated slow flipInY"
+            leave-active-class="animated slow flipOutY"
+          >
+            <!-- <requerimientos-asignados-Item
+              :req="req"
+              :index="index"
+              @click.native="
+                abrirDetalleRequerimiento({
+                  reqId: req.id,
+                  listName: 'requerimientos-asignados',
+                })
+              "
+            /> -->
+
+            <requerimiento-card
+              :req="req"
+              :index="index"
+              card-type="asignado"
+              @click.native="
+                abrirDetalleRequerimiento({
+                  reqId: req.id,
+                  listName: 'requerimientos-asignados',
+                })
+              "
+            />
+          </transition>
         </Draggable>
       </template>
     </Container>
@@ -41,14 +58,14 @@
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag, warn } from "utils/helpers"
-import RequerimientosAsignadosItem from "comp/RequerimientosAsignados/RequerimientosAsignadosItem"
+import RequerimientoCard from "comp/Common/RequerimientoCard"
 import ListRequerimientos from "comp/Common/ListRequerimientos"
 
 export default {
   name: "DraggableList",
   components: {
     ListRequerimientos,
-    RequerimientosAsignadosItem,
+    RequerimientoCard,
     Container,
     Draggable,
   },

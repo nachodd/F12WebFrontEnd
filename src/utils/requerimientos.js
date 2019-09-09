@@ -1,14 +1,15 @@
 export function filterByAsuntoAndDescripcion(descripcion) {
   return reqs => {
-    const searchString = descripcion.toLowerCase()
+    const searchString = descripcion.toLowerCase().trim()
     return reqs.filter(req => {
       const usuarioAsig = _.get(req, "estado.asignacion.usuario_nombre", "")
-      const usuarioCreador = _.get(req, "usuario.nombre", "")
+      const usuarioAlta = _.get(req, "usuario.nombre", "")
       return (
         req.asunto.toLowerCase().includes(searchString) ||
         req.descripcion.toLowerCase().includes(searchString) ||
         usuarioAsig.toLowerCase().includes(searchString) ||
-        usuarioCreador.toLowerCase().includes(searchString)
+        usuarioAlta.toLowerCase().includes(searchString) ||
+        String(req.id) === searchString
       )
     })
   }
@@ -25,6 +26,14 @@ export function filterByTipoRequerimiento(tipoRequerimientoId) {
   return reqs => {
     return reqs.filter(req => {
       return req.tipo.id == tipoRequerimientoId
+    })
+  }
+}
+
+export function filterByUsuarioAltaId(usuarioAltaId) {
+  return reqs => {
+    return reqs.filter(req => {
+      return req.usuario.id == usuarioAltaId
     })
   }
 }

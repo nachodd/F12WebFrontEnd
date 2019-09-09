@@ -2,9 +2,7 @@
   <q-layout view="lHh Lpr lFf" class="flex flex-center items-center bg-page">
     <q-page-container class="row">
       <q-card class="col-12 card shadow-5 rounded-borders-8">
-        <q-card-section
-          class="card__header card-header-offset rounded-borders-8"
-        >
+        <q-card-section class="card__header card-header-offset rounded-borders-8">
           <div class="text-h3 text-center">
             <span class="text-h2 f">F</span>
             <span class="text-h2 twelve">12</span>
@@ -14,8 +12,8 @@
         <q-card-section class="card__body">
           <q-form @submit="login">
             <q-input
-              id="usuario"
               v-model.trim="usuario"
+              name="usuario"
               class="q-mb-sm"
               standout
               type="text"
@@ -28,8 +26,8 @@
               </template>
             </q-input>
             <q-input
-              id="password"
               v-model="password"
+              name="password"
               class="q-mb-sm"
               standout
               type="password"
@@ -95,8 +93,7 @@ export default {
       } catch (e) {
         this.$q.notify({
           color: "negative",
-          message:
-            (e && e.message) || "Hubo un problema al procesar su petición",
+          message: (e && e.message) || "Hubo un problema al procesar su petición",
           icon: "warning",
           position: "top-right",
         })

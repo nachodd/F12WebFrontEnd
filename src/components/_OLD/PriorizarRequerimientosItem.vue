@@ -1,7 +1,5 @@
 <template>
-  <q-item
-    class="q-ma-sm shadow-2 rounded-borders-8 bg-white cursor-pointer card-row"
-  >
+  <q-item class="q-ma-sm shadow-2 rounded-borders-8 bg-white cursor-pointer card-row">
     <div class="row">
       <div class="col-12">
         <q-item-label lines="1">
@@ -14,10 +12,7 @@
     </div>
 
     <div class="row justify-around">
-      <div
-        class="text-left"
-        :class="{ 'col-6': !esArregloRapido, 'col-12': esArregloRapido }"
-      >
+      <div class="text-left" :class="{ 'col-6': !esArregloRapido, 'col-12': esArregloRapido }">
         <q-badge
           :class="{
             'nro-req--default': !esArregloRapido,

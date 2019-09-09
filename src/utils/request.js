@@ -1,9 +1,9 @@
+/* eslint-disable no-unreachable */
 /* eslint-disable require-atomic-updates */
 import axios from "axios"
 import store from "store"
 import router from "router"
 import { warn, warnDialogParse } from "utils/helpers"
-
 // import jwt_decode from "jwt-decode"
 
 // create an axios instance
@@ -42,8 +42,15 @@ service.interceptors.request.use(
         request.headers["Authorization"] = `Bearer ${token}`
       }
     } else {
-      // TODO: Ver si se puede refrscar el token async
-      request.headers["Authorization"] = "Bearer " + (await getAuthToken())
+      // const token = store.getters["auth/token"]
+      // request.headers["Authorization"] = "Bearer " + token
+      try {
+        // console.log("request.url", request.url)
+        const token = await getAuthToken()
+        request.headers["Authorization"] = `Bearer ${token}`
+      } catch (e) {
+        throw new axios.Cancel(e || "No pudo refrescar el token :(")
+      }
     }
     // request.headers.common["Content-Type"] = "application/json"
     // request.headers.common["Accept"] = "application/json"
@@ -71,18 +78,17 @@ service.interceptors.response.use(
     const errorData = _.get(error, "response.data", undefined) // (error && error.response && error.response.data) || undefined
 
     // Check if it was 'Unprocessable Entity' error and if it has to handle it here:
-    const handleErrorsHere = _.get(
-      error,
-      "config.__handleErrorsInResponse",
-      undefined,
-    )
+    const handleErrorsHere = _.get(error, "config.__handleErrorsInResponse", undefined)
     // (error && error.config && error.config.__handleErrorsInResponse) || false
-    const errorsArray = _.get(error, "response.data.data.errors", undefined)
+    let errorsArray = _.get(error, "response.data.errors", undefined)
+    if (!errorsArray) {
+      errorsArray = _.get(error, "response.data.data.errors", undefined)
+    }
 
     if (status === 422 && handleErrorsHere && errorsArray) {
       warnDialogParse(errorsArray)
       return Promise.reject({
-        message,
+        message: null,
         status,
         data: errorData,
       })
@@ -102,14 +108,10 @@ service.interceptors.response.use(
     // If you can't refresh your token or you are sent Unauthorized on any request, reset token and go to login
     const isRefreshOrLogout =
       req !== undefined &&
-      (req.responseURL.includes("refresh") ||
-        req.responseURL.includes("logout"))
+      (req.responseURL.includes("refresh") || req.responseURL.includes("logout"))
 
-    if (
-      isRefreshOrLogout ||
-      (status === 401 && error.config.__isRetryRequest)
-    ) {
-      await store.dispatch("auth/resetToken")
+    if (isRefreshOrLogout || (status === 401 && error.config.__isRetryRequest)) {
+      await store.dispatch("auth/resetToken", null, { root: true })
       router.replace({ name: "login" })
       return Promise.reject({
         message,
@@ -118,12 +120,8 @@ service.interceptors.response.use(
       })
     }
     // retry the request ONLY if not already tried
-    if (
-      isRefreshOrLogout ||
-      (status === 401 && !error.config.__isRetryRequest)
-    ) {
-      debugger
-      await store.dispatch("auth/refresh")
+    if (isRefreshOrLogout || (status === 401 && !error.config.__isRetryRequest)) {
+      await store.dispatch("auth/refresh", null, { root: true })
       error.config.__isRetryRequest = true
       return service.request(error.config)
     }
@@ -141,23 +139,34 @@ service.interceptors.response.use(
   },
 )
 
+// let refreshed = false
+// eslint-disable-next-line no-unused-vars
 async function getAuthToken() {
-  // if the current token expires soon
-  const expiresIn = store.getters["auth/expiresIn"]
-  const expiresMinus15Minutes = new Date(+expiresIn)
-  const minutesBefore = 60 * 0
-  expiresMinus15Minutes.setSeconds(
-    expiresMinus15Minutes.getSeconds() - minutesBefore,
-  ) // returns unix ts
-  const expiresDateMinus15Minutes = new Date(expiresMinus15Minutes)
-  const isTokenExpiredOrAboutTo =
-    expiresDateMinus15Minutes.getTime() <= Date.now()
+  return new Promise(async resolve => {
+    // if the current token expires soon
+    const expiresIn = store.getters["auth/expiresIn"]
+    const expiresMinus15Minutes = new Date(+expiresIn)
 
-  if (isTokenExpiredOrAboutTo) {
-    // refresh it and update it
-    await store.dispatch("auth/refresh")
-  }
-  return store.getters["auth/token"]
+    const minutesBefore = 60 * 15
+
+    // const minutesBefore = 60 * 15
+    expiresMinus15Minutes.setSeconds(expiresMinus15Minutes.getSeconds() - minutesBefore) // returns unix 58
+
+    const expiresDateMinus15Minutes = new Date(expiresMinus15Minutes)
+    const isTokenExpiredOrAboutTo = expiresDateMinus15Minutes.getTime() <= Date.now()
+    let refreshed = store.state.auth.refreshed
+
+    let token
+    if (isTokenExpiredOrAboutTo && !refreshed) {
+      console.log("tokenExpiredOrAboutTo")
+      // refresh the token & update 'refreshed' flag in the store
+      token = await store.dispatch("auth/refresh", null, { root: true })
+    } else {
+      token = store.getters["auth/token"]
+    }
+
+    resolve(token)
+  })
 }
 
 export default service

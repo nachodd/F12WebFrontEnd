@@ -20,11 +20,11 @@ export default async ({ router, store }) => {
       // Si tiene el token y no tiene seteado el usuario, lo traigo
       if (store.getters["auth/user"] === null) {
         try {
-          await store.dispatch("auth/getUserInfo")
+          await store.dispatch("auth/getUserInfo", null, { root: true })
+          // chequeamos las notificaciones y dashboard aca, asi setea la bandera correspondiente y no vuelve a chequearlas desde el componente
+          await store.dispatch("app/checkNotificacionesYDashboard", null, { root: true })
         } catch (e) {
-          // console.log(e)
-          // debugger
-          store.dispatch("auth/logout")
+          await store.dispatch("auth/logout", null, { root: true })
           next(`/login?redirect=${to.path}`)
           return
         }
@@ -35,13 +35,12 @@ export default async ({ router, store }) => {
         next({ path: "/inicio" })
       } else {
         const userHasSistemas = store.getters["auth/userEsResponsable"]
-        const checkHasResponsabilities =
-          to.meta && to.meta.checkHasResponsabilities
+        const checkHasResponsabilities = to.meta && to.meta.checkHasResponsabilities
 
         // if the route need to check for responsabilites, and the user don't have them, logout
         if (checkHasResponsabilities && !userHasSistemas) {
-          await store.dispatch("auth/logout")
-          next(`/login?redirect=${to.path}`)
+          await store.dispatch("auth/logout", null, { root: true })
+          next(`/login?redirect=inicio`)
         } else {
           checkAndSetTitle(to.meta)
           next()

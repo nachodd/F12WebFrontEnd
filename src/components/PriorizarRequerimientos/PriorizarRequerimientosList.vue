@@ -17,20 +17,26 @@
         </div>
       </template>
       <template v-else>
-        <Draggable
-          v-for="(req, index) in requerimientosList"
-          :key="`req_${req.id}`"
-        >
-          <priorizar-requerimientos-item
-            :req="req"
-            :index="index"
-            @click.native="
-              abrirDetalleRequerimiento({
-                reqId: req.id,
-                listName: 'priorizar-requerimientos',
-              })
-            "
-          />
+        <Draggable v-for="(req, index) in requerimientosList" :key="`req_${req.id}`">
+          <transition
+            appear
+            name="flip"
+            mode="out-in"
+            enter-active-class="animated slow flipInY"
+            leave-active-class="animated slow flipOutY"
+          >
+            <requerimiento-card
+              :req="req"
+              :index="index"
+              card-type="priorizar"
+              @click.native="
+                abrirDetalleRequerimiento({
+                  reqId: req.id,
+                  listName: 'priorizar-requerimientos',
+                })
+              "
+            />
+          </transition>
         </Draggable>
       </template>
     </Container>
@@ -41,14 +47,15 @@
 import { mapActions } from "vuex"
 import { Container, Draggable } from "vue-smooth-dnd"
 import { applyDrag } from "utils/helpers"
-import PriorizarRequerimientosItem from "comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
+// import PriorizarRequerimientosItem from "comp/PriorizarRequerimientos/PriorizarRequerimientosItem"
+import RequerimientoCard from "comp/Common/RequerimientoCard"
 import ListRequerimientos from "comp/Common/ListRequerimientos"
 
 export default {
   name: "DraggableList",
   components: {
     ListRequerimientos,
-    PriorizarRequerimientosItem,
+    RequerimientoCard,
     Container,
     Draggable,
   },
@@ -102,10 +109,7 @@ export default {
 
       const updatedListData = { listName, listResult, dropResult }
 
-      this.$store.dispatch(
-        "priorizarRequerimientos/processUpdateList",
-        updatedListData,
-      )
+      this.$store.dispatch("priorizarRequerimientos/processUpdateList", updatedListData)
 
       // this.$emit("list-updated")
     },

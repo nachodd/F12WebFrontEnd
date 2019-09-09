@@ -16,10 +16,7 @@
           list-name="source"
         />
       </div>
-      <div
-        class="col-sm-4 col-xs-12"
-        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
-      >
+      <div class="col-sm-4 col-xs-12" :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }">
         <asignar-requerimientos-list
           :requerimientos-list="requerimientosFiltered('ASSI')"
           :loading-list="loadingList"
@@ -29,10 +26,7 @@
           list-name="target"
         />
       </div>
-      <div
-        class="col-sm-4 col-xs-12"
-        :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }"
-      >
+      <div class="col-sm-4 col-xs-12" :class="{ 'q-pt-xlg': this.$q.screen.lt.sm }">
         <asignar-requerimientos-list
           :requerimientos-list="requerimientosFiltered('EXEC/TEST')"
           :loading-list="loadingList"
@@ -49,7 +43,6 @@
 <script>
 import { mapGetters, mapState } from "vuex"
 import pageLoading from "mixins/pageLoading"
-// import PageHeader from "comp/Common/PageHeader"
 import AsignarRequerimientosList from "comp/AsignarRequerimientos/AsignarRequerimientosList"
 import DialogDetalleRequerimiento from "comp/Common/DialogDetalleRequerimiento"
 import AsignarRequerimientosDialogConfirmOperation from "comp/AsignarRequerimientos/AsignarRequerimientosDialogConfirmOperation"
@@ -58,42 +51,36 @@ import AsignarRequerimientosFiltros from "comp/AsignarRequerimientos/AsignarRequ
 export default {
   name: "AsignarRequerimientos",
   components: {
-    // PageHeader,
     AsignarRequerimientosList,
     DialogDetalleRequerimiento,
     AsignarRequerimientosDialogConfirmOperation,
     AsignarRequerimientosFiltros,
   },
   mixins: [pageLoading],
-  // data: () => ({}),
+  data: () => ({
+    filtroLastValues: {
+      descripcion: null,
+      sistema: null,
+      tipo: null,
+      usuariosAsignados: [],
+      usuarioAlta: null,
+    },
+  }),
   computed: {
     ...mapState("asignacionRequerimientos", {
       reqs: state => state.requerimientos,
       loadingList: state => state.loadingRequerimientos,
+      requerimientosLoaded: state => state.requerimientosLoaded,
     }),
     ...mapGetters("asignacionRequerimientos", ["requerimientosFiltered"]),
   },
-  created() {
-    this.$store.dispatch("requerimientos/createRequerimiento")
-    this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
+  async created() {
+    // this.$store.dispatch("requerimientos/createRequerimiento")
+    // if (!this.requerimientosLoaded) {
+    await this.$store.dispatch("asignacionRequerimientos/fetchRequerimientos")
+    // }
   },
 }
 </script>
 
-<style lang="scss" scoped>
-/* .scrolling-wrapper {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding-top: 20px;
-  top: -20px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.scrolling-wrapper__card {
-  flex: 0 0 auto;
-  min-width: 400px;
-  margin-right: 1em;
-} */
-</style>
+<style lang="scss" scoped></style>

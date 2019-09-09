@@ -25,24 +25,14 @@
               :avatar-text="req.prioridad"
               text="Prioridad"
             />
-            <chip-large
-              avatar-text="Usuario"
-              avatar-color="#6671f0"
-              :text="req.usuario.nombre"
-            />
+            <chip-large avatar-text="Usuario" avatar-color="#6671f0" :text="req.usuario.nombre" />
 
             <br />
 
             <chip-large avatar-text="Area" :text="req.area.descripcion" />
 
-            <chip-large
-              avatar-text="Stistema"
-              :text="req.sistema.descripcion"
-            />
-            <chip-large
-              avatar-text="Req. Tipo"
-              :text="req.requerimientoTipo.descripcion"
-            />
+            <chip-large avatar-text="Stistema" :text="req.sistema.descripcion" />
+            <chip-large avatar-text="Req. Tipo" :text="req.requerimientoTipo.descripcion" />
           </div>
         </div>
         <div class="row q-mt-sm">
@@ -54,10 +44,7 @@
         </div>
         <div v-if="req.vence" class="row q-mt-sm">
           <div class="col">
-            <note
-              title="Este requerimiento posee Fecha de Vencimiento"
-              type="danger"
-            >
+            <note title="Este requerimiento posee Fecha de Vencimiento" type="danger">
               <div>
                 <span class="text-underline">Vencimiento:</span>
                 {{ req.fechaLimite }}
@@ -84,17 +71,11 @@
             </note>
           </div>
         </div>
-        <div
-          v-if="req.adjuntosCargados && req.adjuntosCargados.length"
-          class="row q-mt-sm"
-        >
+        <div v-if="req.adjuntosCargados && req.adjuntosCargados.length" class="row q-mt-sm">
           <div class="col">
             <note title="Adjuntos:">
               <ul>
-                <li
-                  v-for="(adjunto, i) in req.adjuntosCargados"
-                  :key="`req_${req.id}_${adjunto}`"
-                >
+                <li v-for="(adjunto, i) in req.adjuntosCargados" :key="`req_${req.id}_${adjunto}`">
                   <a v-auth-href :href="adjunto">Adjunto {{ i + 1 }}</a>
                 </li>
               </ul>
@@ -159,10 +140,7 @@
                   @click="operation = 'seleccionarPrioridad'"
                 />
               </div>
-              <div
-                v-if="statePending && !esElUltimoDeLaCadenaDeMando"
-                class="col"
-              >
+              <div v-if="statePending && !esElUltimoDeLaCadenaDeMando" class="col">
                 <q-btn
                   class="btn__action small-icon"
                   :class="{ 'selected--accent': operation === 'aprobar' }"
@@ -239,9 +217,7 @@
             </q-slide-transition>
             <q-slide-transition>
               <div
-                v-show="
-                  operation === 'descartar' && !esElUltimoDeLaCadenaDeMando
-                "
+                v-show="operation === 'descartar' && !esElUltimoDeLaCadenaDeMando"
                 class="q-mt-md"
               >
                 <div class="row">
@@ -332,26 +308,18 @@ export default {
     },
     vencimientoDiff() {
       if (this.req && this.req.vence) {
-        const diff = date.getDateDiff(
-          new Date(this.req._fechaLimite),
-          new Date(),
-          "days",
-        )
+        const diff = date.getDateDiff(new Date(this.req._fechaLimite), new Date(), "days")
         return diff
       }
       return null
     },
     detalleRequerimientoOpen: {
       get() {
-        return this.$store.state.priorizarRequerimientos
-          .detalleRequerimientoOpen
+        return this.$store.state.priorizarRequerimientos.detalleRequerimientoOpen
       },
       set(value) {
         return this.$store
-          .dispatch(
-            "priorizarRequerimientos/setDetalleRequerimientoOpen",
-            value,
-          )
+          .dispatch("priorizarRequerimientos/setDetalleRequerimientoOpen", value)
           .then(() => {
             // Reset de la operacion (para los botones) y la prioridad seleccionada
             this.operation = null
@@ -401,10 +369,7 @@ export default {
       return this.req.estado.id === 2
     },
     isApprovingOrReordering() {
-      return (
-        this.operation === "aprobar" ||
-        this.operation === "seleccionarPrioridad"
-      )
+      return this.operation === "aprobar" || this.operation === "seleccionarPrioridad"
     },
     seleccionarPrioridadShown() {
       if (this.esElUltimoDeLaCadenaDeMando) {

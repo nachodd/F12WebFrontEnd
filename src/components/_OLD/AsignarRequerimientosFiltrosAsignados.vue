@@ -1,11 +1,6 @@
 <template>
   <q-list bordered class="rounded-borders-10 q-mx-sm">
-    <q-expansion-item
-      icon="fas fa-search"
-      label="Filtros"
-      dense
-      class="rounded-borders-10"
-    >
+    <q-expansion-item icon="fas fa-search" label="Filtros" dense class="rounded-borders-10">
       <q-card class="rounded-borders-10">
         <q-card-section>
           asunto, decripcion

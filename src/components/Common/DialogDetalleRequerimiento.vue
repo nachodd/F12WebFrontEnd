@@ -6,18 +6,48 @@
     transition-hide="scale"
     @before-show="tab = 'detalle'"
   >
-    <q-layout
-      v-if="requerimientoSetted"
-      container
-      view="hHh lpR fFf"
-      class="bg-white"
-    >
+    <q-layout v-if="requerimientoSetted" container view="hHh lpR fFf" class="bg-white">
       <q-header elevated class="bg-deep-purple-10 text-white items-center">
         <q-toolbar class="q-pa-md">
           <q-toolbar-title>
-            <div class="text-h6">Requerimiento Nº {{ req.id }}</div>
-            <div class="text-subtitle3 text-white-7">
-              {{ req.usuario.nombre }}
+            <div class="text-h6 row justify-between">
+              <div>Requerimiento Nº {{ req.id }}</div>
+              <div>
+                <q-btn
+                  size="10px"
+                  flat
+                  dense
+                  round
+                  icon="fas fa-sync-alt"
+                  class="opacity-hover q-pa-sm"
+                  :class="{ 'fa-spin': refreshingReq }"
+                  @click="refreshRequerimiento"
+                >
+                  <tooltip>
+                    Actualizar Requerimiento
+                  </tooltip>
+                </q-btn>
+                &nbsp;
+                <q-btn
+                  size="10px"
+                  flat
+                  dense
+                  round
+                  icon="fas fa-edit"
+                  class="opacity-hover q-pa-sm"
+                  :to="{ query: { ver: 'editarRequerimiento', id: req.id } }"
+                >
+                  <tooltip>
+                    Editar Requerimiento
+                  </tooltip>
+                </q-btn>
+              </div>
+            </div>
+            <div class="text-subtitle3 text-white-7 opacity-75">
+              Cargado por:
+              <span class="text-italic">
+                {{ req.usuario.nombre }}
+              </span>
             </div>
           </q-toolbar-title>
         </q-toolbar>
@@ -30,6 +60,7 @@
           indicator-color="white"
           align="justify"
           narrow-indicator
+          @input="handleTabChange"
         >
           <q-tab name="detalle" label="Detalle" />
 
@@ -46,7 +77,7 @@
           :thumb-style="{
             right: '2px',
             borderRadius: '5px',
-            backgroundColor: '#027be3',
+            background: 'linear-gradient(to top, #5e35b1, #1565c0)',
             width: '5px',
             opacity: 0.75,
           }"
@@ -58,22 +89,30 @@
               <!-- detalle -->
               <div class="row">
                 <div class="col-4">
-                  <div class="text-grey-6">Area</div>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Area
+                  </div>
                   <q-item-label lines="1">
                     {{ req.area.descripcion }}
+                    <tooltip>Tipo: {{ req.area.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-6">Sistema</div>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Sistema
+                  </div>
                   <q-item-label lines="1">
                     {{ req.sistema.descripcion }}
+                    <tooltip>Tipo: {{ req.sistema.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
                 <div class="col-4">
-                  <div class="text-grey-6">Tipo</div>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Tipo
+                  </div>
                   <q-item-label lines="1">
                     {{ req.tipo.descripcion }}
-                    <q-tooltip>{{ req.tipo.descripcion }}</q-tooltip>
+                    <tooltip>Tipo: {{ req.tipo.descripcion }}</tooltip>
                   </q-item-label>
                 </div>
               </div>
@@ -82,8 +121,15 @@
 
               <div class="row">
                 <div class="col">
-                  <div class="text-grey-6">Asunto</div>
-                  <q-item-label>{{ req.asunto }}</q-item-label>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Asunto
+                  </div>
+                  <!-- :field-value="quickEdit.asunto" -->
+                  <inline-edit
+                    v-model="quickEdit.asunto"
+                    field-name="Asunto"
+                    @touched="quickEdited = true"
+                  />
                 </div>
               </div>
 
@@ -91,8 +137,16 @@
 
               <div class="row">
                 <div class="col">
-                  <div class="text-grey-6">Descripcion</div>
-                  {{ req.descripcion }}
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Descripcion
+                  </div>
+                  <!-- <div class="text-pre-wrap">{{ req.descripcion }}</div> -->
+                  <inline-edit
+                    v-model="quickEdit.descripcion"
+                    field-name="Descripcion"
+                    input-type="textarea"
+                    @touched="quickEdited = true"
+                  />
                 </div>
               </div>
 
@@ -100,17 +154,33 @@
 
               <div class="row">
                 <div class="col">
-                  <div class="text-grey-6">Ultimo movimiento</div>
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Comentarios
+                  </div>
+                  <inline-edit
+                    v-model="quickEdit.comentario"
+                    field-name="Comentarios"
+                    input-type="textarea"
+                    :apply-validation="false"
+                    @touched="quickEdited = true"
+                  />
+                </div>
+              </div>
+
+              <br />
+
+              <div class="row">
+                <div class="col">
+                  <div class="text-grey-5 text-bold text-unselectable">
+                    Ultimo movimiento
+                  </div>
                   <div>
                     <!-- eslint-disable-next-line -->
                     {{ ultimoMovimiento.usuario }} @ <span class="text-italic">{{ ultimoMovimiento.fecha | formatearFechaHora }}</span>
                   </div>
                   <div>
                     Estado:
-                    {{
-                      ultimoMovimiento.estado
-                        | formatearEstado(ultimoMovimiento)
-                    }}
+                    {{ ultimoMovimiento | formatearEstado }}
                     <div v-if="ultimoMovimientoHasComentario">
                       Comentarios:
                       {{ ultimoMovimiento.comentario }}
@@ -125,12 +195,12 @@
                 <div class="col">
                   <div class="text-grey-6">
                     Requerimiento Asociado:
-                    <strong>#{{ reqAsociadoId }}</strong>
+                    <strong>#{{ req.asociadoId }}</strong>
                   </div>
-                  <div>Estado: {{ reqAsociadoEstadoDescripcion }}</div>
-                  <div v-if="reqAsociadoUsuario !== null">
-                    Usuario Asignado: {{ reqAsociadoUsuario }}
-                  </div>
+                  <!-- <div>Estado: {{ reqAsociadoEstadoDescripcion }}</div>
+                  <div v-if="req.asociadoUsuario !== null">
+                    Usuario Asignado: {{ req.asociadoUsuario }}
+                  </div> -->
                 </div>
               </div>
 
@@ -147,14 +217,11 @@
                           <strong>{{ diasVencimiento }}</strong>
                           días)
                         </span>
-
                         <span v-if="diasVencimiento === 0" class="text-black">
                           (HOY es el día de vencimiento)
                         </span>
-
                         <strong v-if="diasVencimiento < 0">
-                          (Este req. lleva {{ diasVencimiento * -1 }} días
-                          vencido)
+                          (Este req. lleva {{ diasVencimiento * -1 }} días vencido)
                         </strong>
                       </template>
                       <br />
@@ -169,14 +236,16 @@
                 </div>
               </div>
 
-              <div v-show="tieneAdjuntos">
-                <q-separator />
-                <br />
-                <div class="row q-col-gutter-sm">
+              <div v-show="req.tieneAdjuntos">
+                <q-separator class="q-mb-sm" />
+                <div class="text-grey-5 text-bold text-unselectable">
+                  Adjuntos
+                </div>
+                <div class="row q-col-gutter-sm justify-center">
                   <div
                     v-for="(adjunto, i) in req.adjuntosCargadosUrl"
                     :key="`req_${i}_${adjunto}`"
-                    class="col-6"
+                    class="col-4"
                   >
                     <adjunto-card :adjunto="adjunto" :nro="i + 1" />
                   </div>
@@ -185,12 +254,13 @@
             </q-tab-panel>
 
             <!-- Tab Acciones (dinamico) -->
-            <q-tab-panel
-              v-if="showAcciones"
-              name="acciones"
-              class="body-detalle-requerimiento"
-            >
-              <component :is="actionsComponent" @closeDialog="closeDialog" />
+            <q-tab-panel v-if="showAcciones" name="acciones" class="body-detalle-requerimiento">
+              <component
+                :is="actionsComponent"
+                ref="actionsTab"
+                @closeDialog="closeDialog"
+                @showSaveRequerimientoAction="val => (showSaveRequerimientoAction = val)"
+              />
             </q-tab-panel>
 
             <!-- Tab movicmientos -->
@@ -200,12 +270,25 @@
                   <q-timeline-entry
                     v-for="(movimiento, index) in movimientosOrdenados"
                     :key="`req_${index}`"
-                    :title="movimiento.estado | formatearEstado(movimiento)"
+                    :title="movimiento | formatearEstado"
                     :subtitle="movimiento | formatearUsuarioYFecha"
                     text-color="grey"
                     class="timeline-entry-custom"
                   >
-                    <div>{{ movimiento.comentario }}</div>
+                    <!-- <template
+                      v-if="
+                        movimiento.tipo === 'Modificación estado en proceso'
+                      "
+                    >
+                      <div
+                        v-if="movimiento.estado === 'Aprobado'"
+                        class="text-italic"
+                      >
+                        Aprobado por: {{ movimiento.usuario }}
+                      </div>
+                    </template> -->
+                    <!-- eslint-disable-next-line -->
+                    <div class="text-italic text-pre-wrap">{{ movimiento.comentario }}</div>
                   </q-timeline-entry>
                 </q-timeline>
               </div>
@@ -218,9 +301,26 @@
         <q-card-actions align="right">
           <q-btn
             flat
-            label="Cerrar"
-            color="deep-purple-10"
+            :label="cerrarLabel"
+            color="negative"
             @click="detalleRequerimientoOpen = false"
+          />
+          <q-btn
+            v-if="quickEdited"
+            label="Guardar Cambios"
+            color="deep-purple-10"
+            :outline="loadingRequerimiento"
+            :loading="loadingRequerimiento"
+            @click="quickEditRequerimiento"
+          />
+
+          <q-btn
+            v-if="showSaveRequerimientoAction"
+            label="Guardar Cambios"
+            color="deep-purple-10"
+            :outline="loadingRequerimiento"
+            :loading="loadingRequerimiento"
+            @click="saveRequerimientoAction"
           />
         </q-card-actions>
       </q-footer>
@@ -231,13 +331,16 @@
 <script>
 import { mapState, mapGetters } from "vuex"
 import { date } from "quasar"
+import Tooltip from "comp/Common/Tooltip"
 import formValidation from "mixins/formValidation"
-// import { warn, success } from "utils/helpers"
 import PriorizarRequerimientosActions from "comp/PriorizarRequerimientos/PriorizarRequerimientosActions"
 import AsignarRequerimientosActions from "comp/AsignarRequerimientos/AsignarRequerimientosActions"
 import RequerimientosAsignadosActions from "comp/RequerimientosAsignados/RequerimientosAsignadosActions"
 import Note from "comp/Common/Note"
 import AdjuntoCard from "comp/Common/AdjuntoCard"
+import DetalleRequerimientoInlineEdit from "comp/Common/DetalleRequerimientoInlineEdit"
+import { success, warn } from "utils/helpers"
+import Bus from "utils/bus"
 
 export default {
   name: "DialogDetalleRequerimiento",
@@ -249,8 +352,20 @@ export default {
       const fechaFormatiada = date.formatDate(value.fecha, "DD/MM/YYYY HH:mm")
       return value.usuario + " @ " + fechaFormatiada
     },
-    formatearEstado(value, objMovimiento) {
-      return objMovimiento.tipo === "Alta" ? "Alta" : value
+    formatearEstado(movimiento) {
+      let estado = movimiento.estado
+      if (movimiento.tipo === "Requerimiento pausado") {
+        estado += " (PAUSADO)"
+      }
+      if (movimiento.tipo === "Requerimiento reanudado") {
+        estado += " (REANUDADO)"
+      }
+
+      if (movimiento.tipo === "Modificación estado en proceso") {
+        return "Cadena - " + estado
+      }
+
+      return movimiento.tipo === "Alta" ? "Alta" : estado
     },
   },
   components: {
@@ -259,6 +374,8 @@ export default {
     RequerimientosAsignadosActions,
     Note,
     AdjuntoCard,
+    Tooltip,
+    inlineEdit: DetalleRequerimientoInlineEdit,
   },
   mixins: [formValidation],
   data() {
@@ -269,19 +386,25 @@ export default {
       tab: "detalle",
       // asignacionUsuarios: [],
       usuarioAsignado: null,
+      quickEdit: {
+        asunto: "",
+        descripcion: "",
+        comentario: "",
+      },
+      quickEdited: false,
+      showSaveRequerimientoAction: false,
+      refreshingReq: false,
     }
   },
   computed: {
     ...mapState("requerimientos", {
       req: state => state.detalleRequerimientoItem,
+      loadingRequerimiento: state => state.loadingRequerimiento,
     }),
-    ...mapGetters("requerimientos", [
-      "detalleRequerimientoState",
-      "getEstadoById",
-    ]),
+    ...mapGetters("requerimientos", ["getEstadoById"]),
     // ...mapGetters("auth", ["userReportantes"]),
     stateSentToProcess() {
-      return this.detalleRequerimientoState === "STPR"
+      return this.req.tieneEstado("STPR")
     },
     requerimientoSetted() {
       return !_.isEmpty(this.req)
@@ -310,75 +433,112 @@ export default {
           return false
       }
     },
+    cerrarLabel() {
+      return this.quickEdited || this.showSaveRequerimientoAction ? "Cancelar y Cerrar" : "Cerrar"
+    },
     detalleRequerimientoOpen: {
       get() {
         return this.$store.state.requerimientos.detalleRequerimientoOpen
       },
       set(value) {
         // solo disparamos el dispatch si el valor es distinto al actual
-        if (
-          value !== this.$store.state.requerimientos.detalleRequerimientoOpen
-        ) {
-          return this.$store.dispatch(
-            "requerimientos/setDetalleRequerimientoOpen",
-            value,
-          )
+        if (value !== this.$store.state.requerimientos.detalleRequerimientoOpen) {
+          return this.$store.dispatch("requerimientos/setDetalleRequerimientoOpen", value)
         }
       },
     },
     movimientosOrdenados() {
-      // let movimientos = [...this.req.movimientos]
       return _.orderBy(this.req.movimientos, ["fecha"], ["desc"])
     },
     ultimoMovimiento() {
       return _.maxBy([...this.req.movimientos], "fecha")
     },
     ultimoMovimientoHasComentario() {
-      return (
-        this.ultimoMovimiento.comentario &&
-        this.ultimoMovimiento.comentario.length
-      )
-    },
-    tieneAdjuntos() {
-      return this.req.adjuntosCargadosUrl.length > 0
+      return this.ultimoMovimiento.comentario && this.ultimoMovimiento.comentario.length
     },
     diasVencimiento() {
       return this.req.diasToVencimiento
     },
-    reqAsociadoId() {
-      return _.get(this.req, "requerimientoAsociado.id", null)
-    },
-    reqAsociadoEstadoDescripcion() {
-      return _.get(this.req, "requerimientoAsociado.estado.descripcion", null)
-    },
-    reqAsociadoUsuario() {
-      return _.get(this.req, "requerimientoAsociado.usuario_asignado", null)
-    },
   },
-  created() {
-    // this.asignacionUsuarios = _.map(this.userReportantes, ur => {
-    //   return {
-    //     label: ur.RazonSocial,
-    //     value: ur.IdUsuario,
-    //   }
-    // })
+  watch: {
+    req(newReq) {
+      this.showSaveRequerimientoAction = false
+      this.quickEdited = false
+      if (newReq !== null) {
+        this.quickEdit.asunto = this.req.asunto
+        this.quickEdit.descripcion = this.req.descripcion
+        this.quickEdit.comentario = this.req.comentario
+      } else {
+        this.quickEdit.asunto = ""
+        this.quickEdit.descripcion = ""
+        this.quickEdit.comentario = ""
+      }
+    },
   },
   methods: {
+    refreshRequerimiento() {
+      this.refreshingReq = true
+      this.$store
+        .dispatch("requerimientos/refreshRequerimiento", this.req.id)
+        .catch(message => {
+          warn({ message })
+        })
+        .finally(() => {
+          this.refreshingReq = false
+        })
+    },
     closeDialog() {
+      this.quickEdit.asunto = ""
+      this.quickEdit.descripcion = ""
+      this.quickEdit.comentario = ""
       this.detalleRequerimientoOpen = false
+    },
+    async quickEditRequerimiento() {
+      try {
+        const form = await this.req.toUpdatePayload({ omitAdjuntos: true })
+        form.asunto = this.quickEdit.asunto
+        form.descripcion = this.quickEdit.descripcion
+        form.comentario = this.quickEdit.comentario
+
+        await this.$store.dispatch("requerimientos/storeRequerimiento", form)
+        success({
+          message: "La solicitud fue procesada correctamente!",
+        })
+        this.detalleRequerimientoOpen = false
+
+        Bus.$emit("load-mis-requerimientos")
+      } catch ({ message }) {
+        const msg = message || "No se pudo editar el requerimiento"
+        // Si es un error simple (no es de validacion de form con array de errores), muestro el msj nomas
+        warn({ message: msg })
+      }
+    },
+    handleTabChange() {
+      // reset de los botones y los valores por defecto
+      this.quickEdited = false
+      this.showSaveRequerimientoAction = false
+      this.quickEdit.asunto = this.req.asunto
+      this.quickEdit.descripcion = this.req.descripcion
+      this.quickEdit.comentario = this.req.comentario
+    },
+    saveRequerimientoAction() {
+      // call save action on child
+      this.$refs.actionsTab.saveChanges()
     },
   },
 }
 </script>
 
-<style lang="scss">
-.avatar--lg {
+<style lang="stylus" scoped>
+.avatar--lg
   font-size: 80px !important;
   height: auto !important;
   width: auto !important;
-}
-.body-detalle-requerimiento {
+
+/deep/.body-detalle-requerimiento
   min-height: 100px;
   height: calc(100vh - 121px - 100px);
-}
+
+.q-dialog__inner > div
+  border-radius 12px !important
 </style>

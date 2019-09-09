@@ -12,7 +12,16 @@ export function firstToUpper(string) {
 }
 
 export function lastPartOfPath(string) {
-  return string.substring(string.lastIndexOf("/") + 1)
+  if (typeof string === "string" && string.length > 0 && string.includes("/")) {
+    return string.substring(string.lastIndexOf("/") + 1)
+  }
+  return ""
+}
+export function extension(string) {
+  if (typeof string === "string" && string.length > 0 && string.includes(".")) {
+    return string.substring(string.lastIndexOf(".") + 1)
+  }
+  return ""
 }
 
 export function warn({
@@ -23,7 +32,27 @@ export function warn({
   icon = "warning",
   actions = [{ label: "CERRAR", color: "white" }],
 }) {
-  Notify.create({
+  return Notify.create({
+    color,
+    textColor,
+    message,
+    icon,
+    position: "top-right",
+    timeout,
+    multiline: true,
+    actions,
+  })
+}
+
+export function info({
+  message = "Hubo requerimientos actualizados",
+  timeout = 5000,
+  color = "blue-8",
+  textColor = "white",
+  icon = "info",
+  actions = [{ label: "CERRAR", color: "white" }],
+}) {
+  return Notify.create({
     color,
     textColor,
     message,
@@ -43,7 +72,7 @@ export function success({
   icon = "thumb_up",
   actions = [{ label: "CERRAR", color: "white" }],
 }) {
-  Notify.create({
+  return Notify.create({
     color,
     textColor,
     message,
@@ -113,10 +142,8 @@ export function getBase64FromInput(file) {
   return new Promise(function(resolve, reject) {
     const reader = new FileReader()
     reader.onload = function() {
-      const period = file.name.lastIndexOf(".")
-      const fileName = file.name.substring(0, period)
       // Adds name to the base64 file
-      resolve(`${reader.result};name,${fileName}`)
+      resolve(`${reader.result};name,${file.name}`)
     }
     reader.onerror = reject
     reader.readAsDataURL(file)
@@ -141,7 +168,6 @@ export function getBase64FromUrl(url) {
         reader.readAsDataURL(response.data)
       })
       .catch(e => {
-        console.log(e)
         reject(e)
       })
   })

@@ -8,7 +8,7 @@ export function login({ usuario, password }) {
     cliente_secret: process.env.APP_CLIENT_SECRET,
   }
   return request({
-    url: "/login",
+    url: "login",
     method: "post",
     data,
   })
@@ -16,21 +16,21 @@ export function login({ usuario, password }) {
 
 export function getUserInfo() {
   return request({
-    url: "/v1/usuario",
+    url: "v1/usuario",
     method: "get",
   })
 }
 
 // export function getRoles() {
 //   return request({
-//     url: "/v1/usuario/roles",
+//     url: "v1/usuario/roles",
 //     method: "get",
 //   })
 // }
 
 export function logout() {
   return request({
-    url: "/logout",
+    url: "logout",
     method: "post",
   })
 }
@@ -42,7 +42,7 @@ export function refresh(refreshToken) {
     cliente_secret: process.env.APP_CLIENT_SECRET,
   }
   return request({
-    url: "/refresh",
+    url: "refresh",
     method: "post",
     data,
     // withCredentials: true,
@@ -103,6 +103,24 @@ export function getUsuarioGestion() {
   })
 }
 
+export function getUsuariosFiltro() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await request({
+        url: `v1/f12/usuariosFiltro`,
+        method: "get",
+      })
+      if (res && res.data && res.data.data) {
+        resolve(res.data.data)
+      } else {
+        reject("Error al obtener los Usuarios Para el Filtro")
+      }
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
 export function getDashboardData(userId) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -125,7 +143,7 @@ export function checkNotificaciones(userId) {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await request({
-        url: `/v1/f12/${userId}/notificaciones`,
+        url: `v1/f12/${userId}/notificaciones`,
         method: "get",
       })
       if (res && res.data && res.data.data) {
@@ -143,7 +161,7 @@ export function readNotificaciones(userId) {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await request({
-        url: `/v1/f12/${userId}/notificaciones/read`,
+        url: `v1/f12/${userId}/notificaciones/read`,
         method: "put",
       })
       if (res && res.data && res.data.data) {

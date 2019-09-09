@@ -18,12 +18,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item
-          v-ripple
-          clickable
-          :to="{ name: 'inicio' }"
-          active-class="menu-items--active"
-        >
+        <q-item v-ripple clickable :to="{ name: 'inicio' }" active-class="menu-items--active">
           <q-item-section avatar>
             <q-icon name="home" />
           </q-item-section>
@@ -32,12 +27,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item
-          v-ripple
-          clickable
-          :to="{ query: { ver: 'crearRequerimiento' } }"
-          active-class=""
-        >
+        <q-item v-ripple clickable :to="{ query: { ver: 'crearRequerimiento' } }" active-class="">
           <q-item-section avatar>
             <q-icon name="note_add" />
           </q-item-section>
@@ -92,10 +82,7 @@
           <q-item-section>
             <q-item-label>
               Asignar Requerimientos
-              <span
-                v-if="dashboard.pendientes_asignacion > 0"
-                class="text-bold"
-              >
+              <span v-if="dashboard.pendientes_asignacion > 0" class="text-bold">
                 ({{ dashboard.pendientes_asignacion }})
               </span>
             </q-item-label>
@@ -152,10 +139,7 @@ export default {
       },
     },
     showPriorizarRequerimientosCount() {
-      return (
-        this.dashboard.pendientes_priorizacion > 0 &&
-        !this.esElUltimoDeLaCadenaDeMando
-      )
+      return this.dashboard.pendientes_priorizacion > 0 && !this.esElUltimoDeLaCadenaDeMando
     },
   },
   mounted() {

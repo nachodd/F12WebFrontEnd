@@ -4,15 +4,12 @@
       <!-- <q-btn @click="refresh">
         test
       </q-btn> -->
-      <div
-        v-if="!esElUltimoDeLaCadenaDeMando"
-        class="col-md-4 col-sm-4 col-xs-12 q-mb-lg"
-      >
+      <div v-if="!esElUltimoDeLaCadenaDeMando" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'priorizar-requerimientos' }" class="no-dec">
           <widget-simple
             icon="fas fa-sort-amount-down"
             :value="dashboard.pendientes_priorizacion"
-            description="Reqs. a PRIORIZAR"
+            description="PRIORIZAR"
             icon-background-color="#3949ab"
             icon-background-gradient
             info-text-class="text-indigo-7"
@@ -21,12 +18,12 @@
         </router-link>
       </div>
 
-      <div v-if="userEsResponsable" class="col-md-4 col-sm-4 col-xs-12 q-mb-lg">
+      <div v-if="userEsResponsable" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'asignar-requerimientos' }" class="no-dec">
           <widget-simple
             icon="far fa-hand-pointer "
             :value="dashboard.pendientes_asignacion"
-            description="Reqs. PEND. de ASIG."
+            description="PEND. ASIGNACION"
             icon-background-color="#c62828"
             icon-background-gradient
             info-text-class="text-red-9"
@@ -35,15 +32,12 @@
         </router-link>
       </div>
 
-      <div
-        v-if="puedeVerRequerimientosAsignados"
-        class="col-md-4 col-sm-4 col-xs-12 q-mb-lg"
-      >
+      <div v-if="puedeVerRequerimientosAsignados" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
           <widget-simple
             icon="fas fa-bell"
             :value="dashboardAsignadosYEjecutando"
-            description="Reqs. ASIGNADOS"
+            description="ASIGNADOS"
             icon-background-color="#2e7d32"
             icon-background-gradient
             info-text-class="text-green-9"
@@ -52,15 +46,12 @@
         </router-link>
       </div>
 
-      <div
-        v-if="puedeVerRequerimientosAsignados"
-        class="col-md-4 col-sm-4 col-xs-12 q-mb-lg"
-      >
+      <div v-if="puedeVerRequerimientosAsignados" class="col-md-4 col-sm-6 col-xs-12 q-mb-lg">
         <router-link :to="{ name: 'requerimientos-asignados' }" class="no-dec">
           <widget-simple
             icon="fas fa-flask"
             :value="dashboard.asignados_testing"
-            description="Reqs. TESTING"
+            description="TESTING"
             icon-background-color="#91981f"
             icon-background-gradient
             info-text-class="text-green-9"
@@ -69,6 +60,14 @@
         </router-link>
       </div>
     </div>
+    <!-- <q-btn color="primary" icon="check" label="TEST" @click="onClick" /> -->
+    <!--
+      TODO: agregar widget con graficos aca
+      <div class="row justify-center q-mt-md">
+      <div v-if="userEsResponsable" class="col-md-6 col-sm-6 col-xs-12 q-mb-lg">
+        graficos
+      </div>
+    </div> -->
   </q-page>
 </template>
 
@@ -99,6 +98,10 @@ export default {
     this.$store.dispatch("app/getDashboardData", this.userId)
   },
   methods: {
+    onClick() {
+      // console.log("auth/getUserInfo called")
+      // this.$store.dispatch("auth/getUserInfo")
+    },
     // async refresh() {
     //   await this.$store.dispatch("auth/refresh")
     // },

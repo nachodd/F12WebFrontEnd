@@ -14,10 +14,12 @@ module.exports = function(ctx) {
       "router-hooks",
       // "permission-directive",
       "filters",
-      "auth-href-directive",
+      "vue-auth-href",
+      "vue-auth-image",
+      "log",
     ], // "vuelidate"
 
-    css: ["app.scss"],
+    css: ["app.styl"],
 
     extras: [
       "roboto-font",
@@ -32,6 +34,7 @@ module.exports = function(ctx) {
       // all: true, // --- includes everything; for dev only!
 
       components: [
+        "QMarkupTable",
         "QSpinnerHourglass",
         "QPageSticky",
         "QExpansionItem",
@@ -158,19 +161,22 @@ module.exports = function(ctx) {
     },
 
     // animations: 'all' --- includes all animations
-    animations: [],
+    animations: ["flipInY", "flipOutY"],
 
     ssr: {
       pwa: false,
     },
 
     pwa: {
-      // workboxPluginMode: 'InjectManifest',
-      // workboxOptions: {},
+      // workboxPluginMode: "InjectManifest",
+      workboxOptions: {
+        skipWaiting: true,
+        clientsClaim: true,
+      },
       manifest: {
-        // name: 'Quasar App',
-        // short_name: 'Quasar-PWA',
-        // description: 'Best PWA App in town!',
+        name: "F12",
+        short_name: "F12",
+        description: "F12 - BLD s.a.",
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",

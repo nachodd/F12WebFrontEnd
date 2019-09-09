@@ -16,6 +16,7 @@ import {
   // UpdatePendingPayloadPriorizarReq,
 } from "utils/requerimientos"
 import { pipeWith } from "utils/helpers"
+import Requerimiento from "models/requerimiento"
 
 const state = {
   requerimientos: [],
@@ -52,8 +53,7 @@ const state = {
 }
 
 const getters = {
-  requerimientoIdToChange: state =>
-    _.get(state.possibleChanges.payload, "id", ""),
+  requerimientoIdToChange: state => _.get(state.possibleChanges.payload, "id", ""),
   // Los cambios estaran seteados si: fueron seteados los 2 listados y el payload
   // o si fue seteado el source Y es el ultimo de la cadena de mando (si es así, solo tiene ese listado)
   possibleChangesSetted: state => {
@@ -68,11 +68,7 @@ const getters = {
     return _.get(state, "possibleChanges.payload.estado.pausado", false)
   },
   operationToExec: state => {
-    const {
-      sourceChanges,
-      targetChanges,
-      testingChanges,
-    } = state.possibleChanges
+    const { sourceChanges, targetChanges, testingChanges } = state.possibleChanges
     return (
       sourceChanges.removedIndex !== null &&
       sourceChanges.addedIndex === null &&
@@ -83,11 +79,7 @@ const getters = {
     )
   },
   operationToPending: state => {
-    const {
-      sourceChanges,
-      targetChanges,
-      testingChanges,
-    } = state.possibleChanges
+    const { sourceChanges, targetChanges, testingChanges } = state.possibleChanges
     return (
       sourceChanges.removedIndex === null &&
       sourceChanges.addedIndex !== null &&
@@ -98,11 +90,7 @@ const getters = {
     )
   },
   operationToTesting: state => {
-    const {
-      sourceChanges,
-      targetChanges,
-      testingChanges,
-    } = state.possibleChanges
+    const { sourceChanges, targetChanges, testingChanges } = state.possibleChanges
     return (
       sourceChanges.removedIndex === null &&
       sourceChanges.addedIndex === null &&
@@ -113,11 +101,7 @@ const getters = {
     )
   },
   operationWrongToTesting: state => {
-    const {
-      sourceChanges,
-      targetChanges,
-      testingChanges,
-    } = state.possibleChanges
+    const { sourceChanges, targetChanges, testingChanges } = state.possibleChanges
     return (
       sourceChanges.removedIndex !== null &&
       sourceChanges.addedIndex === null &&
@@ -129,16 +113,10 @@ const getters = {
   },
   operationWrongFromTesting: state => {
     const { testingChanges } = state.possibleChanges
-    return (
-      testingChanges.removedIndex !== null && testingChanges.addedIndex === null
-    )
+    return testingChanges.removedIndex !== null && testingChanges.addedIndex === null
   },
   operationType: (state, getters) => {
-    if (
-      getters.operationToExec &&
-      !getters.operationToPending &&
-      !getters.operationToTesting
-    ) {
+    if (getters.operationToExec && !getters.operationToPending && !getters.operationToTesting) {
       return "execute"
     } else if (
       !getters.operationToExec &&
@@ -168,11 +146,7 @@ const getters = {
     const reqsResult = _.filter(state.requerimientos, {
       estado: { id: estadoEnEjec.id },
     })
-    return _.orderBy(
-      reqsResult,
-      ["estado.pausado", "estado.asignacion.orden"],
-      ["asc", "asc"],
-    )
+    return _.orderBy(reqsResult, ["estado.pausado", "estado.asignacion.orden"], ["asc", "asc"])
   },
   requerimientosTesting: (state, getters, rootState, rootGetters) => {
     const estTesting = rootGetters["requerimientos/getEstadoByCodigo"]("TEST")
@@ -196,11 +170,7 @@ const getters = {
         reqs = [...getters.requerimientosTesting]
         break
     }
-    const {
-      descripcion = null,
-      sistema = null,
-      requerimientoTipo = null,
-    } = state.filtros
+    const { descripcion = null, sistema = null, requerimientoTipo = null } = state.filtros
 
     // Determino que filtros aplicar, dependiendo de que hayan seteado
     let filtersToApply = []
@@ -220,7 +190,8 @@ const getters = {
 
 const mutations = {
   SET_REQS_LIST: (state, listData) => {
-    state.requerimientos = [...listData]
+    // state.requerimientos = [...listData]
+    state.requerimientos = _.map(listData, req => new Requerimiento(req))
   },
   PROCESS_UPDATE_LISTS: (state, { listName, listResult, dropResult }) => {
     const { removedIndex, addedIndex, payload } = dropResult
@@ -273,11 +244,18 @@ const mutations = {
   },
   UPDATE_REQ_ESTADO_FINISH: (state, reqId) => {
     const index = _.findIndex(state.requerimientos, { id: reqId })
-    state.requerimientos.splice(index, 1)
+    if (index !== -1) {
+      state.requerimientos.splice(index, 1)
+    }
   },
 
-  SET_FILTROS: (state, { filter, value }) => {
+  SET_FILTRO: (state, { filter, value }) => {
     state.filtros[filter] = value
+  },
+  SET_FILTROS: (state, filters) => {
+    state.filtros["descripcion"] = filters.descripcion
+    state.filtros["sistema"] = filters.sistema
+    state.filtros["requerimientoTipo"] = filters.tipo
   },
   CLEAR_FILTROS: state => {
     state.filtros.sistema = null
@@ -287,20 +265,50 @@ const mutations = {
   SET_LOADING_REQUERIMIENTOS: (state, value) => {
     state.loadingRequerimientos = value
   },
+  PUSHER_UPDATE_REQUERIMIENTO: (state, { operation, req }) => {
+    switch (operation) {
+      case "addOrUpdate": {
+        // Chequeo si lo encuentra en el listdo. Si lo encuentra, actualiza. Si no, lo agrega
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        } else {
+          state.requerimientos.push(new Requerimiento(req))
+        }
+        break
+      }
+      case "update": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1, new Requerimiento(req))
+        }
+        break
+      }
+      case "delete": {
+        const removedIndex = _.findIndex(state.requerimientos, {
+          id: req.id,
+        })
+        if (removedIndex !== -1) {
+          state.requerimientos.splice(removedIndex, 1)
+        }
+        break
+      }
+    }
+  },
 }
 
 const actions = {
-  inicializarRequerimientosAsignados({ dispatch, rootGetters }) {
+  inicializarRequerimientosAsignados({ commit, rootGetters }) {
     const currentUserId = rootGetters["auth/userId"]
-
-    dispatch("getRequerimientosAsignadosByUser", {
-      userId: currentUserId,
-    })
-  },
-
-  getRequerimientosAsignadosByUser({ commit }, { userId }) {
+    // dispatch("getRequerimientosAsignadosByUser", {
+    //   userId: currentUserId,
+    // })
     commit("SET_LOADING_REQUERIMIENTOS", true)
-    return getRequerimientosAsignadosByUser(userId)
+    return getRequerimientosAsignadosByUser(currentUserId)
       .then(data => {
         commit("SET_REQS_LIST", data)
       })
@@ -309,7 +317,9 @@ const actions = {
         commit("SET_LOADING_REQUERIMIENTOS", false)
       })
   },
-
+  // getRequerimientosAsignadosByUser({ commit }, { userId }) {
+  //
+  // },
   processUpdateList({ commit, getters, dispatch }, updatedListData) {
     // console.log(getters.operationType)
     return new Promise(async (resolve, reject) => {
@@ -330,8 +340,7 @@ const actions = {
       }
       if (getters.operationWrongToTesting) {
         reject({
-          message:
-            "El requerimiento debe estar en ejecución para poder enviar a testing",
+          message: "El requerimiento debe estar en ejecución para poder enviar a testing",
         })
         commit("CLEAR_OPERATIONS")
         return
@@ -364,8 +373,12 @@ const actions = {
     })
   },
 
-  setDialogConfirmOperationOpen({ commit }, value = true) {
+  setDialogConfirmOperationOpen({ commit, dispatch }, value = true) {
     commit("SET_DIALOG_CONFIRM_OPERATION_OPEN", value)
+    if (!value) {
+      dispatch("clearOperations")
+      commit("requerimientos/SET_DETALLE_REQUERIMIENTO_ITEM", null, { root: true })
+    }
   },
 
   clearOperations({ commit }) {
@@ -377,24 +390,30 @@ const actions = {
 
   processManualChanges(
     { commit, dispatch, rootState, rootGetters },
-    { operation, comment, horasEstimadas, usuarioTesting },
+    { operation, comment, horasEstimadas, usuarioTesting, sistemaId },
   ) {
     return new Promise(async (resolve, reject) => {
-      let requerimientoItem = _.get(
-        rootState,
-        "requerimientos.detalleRequerimientoItem",
-        null,
-      )
+      let requerimientoItem = _.get(rootState, "requerimientos.detalleRequerimientoItem", null)
 
       try {
         dispatch("app/loadingInc", null, { root: true })
         switch (operation) {
-          case "finalizar": {
-            await finalizarRequerimiento(requerimientoItem.id, {
-              horas_ejecucion: horasEstimadas,
-              comentario: comment,
-            })
-            dispatch("app/getDashboardData", null, { root: true })
+          case "finalizar":
+          case "finalizarYEnviar": {
+            if (operation === "finalizar") {
+              await finalizarRequerimiento(requerimientoItem.id, {
+                horas_ejecucion: horasEstimadas,
+                comentario: comment,
+              })
+            } else if (operation === "finalizarYEnviar") {
+              await finalizarRequerimiento(requerimientoItem.id, {
+                horas_ejecucion: horasEstimadas,
+                comentario: comment,
+                sistema_id: sistemaId,
+              })
+            }
+
+            // dispatch("app/getDashboardData", null, { root: true })
             commit("UPDATE_REQ_ESTADO_FINISH", requerimientoItem.id)
             resolve()
             break
@@ -420,7 +439,7 @@ const actions = {
               usuario_asignado: usuarioTesting.value,
               comentario: comment,
             })
-            dispatch("app/getDashboardData", null, { root: true })
+            // dispatch("app/getDashboardData", null, { root: true })
             commit("UPDATE_REQ_ESTADO_TESTING", {
               reqId: requerimientoItem.id,
               usuarioTesting,
@@ -467,7 +486,7 @@ const actions = {
             else {
               commit("UPDATE_REQ_ESTADO_FINISH", requerimientoItem.id)
             }
-            dispatch("app/getDashboardData", null, { root: true })
+            // dispatch("app/getDashboardData", null, { root: true })
             resolve()
             break
           }
@@ -481,7 +500,13 @@ const actions = {
   },
   setFilter({ commit }, { filter, value }) {
     return new Promise(resolve => {
-      commit("SET_FILTROS", { filter, value })
+      commit("SET_FILTRO", { filter, value })
+      resolve()
+    })
+  },
+  setFilters({ commit }, filters) {
+    return new Promise(resolve => {
+      commit("SET_FILTROS", filters)
       resolve()
     })
   },

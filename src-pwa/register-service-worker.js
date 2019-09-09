@@ -1,4 +1,5 @@
 import { register } from "register-service-worker"
+import { Dialog } from "quasar"
 
 // The ready(), registered(), cached(), updatefound() and updated()
 // events passes a ServiceWorkerRegistration instance in their arguments.
@@ -29,6 +30,21 @@ register(process.env.SERVICE_WORKER_FILE, {
 
   updated(/* registration */) {
     console.log("New content is available; please refresh.")
+
+    const timer = setTimeout(() => {
+      console.log("Refreshing automagically...")
+      window.location.reload()
+    }, 3000)
+
+    Dialog.create({
+      title: "AVISO",
+      message: "Una nueva version esta disponible. Actualizando...",
+      cancel: false,
+      persistent: true,
+    }).onOk(() => {
+      clearTimeout(timer)
+      window.location.reload()
+    })
   },
 
   offline() {

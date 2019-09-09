@@ -1,8 +1,5 @@
 <template>
-  <q-layout
-    view="lHh Lpr lFf"
-    class="flex flex-center items-center loginHorus__bg"
-  >
+  <q-layout view="lHh Lpr lFf" class="flex flex-center items-center loginHorus__bg">
     <q-page-container>
       <div class="loginHorus__text text-center">
         <div class="loginHorus__title">
@@ -13,18 +10,12 @@
           <!-- eslint-disable-next-line -->
           ingresando<span class="loginHorus__points">{{ points }}</span>
         </div>
-        <div
-          v-if="error === 'tokenInvalid'"
-          class="text-h6 loginHorus__subtitle-error"
-        >
+        <div v-if="error === 'tokenInvalid'" class="text-h6 loginHorus__subtitle-error">
           AVISO: Token no presente en la URL
           <br />
           Redirigiendo...
         </div>
-        <div
-          v-if="error === 'cantLogin'"
-          class="text-h6 loginHorus__subtitle-error"
-        >
+        <div v-if="error === 'cantLogin'" class="text-h6 loginHorus__subtitle-error">
           AVISO: No se pudo iniciar sesión automaticamente
           <br />
           Redirigiendo...
@@ -96,7 +87,7 @@ export default {
         })
         return this.redirectForm()
       } catch (e) {
-        console.log(e)
+        console.log("Error Login via Horus: ", e)
         this.error = "cantLogin"
         this.redirectLogin()
       }

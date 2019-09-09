@@ -1,29 +1,30 @@
 <template>
-  <list-container :loading="loading">
-    <mis-requerimientos-item
-      v-for="(req, i) in requerimientos"
-      :key="`req_${req.id}`"
-      :item-class="getItemClass(i)"
-      :req="req"
-      @click.native="
-        abrirDetalleRequerimiento({
-          reqId: req.id,
-          listName: 'mis-requerimientos',
-        })
-      "
-    />
-  </list-container>
+  <div>
+    <q-markup-table class="rounded-borders-12">
+      <tbody>
+        <mis-requerimientos-item
+          v-for="req in requerimientos"
+          :key="`req_${req.id}`"
+          :req="req"
+          @click.native="
+            abrirDetalleRequerimiento({
+              reqId: req.id,
+              listName: 'mis-requerimientos',
+            })
+          "
+        />
+      </tbody>
+    </q-markup-table>
+  </div>
 </template>
 <script>
-import ListContainer from "comp/Common/ListContainer"
-import MisRequerimientosItem from "./MisRequerimientosItem"
+import MisRequerimientosItem from "comp/MisRequerimientos/MisRequerimientosItem"
 import { mapActions } from "vuex"
 import pageLoading from "mixins/pageLoading"
 
 export default {
   name: "MisRequerimientosListado",
   components: {
-    "list-container": ListContainer,
     "mis-requerimientos-item": MisRequerimientosItem,
   },
   mixins: [pageLoading],
@@ -33,10 +34,6 @@ export default {
       required: true,
       default: () => [],
     },
-    loading: {
-      type: Boolean,
-      required: true,
-    },
   },
   methods: {
     ...mapActions({
@@ -44,8 +41,7 @@ export default {
     }),
     getItemClass(index) {
       if (index === 0) return "rounded-borders-12-top"
-      if (index === this.requerimientos.length)
-        return "rounded-borders-12-bottom"
+      if (index === this.requerimientos.length) return "rounded-borders-12-bottom"
       return ""
     },
   },

@@ -8,21 +8,21 @@
         class="bg-gradient"
         :to="{ query: { ver: 'crearRequerimiento' } }"
       >
-        <q-tooltip
+        <tooltip
           anchor="center left"
           self="center right"
           content-class="bg-accent"
           content-style="font-size: 14px"
         >
           Nuevo Requerimiento
-        </q-tooltip>
+        </tooltip>
       </q-btn>
     </q-page-sticky>
 
+    <!-- full-height -->
     <q-dialog
       v-model="crudModalOpen"
       persistent
-      full-height
       transition-show="scale"
       transition-hide="scale"
       @hide="removeQueryParams"
@@ -41,27 +41,20 @@
             :thumb-style="{
               right: '2px',
               borderRadius: '5px',
-              backgroundColor: '#027be3',
+              background: 'linear-gradient(to top, #5e35b1, #1565c0)',
               width: '5px',
               opacity: 0.75,
             }"
             class="modal-fabcrud-body"
           >
-            <crear-editar-requerimiento
-              ref="crud"
-              @form-submitted="removeQueryParams"
-            />
+            <!-- @form-submitted="removeQueryParams" -->
+            <crear-editar-requerimiento ref="crud" @form-submitted="crudModalOpen = false" />
           </q-scroll-area>
         </q-page-container>
 
         <q-footer elevated class="bg-white">
           <q-card-actions align="right">
-            <q-btn
-              flat
-              label="Cerrar"
-              color="negative"
-              @click="crudModalOpen = false"
-            />
+            <q-btn flat label="Cerrar" color="negative" @click="crudModalOpen = false" />
             <q-btn
               :label="submitText"
               color="deep-purple-10"
@@ -80,11 +73,13 @@
 // import { warn, success } from "utils/helpers
 import CrearEditarRequerimiento from "comp/Requerimientos/CrearEditarRequerimiento"
 import { mapState } from "vuex"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "FabCrudModal",
   components: {
     CrearEditarRequerimiento,
+    Tooltip,
   },
   data() {
     return {
@@ -147,7 +142,7 @@ export default {
   },
   methods: {
     removeQueryParams() {
-      this.$router.replace({ query: null })
+      this.$router.replace({ query: undefined })
     },
     handleSubmit() {
       this.$refs.crud.handleSubmit()
@@ -156,9 +151,13 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .modal-fabcrud-body {
   min-height: 100px;
   height: calc(100vh - 121px - 44px);
+  // max-height: 700px;
 }
+// .q-dialog__inner--minimized > div {
+//   max-height: 700px;
+// }
 </style>

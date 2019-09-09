@@ -10,11 +10,25 @@
       </q-toolbar-title>
 
       <q-btn
+        v-if="refreshShowed"
+        dense
+        round
+        flat
+        icon="fas fa-sync-alt"
+        :class="{ 'fa-spin': headerRefreshLoading }"
+        @click="refreshListado"
+      >
+        <tooltip>Refrescar Listado</tooltip>
+      </q-btn>
+
+      <q-btn
         stretch
         flat
         icon="fas fa-bell"
         :color="notificacionesUnreadCount > 0 ? 'red' : void 0"
       >
+        <!-- eslint-disable-next-line  -->
+        <tooltip><div v-html="notificacionesTooltip"></div></tooltip>
         <q-badge
           v-if="notificacionesUnreadCount > 0"
           color="red"
@@ -23,11 +37,7 @@
         >
           {{ notificacionesUnreadCount }}
         </q-badge>
-        <q-menu
-          anchor="bottom right"
-          self="top right"
-          @hide="onHideNotificacionesMenu"
-        >
+        <q-menu anchor="bottom right" self="top right" @hide="onHideNotificacionesMenu">
           <q-list v-if="noNewNotifications">
             <q-item v-close-popup clickable tabindex="0">
               <q-item-section side>
@@ -38,20 +48,12 @@
               </q-item-section>
             </q-item>
           </q-list>
-          <q-list
-            v-else
-            bordered
-            class="rounded-borders"
-            style="max-width: 350px"
-          >
+          <q-list v-else bordered class="rounded-borders" style="max-width: 350px">
             <template v-if="notificacionesUnread.length">
               <q-item-label caption class="q-pa-sm">NUEVAS</q-item-label>
               <div v-for="(notif, i) in notificacionesUnread" :key="notif.id">
                 <notificacion-item :notif="notif" />
-                <q-separator
-                  v-if="notificacionesUnread.length - 1 !== i"
-                  inset="item"
-                />
+                <q-separator v-if="notificacionesUnread.length - 1 !== i" inset="item" />
               </div>
               <q-item-label
                 v-if="notificacionesUnreadVerMasShowed"
@@ -70,16 +72,9 @@
 
             <template v-if="notificacionesRead.length">
               <q-item-label caption class="q-pa-sm">ANTERIORES</q-item-label>
-              <div
-                v-for="(notif, i) in notificacionesRead"
-                :key="notif.id"
-                class="bg-grey-2"
-              >
+              <div v-for="(notif, i) in notificacionesRead" :key="notif.id" class="bg-grey-2">
                 <notificacion-item :notif="notif" unread />
-                <q-separator
-                  v-if="notificacionesRead.length - 1 !== i"
-                  inset="item"
-                />
+                <q-separator v-if="notificacionesRead.length - 1 !== i" inset="item" />
               </div>
               <q-item-label
                 v-if="notificacionesReadVerMasShowed"
@@ -102,21 +97,21 @@
               <strong class="text-small">{{ userName }}</strong>
             </div>
           </q-item-label>
-          <q-item v-close-popup clickable tabindex="0">
-            <!-- <q-item-section avatar>
-                <q-avatar
-                  icon="fas fa-user-circle"
-                  color="accent"
-                  text-color="white"
-                />
-						</q-item-section>-->
+          <!-- <q-item v-close-popup clickable tabindex="0">
+            <q-item-section avatar>
+              <q-avatar
+                icon="fas fa-user-circle"
+                color="accent"
+                text-color="white"
+              />
+            </q-item-section>
             <q-item-section>
               <q-item-label>Perfil</q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-icon name="fas fa-user-circle" />
             </q-item-section>
-          </q-item>
+          </q-item> -->
           <q-separator inset spaced />
           <q-item v-close-popup clickable tabindex="1" @click="onLogOut">
             <q-item-section>
@@ -134,11 +129,13 @@
 <script>
 import { mapActions, mapGetters, mapState } from "vuex"
 import NotificacionItem from "comp/Header/NotificacionItem"
+import Tooltip from "comp/Common/Tooltip"
 
 export default {
   name: "Header",
   components: {
     NotificacionItem,
+    Tooltip,
   },
   props: {
     mini: {
@@ -148,13 +145,14 @@ export default {
   },
   data() {
     return {
-      notificacionesInterval: null,
+      refreshShowed: false,
     }
   },
   computed: {
     ...mapState("app", {
       limitUnread: state => state.limitUnread,
       limitRead: state => state.limitRead,
+      headerRefreshLoading: state => state.headerRefreshLoading,
     }),
     ...mapGetters("auth", ["userRazonSocial"]),
     ...mapGetters("app", [
@@ -165,6 +163,13 @@ export default {
       "notificacionesUnreadCount",
       "notificacionesUnreadVerMasShowed",
     ]),
+    notificacionesTooltip() {
+      return this.notificacionesUnreadCount > 0
+        ? `Tiene
+          ${this.notificacionesUnreadCount}
+          notificaciones nuevas`
+        : "No hay notificaciones! <span class='emoji'>🎉</span>"
+    },
     hasSpace() {
       return this.$q.screen.gt.xs && !this.mini
     },
@@ -178,19 +183,29 @@ export default {
       return this.$q.screen.lt.sm ? "account_circle" : undefined
     },
     noNewNotifications() {
-      return (
-        this.notificacionesRead.length === 0 &&
-        this.notificacionesUnread.length === 0
-      )
+      return this.notificacionesRead.length === 0 && this.notificacionesUnread.length === 0
     },
     notificationsReadAndUnread() {
-      return (
-        this.notificacionesReadCount > 0 && this.notificacionesUnreadCount > 0
-      )
+      return this.notificacionesReadCount > 0 && this.notificacionesUnreadCount > 0
     },
     title() {
       const { headerTitle = "F12" } = this.$route.meta
       return headerTitle
+    },
+  },
+  watch: {
+    "$route.name": {
+      immediate: true,
+      handler(routeName) {
+        const routeMatched = [
+          "mis-requerimientos",
+          "priorizar-requerimientos",
+          "asignar-requerimientos",
+          "requerimientos-asignados",
+        ].includes(routeName)
+
+        this.refreshShowed = routeMatched
+      },
     },
   },
   mounted() {
@@ -198,13 +213,6 @@ export default {
   },
   created() {
     this.checkNotificaciones()
-    this.notificacionesInterval = setInterval(
-      this.checkNotificaciones,
-      30 * 1000,
-    )
-  },
-  beforeDestroy() {
-    clearInterval(this.notificacionesInterval)
   },
   methods: {
     ...mapActions({
@@ -214,6 +222,7 @@ export default {
       checkNotificaciones: "app/checkNotificaciones",
       showMoreNotificaciones: "app/showMoreNotificaciones",
       resetMoreNotificaciones: "app/resetMoreNotificaciones",
+      refreshListado: "app/refreshListado",
     }),
     async onLogOut() {
       await this.logout()

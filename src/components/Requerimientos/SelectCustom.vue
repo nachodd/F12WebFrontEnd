@@ -2,7 +2,9 @@
   <q-select
     ref="select"
     v-model="localValue"
+    :class="classes"
     :outlined="outlined"
+    :filled="filled"
     :standout="standout"
     :hide-bottom-space="true"
     :label="label"
@@ -14,17 +16,16 @@
     :dense="dense"
     :rules="rules"
     :color="color"
+    :dark="dark"
+    :emit-value="emitValue"
+    :map-options="mapOptions"
     :options-cover="optionsCover"
     :use-input="useFilter ? true : null"
     @filter="filterFunction"
   >
     <!-- @input="handleInput" -->
     <template v-if="localValue" v-slot:append>
-      <q-icon
-        name="cancel"
-        class="cursor-pointer"
-        @click.stop="$emit('input', null)"
-      />
+      <q-icon name="cancel" class="cursor-pointer" @click.stop="$emit('input', null)" />
     </template>
 
     <!-- override only "option" v-scoped-slot: -->
@@ -35,7 +36,7 @@
     <!-- override ALL v-scoped-slot's -->
     <!-- <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
       <slot :name="slot" v-bind="scope" />
-    </template> -->
+    </template>-->
   </q-select>
 </template>
 <script>
@@ -44,8 +45,9 @@ import formValidation from "mixins/formValidation"
 export default {
   mixins: [formValidation],
   props: {
+    // eslint-disable-next-line
     value: {
-      type: [Object, String, Array],
+      // type: [Object, String, Array],
       default: null,
     },
     applyValidation: {
@@ -57,6 +59,10 @@ export default {
       default: () => [],
     },
     label: {
+      type: String,
+      default: "",
+    },
+    classes: {
       type: String,
       default: "",
     },
@@ -84,6 +90,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    filled: {
+      type: Boolean,
+      default: false,
+    },
     standout: {
       type: Boolean,
       default: false,
@@ -92,11 +102,23 @@ export default {
       type: String,
       default: null,
     },
+    dark: {
+      type: Boolean,
+      default: false,
+    },
     useFilter: {
       type: Boolean,
       default: true,
     },
     optionsCover: {
+      type: Boolean,
+      default: false,
+    },
+    emitValue: {
+      type: Boolean,
+      default: false,
+    },
+    mapOptions: {
       type: Boolean,
       default: false,
     },
@@ -133,6 +155,9 @@ export default {
     // },
   },
   methods: {
+    validate() {
+      return this.$refs.select.validate()
+    },
     resetValidation() {
       this.$refs.select.resetValidation()
     },
@@ -149,6 +174,9 @@ export default {
           v => v[this.descriptionKey].toLowerCase().indexOf(needle) > -1,
         )
       })
+    },
+    hidePopup() {
+      this.$refs.select.hidePopup()
     },
   },
 }

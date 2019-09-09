@@ -1,10 +1,11 @@
 <template>
   <div class="q-pa-md">
-    <requerimiento-form
-      ref="form"
+    <requerimientos-form
+      ref="requerimientosForm"
       v-bind.sync="form"
       :lleva-fecha-limite.sync="llevaFechaLimite"
       :lleva-usuario-cadena.sync="llevaUsuarioCadena"
+      :tipo-req-habilitado="tipoReqHabilitado"
       @submit="handleSubmit"
     />
   </div>
@@ -12,7 +13,7 @@
 <script>
 import { mapState } from "vuex"
 import pageLoading from "mixins/pageLoading"
-import RequerimientoForm from "comp/Requerimientos/RequerimientosForm"
+import RequerimientosForm from "comp/Requerimientos/RequerimientosForm"
 import Requerimiento from "models/requerimiento"
 import { warn, success, warnDialog } from "utils/helpers"
 import Bus from "utils/bus"
@@ -20,7 +21,7 @@ import { getRequerimiento } from "api/requerimientos"
 import router from "router"
 
 export default {
-  components: { RequerimientoForm },
+  components: { RequerimientosForm },
   mixins: [pageLoading],
   data() {
     return {
@@ -38,10 +39,15 @@ export default {
       if (this.isPageLoading || this.form.procesandoArchivosCargados) {
         return "Cargando, por favor espere..."
       } else {
-        return this.isEdit
-          ? `Editar Requerimiento #${this.form.id}`
-          : "Nuevo Requerimiento"
+        return this.isEdit ? `Editar Requerimiento #${this.form.id}` : "Nuevo Requerimiento"
       }
+    },
+    tipoReqHabilitado() {
+      // el tipo de req estará habilitado si
+      return (
+        !this.isEdit || //  ES UN REQ NUEVO (isEdit=false) o
+        (this.isEdit && ["PEND", "NOAS"].includes(this.form.estadoCodigo)) //si es una edicion y esta en los siguientes estados
+      )
     },
   },
   watch: {
@@ -55,13 +61,12 @@ export default {
       await this.$store.dispatch("app/loadingInc")
       await this.$store.dispatch("requerimientos/createRequerimiento")
       const reqIdToEdit = _.get(this, "$route.query.id", false)
-      const isEdit =
-        _.get(this, "$route.query.ver", null) === "editarRequerimiento"
+      const isEdit = _.get(this, "$route.query.ver", null) === "editarRequerimiento"
 
       if (isEdit && reqIdToEdit) {
         this.isEdit = true
         getRequerimiento(reqIdToEdit)
-          .then(({ data: { data } }) => {
+          .then(data => {
             const req = new Requerimiento(data)
             // Mandamos a convertir asincronicamente a base64 los archivos previamente cargados (si es que tiene)
             req.tryConvertDownloadedFiles()
@@ -89,16 +94,20 @@ export default {
       }
     } catch (e) {
       const message =
-        e.message ||
-        "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
+        e.message || "Hubo un problema al cargar las opciones. Intente nuevamente más tarde"
       warn({ message })
     }
   },
   methods: {
     async handleSubmit() {
+      const valid = await this.$refs.requerimientosForm.validate()
+      if (!valid) {
+        return
+      }
+
       try {
         const form = this.isEdit
-          ? await this.form.toUpdatePayload()
+          ? await this.form.toUpdatePayload({ omitAdjuntos: false })
           : await this.form.toCreatePayload()
 
         await this.$store.dispatch("requerimientos/storeRequerimiento", form)
@@ -106,17 +115,13 @@ export default {
           message: "La solicitud fue procesada correctamente!",
         })
 
-        Bus.$emit("load-list-requerimientos")
+        Bus.$emit("load-mis-requerimientos")
         this.$emit("form-submitted")
       } catch ({ message }) {
+        const msg = message || "No se pudo cargar / editar el requerimiento"
         // Si es un error simple (no es de validacion de form con array de errores), muestro el msj nomas
-        warn({ message })
+        warn({ message: msg })
       }
-    },
-    onError() {
-      warn({
-        message: "El formulario contiene errores. Por favor, reviselo.",
-      })
     },
     /* clearForm() {
       this.llevaFechaLimite = false
@@ -130,7 +135,7 @@ export default {
       this.form.importante = false
       this.form.adjuntos = []
       this.$root.$emit("clearFiles")
-      this.$refs.form.resetValidation()
+      this.$refs.requerimientosForm.resetValidation()
     }, */
   },
 }
