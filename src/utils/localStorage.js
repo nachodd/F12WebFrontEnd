@@ -46,18 +46,17 @@ export function updateFilterLocalStorage(filterUpdated) {
 
   if (filterUpdated == null || filterUpdated.setted == true) {
     // si  viene null queda null y si viene como setted se ponen todos en false y el el proximo paso este queda setted true.
-    filtrosGuardados = _.map([...filtrosGuardados], filtro => {
+    filtrosGuardados = _.map(filtrosGuardados, filtro => {
       filtro.setted = false
       return filtro
     })
   }
 
   if (filterUpdated) {
-    filtrosGuardados = _.map([...filtrosGuardados], filtro => {
+    filtrosGuardados = _.map(filtrosGuardados, filtro => {
       if (filtro.nombre == filterUpdated.nombre) {
         filtro = filterUpdated
       }
-
       return filtro
     })
   }

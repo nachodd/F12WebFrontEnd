@@ -70,26 +70,62 @@
 
     <template v-slot:footer>
       <div class="container-filters-selected">
-        <div class="container-filtros-guardados">
-          FG:
-          <select-custom
+        <div class="container-filtros-guardados row ">
+          <label class="col-auto q-pa-xs q-mt-sm">Filtros:</label>
+          <!-- label="Filtros guardados" -->
+          <!-- :value="filtroGuardadoValue" -->
+          <q-select
             ref="selectTest"
-            v-model="filtroGuardadoSetted"
-            label="Filtros guardados"
+            v-model="filtroGuardadoValue"
             outlined
-            :use-filter="false"
             dense
+            map-options
             color="deep-purple-10"
-            :apply-validation="false"
-            :loading="false"
+            hide-dropdown-icon
+            option-value="id"
+            option-label="descripcion"
+            :disable="filtrosGuardados.length === 0"
             :options="filtrosGuardadosOptions"
-            :value="filtroGuardadoSetted"
-            class="select-filtros-guardados"
+            class="col select-filtros-guardados"
           >
+            <template v-slot:append>
+              <q-icon name="arrow_drop_down" />
+            </template>
             <template v-slot:option="scope">
               <q-item v-bind="scope.itemProps" class="color-deep-purple-10" v-on="scope.itemEvents">
                 <q-item-section>
                   <!-- eslint-disable-next-line vue/no-v-html -->
+                  <q-item-label v-html="scope.opt.descripcion" />
+                </q-item-section>
+                <q-item-section
+                  v-if="!scope.opt.emptyOption"
+                  avatar
+                  @click.stop="eliminarFiltroGuardado(scope.opt.id)"
+                >
+                  <q-icon name="delete_forever" class="delete_icon" />
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+
+          <!-- <select-custom
+            ref="selectTest"
+            v-model="filtroGuardadoValue"
+            outlined
+            dense
+            map-options
+            color="deep-purple-10"
+            :use-filter="false"
+            :apply-validation="false"
+            :loading="false"
+            :disable="filtrosGuardados.length === 0"
+            :options="filtrosGuardadosOptions"
+            class="col select-filtros-guardados"
+          >
+            <template v-slot:option="scope">
+              <q-item v-bind="scope.itemProps" class="color-deep-purple-10" v-on="scope.itemEvents">
+                <q-item-section>
+                  !-- eslint-disable-next-line vue/no-v-html --
                   <q-item-label v-html="scope.opt.descripcion" />
                 </q-item-section>
                 <q-item-section avatar @click.stop="eliminarFiltroGuardado(scope.opt.id)">
@@ -97,7 +133,7 @@
                 </q-item-section>
               </q-item>
             </template>
-          </select-custom>
+          </select-custom> -->
         </div>
         <base-filter-chip
           :showed="Boolean(sistemaDescripcion)"
@@ -194,7 +230,7 @@ export default {
       someFilterIsSetted: false,
       usuariosAsignadosOptionsFiltered: null,
       filtrosGuardados: [],
-      filtroGuardadoSetted: "",
+      filtroGuardadoValue: null,
     }
   },
   computed: {
@@ -246,11 +282,18 @@ export default {
       return ""
     },
     filtrosGuardadosOptions() {
+      if (this.filtrosGuardados.length === 0) {
+        return [{ id: null, descripcion: "No hay filtros Guardados!" }]
+      }
       const options = [
-        { id: "Seleccione un valor", descripcion: "Seleccione un valor" },
+        { nombre: "Seleccione una opción", emptyOption: true },
         ...this.filtrosGuardados,
       ]
-      return _.map(options, value => ({ id: value.nombre, descripcion: value.nombre }))
+      return _.map(options, value => ({
+        id: value.nombre,
+        descripcion: value.nombre,
+        emptyOption: value.emptyOption || false,
+      }))
     },
   },
   watch: {
@@ -259,17 +302,18 @@ export default {
         this.setFilters(query)
       },
     },
-    filtroGuardadoSetted(data) {
+    filtroGuardadoValue(data) {
       let query = {}
       let filter = null
 
-      if (data) {
-        filter = _.find([...this.filtrosGuardados], { nombre: data.id })
+      if (!data.emptyOption) {
+        filter = _.find(this.filtrosGuardados, { nombre: data.id })
         query = filter.query
         filter.setted = true
       }
 
-      this.$router.push({ name: "asignar-requerimientos", query: query })
+      this.$router.push({ name: "asignar-requerimientos", query })
+
       this.$store.dispatch("asignacionRequerimientos/updateFiltersLocalStorage", filter)
     },
   },
@@ -307,21 +351,25 @@ export default {
         this.$q
           .dialog({
             title: "Nombre del filtro",
-            // message: "Nombre del filtro",
             prompt: {
               model: "",
               type: "text", // optional
             },
             cancel: true,
             persistent: true,
+            color: "deep-purple-10",
           })
-          .onOk(nombreFiltro => {
+          .onOk(async nombreFiltro => {
+            await this.$store.dispatch("asignacionRequerimientos/saveFiltersLocalStorage", {
+              seccion: this.$route.name,
+              nombre: nombreFiltro,
+              query: queryParamNotNull,
+              setted: true,
+            })
             this.$router.push({ name: "asignar-requerimientos", query: queryParamNotNull })
-            this.guardarFiltrosLocalStorage(nombreFiltro)
+            this.updateFiltrosGuardados(nombreFiltro)
             this.$refs.baseFilter.closePopUp()
           })
-          .onCancel(() => {})
-          .onDismiss(() => {})
       } else {
         this.$router.push({ name: "asignar-requerimientos", query: queryParamNotNull })
         this.$refs.baseFilter.closePopUp()
@@ -336,35 +384,20 @@ export default {
       usuarioAlta = null,
     }) {
       this.localFilterValues.descripcion = descripcion
-
       this.localFilterValues.id = id
-
       this.localFilterValues.sistema = _.find(this.sistemasUsuarioOptions, {
         id: parseInt(sistema),
       })
       this.localFilterValues.tipo = _.find(this.requerimientosTipos, { id: parseInt(tipo) })
-
       this.localFilterValues.usuarioAlta = _.find(this.optionsUsuariosFiltro, {
         id: parseInt(usuarioAlta),
       })
-
       this.localFilterValues.usuariosAsignados = _.filter(this.userYoYReportantes, usuario =>
         _.split(decodeURIComponent(usuariosAsignados), ",").includes(String(usuario.value)),
       )
-
       this.$store.dispatch("asignacionRequerimientos/setFilters", this.localFilterValues)
 
       this.updateSomeFilterIsSetted()
-    },
-    async guardarFiltrosLocalStorage(filterName) {
-      await this.$store.dispatch("asignacionRequerimientos/saveFiltersLocalStorage", {
-        seccion: this.$route.name,
-        nombre: filterName,
-        query: this.$route.query,
-        setted: true,
-      })
-
-      this.updateFiltrosGuardados(filterName)
     },
     async updateFiltrosGuardados(filterNameSetted = null) {
       // carga los filtros guardaos
@@ -374,22 +407,33 @@ export default {
 
       // setea el que venga seleccionado
       if (filterNameSetted) {
-        this.filtroGuardadoSetted = { id: filterNameSetted, descripcion: filterNameSetted }
+        this.filtroGuardadoValue = { id: filterNameSetted, descripcion: filterNameSetted }
       } else {
         const ultimoSeteado = _.find(this.filtrosGuardados, { setted: true })
 
         if (ultimoSeteado) {
-          this.filtroGuardadoSetted = {
+          this.filtroGuardadoValue = {
             id: ultimoSeteado.nombre,
             descripcion: ultimoSeteado.nombre,
           }
         } else {
-          this.filtroGuardadoSetted = null
+          // this.filtroGuardadoValue = null
+          this.filtroGuardadoValue = {
+            id: "Seleccione una opción",
+            descripcion: "Seleccione una opción",
+            emptyOption: true,
+          }
         }
       }
     },
     async eliminarFiltroGuardado(filterName) {
       await this.$store.dispatch("asignacionRequerimientos/removeFiltersLocalStorage", filterName)
+
+      this.filtroGuardadoValue = {
+        id: "Seleccione una opción",
+        descripcion: "Seleccione una opción",
+        emptyOption: true,
+      }
       this.updateFiltrosGuardados()
       this.$refs.selectTest.hidePopup()
     },
@@ -482,7 +526,7 @@ export default {
 
 .container-filters-selected div.container-filtros-guardados {
   float: right;
-  width: 250px;
+  width: 300px;
 }
 
 .select-filtros-guardados {
